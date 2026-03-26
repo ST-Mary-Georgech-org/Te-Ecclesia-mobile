@@ -1,0 +1,46 @@
+name: Deploy develop release APK
+
+on:
+  pull_request: # will be changed to push after test
+    branches:
+      - develop
+
+jobs:
+  deploy-develop-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build and Sign APK
+        uses: ./.github/actions/build-release-apk
+        with:
+          android-keystore-base64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          keystore-password: ${{ secrets.KEYSTORE_PASSWORD }}
+          android-key-alias: ${{ secrets.ANDROID_KEY_ALIAS }}
+          android-key-alias-password: ${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+          base-url: ${{ secrets.BASE_URL }}
+          credential-file-content-base64: ${{ secrets.GOOGLE_SERVICES_BASE64 }}
+
+      - name: Create google-services.json
+        run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > google-services.json
+
+      - name: Deploy to Firebase
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_KEY }}
+          file: ${{ env.SIGNED_APK_PATH }}
+          debug: true
+          groups: teEcclesia-team
+
+      - name: Publish APK to GitHub Releases
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: develop-v${{ env.APK_VERSION }}-attempt${{ github.run_attempt }}
+          name: Develop APK v${{ env.APK_VERSION }}
+          files: ${{ env.SIGNED_APK_PATH }}
+          prerelease: true
+          generate_release_notes: true
