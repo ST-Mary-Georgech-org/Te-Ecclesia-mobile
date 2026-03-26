@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,8 +33,8 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.dont_have_an_account
-import teecclesia.designsystem.generated.resources.enter_your_username
 import teecclesia.designsystem.generated.resources.enter_your_password
+import teecclesia.designsystem.generated.resources.enter_your_username
 import teecclesia.designsystem.generated.resources.enter_your_username_and_password
 import teecclesia.designsystem.generated.resources.forget_your_password
 import teecclesia.designsystem.generated.resources.ic_eye_closed
@@ -90,56 +89,52 @@ fun LoginScreenContent(
             }
         },
     ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            item {
-                CustomTextField(
-                    value = state.username,
-                    onValueChange = interactionListener::onUsernameChange,
-                    hint = Res.string.enter_your_username.asString(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    errorText = state.usernameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Ascii, imeAction = ImeAction.Next),
-                )
-            }
 
-            item {
-                CustomTextField(
-                    value = state.password,
-                    onValueChange = interactionListener::onPasswordChange,
-                    hint = Res.string.enter_your_password.asString(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    singleLine = true,
-                    errorText = state.passwordError?.asString(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = if (state.isPasswordVisible) {
-                        VisualTransformation.None
-                    } else {
-                        PasswordVisualTransformation()
-                    },
-                    trailingIcon = when (state.isPasswordVisible) {
-                        true -> Res.drawable.ic_eye_closed.painter()
-                        false -> Res.drawable.ic_eye_opened.painter()
-                    },
-                    trailingIconColor = Theme.colorScheme.text.label,
-                    onTrailingIconClick = interactionListener::onTogglePasswordVisibility,
-                )
-            }
+        CustomTextField(
+            value = state.username,
+            onValueChange = interactionListener::onUsernameChange,
+            hint = Res.string.enter_your_username.asString(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            errorText = state.usernameError?.asString(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Ascii,
+                imeAction = ImeAction.Next
+            ),
+        )
 
-            item {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    Text(
-                        text = Res.string.forget_your_password.asString(),
-                        color = Theme.colorScheme.text.label,
-                        modifier = Modifier
-                            .clickable(onClick = interactionListener::onForgotPasswordClicked),
-                        style = Theme.typography.label.medium.medium
-                    )
-                }
-            }
+        CustomTextField(
+            value = state.password,
+            onValueChange = interactionListener::onPasswordChange,
+            hint = Res.string.enter_your_password.asString(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+            singleLine = true,
+            errorText = state.passwordError?.asString(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if (state.isPasswordVisible) {
+                VisualTransformation.None
+            } else {
+                PasswordVisualTransformation()
+            },
+            trailingIcon = when (state.isPasswordVisible) {
+                true -> Res.drawable.ic_eye_closed.painter()
+                false -> Res.drawable.ic_eye_opened.painter()
+            },
+            trailingIconColor = Theme.colorScheme.text.label,
+            onTrailingIconClick = interactionListener::onTogglePasswordVisibility,
+        )
+
+        Box(
+            modifier = Modifier.fillMaxWidth(),
+            contentAlignment = Alignment.CenterEnd
+        ) {
+            Text(
+                text = Res.string.forget_your_password.asString(),
+                color = Theme.colorScheme.text.label,
+                modifier = Modifier
+                    .clickable(onClick = interactionListener::onForgotPasswordClicked),
+                style = Theme.typography.label.medium.medium
+            )
         }
     }
 }

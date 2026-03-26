@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -87,69 +86,59 @@ private fun SignUpScreenContent(
             }
         }
     ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            item {
-                CustomTextField(
-                    value = state.fullName,
-                    onValueChange = interactionListener::onNameChange,
-                    hint = Res.string.enter_your_name.asString(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    errorText = state.fullNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-            }
-            item {
-                CustomTextField(
-                    value = state.username,
-                    onValueChange = interactionListener::onChangeUsername,
-                    hint = Res.string.enter_your_username.asString(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    errorText = state.userNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Ascii,
-                        imeAction = ImeAction.Next
-                    )
-                )
-            }
-            item {
-                CustomTextField(
-                    value = state.phone,
-                    onValueChange = interactionListener::onPhoneChange,
-                    hint = Res.string.enter_your_phone.asString(),
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
-                    errorText = state.phoneError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Phone,
-                        imeAction = ImeAction.Next
-                    )
-                )
-            }
-            item {
-                CustomTextField(
-                    value = state.password,
-                    onValueChange = interactionListener::onPasswordChange,
-                    hint = Res.string.enter_your_password.asString(),
-                    modifier = Modifier.fillMaxWidth(),
-                    errorText = state.passwordError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                    visualTransformation = if (state.isPasswordVisible) {
-                        PasswordVisualTransformation()
-                    } else {
-                        VisualTransformation.None
-                    },
-                    trailingIcon = when (state.isPasswordVisible) {
-                        true -> Res.drawable.ic_eye_closed.painter()
-                        false -> Res.drawable.ic_eye_opened.painter()
-                    },
-                    trailingIconColor = Theme.colorScheme.text.label,
-                    onTrailingIconClick = interactionListener::onTogglePasswordVisibility,
-                )
-            }
-        }
+        CustomTextField(
+            value = state.fullName,
+            onValueChange = interactionListener::onNameChange,
+            hint = Res.string.enter_your_name.asString(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            errorText = state.fullNameError?.asString(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
+        )
+        CustomTextField(
+            value = state.username,
+            onValueChange = interactionListener::onChangeUsername,
+            hint = Res.string.enter_your_username.asString(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            errorText = state.userNameError?.asString(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Ascii,
+                imeAction = ImeAction.Next
+            )
+        )
+        CustomTextField(
+            value = state.phone,
+            onValueChange = interactionListener::onPhoneChange,
+            hint = Res.string.enter_your_phone.asString(),
+            modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp),
+            errorText = state.phoneError?.asString(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone,
+                imeAction = ImeAction.Next
+            )
+        )
+        CustomTextField(
+            value = state.password,
+            onValueChange = interactionListener::onPasswordChange,
+            hint = Res.string.enter_your_password.asString(),
+            modifier = Modifier.fillMaxWidth(),
+            errorText = state.passwordError?.asString(),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            visualTransformation = if (state.isPasswordVisible) {
+                PasswordVisualTransformation()
+            } else {
+                VisualTransformation.None
+            },
+            trailingIcon = when (state.isPasswordVisible) {
+                true -> Res.drawable.ic_eye_closed.painter()
+                false -> Res.drawable.ic_eye_opened.painter()
+            },
+            trailingIconColor = Theme.colorScheme.text.label,
+            onTrailingIconClick = interactionListener::onTogglePasswordVisibility,
+        )
     }
 }
 

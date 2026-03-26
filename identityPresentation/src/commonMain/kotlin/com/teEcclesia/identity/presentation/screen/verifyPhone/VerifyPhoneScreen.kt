@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -88,39 +87,35 @@ private fun VerifyPhoneScreenContent(
             }
         },
     ) {
-        LazyColumn(modifier = Modifier.fillMaxWidth()) {
-            item {
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OtpInputField(
-                        otpText = state.otp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp, start = 8.dp, end = 8.dp),
-                        otpLength = 4,
-                        errorText = state.otpError?.asString(),
-                        spaceBetweenCharacters = 12.dp,
-                        onOtpModified = interactionListener::onOtpChange,
-                    )
-                    Text(
-                        text = formatTime(state.timeRemaining),
-                        style = Theme.typography.body.medium.copy(
-                            color = Theme.colorScheme.brand.primary
-                        ),
-                        modifier = Modifier
-                            .align(Alignment.End)
-                    )
-                    AnimatedVisibility(
-                        visible = state.isLoading,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    ) {
-                        DotsProgressIndicator(
-                            modifier = Modifier
-                                .padding(vertical = 16.dp),
-                        )
-                    }
-                }
+        Column(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OtpInputField(
+                otpText = state.otp,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp, start = 8.dp, end = 8.dp),
+                otpLength = 4,
+                errorText = state.otpError?.asString(),
+                spaceBetweenCharacters = 12.dp,
+                onOtpModified = interactionListener::onOtpChange,
+            )
+            Text(
+                text = formatTime(state.timeRemaining),
+                style = Theme.typography.body.medium.copy(
+                    color = Theme.colorScheme.brand.primary
+                ),
+                modifier = Modifier
+                    .align(Alignment.End)
+            )
+            AnimatedVisibility(
+                visible = state.isLoading,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                DotsProgressIndicator(
+                    modifier = Modifier
+                        .padding(vertical = 16.dp),
+                )
             }
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,59 +32,62 @@ fun ScreenTemplate(
     actionButtonText: String? = null,
     modifier: Modifier = Modifier,
     actionButtonState: AppButtonState = AppButtonState.Enabled,
-    underActionButtonContent: @Composable () -> Unit = {},
+    underActionButtonContent: @Composable ColumnScope. () -> Unit = {},
     lowerContent: @Composable ColumnScope. () -> Unit,
 ) {
 
-    Column(
+    LazyColumn(
         modifier = modifier.fillMaxSize().background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            Text(
-                text = title,
-                color = Theme.colorScheme.text.title,
-                style = Theme.typography.heading.small
-            )
-            subtitle?.let {
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
                 Text(
-                    text = it,
-                    color = Theme.colorScheme.text.titleSmall,
-                    style = Theme.typography.label.medium.large
+                    text = title,
+                    color = Theme.colorScheme.text.title,
+                    style = Theme.typography.heading.small
                 )
+                subtitle?.let {
+                    Text(
+                        text = it,
+                        color = Theme.colorScheme.text.titleSmall,
+                        style = Theme.typography.label.medium.large
+                    )
+                }
             }
         }
+        item {
+            // Content Section
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                lowerContent()
 
-        // Content Section
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            lowerContent()
-
-            actionButtonText?.let {
-                AppButton(
-                    type = AppButtonType.Primary,
-                    size = AppButtonSize.Small,
-                    onClick = onClickActionButton,
-                    text = actionButtonText,
-                    modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 40.dp),
-                    state = actionButtonState,
-                    loadingIcon = {
-                        DotsProgressIndicator()
-                    }
-                )
+                actionButtonText?.let {
+                    AppButton(
+                        type = AppButtonType.Primary,
+                        size = AppButtonSize.Small,
+                        onClick = onClickActionButton,
+                        text = actionButtonText,
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 40.dp),
+                        state = actionButtonState,
+                        loadingIcon = {
+                            DotsProgressIndicator()
+                        }
+                    )
+                }
+                underActionButtonContent()
             }
-            underActionButtonContent()
         }
     }
 }
