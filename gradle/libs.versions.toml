@@ -15,7 +15,7 @@ androidx-activity = "1.12.0"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-lifecycle = "2.9.6"
-androidx-core-splashscreen = "1.0.1"
+androidx-core-splashscreen = "1.2.0"
 
 # Compose / Multiplatform
 composeMultiplatform = "1.9.3"
