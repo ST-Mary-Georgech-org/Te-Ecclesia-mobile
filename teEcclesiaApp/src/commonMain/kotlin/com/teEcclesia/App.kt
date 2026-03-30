@@ -14,7 +14,7 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun App(
-    isSystemDarkTheme: Boolean = isSystemInDarkTheme()
+    isSystemDarkTheme: Boolean = false /*isSystemInDarkTheme()*/
 ) {
     TeEcclesiaTheme(
         darkTheme = isSystemDarkTheme,

@@ -170,6 +170,7 @@ fun CustomTextField(
                                 )
                                 .clickableNoRipple(onClick = onTrailingIconClick)
                         )
+                        Spacer(Modifier.width(8.dp))
                     }
                 }
             },

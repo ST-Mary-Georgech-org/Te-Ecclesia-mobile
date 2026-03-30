@@ -8,7 +8,7 @@ class InvalidCredentialsException : AuthenticationException(
     "user with email, doesn't exist or password is incorrect"
 )
 class UnAuthorizedException : AuthenticationException("user has no access to application")
-class PhoneNumberAlreadyExistsException : AuthenticationException("Phone number already exists")
+class UsernameOrPhoneNumberAlreadyExistsException : AuthenticationException("Username or Phone number already exists")
 class TooManyRequestsException : AuthenticationException("Too many requests")
 class NoNetworkException : AuthenticationException("No Internet Connection")
 class InvalidRequestException : AuthenticationException("Invalid request")

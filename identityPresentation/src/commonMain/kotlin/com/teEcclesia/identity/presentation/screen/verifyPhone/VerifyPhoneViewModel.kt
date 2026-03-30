@@ -13,8 +13,10 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.invalid_otp_please_try_again
 import teecclesia.designsystem.generated.resources.otp_must_be_4_digits
+import teecclesia.designsystem.generated.resources.unknown_error
 
 class VerifyPhoneViewModel(
     private val registerRepository: RegisterRepository,
@@ -105,8 +107,14 @@ class VerifyPhoneViewModel(
                 }
                 startTimer()
             },
-            onError = {
-                println("Resend OTP error: ${it.message}")
+            onError = { error ->
+                showSnackBar(
+                    UiText.StringRes(Res.string.error_occurred),
+                    message = error.message?.let { UiText.DynamicString(it) } ?: UiText.StringRes(
+                        Res.string.unknown_error
+                    ),
+                    isSuccess = false
+                )
             }
         )
     }

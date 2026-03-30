@@ -1,6 +1,6 @@
 package com.teEcclesia.identity.data.shared
 
-import com.teEcclesia.identity.domain.exception.PhoneNumberAlreadyExistsException
+import com.teEcclesia.identity.domain.exception.UsernameOrPhoneNumberAlreadyExistsException
 import com.teEcclesia.identity.domain.exception.InternetException
 import com.teEcclesia.identity.domain.exception.InvalidCredentialsException
 import com.teEcclesia.identity.domain.exception.InvalidRequestException
@@ -33,7 +33,7 @@ abstract class BaseGateway(val client: HttpClient) {
                 status == HttpStatusCode.Forbidden -> UserIsBlockedException()
                 status == HttpStatusCode.TooManyRequests -> TooManyRequestsException()
                 status == HttpStatusCode.BadRequest -> InvalidRequestException()
-                status == HttpStatusCode.Conflict -> PhoneNumberAlreadyExistsException()
+                status == HttpStatusCode.Conflict -> UsernameOrPhoneNumberAlreadyExistsException()
                 status.value in 400..499 -> InvalidRequestException()
                 status.value in 500..599 -> UnknownErrorException("HTTP ${status.value}: $message")
                 else -> UnknownErrorException("HTTP ${status.value}: $message")

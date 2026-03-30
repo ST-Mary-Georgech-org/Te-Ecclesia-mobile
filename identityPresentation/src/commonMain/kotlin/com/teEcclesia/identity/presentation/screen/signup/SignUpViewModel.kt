@@ -8,10 +8,12 @@ import com.teEcclesia.identity.domain.useCase.validation.auth.ValidationUseCase
 import com.teEcclesia.identity.presentation.navigation.VerifyPhoneRoute
 import com.teEcclesia.identity.presentation.shared.BaseViewModel
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.please_enter_your_full_name
 import teecclesia.designsystem.generated.resources.invalid_password
 import teecclesia.designsystem.generated.resources.invalid_phone_number
 import teecclesia.designsystem.generated.resources.invalid_username
+import teecclesia.designsystem.generated.resources.unknown_error
 
 class SignUpViewModel(
     private val registerRepository: RegisterRepository,
@@ -91,8 +93,14 @@ class SignUpViewModel(
             onSuccess = {
                 navigate(VerifyPhoneRoute(phone = state.value.phone, isForgetPasswordFlow = false))
             },
-            onError = {
-                println("Error: $it")
+            onError = { error ->
+                showSnackBar(
+                    UiText.StringRes(Res.string.error_occurred),
+                    message = error.message?.let { UiText.DynamicString(it) } ?: UiText.StringRes(
+                        Res.string.unknown_error
+                    ),
+                    isSuccess = false
+                )
             },
             onEnd = {
                 updateState { copy(actionButtonState = AppButtonState.Enabled) }
