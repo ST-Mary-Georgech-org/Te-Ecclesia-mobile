@@ -1,0 +1,12 @@
+package com.teEcclesia.designsystem.navigation
+
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+
+class IosDispatcherProvider : DispatcherProvider {
+    override val main: CoroutineDispatcher = Dispatchers.Main
+    override val io: CoroutineDispatcher = Dispatchers.Default
+    override val default: CoroutineDispatcher = Dispatchers.Default
+}
+
+actual fun getDispatcherProvider(): DispatcherProvider = IosDispatcherProvider()

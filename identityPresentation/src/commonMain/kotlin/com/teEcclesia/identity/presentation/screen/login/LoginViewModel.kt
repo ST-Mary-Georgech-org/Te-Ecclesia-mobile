@@ -4,8 +4,8 @@ import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.useCase.validation.auth.ValidationUseCase
-import com.teEcclesia.identity.presentation.navigation.SignUpRoute
-import com.teEcclesia.identity.presentation.shared.BaseViewModel
+import com.teEcclesia.identity.api.SignUpRoute
+import com.teEcclesia.designsystem.navigation.BaseViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.invalid_password

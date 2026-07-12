@@ -1,6 +1,9 @@
 package com.teEcclesia
 
 actual object AppEnvironment {
-    actual val baseUrl: String = BuildConfig.BASE_URL
-    actual val versionName: String = BuildConfig.VERSION_NAME
+    var internalBaseUrl: String = ""
+    var internalVersionName: String = ""
+
+    actual val baseUrl: String get() = internalBaseUrl
+    actual val versionName: String get() = internalVersionName
 }

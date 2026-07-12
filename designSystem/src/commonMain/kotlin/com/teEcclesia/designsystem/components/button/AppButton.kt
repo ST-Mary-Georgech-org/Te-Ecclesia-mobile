@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.login
 

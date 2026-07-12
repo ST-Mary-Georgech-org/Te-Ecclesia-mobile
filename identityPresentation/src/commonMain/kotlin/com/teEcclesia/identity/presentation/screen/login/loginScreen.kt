@@ -29,7 +29,7 @@ import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.designsystem.util.extentions.painter
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.presentation.shared.components.ScreenTemplate
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.dont_have_an_account

@@ -5,8 +5,8 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.useCase.validation.auth.ValidationUseCase
-import com.teEcclesia.identity.presentation.navigation.VerifyPhoneRoute
-import com.teEcclesia.identity.presentation.shared.BaseViewModel
+import com.teEcclesia.identity.api.VerifyPhoneRoute
+import com.teEcclesia.designsystem.navigation.BaseViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.please_enter_your_full_name

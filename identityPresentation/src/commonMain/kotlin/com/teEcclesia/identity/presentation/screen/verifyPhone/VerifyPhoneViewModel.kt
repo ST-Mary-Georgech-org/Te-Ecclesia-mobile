@@ -1,14 +1,11 @@
 package com.teEcclesia.identity.presentation.screen.verifyPhone
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
 import com.teEcclesia.identity.domain.useCase.validation.auth.ValidationUseCase
-import com.teEcclesia.identity.presentation.navigation.VerifyPhoneRoute
-import com.teEcclesia.identity.presentation.shared.BaseViewModel
+import com.teEcclesia.designsystem.navigation.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -19,15 +16,13 @@ import teecclesia.designsystem.generated.resources.otp_must_be_4_digits
 import teecclesia.designsystem.generated.resources.unknown_error
 
 class VerifyPhoneViewModel(
+    private val navPhone: String,
+    private val navIsForgetPasswordFlow: Boolean,
     private val registerRepository: RegisterRepository,
     private val resetPasswordRepository: ResetPasswordRepository,
     private val validationUseCase: ValidationUseCase,
-    savedStateHandle: SavedStateHandle
 ) : BaseViewModel<VerifyPhoneUiState>(VerifyPhoneUiState()), VerifyPhoneInteractionListener {
 
-    private val navPhone = savedStateHandle.toRoute<VerifyPhoneRoute>().phone
-    private val navIsForgetPasswordFlow =
-        savedStateHandle.toRoute<VerifyPhoneRoute>().isForgetPasswordFlow
     private var timerJob: Job? = null
 
     init {

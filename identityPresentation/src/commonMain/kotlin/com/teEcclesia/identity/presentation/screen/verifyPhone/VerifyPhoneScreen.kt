@@ -26,16 +26,20 @@ import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.designsystem.util.formatTime
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.presentation.shared.components.ScreenTemplate
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.didnt_receive_code
 import teecclesia.designsystem.generated.resources.resend
 import teecclesia.designsystem.generated.resources.verify_your_phone
 
+import org.koin.core.parameter.parametersOf
+
 @Composable
 fun VerifyPhoneScreen(
-    viewModel: VerifyPhoneViewModel = koinViewModel(),
+    phone: String,
+    isForgetPasswordFlow: Boolean,
+    viewModel: VerifyPhoneViewModel = koinViewModel(parameters = { parametersOf(phone, isForgetPasswordFlow) }),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 

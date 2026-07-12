@@ -58,7 +58,7 @@ jobs:
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           CHANGED_FILES="${{ steps.changed-files-git.outputs.changed_files }}"
-          FALLBACK_ALL_MODULES='teEcclesiaApp designSystem identityData identityDomain identityPresentation homePresentation identityApi homeApi'
+          FALLBACK_ALL_MODULES='teEcclesiaApp designSystem identityData identityDomain identityPresentation homePresentation identityApi homeApi androidApp'
           IOS_MODULES='teEcclesiaApp identityPresentation homePresentation'
           echo "All modules JSON: $ALL_MODULES_JSON"
 
