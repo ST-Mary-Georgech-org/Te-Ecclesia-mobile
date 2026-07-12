@@ -58,8 +58,8 @@ jobs:
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           CHANGED_FILES="${{ steps.changed-files-git.outputs.changed_files }}"
-          FALLBACK_ALL_MODULES='teEcclesiaApp designSystem identity/identityData identity/identityDomain identity/identityPresentation home/homePresentation identity/identityApi home/homeApi androidApp'
-          IOS_MODULES='teEcclesiaApp identity/identityPresentation home/homePresentation'
+          FALLBACK_ALL_MODULES=':teEcclesiaApp :designSystem :identity:identityData :identity:identityDomain :identity:identityPresentation :home:homePresentation :identity:identityApi :home:homeApi :androidApp'
+          IOS_MODULES=':teEcclesiaApp :identity:identityPresentation :home:homePresentation'
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           if echo "$ALL_MODULES_JSON" | jq -e . >/dev/null 2>&1; then
@@ -74,7 +74,8 @@ jobs:
 
           for file in $CHANGED_FILES; do
             for module in $ALL_MODULES; do
-              if [[ "$file" == "$module"* ]]; then
+              mod_dir=$(echo "$module" | sed 's/^://' | tr ':' '/')
+              if [[ "$file" == "$mod_dir"/* || "$file" == "$mod_dir" ]]; then
                 FINAL_MODULES="$FINAL_MODULES $module"
                 # Add dependent modules
                 if [ "$ALL_MODULES_JSON" != '{}' ]; then

@@ -3,8 +3,6 @@ name: Android
 on:
   pull_request:
     branches: [ main, master, develop ]
-  push:
-    branches: [ main, master, develop ]
   workflow_dispatch:
 
 jobs:
@@ -48,4 +46,4 @@ jobs:
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > androidApp/google-services.json
 
       - name: Build modules
-        run: ./gradlew $(for m in $(echo '${{ needs.detect.outputs.android_modules }}' | jq -r '.[]'); do echo ":$m:assemble"; done) --parallel --build-cache --no-daemon -x lint -x assembleRelease
+        run: ./gradlew $(for m in $(echo '${{ needs.detect.outputs.android_modules }}' | jq -r '.[]'); do echo "$m:assemble"; done) --parallel --build-cache --no-daemon -x lint -x assembleRelease

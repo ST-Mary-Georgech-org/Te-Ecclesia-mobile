@@ -9,6 +9,14 @@ kotlin {
         namespace = "com.teEcclesia.library"
     }
 
+    swiftPMDependencies {
+        swiftPackage(
+            url = url("https://github.com/firebase/firebase-ios-sdk.git"),
+            version = from("12.13.0"),
+            products = listOf(product("FirebaseCore"))
+        )
+    }
+
     sourceSets {
         commonMain {
             dependencies {

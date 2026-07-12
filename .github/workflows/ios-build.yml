@@ -3,9 +3,10 @@ name: iOS
 on:
   pull_request:
     branches: [ main, master, develop ]
-  push:
-    branches: [ main, master, develop ]
   workflow_dispatch:
+
+permissions:
+  contents: write
 
 jobs:
   detect:
@@ -21,6 +22,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
       - uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
@@ -46,6 +49,18 @@ jobs:
 
       - name: Create GoogleService-Info.plist
         run: echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+
+      - name: Integrate SwiftPM Linkage Package
+        run: |
+          XCODEPROJ_PATH="$PWD/iosApp/iosApp.xcodeproj" \
+          ./gradlew :teEcclesiaApp:integrateLinkagePackage -i
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add iosApp/iosApp.xcodeproj
+          git add iosApp/KotlinMultiplatformLinkedPackage || true
+          git commit -m "chore: integrate SwiftPM Firebase package dependency via integrateLinkagePackage" || echo "No changes to commit"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
 
       - name: Build KMP XCFramework
         run: ./gradlew :teEcclesiaApp:assembleTeEcclesiaAppDebugXCFramework --parallel --build-cache

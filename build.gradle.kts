@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import org.gradle.api.artifacts.ProjectDependency
 
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
@@ -11,7 +12,6 @@ plugins {
     alias(libs.plugins.androidKotlinMultiplatformLibrary) apply false
     alias(libs.plugins.androidLint) apply false
     alias(libs.plugins.kotlinx.serialization) apply false
-    alias(libs.plugins.cocoapods) apply false
     id("com.google.gms.google-services") version "4.4.4" apply false
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.ksp) apply false
@@ -20,22 +20,28 @@ plugins {
 
 tasks.register("exportModuleDeps") {
     doLast {
-        val allModuleNames = rootProject.subprojects.map { it.name }.toSet()
+        val allModulePaths = rootProject.subprojects
+            .filter { it.buildFile.exists() }
+            .map { it.path }
+            .toSet()
+
         val directDependencies = mutableMapOf<String, MutableSet<String>>()
 
-        rootProject.subprojects.forEach { project ->
-            val projectDeps = mutableSetOf<String>()
-            project.configurations
-                .matching { it.name.contains("implementation", ignoreCase = true) }
-                .forEach { configuration ->
-                    configuration.dependencies.forEach { dependency ->
-                        if (dependency is ProjectDependency && allModuleNames.contains(dependency.name)) {
-                            projectDeps.add(dependency.name)
+        rootProject.subprojects
+            .filter { it.buildFile.exists() }
+            .forEach { project ->
+                val projectDeps = mutableSetOf<String>()
+                project.configurations
+                    .matching { it.name.contains("implementation", ignoreCase = true) }
+                    .forEach { configuration ->
+                        configuration.dependencies.forEach { dependency ->
+                            if (dependency is ProjectDependency && allModulePaths.contains(dependency.path)) {
+                                projectDeps.add(dependency.path)
+                            }
                         }
                     }
-                }
-            directDependencies[project.name] = projectDeps
-        }
+                directDependencies[project.path] = projectDeps
+            }
 
         val reverseDependencies = mutableMapOf<String, MutableSet<String>>()
         directDependencies.keys.forEach { module -> reverseDependencies[module] = mutableSetOf() }
