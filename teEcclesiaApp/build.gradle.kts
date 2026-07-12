@@ -16,12 +16,12 @@ kotlin {
                 implementation(libs.androidx.lifecycle.viewmodel.navigation3)
                 
                 implementation(projects.designSystem)
-                implementation(projects.identityData)
-                implementation(projects.identityDomain)
-                implementation(projects.identityPresentation)
-                implementation(projects.identityApi)
-                implementation(projects.homeApi)
-                implementation(projects.homePresentation)
+                implementation(projects.identity.identityData)
+                implementation(projects.identity.identityDomain)
+                implementation(projects.identity.identityPresentation)
+                implementation(projects.identity.identityApi)
+                implementation(projects.home.homeApi)
+                implementation(projects.home.homePresentation)
             }
         }
         commonTest {

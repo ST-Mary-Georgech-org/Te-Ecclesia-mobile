@@ -81,7 +81,7 @@ kotlin {
 
 dependencies {
     implementation(projects.teEcclesiaApp)
-    implementation(projects.identityDomain)
+    implementation(projects.identity.identityDomain)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.compose.ui.tooling.preview)

@@ -4,14 +4,16 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.teEcclesia.home.presentation"
+        namespace = "com.teEcclesia.identity.presentation"
     }
 
     sourceSets {
         commonMain {
             dependencies {
                 implementation(projects.designSystem)
-                implementation(projects.homeApi)
+                implementation(projects.identity.identityDomain)
+                implementation(projects.identity.identityApi)
+                implementation(projects.home.homeApi)
             }
         }
     }

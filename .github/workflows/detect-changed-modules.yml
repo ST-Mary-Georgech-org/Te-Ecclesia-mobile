@@ -58,8 +58,8 @@ jobs:
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           CHANGED_FILES="${{ steps.changed-files-git.outputs.changed_files }}"
-          FALLBACK_ALL_MODULES='teEcclesiaApp designSystem identityData identityDomain identityPresentation homePresentation identityApi homeApi androidApp'
-          IOS_MODULES='teEcclesiaApp identityPresentation homePresentation'
+          FALLBACK_ALL_MODULES='teEcclesiaApp designSystem identity/identityData identity/identityDomain identity/identityPresentation home/homePresentation identity/identityApi home/homeApi androidApp'
+          IOS_MODULES='teEcclesiaApp identity/identityPresentation home/homePresentation'
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           if echo "$ALL_MODULES_JSON" | jq -e . >/dev/null 2>&1; then
@@ -70,20 +70,21 @@ jobs:
             ALL_MODULES="$FALLBACK_ALL_MODULES"
           fi
 
-          UNIQUE_MODULE_LIST=$(echo "$CHANGED_FILES" | awk -F/ '{print $1}' | sort -u)
           FINAL_MODULES=""
 
-          for module in $UNIQUE_MODULE_LIST; do
-            if [[ " $ALL_MODULES " =~ " $module " ]]; then
-              FINAL_MODULES="$FINAL_MODULES $module"
-              # Add dependent modules
-              if [ "$ALL_MODULES_JSON" != '{}' ]; then
-                DEPS=$(echo "$ALL_MODULES_JSON" | jq -r --arg module "$module" '.[$module][]?' 2>/dev/null || true)
-                for dep in $DEPS; do
-                  FINAL_MODULES="$FINAL_MODULES $dep"
-                done
+          for file in $CHANGED_FILES; do
+            for module in $ALL_MODULES; do
+              if [[ "$file" == "$module"* ]]; then
+                FINAL_MODULES="$FINAL_MODULES $module"
+                # Add dependent modules
+                if [ "$ALL_MODULES_JSON" != '{}' ]; then
+                  DEPS=$(echo "$ALL_MODULES_JSON" | jq -r --arg module "$module" '.[$module][]?' 2>/dev/null || true)
+                  for dep in $DEPS; do
+                    FINAL_MODULES="$FINAL_MODULES $dep"
+                  done
+                fi
               fi
-            fi
+            done
           done
 
           FINAL_MODULES=$(echo "$FINAL_MODULES" | tr ' ' '\n' | awk 'NF' | sort -u | tr '\n' ' ')
