@@ -10,4 +10,5 @@ interface SettingsRepository {
     fun getCurrentAppLanguage(): AppLanguage
     suspend fun applyAppTheme(appTheme: AppTheme)
     fun observeAppTheme(): StateFlow<AppTheme>
+    fun getCurrentTheme(): AppTheme
 }

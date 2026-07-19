@@ -51,6 +51,7 @@ val identityDataModule = module {
         provideHttpClient(
             baseUrl = get<String>(named(BASE_URL)),
             authorizationService = { get<AuthorizationService>() },
+            settingsRepository = { get<SettingsRepository>() }
         )
     }
 

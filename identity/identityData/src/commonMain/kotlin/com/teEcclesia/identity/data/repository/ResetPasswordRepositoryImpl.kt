@@ -4,7 +4,7 @@ import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.OtpReques
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.ResetPasswordRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.VerifyOtpRequestDto
 import com.teEcclesia.identity.data.mapper.normalizeEgyptPhone
-import com.teEcclesia.identity.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseGateway
 import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post

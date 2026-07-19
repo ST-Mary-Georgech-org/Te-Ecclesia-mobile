@@ -4,14 +4,13 @@ plugins {
 
 kotlin {
     android {
-        namespace = "com.teEcclesia.identity.data"
+        namespace = "com.teEcclesia.shared.data"
     }
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(projects.identity.identityDomain)
-                implementation(projects.shared.sharedData)
+                implementation(projects.shared.sharedDomain)
             }
         }
     }

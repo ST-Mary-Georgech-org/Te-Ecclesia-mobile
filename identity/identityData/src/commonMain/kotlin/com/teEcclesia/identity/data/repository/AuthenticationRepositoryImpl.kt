@@ -8,7 +8,7 @@ import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRe
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.AuthenticationResponse
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.BaseResponse
 import com.teEcclesia.identity.data.mapper.toDomain
-import com.teEcclesia.identity.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseGateway
 import com.teEcclesia.identity.data.utils.invalidateAuthTokens
 import com.teEcclesia.identity.domain.model.AuthenticationTokens
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository

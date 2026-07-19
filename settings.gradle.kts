@@ -30,6 +30,8 @@ dependencyResolutionManagement {
 include(":teEcclesiaApp")
 include(":androidApp")
 include(":designSystem")
+include(":shared:sharedData")
+include(":shared:sharedDomain")
 include(":identity:identityData")
 include(":identity:identityDomain")
 include(":identity:identityPresentation")

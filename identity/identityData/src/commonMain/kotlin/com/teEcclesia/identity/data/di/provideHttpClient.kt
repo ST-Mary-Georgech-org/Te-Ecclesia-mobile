@@ -8,6 +8,7 @@ import com.teEcclesia.identity.data.repository.RegisterRepositoryImpl.Companion.
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD_REQUEST_OTP
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD_VERIFY_OTP
+import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -21,14 +22,17 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
 import io.ktor.http.ContentType
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
 
 internal fun provideHttpClient(
     baseUrl: String,
     authorizationService: suspend () -> AuthorizationService,
+    settingsRepository: () -> SettingsRepository,
 ): HttpClient {
     return createHttpClient {
         expectSuccess = true
@@ -39,7 +43,7 @@ internal fun provideHttpClient(
             accept(ContentType.Application.Json)
         }
 
-        install(languageInterceptor())
+        install(languageThemeInterceptor(settingsRepository))
 
         install(ContentNegotiation) {
             json(
@@ -69,10 +73,21 @@ internal fun provideHttpClient(
                     )
                 }
                 refreshTokens {
-                    BearerTokens(
-                        accessToken = authorizationService().getNewAccessToken(),
-                        refreshToken = authorizationService().getRefreshToken(),
-                    )
+                    val currentRefreshToken = authorizationService().getRefreshToken()
+                    if (currentRefreshToken.isBlank()) {
+                        return@refreshTokens null
+                    }
+
+                    return@refreshTokens try {
+                        BearerTokens(
+                            accessToken = authorizationService().getNewAccessToken(),
+                            refreshToken = currentRefreshToken,
+                        )
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        null
+                    }
                 }
                 sendWithoutRequest { request ->
                     val path = request.url.encodedPath.removePrefix("/")

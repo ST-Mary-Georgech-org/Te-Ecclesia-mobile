@@ -1,14 +1,15 @@
-package com.teEcclesia.identity.data.shared
+package com.teEcclesia.shared.data.shared
 
-import com.teEcclesia.identity.domain.exception.UsernameOrPhoneNumberAlreadyExistsException
-import com.teEcclesia.identity.domain.exception.InternetException
-import com.teEcclesia.identity.domain.exception.InvalidCredentialsException
-import com.teEcclesia.identity.domain.exception.InvalidRequestException
-import com.teEcclesia.identity.domain.exception.NoNetworkException
-import com.teEcclesia.identity.domain.exception.TooManyRequestsException
-import com.teEcclesia.identity.domain.exception.UnAuthorizedException
-import com.teEcclesia.identity.domain.exception.UnknownErrorException
-import com.teEcclesia.identity.domain.exception.UserIsBlockedException
+import com.teEcclesia.shared.domain.exception.UsernameOrPhoneNumberAlreadyExistsException
+import com.teEcclesia.shared.domain.exception.InternetException
+import com.teEcclesia.shared.domain.exception.InvalidCredentialsException
+import com.teEcclesia.shared.domain.exception.InvalidRequestException
+import com.teEcclesia.shared.domain.exception.NoNetworkException
+import com.teEcclesia.shared.domain.exception.TooManyRequestsException
+import com.teEcclesia.shared.domain.exception.UnAuthorizedException
+import com.teEcclesia.shared.domain.exception.UnknownErrorException
+import com.teEcclesia.shared.domain.exception.UserIsBlockedException
+import com.teEcclesia.shared.domain.exception.PaymentRequiredException
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.HttpRequestTimeoutException
@@ -19,15 +20,16 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 
 abstract class BaseGateway(val client: HttpClient) {
+
     suspend inline fun <reified T> tryToExecute(method: HttpClient.() -> HttpResponse): T {
         try {
             return client.method().body()
         } catch (e: ResponseException) {
             val status = e.response.status
-            val errorResponse = runCatching { e.response.body<ErrorResponse>() }.getOrNull()
-            val message = errorResponse?.message ?: e.message ?: "Request failed"
+            val message = e.message ?: "Request failed"
 
             throw when {
+                status == HttpStatusCode.PaymentRequired -> PaymentRequiredException()
                 status == HttpStatusCode.Unauthorized -> UnAuthorizedException()
                 status == HttpStatusCode.NotFound -> InvalidCredentialsException()
                 status == HttpStatusCode.Forbidden -> UserIsBlockedException()

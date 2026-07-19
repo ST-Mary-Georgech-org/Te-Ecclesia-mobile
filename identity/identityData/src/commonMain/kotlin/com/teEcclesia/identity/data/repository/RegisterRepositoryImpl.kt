@@ -7,7 +7,7 @@ import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.BaseResp
 import com.teEcclesia.identity.data.mapper.normalizeEgyptPhone
 import com.teEcclesia.identity.data.mapper.toDomain
 import com.teEcclesia.identity.data.mapper.toDto
-import com.teEcclesia.identity.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseGateway
 import com.teEcclesia.identity.data.utils.invalidateAuthTokens
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
