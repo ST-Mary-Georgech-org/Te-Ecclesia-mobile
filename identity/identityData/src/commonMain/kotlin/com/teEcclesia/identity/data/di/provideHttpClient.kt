@@ -3,8 +3,6 @@ package com.teEcclesia.identity.data.di
 import com.teEcclesia.identity.data.repository.AuthenticationRepositoryImpl.Companion.LOGIN_ENDPOINT
 import com.teEcclesia.identity.data.repository.AuthenticationRepositoryImpl.Companion.REFRESH_ENDPOINT
 import com.teEcclesia.identity.data.repository.RegisterRepositoryImpl.Companion.REGISTER
-import com.teEcclesia.identity.data.repository.RegisterRepositoryImpl.Companion.REGISTER_REQUEST_OTP
-import com.teEcclesia.identity.data.repository.RegisterRepositoryImpl.Companion.REGISTER_VERIFY_OTP
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD_REQUEST_OTP
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Companion.RESET_PASSWORD_VERIFY_OTP
@@ -22,7 +20,6 @@ import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.accept
 import io.ktor.http.ContentType
-import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
@@ -118,7 +115,5 @@ private val whiteListEndPoints = listOf(
     RESET_PASSWORD_REQUEST_OTP,
     RESET_PASSWORD_VERIFY_OTP,
     RESET_PASSWORD,
-    REGISTER_REQUEST_OTP,
-    REGISTER_VERIFY_OTP,
     REGISTER
 )
