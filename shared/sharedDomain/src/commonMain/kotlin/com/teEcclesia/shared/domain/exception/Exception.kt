@@ -21,3 +21,12 @@ open class InternetException(errorMessage: String = "") : BaseException(errorMes
 }
 
 class UnknownErrorException(message: String) : BaseException(message)
+
+class IncompleteProfileException(val token: String? = null, val refreshToken: String? = null) : BaseException("User profile is incomplete")
+
+class PhoneNotVerifiedException(val token: String? = null, val refreshToken: String? = null) : BaseException("User phone number is not verified")
+
+class EmailNotVerifiedException : BaseException("User email is not verified")
+
+class AccountPendingApprovalException(val token: String? = null, val refreshToken: String? = null) : BaseException("Account pending approval")
+
