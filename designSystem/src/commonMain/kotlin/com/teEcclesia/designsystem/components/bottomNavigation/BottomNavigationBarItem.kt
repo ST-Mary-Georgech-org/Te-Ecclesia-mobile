@@ -32,7 +32,7 @@ fun BottomNavigationBarItem(
 ) {
     val painter = if (isSelected) selectedIcon else unselectedIcon
     val animatedIconTint by animateColorAsState(
-        targetValue = if (isSelected) Theme.colorScheme.icon.primary else Theme.colorScheme.text.label,
+        targetValue = if (isSelected) Theme.colorScheme.primary else Theme.colorScheme.onSurfaceVariant,
     )
     val interactionSource = remember { MutableInteractionSource() }
 
@@ -69,8 +69,8 @@ fun BottomNavigationBarItem(
             if (isSelected) {
                 Text(
                     text = title,
-                    style = Theme.typography.label.medium.medium,
-                    color = Theme.colorScheme.brand.primary,
+                    style = Theme.typography.labelMedium,
+                    color = Theme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }

@@ -3,15 +3,14 @@ package com.teEcclesia.designsystem.components.textField
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.TextFieldColors
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.theme.theme.Theme
 import androidx.compose.ui.text.input.VisualTransformation
 
 @Composable
@@ -21,7 +20,7 @@ fun OutlinedTextField(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     readOnly: Boolean = false,
-    textStyle: TextStyle = LocalTextStyle.current,
+    textStyle: TextStyle = Theme.typography.bodyLarge,
     label: @Composable (() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
@@ -37,12 +36,20 @@ fun OutlinedTextField(
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
     interactionSource: MutableInteractionSource? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape,
+    shape: Shape = RoundedCornerShape(16.dp),
     colors: CustomTextFieldColors = customTextFieldColors(
         unfocusedContainerColor = Color.Transparent,
         focusedContainerColor = Color.Transparent,
-        unfocusedIndicatorColor = Color(0xFFE0E4EB),
-        focusedIndicatorColor = Color(0xFFE0E4EB)
+        disabledContainerColor = Color.Transparent,
+        errorContainerColor = Color.Transparent,
+        unfocusedIndicatorColor = Theme.colorScheme.outline,
+        focusedIndicatorColor = Theme.colorScheme.primary,
+        errorIndicatorColor = Theme.colorScheme.error,
+        focusedTextColor = Theme.colorScheme.onSurfaceVariant,
+        unfocusedTextColor = Theme.colorScheme.onSurfaceVariant,
+        focusedLabelColor = Theme.colorScheme.primary,
+        unfocusedLabelColor = Theme.colorScheme.onSurfaceVariant,
+        cursorColor = Theme.colorScheme.primary,
     ),
 ){
     androidx.compose.material3.OutlinedTextField(

@@ -9,4 +9,5 @@ interface Effector {
     suspend fun navigate(route: NavKey, forceNavigate: Boolean = false)
     suspend fun popBackStack()
     suspend fun resetTo(route: NavKey, forceNavigate: Boolean = false)
+    suspend fun resetTo(routes: List<NavKey>, forceNavigate: Boolean = false)
 }

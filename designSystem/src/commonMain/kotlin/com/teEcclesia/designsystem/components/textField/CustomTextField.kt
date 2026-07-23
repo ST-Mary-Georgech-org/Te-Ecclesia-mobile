@@ -48,6 +48,7 @@ import teecclesia.designsystem.generated.resources.ic_eye_closed
 import teecclesia.designsystem.generated.resources.ic_home
 
 @Composable
+@Deprecated("Don't use it use OutlinedTextField from components instead")
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
@@ -81,7 +82,7 @@ fun CustomTextField(
     val isRtl = currentDirection == LayoutDirection.Rtl
 
     val resolvedTrailingIconColor = trailingIconColor ?: animateColorAsState(
-        targetValue = if (showError) colors.additional.onError else colors.text.label,
+        targetValue = if (showError) colors.error else colors.onSurfaceVariant,
         animationSpec = tween(durationMillis = 150)
     ).value
 
@@ -98,8 +99,8 @@ fun CustomTextField(
             keyboardOptions = keyboardOptions,
             visualTransformation = visualTransformation,
             isError = showError,
-            textStyle = typography.body.small.copy(
-                color = colors.text.title,
+            textStyle = typography.bodySmall.copy(
+                color = colors.onSurface,
                 textAlign = TextAlign.Start
             ),
             prefix = prefix,
@@ -108,13 +109,13 @@ fun CustomTextField(
                 if (hint.isNotEmpty()) {
                     Text(
                         text = hint,
-                        style = typography.body.small,
+                        style = typography.bodySmall,
                         textAlign = TextAlign.Start
                     )
                 }
             },
             leadingIcon = leadingIcon?.let { painter ->
-                {
+                @Composable {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -122,7 +123,7 @@ fun CustomTextField(
                         Icon(
                             painter = painter,
                             contentDescription = null,
-                            tint = colors.text.label,
+                            tint = colors.onSurfaceVariant,
                             modifier = Modifier
                                 .size(24.dp)
                                 .scale(
@@ -136,13 +137,13 @@ fun CustomTextField(
                                 .padding(horizontal = 12.dp)
                                 .width(1.dp)
                                 .height(30.dp)
-                                .background(colors.border.secondary)
+                                .background(colors.outline)
                         )
                     }
                 }
             },
             trailingIcon = trailingIcon?.let { painter ->
-                {
+                @Composable {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -154,7 +155,7 @@ fun CustomTextField(
                                     .padding(horizontal = 12.dp)
                                     .width(1.dp)
                                     .height(30.dp)
-                                    .background(colors.border.secondary)
+                                    .background(colors.outline)
                             )
                         }
 
@@ -176,20 +177,20 @@ fun CustomTextField(
             },
             shape = shape,
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = colors.text.title,
-                unfocusedTextColor = colors.text.title,
-                disabledTextColor = colors.text.label,
-                errorTextColor = colors.text.title,
-                focusedBorderColor = colors.border.active,
-                unfocusedBorderColor = colors.border.secondary,
-                disabledBorderColor = colors.border.secondary,
-                errorBorderColor = colors.additional.onError,
-                focusedLabelColor = colors.border.active,
-                unfocusedLabelColor = colors.text.label,
-                disabledLabelColor = colors.text.label,
-                errorLabelColor = colors.additional.onError,
-                cursorColor = colors.border.active,
-                errorCursorColor = colors.additional.onError,
+                focusedTextColor = colors.onSurface,
+                unfocusedTextColor = colors.onSurface,
+                disabledTextColor = colors.onSurfaceVariant,
+                errorTextColor = colors.onSurface,
+                focusedBorderColor = colors.primary,
+                unfocusedBorderColor = colors.outline,
+                disabledBorderColor = colors.outline,
+                errorBorderColor = colors.error,
+                focusedLabelColor = colors.primary,
+                unfocusedLabelColor = colors.onSurfaceVariant,
+                disabledLabelColor = colors.onSurfaceVariant,
+                errorLabelColor = colors.error,
+                cursorColor = colors.primary,
+                errorCursorColor = colors.error,
                 focusedContainerColor = backgroundColor,
                 unfocusedContainerColor = backgroundColor,
                 disabledContainerColor = backgroundColor,
@@ -214,9 +215,9 @@ fun CustomTextField(
         ) {
             Text(
                 text = errorText ?: "",
-                color = Theme.colorScheme.additional.onError,
+                color = Theme.colorScheme.error,
                 modifier = Modifier.padding(start = 16.dp),
-                style = Theme.typography.body.small,
+                style = Theme.typography.bodySmall,
                 textAlign = TextAlign.Start
             )
         }

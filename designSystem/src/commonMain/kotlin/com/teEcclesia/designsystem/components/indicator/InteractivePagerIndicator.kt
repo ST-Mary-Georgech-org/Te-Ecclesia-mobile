@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 fun InteractivePagerIndicator(
     pagerState: PagerState,
     modifier: Modifier = Modifier,
-    activeColor: Color = Theme.colorScheme.button.primary,
-    inactiveColor: Color = Theme.colorScheme.icon.tertiary
+    activeColor: Color = Theme.colorScheme.primary,
+    inactiveColor: Color = Theme.colorScheme.outline
 ) {
     val scope = rememberCoroutineScope()
 

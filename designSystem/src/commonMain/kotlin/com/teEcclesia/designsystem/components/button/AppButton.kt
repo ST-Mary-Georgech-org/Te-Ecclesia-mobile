@@ -23,14 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import org.jetbrains.compose.resources.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.login
-
-//TODO: refactor
 
 enum class AppButtonState {
     Enabled,
@@ -55,6 +52,7 @@ sealed class AppButtonType {
 }
 
 @Composable
+@Deprecated("Don't use it use components\\button\\Button.kt instead")
 fun AppButton(
     type: AppButtonType,
     onClick: () -> Unit,
@@ -63,11 +61,11 @@ fun AppButton(
     state: AppButtonState = AppButtonState.Enabled,
     text: String? = null,
     disableTertiaryBackgroundColor: Color = Color.Transparent,
-    disablePrimaryBackgroundColor: Color = Theme.colorScheme.border.primary,
-    disableSecondaryBackgroundColor: Color = Theme.colorScheme.border.primary,
+    disablePrimaryBackgroundColor: Color = Theme.colorScheme.outline,
+    disableSecondaryBackgroundColor: Color = Theme.colorScheme.outline,
     enableTertiaryBackgroundColor: Color = Color.Transparent,
-    enablePrimaryBackgroundColor: Color = Theme.colorScheme.button.primary,
-    enableSecondaryBackgroundColor: Color = Theme.colorScheme.button.secondary,
+    enablePrimaryBackgroundColor: Color = Theme.colorScheme.primary,
+    enableSecondaryBackgroundColor: Color = Theme.colorScheme.secondary,
     loadingIcon: @Composable (() -> Unit)? = null,
     icon: ImageVector? = null,
     iconPosition: IconPosition? = null,
@@ -92,7 +90,7 @@ fun AppButton(
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        color = Theme.colorScheme.background.quinary,
+        color = Color.Transparent,
         contentColor = buttonContentColor,
         onClick = { if (enabled) onClick() },
         enabled = enabled,
@@ -122,9 +120,9 @@ fun AppButton(
                 Text(
                     text = it,
                     style = if (isLarge)
-                        Theme.typography.title.large
+                        Theme.typography.titleLarge
                     else
-                        Theme.typography.label.medium.large,
+                        Theme.typography.labelLarge,
                     color = buttonContentColor
                 )
             }
@@ -161,11 +159,11 @@ private fun getBackgroundColor(
     type: AppButtonType,
     isDisabled: Boolean,
     disableTertiaryBackgroundColor: Color = Color.Transparent,
-    disablePrimaryBackgroundColor: Color = Theme.colorScheme.border.primary,
-    disableSecondaryBackgroundColor: Color = Theme.colorScheme.border.primary,
+    disablePrimaryBackgroundColor: Color = Theme.colorScheme.outline,
+    disableSecondaryBackgroundColor: Color = Theme.colorScheme.outline,
     enableTertiaryBackgroundColor: Color = Color.Transparent,
-    enablePrimaryBackgroundColor: Color = Theme.colorScheme.button.primary,
-    enableSecondaryBackgroundColor: Color = Theme.colorScheme.button.secondary,
+    enablePrimaryBackgroundColor: Color = Theme.colorScheme.primary,
+    enableSecondaryBackgroundColor: Color = Theme.colorScheme.secondary,
 ): Color {
     return if (isDisabled) {
         when (type) {
@@ -189,11 +187,11 @@ private fun getContentColor(
     type: AppButtonType,
 ): Color {
     return when {
-        state == AppButtonState.Disabled -> Theme.colorScheme.border.secondary
+        state == AppButtonState.Disabled -> Theme.colorScheme.outline
         else -> when (type) {
-            AppButtonType.Primary -> Theme.colorScheme.button.onPrimary
-            AppButtonType.Secondary -> Theme.colorScheme.button.onSecondary
-            AppButtonType.Tertiary -> Theme.colorScheme.button.onTertiary
+            AppButtonType.Primary -> Theme.colorScheme.onPrimary
+            AppButtonType.Secondary -> Theme.colorScheme.onSecondary
+            AppButtonType.Tertiary -> Theme.colorScheme.onTertiary
         }
     }
 }
@@ -238,7 +236,7 @@ private fun getAppContentPadding(
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppPrimaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Primary,
             onClick = {},
@@ -251,7 +249,7 @@ fun AppPrimaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppSecondaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Secondary,
             onClick = {},
@@ -264,7 +262,7 @@ fun AppSecondaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppTertiaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Tertiary,
             onClick = {},
@@ -277,7 +275,7 @@ fun AppTertiaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppDisablePrimaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Primary,
             onClick = {},
@@ -291,7 +289,7 @@ fun AppDisablePrimaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppDisableSecondaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Secondary,
             onClick = {},
@@ -305,7 +303,7 @@ fun AppDisableSecondaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppDisableTertiaryLargeButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Tertiary,
             onClick = {},
@@ -319,7 +317,7 @@ fun AppDisableTertiaryLargeButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode", widthDp = 360)
 @Composable
 fun AppPrimarySmallButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Primary,
             onClick = {},
@@ -333,7 +331,7 @@ fun AppPrimarySmallButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppSecondarySmallButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Secondary,
             onClick = {},
@@ -346,7 +344,7 @@ fun AppSecondarySmallButtonPreview() {
 @Preview(showBackground = true, name = "Light Mode")
 @Composable
 fun AppTertiarySmallButtonPreview() {
-    TeEcclesiaTheme {
+    Theme {
         AppButton(
             type = AppButtonType.Tertiary,
             onClick = {},

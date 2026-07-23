@@ -6,22 +6,29 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.semantics.Role
 
 @Composable
 fun Modifier.clickableNoRipple(
     enabled: Boolean = true,
-    interactionSource: MutableInteractionSource? = MutableInteractionSource(),
+    interactionSource: MutableInteractionSource? = null,
     indication: Indication? = null,
     onClickLabel: String? = null,
     role: Role? = null,
     onClick: () -> Unit,
-) = this
-    .clickable(
+): Modifier = composed {
+
+    val finalInteractionSource = remember(interactionSource) {
+        interactionSource ?: MutableInteractionSource()
+    }
+
+    this.clickable(
         enabled = enabled,
-        interactionSource = remember { interactionSource },
+        interactionSource = finalInteractionSource,
         indication = indication,
         onClickLabel = onClickLabel,
         role = role,
         onClick = onClick
     )
+}

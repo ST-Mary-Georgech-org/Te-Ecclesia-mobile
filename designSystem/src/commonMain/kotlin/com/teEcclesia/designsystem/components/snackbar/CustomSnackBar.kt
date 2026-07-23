@@ -1,6 +1,7 @@
 package com.teEcclesia.designsystem.components.snackbar
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -14,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BasicAlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -24,9 +27,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.modifier.DialogPosition
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
+import com.teEcclesia.designsystem.modifier.dialogPosition
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.util.extentions.painter
 import com.teEcclesia.designsystem.utils.PreviewMultiDevices
@@ -36,6 +42,7 @@ import kotlinx.coroutines.delay
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_error
 import teecclesia.designsystem.generated.resources.ic_success
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun CustomSnackBar(
@@ -53,7 +60,7 @@ fun CustomSnackBar(
         Row(
             modifier = Modifier
                 .clip(shape)
-                .background(Theme.colorScheme.background.tertiary)
+                .background(Theme.colorScheme.background)
                 .padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -74,18 +81,19 @@ fun CustomSnackBar(
             ) {
                 Text(
                     text = data.title,
-                    style = Theme.typography.heading.extraSmall,
-                    color = Theme.colorScheme.text.title,
-                    maxLines = 2,
+                    style = Theme.typography.headlineSmall,
+                    color = Theme.colorScheme.onSurface,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 data.message?.let {
                     Text(
                         text = data.message,
-                        style = Theme.typography.body.small,
-                        color = Theme.colorScheme.text.titleSmall,
-                        maxLines = 3,
+                        style = Theme.typography.bodySmall,
+                        color = Theme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp),
+                        maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
@@ -94,6 +102,7 @@ fun CustomSnackBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimatedSnackBar(
     isVisible: Boolean,
@@ -104,17 +113,31 @@ fun AnimatedSnackBar(
     AnimatedVisibility(
         visible = isVisible,
         enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
-        exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
-        modifier = modifier.fillMaxWidth()
+        exit = slideOutVertically(
+            targetOffsetY = { -it },
+            animationSpec = tween(durationMillis = 120)
+        ) + fadeOut(animationSpec = tween(durationMillis = 120)),
     ) {
         LaunchedEffect(data) {
-            delay(data.duration ?: 2500L)
+            delay((data.duration ?: 1500L).milliseconds)
             onDismiss()
         }
-        CustomSnackBar(
-            modifier = Modifier,
-            data = data,
-            onDismiss = onDismiss
+        BasicAlertDialog(
+            modifier = modifier
+                .fillMaxWidth()
+                .dialogPosition(pos = DialogPosition.TOP),
+            onDismissRequest = onDismiss,
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnClickOutside = true,
+                dismissOnBackPress = true,
+            ),
+            content = {
+                CustomSnackBar(
+                    data = data,
+                    onDismiss = onDismiss
+                )
+            }
         )
     }
 }

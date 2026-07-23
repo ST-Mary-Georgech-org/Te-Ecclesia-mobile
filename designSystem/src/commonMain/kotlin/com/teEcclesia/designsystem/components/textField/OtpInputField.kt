@@ -38,7 +38,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import kotlinx.coroutines.delay
 import androidx.compose.ui.tooling.preview.Preview
@@ -115,9 +114,9 @@ fun OtpInputField(
         ) {
             Text(
                 text = errorText ?: "",
-                color = Theme.colorScheme.additional.onError,
+                color = Theme.colorScheme.error,
                 modifier = Modifier.padding(start = 4.dp),
-                style = Theme.typography.body.medium,
+                style = Theme.typography.bodyMedium,
                 textAlign = TextAlign.Start
             )
         }
@@ -163,10 +162,10 @@ internal fun CharacterContainer(
             .border(
                 width = 1.dp,
                 color = when {
-                    isError -> Theme.colorScheme.additional.onError
-                    isFocused -> Theme.colorScheme.primary.variant600
-                    character.isNotEmpty() -> Theme.colorScheme.border.tertiary
-                    else -> Theme.colorScheme.border.secondary
+                    isError -> Theme.colorScheme.error
+                    isFocused -> Theme.colorScheme.primary
+                    character.isNotEmpty() -> Theme.colorScheme.outlineVariant
+                    else -> Theme.colorScheme.outline
                 },
                 shape = shape
             )
@@ -177,8 +176,8 @@ internal fun CharacterContainer(
     ) {
         Text(
             text = character,
-            style = Theme.typography.title.large,
-            color = Theme.colorScheme.primary.variant800,
+            style = Theme.typography.titleLarge,
+            color = Theme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
 
@@ -190,7 +189,7 @@ internal fun CharacterContainer(
                 modifier = Modifier
                     .width(2.dp)
                     .height(24.dp)
-                    .background(Theme.colorScheme.primary.variant600)
+                    .background(Theme.colorScheme.primary)
             )
         }
     }
@@ -198,7 +197,7 @@ internal fun CharacterContainer(
 
 @Composable
 @Preview
-fun OtpInputFieldPreview() = TeEcclesiaTheme {
+fun OtpInputFieldPreview() = Theme {
     OtpInputField(
         otpText = "12345",
         otpLength = 5,

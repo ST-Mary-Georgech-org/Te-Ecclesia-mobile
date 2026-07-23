@@ -19,9 +19,9 @@ import com.teEcclesia.designsystem.theme.theme.Theme
 @Composable
 fun Modifier.shimmerEffect(
     colors: List<Color> = listOf(
-        Theme.colorScheme.border.secondary,
-        Theme.colorScheme.border.secondary.copy(alpha = 0.2f),
-        Theme.colorScheme.border.secondary,
+        Theme.colorScheme.outline,
+        Theme.colorScheme.outline.copy(alpha = 0.2f),
+        Theme.colorScheme.outline,
     ),
     durationMillis: Int = 600,
 ): Modifier = composed {

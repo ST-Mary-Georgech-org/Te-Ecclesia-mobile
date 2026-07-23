@@ -21,11 +21,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
+import com.teEcclesia.designsystem.theme.theme.Theme
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_home
 import teecclesia.designsystem.generated.resources.ic_home_selected
-import com.teEcclesia.designsystem.theme.theme.Theme
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -70,7 +69,7 @@ fun BottomNavigationBarContent(
                         bottomStart = 4.dp
                     )
                 )
-                .background(Theme.colorScheme.icon.primary)
+                .background(Theme.colorScheme.primary)
                 .size(indicatorWidth, 4.dp)
         )
     }
@@ -79,7 +78,7 @@ fun BottomNavigationBarContent(
 @Preview
 @Composable
 private fun PreviewBottomNavigationBar() {
-    TeEcclesiaTheme {
+    Theme {
         val items = listOf(
             BottomNavigationItem(
                 selectedIcon = painterResource(Res.drawable.ic_home_selected),

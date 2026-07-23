@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.util.extentions.painter
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,13 +29,13 @@ fun OutlinedButton(
     enabled: Boolean = true,
     shape: Shape = ButtonDefaults.outlinedShape,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(
-        contentColor = Theme.colorScheme.primary.variant600,
+        contentColor = Theme.colorScheme.primary,
         containerColor = Color.Unspecified
     ),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = BorderStroke(
         width = 0.5.dp,
-        color = Theme.colorScheme.border.active
+        color = Theme.colorScheme.primary
     ),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
@@ -58,7 +57,7 @@ fun OutlinedButton(
 
 @Composable
 @Preview
-fun OutlinedButtonPreview() = TeEcclesiaTheme {
+fun OutlinedButtonPreview() = Theme {
     OutlinedButton(
         onClick = {},
         modifier = Modifier.padding(16.dp).size(56.dp),
@@ -70,7 +69,7 @@ fun OutlinedButtonPreview() = TeEcclesiaTheme {
         Icon(
             painter = Res.drawable.ic_home.painter(),
             contentDescription = null,
-            tint = Theme.colorScheme.primary.variant600,
+            tint = Theme.colorScheme.primary,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -78,7 +77,7 @@ fun OutlinedButtonPreview() = TeEcclesiaTheme {
 
 @Composable
 @Preview
-fun OutlinedButtonPreview2() = TeEcclesiaTheme {
+fun OutlinedButtonPreview2() = Theme {
     OutlinedButton(
         onClick = {},
         modifier = Modifier.padding(16.dp).height(56.dp),
@@ -89,7 +88,8 @@ fun OutlinedButtonPreview2() = TeEcclesiaTheme {
     ) {
         Text(
             "Button Button Button",
-            style = Theme.typography.label.medium.medium,
+            style = Theme.typography.labelMedium,
+            color = Theme.colorScheme.primary,
         )
     }
 }

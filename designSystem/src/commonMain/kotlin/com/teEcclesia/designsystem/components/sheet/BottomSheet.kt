@@ -38,7 +38,7 @@ fun BottomSheet(
     showDragHandle: Boolean = true,
     horizontalPadding: Dp = 16.dp,
     skipPartiallyExpanded: Boolean = false,
-    containerColor: Color = Theme.colorScheme.background.tertiary,
+    containerColor: Color = Theme.colorScheme.background,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
@@ -99,7 +99,7 @@ private fun BottomSheetDragHandle() {
                 .width(104.dp)
                 .height(5.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(Theme.colorScheme.text.link)
+                .background(Theme.colorScheme.primary)
         )
     }
 }

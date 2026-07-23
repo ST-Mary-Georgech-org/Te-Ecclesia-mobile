@@ -1,15 +1,14 @@
 package com.teEcclesia.designsystem.theme.typography
 
+import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.Font
+import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.poppins_medium
 import teecclesia.designsystem.generated.resources.poppins_regular
 import teecclesia.designsystem.generated.resources.poppins_semi_bold
-import org.jetbrains.compose.resources.Font
-import teecclesia.designsystem.generated.resources.Res
 
 @Composable
 fun createThemeTypography(): Typography {
@@ -19,162 +18,23 @@ fun createThemeTypography(): Typography {
         Font(resource = Res.font.poppins_semi_bold, FontWeight.SemiBold),
     )
 
+    val defaultTypography = Typography()
+
     return Typography(
-        heading = Typography.Heading(
-            large = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 28.sp,
-                lineHeight = 42.sp
-            ),
-            medium = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 24.sp,
-                lineHeight = 36.sp
-            ),
-            small = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 20.sp,
-                lineHeight = 30.sp
-            ),
-            extraSmall = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp,
-                lineHeight = 20.sp
-            ),
-            tiny = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                lineHeight = 20.sp
-            )
-        ),
-        title = Typography.Title(
-            large = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 20.sp,
-                lineHeight = 30.sp
-            ),
-            medium = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 18.sp,
-                lineHeight = 28.sp
-            ),
-            small = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Medium,
-                fontSize = 16.sp,
-                lineHeight = 24.sp
-            )
-        ),
-        body = Typography.Body(
-            large = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 18.sp,
-                lineHeight = 28.sp
-            ),
-            medium = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 16.sp,
-                lineHeight = 24.sp
-            ),
-            small = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 14.sp,
-                lineHeight = 22.sp
-            ),
-            extraSmall = TextStyle(
-                fontFamily = poppinsFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = 12.sp,
-                lineHeight = 12.sp
-            )
-        ),
-        label = Typography.Label(
-            medium = Typography.LabelScale(
-                large = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp
-                ),
-                medium = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp
-                ),
-                small = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp
-                ),
-                extraSmall = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 10.sp,
-                    lineHeight = 14.sp
-                ),
-                tiny = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 8.sp,
-                    lineHeight = 12.sp
-                ),
-                micro = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 6.sp,
-                    lineHeight = 10.sp
-                )
-            ),
-            semiBold = Typography.LabelScale(
-                large = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 16.sp,
-                    lineHeight = 24.sp
-                ),
-                medium = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 14.sp,
-                    lineHeight = 22.sp
-                ),
-                small = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 12.sp,
-                    lineHeight = 18.sp
-                ),
-                extraSmall = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 10.sp,
-                    lineHeight = 14.sp
-                ),
-                tiny = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 8.sp,
-                    lineHeight = 12.sp
-                ),
-                micro = TextStyle(
-                    fontFamily = poppinsFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 6.sp,
-                    lineHeight = 10.sp
-                )
-            )
-        )
+        displayLarge = defaultTypography.displayLarge.copy(fontFamily = poppinsFontFamily),
+        displayMedium = defaultTypography.displayMedium.copy(fontFamily = poppinsFontFamily),
+        displaySmall = defaultTypography.displaySmall.copy(fontFamily = poppinsFontFamily),
+        headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = poppinsFontFamily),
+        headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = poppinsFontFamily),
+        headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = poppinsFontFamily),
+        titleLarge = defaultTypography.titleLarge.copy(fontFamily = poppinsFontFamily),
+        titleMedium = defaultTypography.titleMedium.copy(fontFamily = poppinsFontFamily),
+        titleSmall = defaultTypography.titleSmall.copy(fontFamily = poppinsFontFamily),
+        bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = poppinsFontFamily),
+        bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = poppinsFontFamily),
+        bodySmall = defaultTypography.bodySmall.copy(fontFamily = poppinsFontFamily),
+        labelLarge = defaultTypography.labelLarge.copy(fontFamily = poppinsFontFamily),
+        labelMedium = defaultTypography.labelMedium.copy(fontFamily = poppinsFontFamily),
+        labelSmall = defaultTypography.labelSmall.copy(fontFamily = poppinsFontFamily)
     )
 }

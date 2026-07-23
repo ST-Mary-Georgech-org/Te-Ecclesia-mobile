@@ -13,7 +13,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
@@ -32,10 +31,10 @@ fun DatePicker(
     onDismiss: () -> Unit,
     confirmText: String = stringResource(Res.string.ok),
     dismissText: String = stringResource(Res.string.cancel),
-    containerColor: Color = Theme.colorScheme.background.tertiary,
-    contentColor: Color = Theme.colorScheme.text.body,
-    brandColor: Color = Theme.colorScheme.brand.primary,
-    errorColor: Color = Theme.colorScheme.additional.onError,
+    containerColor: Color = Theme.colorScheme.background,
+    contentColor: Color = Theme.colorScheme.onSurface,
+    brandColor: Color = Theme.colorScheme.primary,
+    errorColor: Color = Theme.colorScheme.error,
 ) {
     if (showDialog) {
         val datePickerState = rememberDatePickerState(
@@ -86,29 +85,29 @@ fun DatePicker(
                     colors = DatePickerDefaults.colors(
                         containerColor = containerColor,
                         titleContentColor = contentColor,
-                        headlineContentColor = Theme.colorScheme.text.label,
-                        weekdayContentColor = Theme.colorScheme.text.label,
-                        dayContentColor = Theme.colorScheme.text.label,
-                        yearContentColor = Theme.colorScheme.text.label,
+                        headlineContentColor = Theme.colorScheme.onSurfaceVariant,
+                        weekdayContentColor = Theme.colorScheme.onSurfaceVariant,
+                        dayContentColor = Theme.colorScheme.onSurfaceVariant,
+                        yearContentColor = Theme.colorScheme.onSurfaceVariant,
                         selectedDayContainerColor = brandColor,
                         selectedYearContainerColor = brandColor,
                         currentYearContentColor = brandColor,
-                        dividerColor = Theme.colorScheme.border.secondary,
+                        dividerColor = Theme.colorScheme.outline,
                         todayContentColor = brandColor,
                         todayDateBorderColor = brandColor,
                         navigationContentColor = contentColor,
                         subheadContentColor = contentColor,
                         dateTextFieldColors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = brandColor,
-                            unfocusedBorderColor = Theme.colorScheme.border.secondary,
+                            unfocusedBorderColor = Theme.colorScheme.outline,
                             focusedLabelColor = brandColor,
                             unfocusedLabelColor = contentColor,
                             cursorColor = brandColor,
-                            focusedTextColor = Theme.colorScheme.text.label,
+                            focusedTextColor = Theme.colorScheme.onSurfaceVariant,
                             unfocusedTextColor = contentColor,
                             focusedPlaceholderColor = contentColor,
                             unfocusedPlaceholderColor = contentColor,
-                            errorTextColor = Theme.colorScheme.text.label,
+                            errorTextColor = Theme.colorScheme.onSurfaceVariant,
                             errorLabelColor = errorColor,
                             errorCursorColor = errorColor,
                             errorBorderColor = errorColor,
@@ -128,7 +127,7 @@ fun DatePicker(
 
 @Composable
 @Preview
-fun DatePickerDialogPreview() = TeEcclesiaTheme {
+fun DatePickerDialogPreview() = Theme {
     DatePicker(
         showDialog = true,
         selectedDate = LocalDate(2026, 1, 7),

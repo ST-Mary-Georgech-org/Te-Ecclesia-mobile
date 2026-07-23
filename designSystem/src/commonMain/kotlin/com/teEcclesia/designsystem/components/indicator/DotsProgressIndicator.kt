@@ -21,7 +21,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -33,9 +32,9 @@ fun DotsProgressIndicator(
     progressDuration: Int = 200,
     dotShape: Shape = RoundedCornerShape(100.dp),
     colors: List<Color> = listOf(
-        Theme.colorScheme.primary.variant300.copy(alpha = 0.5f),
-        Theme.colorScheme.primary.variant300.copy(alpha = 0.75f),
-        Theme.colorScheme.primary.variant300.copy(alpha = 0.9f),
+        Theme.colorScheme.primary.copy(alpha = 0.5f),
+        Theme.colorScheme.primary.copy(alpha = 0.75f),
+        Theme.colorScheme.primary.copy(alpha = 0.9f),
     ),
     dotSize: Dp = 5.dp,
     spaceBetween: Dp = 2.dp,
@@ -77,7 +76,7 @@ fun DotsProgressIndicator(
 
 @Preview(showBackground = true,backgroundColor = 0xFFF2F4F7)
 @Composable
-private fun DotsProgressIndicatorPreview() = TeEcclesiaTheme {
+private fun DotsProgressIndicatorPreview() = Theme {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
@@ -87,9 +86,9 @@ private fun DotsProgressIndicatorPreview() = TeEcclesiaTheme {
         DotsProgressIndicator(
             numberOfDots = 3,
             colors = listOf(
-                Theme.colorScheme.primary.variant300.copy(alpha = 0.5f),
-                Theme.colorScheme.primary.variant300.copy(alpha = 0.75f),
-                Theme.colorScheme.primary.variant300.copy(alpha = 0.9f),
+                Theme.colorScheme.primary.copy(alpha = 0.5f),
+                Theme.colorScheme.primary.copy(alpha = 0.75f),
+                Theme.colorScheme.primary.copy(alpha = 0.9f),
             ),
             modifier = Modifier.padding(10.dp)
         )

@@ -37,12 +37,16 @@ class EffectorImpl : Effector {
     }
 
     override suspend fun resetTo(route: NavKey, forceNavigate: Boolean) {
+        resetTo(listOf(route), forceNavigate)
+    }
+
+    override suspend fun resetTo(routes: List<NavKey>, forceNavigate: Boolean) {
         mutex.withLock {
             val now = getNow()
             if (forceNavigate || now - lastPopUpToTime >= EFFECT_DEBOUNCE_MS) {
                 lastPopUpToTime = now
                 _effect.send(
-                    Effect.ResetTo(route)
+                    Effect.ResetToMultiple(routes)
                 )
             }
         }

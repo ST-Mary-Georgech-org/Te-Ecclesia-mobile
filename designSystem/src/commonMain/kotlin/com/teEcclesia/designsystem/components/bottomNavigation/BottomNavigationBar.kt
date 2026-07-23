@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,14 +33,14 @@ fun BottomNavigationBar(
             val index = scope.items.indexOf(item)
             scope.items[index].entry.invoke()
         },
-        modifier = modifier.background(Theme.colorScheme.background.secondary)
+        modifier = modifier.background(Theme.colorScheme.surface)
     )
 }
 
 @Preview
 @Composable
 private fun PreviewBottomNavigationBar() {
-    TeEcclesiaTheme {
+    Theme {
         Box(Modifier.fillMaxSize()) {
             BottomNavigationBar(
                 modifier = Modifier

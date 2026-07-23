@@ -25,9 +25,9 @@ sealed class TextSegment {
 fun MultiHighlightedClickableText(
     segments: List<TextSegment>,
     modifier: Modifier = Modifier,
-    textStyle: TextStyle = Theme.typography.label.medium.small,
-    normalColor: Color = Theme.colorScheme.text.title,
-    highlightColor: Color = Theme.colorScheme.button.primary,
+    textStyle: TextStyle = Theme.typography.labelSmall,
+    normalColor: Color = Theme.colorScheme.onSurface,
+    highlightColor: Color = Theme.colorScheme.primary,
     underlineHighlight: Boolean = false,
     textAlign: TextAlign = TextAlign.Center,
 ) {

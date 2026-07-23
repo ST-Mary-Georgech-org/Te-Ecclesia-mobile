@@ -19,7 +19,7 @@ fun Text(
     text: String,
     style: TextStyle,
     modifier: Modifier = Modifier,
-    color: Color = Color.Unspecified,
+    color: Color,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
