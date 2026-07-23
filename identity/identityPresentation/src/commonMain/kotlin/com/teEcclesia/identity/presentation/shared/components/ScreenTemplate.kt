@@ -19,12 +19,12 @@ import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.indicator.DotsProgressIndicator
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.theme.theme.TeEcclesiaTheme
 import com.teEcclesia.designsystem.theme.theme.Theme
 import androidx.compose.ui.tooling.preview.Preview
 
 
 @Composable
+@Deprecated("Don't use it")
 fun ScreenTemplate(
     title: String,
     subtitle: String? = null,
@@ -37,7 +37,7 @@ fun ScreenTemplate(
 ) {
 
     LazyColumn(
-        modifier = modifier.fillMaxSize().background(Color.White),
+        modifier = modifier.fillMaxSize().background(Theme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
@@ -51,14 +51,14 @@ fun ScreenTemplate(
             ) {
                 Text(
                     text = title,
-                    color = Theme.colorScheme.text.title,
-                    style = Theme.typography.heading.small
+                    color = Theme.colorScheme.onSurface,
+                    style = Theme.typography.headlineMedium
                 )
                 subtitle?.let {
                     Text(
                         text = it,
-                        color = Theme.colorScheme.text.titleSmall,
-                        style = Theme.typography.label.medium.large
+                        color = Theme.colorScheme.onSurfaceVariant,
+                        style = Theme.typography.bodyMedium
                     )
                 }
             }
@@ -76,7 +76,7 @@ fun ScreenTemplate(
                 actionButtonText?.let {
                     AppButton(
                         type = AppButtonType.Primary,
-                        size = AppButtonSize.Small,
+                        size = AppButtonSize.Large,
                         onClick = onClickActionButton,
                         text = actionButtonText,
                         modifier = Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 40.dp),
@@ -94,7 +94,7 @@ fun ScreenTemplate(
 
 @Preview(heightDp = 800, widthDp = 360)
 @Composable
-fun ScreenTemplatePreview() = TeEcclesiaTheme {
+fun ScreenTemplatePreview() = Theme {
     ScreenTemplate(
         title = "Screen Title",
         subtitle = "This is a subtitle",
@@ -104,14 +104,14 @@ fun ScreenTemplatePreview() = TeEcclesiaTheme {
             Text(
                 text = "Under Action Button Content",
                 color = Color.Black,
-                style = Theme.typography.label.medium.medium
+                style = Theme.typography.labelMedium
             )
         }
     ) {
         Column {
-            Text("Lower Content Item 1", color = Color.Black, style = Theme.typography.title.large)
-            Text("Lower Content Item 2", color = Color.Black, style = Theme.typography.title.large)
-            Text("Lower Content Item 3", color = Color.Black, style = Theme.typography.title.large)
+            Text("Lower Content Item 1", color = Color.Black, style = Theme.typography.titleLarge)
+            Text("Lower Content Item 2", color = Color.Black, style = Theme.typography.titleLarge)
+            Text("Lower Content Item 3", color = Color.Black, style = Theme.typography.titleLarge)
         }
     }
 }

@@ -13,7 +13,11 @@ kotlin {
                 implementation(projects.designSystem)
                 implementation(projects.identity.identityDomain)
                 implementation(projects.identity.identityApi)
+                implementation(projects.lookups.lookupsDomain)
                 implementation(projects.home.homeApi)
+                implementation(projects.shared.sharedDomain)
+                implementation(libs.filekit.compose)
+                implementation(libs.filekit.dialogs)
             }
         }
     }
