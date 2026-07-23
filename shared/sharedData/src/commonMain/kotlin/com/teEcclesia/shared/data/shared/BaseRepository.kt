@@ -1,5 +1,10 @@
 package com.teEcclesia.shared.data.shared
 
+import com.teEcclesia.shared.data.dataSource.remote.dto.IncompleteProfileResponse
+import com.teEcclesia.shared.domain.exception.AccountPendingApprovalException
+import com.teEcclesia.shared.domain.exception.EmailNotVerifiedException
+import com.teEcclesia.shared.domain.exception.IncompleteProfileException
+import com.teEcclesia.shared.domain.exception.PhoneNotVerifiedException
 import com.teEcclesia.shared.domain.exception.UsernameOrPhoneNumberAlreadyExistsException
 import com.teEcclesia.shared.domain.exception.InternetException
 import com.teEcclesia.shared.domain.exception.InvalidCredentialsException
@@ -19,7 +24,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 
-abstract class BaseGateway(val client: HttpClient) {
+abstract class BaseRepository(val client: HttpClient) {
 
     suspend inline fun <reified T> tryToExecute(method: HttpClient.() -> HttpResponse): T {
         try {
@@ -29,6 +34,19 @@ abstract class BaseGateway(val client: HttpClient) {
             val message = e.message ?: "Request failed"
 
             throw when {
+                status == HttpStatusCode.PreconditionRequired -> {
+                    val body = runCatching { e.response.body<IncompleteProfileResponse>() }.getOrNull()
+                    IncompleteProfileException(token = body?.token, refreshToken = body?.refreshToken)
+                }
+                status == HttpStatusCode.PreconditionFailed -> {
+                    val body = runCatching { e.response.body<IncompleteProfileResponse>() }.getOrNull()
+                    PhoneNotVerifiedException(token = body?.token, refreshToken = body?.refreshToken)
+                }
+                status == HttpStatusCode.Locked -> {
+                    val body = runCatching { e.response.body<IncompleteProfileResponse>() }.getOrNull()
+                    AccountPendingApprovalException(token = body?.token, refreshToken = body?.refreshToken)
+                }
+                status == HttpStatusCode.UnprocessableEntity -> EmailNotVerifiedException()
                 status == HttpStatusCode.PaymentRequired -> PaymentRequiredException()
                 status == HttpStatusCode.Unauthorized -> UnAuthorizedException()
                 status == HttpStatusCode.NotFound -> InvalidCredentialsException()
@@ -37,8 +55,8 @@ abstract class BaseGateway(val client: HttpClient) {
                 status == HttpStatusCode.BadRequest -> InvalidRequestException()
                 status == HttpStatusCode.Conflict -> UsernameOrPhoneNumberAlreadyExistsException()
                 status.value in 400..499 -> InvalidRequestException()
-                status.value in 500..599 -> UnknownErrorException("HTTP ${status.value}: $message")
-                else -> UnknownErrorException("HTTP ${status.value}: $message")
+                status.value in 500..599 -> UnknownErrorException(message)
+                else -> UnknownErrorException(message)
             }
 
         } catch (e: InternetException.NoInternetException) {
@@ -54,3 +72,9 @@ abstract class BaseGateway(val client: HttpClient) {
         }
     }
 }
+
+val HttpStatusCode.Companion.PreconditionRequired
+    get() = HttpStatusCode(428, "Precondition Required")
+
+val HttpStatusCode.Companion.Locked
+    get() = HttpStatusCode(423, "Locked")
