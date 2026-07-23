@@ -6,5 +6,5 @@ enum class UserRole {
     MAKHDOOM,
     PARENT,
     GUEST,
-    PRIEST
+    KAHEN
 }

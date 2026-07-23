@@ -11,6 +11,13 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(projects.lookups.lookupsDomain)
+                implementation(projects.shared.sharedDomain)
+            }
+        }
+
+        androidMain {
+            dependencies {
+                implementation(libs.androidx.core.ktx)
             }
         }
     }
