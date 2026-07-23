@@ -8,6 +8,7 @@ import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 import com.teEcclesia.identity.presentation.screen.profile.ProfileViewModel
+import com.teEcclesia.identity.presentation.screen.requests.RegistrationRequestsViewModel
 
 val identityScreensModule = module {
     viewModelOf(::LoginViewModel)
@@ -23,4 +24,5 @@ val identityScreensModule = module {
     }
     viewModelOf(::PendingApprovalViewModel)
     viewModelOf(::ProfileViewModel)
+    viewModelOf(::RegistrationRequestsViewModel)
 }

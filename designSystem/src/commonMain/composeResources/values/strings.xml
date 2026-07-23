@@ -158,4 +158,17 @@
     <string name="error_phone_not_verified">User phone number is not verified</string>
     <string name="error_email_not_verified">User email is not verified</string>
     <string name="supported_formats">Supported: PDF, PNG, JPG (Max 10 MB)</string>
+
+    <!-- Registration Requests -->
+    <string name="requests">Requests</string>
+    <string name="search_requests">Search Registration Requests</string>
+    <string name="sort_by">Sort By</string>
+    <string name="all_roles">All</string>
+    <string name="accept">Accept</string>
+    <string name="reject">Reject</string>
+    <string name="date_desc">Newest First</string>
+    <string name="date_asc">Oldest First</string>
+    <string name="name_asc">Name (A-Z)</string>
+    <string name="name_desc">Name (Z-A)</string>
+    <string name="role_admin">Admin</string>
 </resources>

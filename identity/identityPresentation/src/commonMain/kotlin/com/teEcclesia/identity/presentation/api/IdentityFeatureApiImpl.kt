@@ -22,8 +22,10 @@ import teecclesia.designsystem.generated.resources.profile
 
 import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.SignUpRoute
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.presentation.screen.splash.SplashScreen
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreen
+import com.teEcclesia.identity.presentation.screen.requests.RegistrationRequestsScreen
 
 import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.presentation.screen.pendingApproval.PendingApprovalScreen
@@ -39,6 +41,7 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
             entry<SignUpRoute> { route -> RegisterScreen(isEditMode = route.isEditMode) }
             entry<PendingApprovalRoute> { PendingApprovalScreen() }
             entry<ProfileRoute> { ProfileScreen() }
+            entry<RegistrationRequestsRoute> { RegistrationRequestsScreen() }
         }
     }
 }

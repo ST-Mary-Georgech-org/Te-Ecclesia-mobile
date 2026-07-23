@@ -158,4 +158,17 @@
     <string name="error_phone_not_verified">رقم الهاتف غير مفعّل بعد</string>
     <string name="error_email_not_verified">البريد الإلكتروني غير مفعّل بعد</string>
     <string name="supported_formats">مدعوم: PDF, PNG, JPG (الحد الأقصى 10 ميغابايت)</string>
+
+    <!-- Registration Requests -->
+    <string name="requests">الطلبات</string>
+    <string name="search_requests">البحث في طلبات التسجيل</string>
+    <string name="sort_by">ترتيب حسب</string>
+    <string name="all_roles">الكل</string>
+    <string name="accept">قبول</string>
+    <string name="reject">رفض</string>
+    <string name="date_desc">الأحدث أولاً</string>
+    <string name="date_asc">الأقدم أولاً</string>
+    <string name="name_asc">الاسم (أ-ي)</string>
+    <string name="name_desc">الاسم (ي-أ)</string>
+    <string name="role_admin">أدمن</string>
 </resources>

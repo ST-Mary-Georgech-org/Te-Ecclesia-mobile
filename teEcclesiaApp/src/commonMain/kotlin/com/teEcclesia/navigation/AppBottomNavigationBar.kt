@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
@@ -24,18 +25,22 @@ import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.ProfileRoute
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.home
+import teecclesia.designsystem.generated.resources.ic_folder
 import teecclesia.designsystem.generated.resources.ic_home
 import teecclesia.designsystem.generated.resources.ic_home_selected
 import teecclesia.designsystem.generated.resources.ic_profile
 import teecclesia.designsystem.generated.resources.profile
+import teecclesia.designsystem.generated.resources.requests
 
 @Composable
 fun BoxScope.AppBottomNavigationBar(
     showBottomNavigation: Boolean,
     activeRoute: NavKey?,
+    hasRequestsAccess: Boolean,
     interactionListener: MainEntryInteractionListener
 ) {
     val animationSpec = tween<Float>(easing = EaseOut)
@@ -48,27 +53,39 @@ fun BoxScope.AppBottomNavigationBar(
         modifier = Modifier.align(Alignment.BottomCenter)
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
-            BottomNavigationBar(
-                selectedItemIndex = getSelectedNavigationIndex(activeRoute),
-            ) {
-                bottomNavigationItem(
-                    selectedIcon = painterResource(Res.drawable.ic_home_selected),
-                    notSelectedIcon = painterResource(Res.drawable.ic_home),
-                    title = Res.string.home.asString(),
-                    entry = {
-                        interactionListener.resetToRoute(HomeRoute)
-                    }
-                )
+            key(hasRequestsAccess) {
+                BottomNavigationBar(
+                    selectedItemIndex = getSelectedNavigationIndex(activeRoute, hasRequestsAccess),
+                ) {
+                    bottomNavigationItem(
+                        selectedIcon = painterResource(Res.drawable.ic_home_selected),
+                        notSelectedIcon = painterResource(Res.drawable.ic_home),
+                        title = Res.string.home.asString(),
+                        entry = {
+                            interactionListener.resetToRoute(HomeRoute)
+                        }
+                    )
 
-
-                bottomNavigationItem(
-                    selectedIcon = painterResource(Res.drawable.ic_profile),
-                    notSelectedIcon = painterResource(Res.drawable.ic_profile),
-                    title = Res.string.profile.asString(),
-                    entry = {
-                        interactionListener.resetToRoute(ProfileRoute)
+                    if (hasRequestsAccess) {
+                        bottomNavigationItem(
+                            selectedIcon = painterResource(Res.drawable.ic_folder),
+                            notSelectedIcon = painterResource(Res.drawable.ic_folder),
+                            title = Res.string.requests.asString(),
+                            entry = {
+                                interactionListener.resetToRoute(RegistrationRequestsRoute)
+                            }
+                        )
                     }
-                )
+
+                    bottomNavigationItem(
+                        selectedIcon = painterResource(Res.drawable.ic_profile),
+                        notSelectedIcon = painterResource(Res.drawable.ic_profile),
+                        title = Res.string.profile.asString(),
+                        entry = {
+                            interactionListener.resetToRoute(ProfileRoute)
+                        }
+                    )
+                }
             }
             Box(
                 modifier = Modifier
@@ -80,10 +97,11 @@ fun BoxScope.AppBottomNavigationBar(
     }
 }
 
-private fun getSelectedNavigationIndex(route: NavKey?): Int {
+private fun getSelectedNavigationIndex(route: NavKey?, hasRequestsAccess: Boolean): Int {
     return when (route) {
         is HomeRoute -> 0
-        is ProfileRoute -> 1
+        is RegistrationRequestsRoute -> if (hasRequestsAccess) 1 else -1
+        is ProfileRoute -> if (hasRequestsAccess) 2 else 1
         else -> -1
     }
 }

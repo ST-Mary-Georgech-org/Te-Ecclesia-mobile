@@ -34,9 +34,9 @@ data class ProfileResponseDto(
     val homePhone: String? = null,
     @SerialName("email")
     val email: String? = null,
-    @SerialName("isEmailVerified")
+    @SerialName("emailVerified")
     val isEmailVerified: Boolean = false,
-    @SerialName("isPhoneVerified")
+    @SerialName("phoneVerified")
     val isPhoneVerified: Boolean = false,
     @SerialName("imageUrl")
     val imageUrl: String? = null,

@@ -14,12 +14,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
 import com.teEcclesia.designsystem.components.menu.DropdownMenu
 import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.designsystem.components.radioButton.RadioButton
+import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -336,9 +341,10 @@ fun RegisterStep4StudentContent(
                 }
             }
 
+
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = state.selectedEducationalStage?.name ?: "",
+                    value = state.studentEducationalStage?.name ?: "",
                     onValueChange = {},
                     label = {
                         Text(
@@ -371,24 +377,59 @@ fun RegisterStep4StudentContent(
                     }
                 )
 
-                DropdownMenu(
-                    expanded = state.isStageSheetVisible,
-                    onDismissRequest = { listener.onToggleStageSheet(false) },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                BottomSheet(
+                    isVisible = state.isStageSheetVisible,
+                    onDismiss = { listener.onToggleStageSheet(false) }
                 ) {
-                    state.educationalStages.forEach { stage ->
-                        DropdownMenuItem(
-                            text = { Text(stage.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onBackground) },
-                            onClick = {
-                                listener.onSelectEducationalStage(stage)
-                                listener.onToggleStageSheet(false)
+                    val stageListState = rememberLazyListState()
+
+                    Text(
+                        text = stringResource(Res.string.educational_stage),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    LazyColumn(
+                        state = stageListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = state.educationalStages,
+                            key = { stage -> stage.id }
+                        ) { stage ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        listener.onSelectEducationalStage(stage)
+                                        listener.onToggleStageSheet(false)
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stage.name,
+                                    style = Theme.typography.bodyLarge,
+                                    color = Theme.colorScheme.onSurface
+                                )
                             }
-                        )
+                        }
                     }
+
+                    PaginationTrigger(
+                        list = state.educationalStages,
+                        listState = stageListState,
+                        remainingItemsToLoadNextPage = 5,
+                        loadNextItems = listener::onLoadNextEducationalStages
+                    )
                 }
             }
 
-            val hasYears = !state.selectedEducationalStage?.subItems.isNullOrEmpty()
+            val hasYears = !state.studentEducationalStage?.subItems.isNullOrEmpty() || state.studentEducationalYear != null
 
             AnimatedVisibility(
                 visible = hasYears,
@@ -397,7 +438,7 @@ fun RegisterStep4StudentContent(
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = state.selectedEducationalYear?.name ?: "",
+                        value = state.studentEducationalYear?.name ?: "",
                         onValueChange = {},
                         label = {
                             Text(
@@ -426,27 +467,50 @@ fun RegisterStep4StudentContent(
                                 contentDescription = null,
                                 tint = Theme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.clickableNoRipple {
-                                    listener.onToggleYearSheet(
-                                        true
-                                    )
+                                    listener.onToggleYearSheet(true)
                                 }
                             )
                         }
                     )
 
-                    DropdownMenu(
-                        expanded = state.isYearSheetVisible,
-                        onDismissRequest = { listener.onToggleYearSheet(false) },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                    BottomSheet(
+                        isVisible = state.isYearSheetVisible,
+                        onDismiss = { listener.onToggleYearSheet(false) }
                     ) {
-                        (state.selectedEducationalStage?.subItems ?: emptyList()).forEach { year ->
-                            DropdownMenuItem(
-                                text = { Text(year.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onBackground) },
-                                onClick = {
-                                    listener.onSelectEducationalYear(year)
-                                    listener.onToggleYearSheet(false)
+                        Text(
+                            text = stringResource(Res.string.educational_year),
+                            style = Theme.typography.headlineSmall,
+                            color = Theme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(
+                                items = state.studentEducationalStage?.subItems ?: emptyList(),
+                                key = { year -> year.id }
+                            ) { year ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickableNoRipple {
+                                            listener.onSelectEducationalYear(year)
+                                            listener.onToggleYearSheet(false)
+                                        }
+                                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = year.name,
+                                        style = Theme.typography.bodyLarge,
+                                        color = Theme.colorScheme.onSurface
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -678,9 +742,9 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value) }
             override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value) }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) { state = state.copy(shamamsaStatus = status) }
-            override fun onSelectEducationalStage(stage: LookupResponse) { state = state.copy(selectedEducationalStage = stage) }
+            override fun onSelectEducationalStage(stage: LookupResponse) {  }
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
-            override fun onSelectEducationalYear(year: LookupResponse) { state = state.copy(selectedEducationalYear = year) }
+            override fun onSelectEducationalYear(year: LookupResponse) {  }
             override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
             override fun onToggleFatherDeceased(deceased: Boolean) { state = state.copy(isFatherDeceased = deceased, fatherPhoneError = if (deceased) null else state.fatherPhoneError, fatherWhatsappError = if (deceased) null else state.fatherWhatsappError) }
             override fun onFatherPhoneChange(value: String) { state = state.copy(fatherPhone = value, fatherPhoneError = null) }

@@ -30,11 +30,17 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.Button
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.menu.DropdownMenu
 import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.OutlinedTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -242,37 +248,83 @@ fun RegisterStep1Content(
                             tint = Theme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.clickableNoRipple { listener.onTogglePriestSheet(true) }
                         )
-                    },
-                    interactionSource = interactionSource
+                    }
                 )
 
-                DropdownMenu(
-                    expanded = state.isPriestSheetVisible,
-                    onDismissRequest = { listener.onTogglePriestSheet(false) },
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                ) {
-                    state.confessionPriests.forEach { priest ->
-                        DropdownMenuItem(
-                            text = { Text(priest.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                            onClick = {
-                                listener.onSelectConfessionPriest(priest)
-                                listener.onTogglePriestSheet(false)
-                            }
-                        )
-                    }
-                    DropdownMenuItem(
-                        text = { Text(stringResource(Res.string.from_another_church), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                        onClick = {
-                            listener.onSelectFromAnotherChurch()
-                            listener.onTogglePriestSheet(false)
-                        }
-                    )
-                }
-            }
+                BottomSheet(
+                isVisible = state.isPriestSheetVisible,
+                onDismiss = { listener.onTogglePriestSheet(false) }
+            ) {
+                val priestListState = rememberLazyListState()
 
-            AnimatedVisibility(
-                visible = state.isFromAnotherChurch,
-                enter = fadeIn(),
+                Text(
+                    text = stringResource(Res.string.confession_priest),
+                    style = Theme.typography.headlineSmall,
+                    color = Theme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                LazyColumn(
+                    state = priestListState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = state.confessionPriests,
+                        key = { priest -> priest.id }
+                    ) { priest ->
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickableNoRipple {
+                                    listener.onSelectConfessionPriest(priest)
+                                    listener.onTogglePriestSheet(false)
+                                }
+                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = priest.name,
+                                style = Theme.typography.bodyLarge,
+                                color = Theme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    item {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickableNoRipple {
+                                    listener.onSelectFromAnotherChurch()
+                                    listener.onTogglePriestSheet(false)
+                                }
+                                .padding(vertical = 12.dp, horizontal = 16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.from_another_church),
+                                style = Theme.typography.bodyLarge,
+                                color = Theme.colorScheme.primary
+                            )
+                        }
+                    }
+                }
+
+                PaginationTrigger(
+                    list = state.confessionPriests,
+                    listState = priestListState,
+                    remainingItemsToLoadNextPage = 5,
+                    loadNextItems = listener::onLoadNextPriests
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = state.isFromAnotherChurch,
+            enter = fadeIn(),
                 exit = fadeOut()
             ) {
                 Column(

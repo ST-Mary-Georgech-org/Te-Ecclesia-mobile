@@ -38,6 +38,7 @@ import com.teEcclesia.identity.domain.model.AuthState
 import coil3.ImageLoader
 import coil3.compose.setSingletonImageLoaderFactory
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.domain.model.UserStatus
 
 @Composable
@@ -86,6 +87,7 @@ fun EntryPoint(
 
     val showBottomNavigation = currentRoute is HomeRoute
             || currentRoute is ProfileRoute
+            || currentRoute is RegistrationRequestsRoute
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -96,6 +98,7 @@ fun EntryPoint(
                         val profile = profileRepository.getRegistrationProfile()
                         authorizationService.saveUserRole(profile.role)
                         authorizationService.saveUserStatus(profile.status)
+                        authorizationService.saveCanApproveRequests(profile.khademProfile?.canApproveRequests ?: false)
 
                         if (profile.status == UserStatus.PENDING_APPROVAL) {
                             if (currentRoute !is PendingApprovalRoute) {
@@ -154,6 +157,8 @@ fun EntryPoint(
             data = state.snackBarData
         )
 
+        val hasRequestsAccess by authorizationService.observeRequestsAccess().collectAsStateWithLifecycle()
+
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -162,6 +167,7 @@ fun EntryPoint(
             AppBottomNavigationBar(
                 showBottomNavigation = showBottomNavigation,
                 activeRoute = currentRoute,
+                hasRequestsAccess = hasRequestsAccess,
                 interactionListener = viewModel
             )
         }

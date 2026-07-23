@@ -212,9 +212,9 @@ private fun RegisterScreenPreview() {
             override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value) }
             override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value) }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) { state = state.copy(shamamsaStatus = status) }
-            override fun onSelectEducationalStage(stage: LookupResponse) { state = state.copy(selectedEducationalStage = stage) }
+            override fun onSelectEducationalStage(stage: LookupResponse) {  }
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
-            override fun onSelectEducationalYear(year: LookupResponse) { state = state.copy(selectedEducationalYear = year) }
+            override fun onSelectEducationalYear(year: LookupResponse) {  }
             override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
             override fun onToggleFatherDeceased(deceased: Boolean) { state = state.copy(isFatherDeceased = deceased, fatherPhoneError = if (deceased) null else state.fatherPhoneError, fatherWhatsappError = if (deceased) null else state.fatherWhatsappError) }
             override fun onFatherPhoneChange(value: String) { state = state.copy(fatherPhone = value, fatherPhoneError = null) }

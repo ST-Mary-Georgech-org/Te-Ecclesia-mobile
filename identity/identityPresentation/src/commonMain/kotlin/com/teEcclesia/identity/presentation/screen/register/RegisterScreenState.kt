@@ -92,18 +92,27 @@ data class RegisterScreenState(
     val ordinationCertificateBytes: ByteArray? = null,
     val ordinationCertificateFileName: String? = null,
 
-    // Deacons School / Student & Servant Info
+    // Deacons School / Student, Servant & Kahen Info
     val shamamsaStatus: ShamamsaStudyStatus = ShamamsaStudyStatus.YES,
     val educationalStages: List<LookupResponse> = emptyList(),
     val isStageLoading: Boolean = false,
     val isStageEndReached: Boolean = false,
-    val selectedEducationalStage: LookupResponse? = null,
-    val selectedEducationalStages: List<LookupResponse> = emptyList(),
+    
+    // Student (Makhdoom)
+    val studentEducationalStage: LookupResponse? = null,
+    val studentEducationalYear: LookupResponse? = null,
+    
+    // Servant (Khadem)
+    val servantEducationalStage: LookupResponse? = null,
+    val servantEducationalYear: LookupResponse? = null,
+
+    // Priest (Kahen)
+    val kahenEducationalStages: List<LookupResponse> = emptyList(),
+    
     val stagesError: UiText? = null,
     val isStagesSheetVisible: Boolean = false,
     val stageError: UiText? = null,
     val isStageSheetVisible: Boolean = false,
-    val selectedEducationalYear: LookupResponse? = null,
     val yearError: UiText? = null,
     val isYearSheetVisible: Boolean = false,
 
@@ -222,11 +231,13 @@ data class RegisterScreenState(
         if (ordinationCertificateFileName != other.ordinationCertificateFileName) return false
         if (shamamsaStatus != other.shamamsaStatus) return false
         if (educationalStages != other.educationalStages) return false
-        if (selectedEducationalStage != other.selectedEducationalStage) return false
-        if (selectedEducationalStages != other.selectedEducationalStages) return false
+        if (studentEducationalStage != other.studentEducationalStage) return false
+        if (studentEducationalYear != other.studentEducationalYear) return false
+        if (servantEducationalStage != other.servantEducationalStage) return false
+        if (servantEducationalYear != other.servantEducationalYear) return false
+        if (kahenEducationalStages != other.kahenEducationalStages) return false
         if (stagesError != other.stagesError) return false
         if (stageError != other.stageError) return false
-        if (selectedEducationalYear != other.selectedEducationalYear) return false
         if (yearError != other.yearError) return false
         if (fatherPhone != other.fatherPhone) return false
         if (fatherPhoneError != other.fatherPhoneError) return false
@@ -330,11 +341,13 @@ data class RegisterScreenState(
         result = 31 * result + (ordinationCertificateFileName?.hashCode() ?: 0)
         result = 31 * result + shamamsaStatus.hashCode()
         result = 31 * result + educationalStages.hashCode()
-        result = 31 * result + (selectedEducationalStage?.hashCode() ?: 0)
-        result = 31 * result + selectedEducationalStages.hashCode()
+        result = 31 * result + (studentEducationalStage?.hashCode() ?: 0)
+        result = 31 * result + (studentEducationalYear?.hashCode() ?: 0)
+        result = 31 * result + (servantEducationalStage?.hashCode() ?: 0)
+        result = 31 * result + (servantEducationalYear?.hashCode() ?: 0)
+        result = 31 * result + kahenEducationalStages.hashCode()
         result = 31 * result + (stagesError?.hashCode() ?: 0)
         result = 31 * result + (stageError?.hashCode() ?: 0)
-        result = 31 * result + (selectedEducationalYear?.hashCode() ?: 0)
         result = 31 * result + (yearError?.hashCode() ?: 0)
         result = 31 * result + fatherPhone.hashCode()
         result = 31 * result + (fatherPhoneError?.hashCode() ?: 0)

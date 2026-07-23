@@ -37,7 +37,18 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
 
     suspend fun saveUserStatus(status: UserStatus) = authenticationRepository.saveUserStatus(status)
 
+    suspend fun canApproveRequests(): Boolean = authenticationRepository.getCanApproveRequests()
+    
+    suspend fun saveCanApproveRequests(canApprove: Boolean) = authenticationRepository.saveCanApproveRequests(canApprove)
+
+    suspend fun hasRegistrationRequestsAccess(): Boolean {
+        val role = getUserRole()
+        return role == UserRole.ADMIN || (role == UserRole.KHADEM && canApproveRequests())
+    }
+
     fun observeAccessToken(): StateFlow<String> = authenticationRepository.observeTokenChange()
 
     fun observeAuthState(): StateFlow<AuthState> = authenticationRepository.observeAuthState()
+
+    fun observeRequestsAccess(): StateFlow<Boolean> = authenticationRepository.observeRequestsAccess()
 }

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,6 +25,7 @@ import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.Button
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
 import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.OutlinedTextField
@@ -69,7 +71,7 @@ fun RegisterStep4KahenContent(
             )
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                val selectedText = state.selectedEducationalStages.joinToString(", ") { it.name }
+                val selectedText = state.kahenEducationalStages.joinToString(", ") { it.name }
                 val currentError = state.stageError ?: state.stagesError
                 OutlinedTextField(
                     value = selectedText,
@@ -128,6 +130,8 @@ fun RegisterStep4KahenContent(
         skipPartiallyExpanded = true,
         onDismiss = { listener.onToggleStagesSheet(false) }
     ) {
+        val stageListState = rememberLazyListState()
+
         Text(
             text = stringResource(Res.string.educational_stages),
             style = Theme.typography.headlineSmall,
@@ -135,7 +139,9 @@ fun RegisterStep4KahenContent(
             modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
         )
 
+
         LazyColumn(
+            state = stageListState,
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f, fill = false),
@@ -145,7 +151,7 @@ fun RegisterStep4KahenContent(
                 items = state.educationalStages,
                 key = { stage -> stage.id }
             ) { stage ->
-                val isSelected = state.selectedEducationalStages.any { it.id == stage.id }
+                val isSelected = state.kahenEducationalStages.any { it.id == stage.id }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -172,6 +178,13 @@ fun RegisterStep4KahenContent(
                 }
             }
         }
+
+        PaginationTrigger(
+            list = state.educationalStages,
+            listState = stageListState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadNextEducationalStages
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -240,13 +253,7 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
             override fun onSelectEducationalStage(stage: LookupResponse) {}
             override fun onToggleEducationalStageSelection(stage: LookupResponse) {
-                val current = state.selectedEducationalStages
-                val updated = if (current.any { it.id == stage.id }) {
-                    current.filterNot { it.id == stage.id }
-                } else {
-                    current + stage
-                }
-                state = state.copy(selectedEducationalStages = updated)
+
             }
             override fun onToggleStagesSheet(visible: Boolean) { state = state.copy(isStagesSheetVisible = visible) }
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }

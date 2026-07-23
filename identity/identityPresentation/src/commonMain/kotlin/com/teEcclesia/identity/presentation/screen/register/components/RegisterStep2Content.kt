@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -25,11 +26,16 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.Button
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.menu.DropdownMenu
 import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.OutlinedTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -239,19 +245,55 @@ fun RegisterStep2Content(
                     }
                 )
 
-                DropdownMenu(
-                    expanded = state.isAreaSheetVisible && state.areas.isNotEmpty(),
-                    onDismissRequest = { listener.onToggleAreaSheet(false) },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                BottomSheet(
+                    isVisible = state.isAreaSheetVisible,
+                    onDismiss = { listener.onToggleAreaSheet(false) }
                 ) {
-                    state.areas.forEach { area ->
-                        DropdownMenuItem(
-                            text = { Text(area, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                            onClick = {
-                                listener.onSelectArea(area)
+                    val areaListState = rememberLazyListState()
+
+                    Text(
+                        text = stringResource(Res.string.area),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    LazyColumn(
+                        state = areaListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = state.areas,
+                            key = { area -> area }
+                        ) { area ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        listener.onSelectArea(area)
+                                        listener.onToggleAreaSheet(false)
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = area,
+                                    style = Theme.typography.bodyLarge,
+                                    color = Theme.colorScheme.onSurface
+                                )
                             }
-                        )
+                        }
                     }
+
+                    PaginationTrigger(
+                        list = state.areas,
+                        listState = areaListState,
+                        remainingItemsToLoadNextPage = 5,
+                        loadNextItems = listener::onLoadNextAreas
+                    )
                 }
             }
 

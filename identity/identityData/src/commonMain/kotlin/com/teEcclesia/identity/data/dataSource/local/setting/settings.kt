@@ -27,9 +27,14 @@ internal var Settings.userRole: String
     get() = getString(USER_ROLE, "")
     set(value) = putString(USER_ROLE, value)
 
+internal var Settings.canApproveRequests: Boolean
+    get() = getBoolean(CAN_APPROVE_REQUESTS, false)
+    set(value) = putBoolean(CAN_APPROVE_REQUESTS, value)
+
 const val ACCESS_TOKEN = "access_token"
 const val REFRESH_TOKEN = "refresh_token"
 const val USER_STATUS = "user_status"
 const val APP_LANGUAGE = "app_language"
 const val APP_THEME = "app_theme"
 const val USER_ROLE = "user_role"
+const val CAN_APPROVE_REQUESTS = "can_approve_requests"

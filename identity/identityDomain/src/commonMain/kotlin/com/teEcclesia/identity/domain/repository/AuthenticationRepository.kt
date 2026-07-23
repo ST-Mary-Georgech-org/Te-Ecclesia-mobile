@@ -23,7 +23,10 @@ interface AuthenticationRepository {
     suspend fun getUserRole(): UserRole?
     suspend fun saveUserStatus(status: UserStatus)
     suspend fun getUserStatus(): UserStatus?
+    suspend fun saveCanApproveRequests(canApprove: Boolean)
+    suspend fun getCanApproveRequests(): Boolean
     suspend fun updateDeviceToken(deviceToken: String)
     fun observeTokenChange(): StateFlow<String>
     fun observeAuthState(): StateFlow<AuthState>
+    fun observeRequestsAccess(): StateFlow<Boolean>
 }

@@ -22,11 +22,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.Button
 import com.teEcclesia.designsystem.components.icon.Icon
-import com.teEcclesia.designsystem.components.menu.DropdownMenu
-import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.OutlinedTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -72,7 +76,7 @@ fun RegisterStep4ServantContent(
 
             Box(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
-                    value = state.selectedEducationalStage?.name ?: "",
+                    value = state.servantEducationalStage?.name ?: "",
                     onValueChange = {},
                     label = { Text(stringResource(Res.string.educational_stage), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
                     modifier = Modifier.fillMaxWidth().clickableNoRipple { listener.onToggleStageSheet(true) },
@@ -90,24 +94,59 @@ fun RegisterStep4ServantContent(
                     }
                 )
 
-                DropdownMenu(
-                    expanded = state.isStageSheetVisible,
-                    onDismissRequest = { listener.onToggleStageSheet(false) },
-                    modifier = Modifier.fillMaxWidth(0.9f)
+                BottomSheet(
+                    isVisible = state.isStageSheetVisible,
+                    onDismiss = { listener.onToggleStageSheet(false) }
                 ) {
-                    state.educationalStages.forEach { stage ->
-                        DropdownMenuItem(
-                            text = { Text(stage.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                            onClick = {
-                                listener.onSelectEducationalStage(stage)
-                                listener.onToggleStageSheet(false)
+                    val stageListState = rememberLazyListState()
+
+                    Text(
+                        text = stringResource(Res.string.educational_stage),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    LazyColumn(
+                        state = stageListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = state.educationalStages,
+                            key = { stage -> stage.id }
+                        ) { stage ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        listener.onSelectEducationalStage(stage)
+                                        listener.onToggleStageSheet(false)
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stage.name,
+                                    style = Theme.typography.bodyLarge,
+                                    color = Theme.colorScheme.onSurface
+                                )
                             }
-                        )
+                        }
                     }
+
+                    PaginationTrigger(
+                        list = state.educationalStages,
+                        listState = stageListState,
+                        remainingItemsToLoadNextPage = 5,
+                        loadNextItems = listener::onLoadNextEducationalStages
+                    )
                 }
             }
 
-            val hasYears = !state.selectedEducationalStage?.subItems.isNullOrEmpty()
+            val hasYears = !state.servantEducationalStage?.subItems.isNullOrEmpty() || state.servantEducationalYear != null
 
             AnimatedVisibility(
                 visible = hasYears,
@@ -116,7 +155,7 @@ fun RegisterStep4ServantContent(
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
                     OutlinedTextField(
-                        value = state.selectedEducationalYear?.name ?: "",
+                        value = state.servantEducationalYear?.name ?: "",
                         onValueChange = {},
                         label = { Text(stringResource(Res.string.educational_year), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
                         modifier = Modifier.fillMaxWidth().clickableNoRipple { listener.onToggleYearSheet(true) },
@@ -134,19 +173,44 @@ fun RegisterStep4ServantContent(
                         }
                     )
 
-                    DropdownMenu(
-                        expanded = state.isYearSheetVisible,
-                        onDismissRequest = { listener.onToggleYearSheet(false) },
-                        modifier = Modifier.fillMaxWidth(0.9f)
+                    BottomSheet(
+                        isVisible = state.isYearSheetVisible,
+                        onDismiss = { listener.onToggleYearSheet(false) }
                     ) {
-                        (state.selectedEducationalStage?.subItems ?: emptyList()).forEach { year ->
-                            DropdownMenuItem(
-                                text = { Text(year.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                                onClick = {
-                                    listener.onSelectEducationalYear(year)
-                                    listener.onToggleYearSheet(false)
+                        Text(
+                            text = stringResource(Res.string.educational_year),
+                            style = Theme.typography.headlineSmall,
+                            color = Theme.colorScheme.onSurface,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f, fill = false),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(
+                                items = state.servantEducationalStage?.subItems ?: emptyList(),
+                                key = { year -> year.id }
+                            ) { year ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickableNoRipple {
+                                            listener.onSelectEducationalYear(year)
+                                            listener.onToggleYearSheet(false)
+                                        }
+                                        .padding(vertical = 12.dp, horizontal = 16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = year.name,
+                                        style = Theme.typography.bodyLarge,
+                                        color = Theme.colorScheme.onSurface
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
                 }
@@ -228,9 +292,9 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onBishopNameChange(value: String) {}
             override fun onOrdinationPlaceChange(value: String) {}
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
-            override fun onSelectEducationalStage(stage: LookupResponse) { state = state.copy(selectedEducationalStage = stage) }
+            override fun onSelectEducationalStage(stage: LookupResponse) {  }
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
-            override fun onSelectEducationalYear(year: LookupResponse) { state = state.copy(selectedEducationalYear = year) }
+            override fun onSelectEducationalYear(year: LookupResponse) {  }
             override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
             override fun onToggleFatherDeceased(deceased: Boolean) {}
             override fun onFatherPhoneChange(value: String) {}

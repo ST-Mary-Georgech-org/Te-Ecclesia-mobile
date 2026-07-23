@@ -20,3 +20,6 @@ data object ProfileRoute : NavKey
 
 @Serializable
 data object PendingApprovalRoute : NavKey
+
+@Serializable
+data object RegistrationRequestsRoute : NavKey

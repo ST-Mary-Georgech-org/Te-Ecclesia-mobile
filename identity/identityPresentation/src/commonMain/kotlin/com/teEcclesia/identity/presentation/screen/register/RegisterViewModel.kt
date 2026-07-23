@@ -60,6 +60,7 @@ import teecclesia.designsystem.generated.resources.failed_to_verify_whatsapp
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
+import com.teEcclesia.identity.presentation.util.toPagedData
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -73,16 +74,14 @@ class RegisterViewModel(
     private var whatsappToken: String? = null
 
     private val priestsPaginator = createPaginator(
-        initialKey = 0,
-        pageSize = 20,
         loadPage = { page ->
-            registerRepository.getConfessionPriests(PageQuery(page = page, size = 20)).data
+            registerRepository.getConfessionPriests(PageQuery(page = page, size = 20)).toPagedData()
         },
         onSuccess = { items ->
             updateState {
                 copy(
-                    confessionPriests = confessionPriests + items,
-                    isPriestEndReached = items.size < 20
+                    confessionPriests = confessionPriests + items.data,
+                    isPriestEndReached = items.isLastPage
                 )
             }
         },
@@ -102,16 +101,14 @@ class RegisterViewModel(
     private var areasPaginator = createAreasPaginator()
 
     private fun createAreasPaginator(query: String? = null) = createPaginator(
-        initialKey = 0,
-        pageSize = 20,
         loadPage = { page ->
-            lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = page, size = 20)).data
+            lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = page, size = 20)).toPagedData()
         },
         onSuccess = { items ->
             updateState {
                 copy(
-                    areas = if (isAreaLoading && areas.isEmpty()) items else areas + items,
-                    isAreaEndReached = items.size < 20
+                    areas = if (isAreaLoading && areas.isEmpty()) items.data else areas + items.data,
+                    isAreaEndReached = items.isLastPage
                 )
             }
         },
@@ -128,16 +125,14 @@ class RegisterViewModel(
     )
 
     private val ranksPaginator = createPaginator(
-        initialKey = 0,
-        pageSize = 20,
         loadPage = { page ->
-            lookupRepository.getRanks(PageQuery(page = page, size = 20)).data
+            lookupRepository.getRanks(PageQuery(page = page, size = 20)).toPagedData()
         },
         onSuccess = { items ->
             updateState {
                 copy(
-                    ranks = ranks + items,
-                    isRankEndReached = items.size < 20
+                    ranks = ranks + items.data,
+                    isRankEndReached = items.isLastPage
                 )
             }
         },
@@ -154,16 +149,14 @@ class RegisterViewModel(
     )
 
     private val stagesPaginator = createPaginator(
-        initialKey = 0,
-        pageSize = 20,
         loadPage = { page ->
-            lookupRepository.getEducationalStages(PageQuery(page = page, size = 20)).data
+            lookupRepository.getEducationalStages(PageQuery(page = page, size = 20)).toPagedData()
         },
         onSuccess = { items ->
             updateState {
                 copy(
-                    educationalStages = educationalStages + items,
-                    isStageEndReached = items.size < 20
+                    educationalStages = educationalStages + items.data,
+                    isStageEndReached = items.isLastPage,
                 )
             }
         },
@@ -252,8 +245,12 @@ class RegisterViewModel(
                             motherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: "",
                             motherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: "",
                             shamamsaStatus = makhdoom?.shamamsaStudyStatus ?: ShamamsaStudyStatus.YES,
-                            selectedEducationalStage = makhdoom?.educationalStage ?: khadem?.educationalStage,
-                            selectedEducationalYear = makhdoom?.educationalYear ?: khadem?.educationalYear,
+                            studentEducationalStage = makhdoom?.educationalStage,
+                            studentEducationalYear = makhdoom?.educationalYear,
+                            
+                            // Servant fields
+                            servantEducationalStage = khadem?.educationalStage,
+                            servantEducationalYear = khadem?.educationalYear,
                             
                             // Ordination fields
                             isOrdained = ordination != null,
@@ -263,7 +260,7 @@ class RegisterViewModel(
                             bishopName = ordination?.bishopName ?: "",
                             ordinationPlace = ordination?.ordinationPlace ?: "",
 
-                            selectedEducationalStages = profile.kahenProfile?.educationalStages ?: emptyList(),
+                            kahenEducationalStages = profile.kahenProfile?.educationalStages ?: emptyList(),
                             currentStep = targetStep
                         )
                     }
@@ -677,8 +674,8 @@ class RegisterViewModel(
 
         when (role) {
             UserRole.KHADEM -> {
-                val stageErr = if (s.selectedEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
-                val yearErr = if (!s.selectedEducationalStage?.subItems.isNullOrEmpty() && s.selectedEducationalYear == null) {
+                val stageErr = if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
+                val yearErr = if (!s.servantEducationalStage?.subItems.isNullOrEmpty() && s.servantEducationalYear == null) {
                     UiText.StringRes(Res.string.field_required)
                 } else null
 
@@ -693,8 +690,8 @@ class RegisterViewModel(
             }
             UserRole.MAKHDOOM -> {
                 val rankErr = if (s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
-                val stageErr = if (s.selectedEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
-                val yearErr = if (!s.selectedEducationalStage?.subItems.isNullOrEmpty() && s.selectedEducationalYear == null) {
+                val stageErr = if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
+                val yearErr = if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
                     UiText.StringRes(Res.string.field_required)
                 } else null
 
@@ -760,7 +757,7 @@ class RegisterViewModel(
                 // Parent profile validation
             }
             UserRole.KAHEN -> {
-                val stageErr = if (s.selectedEducationalStages.isEmpty()) {
+                val stageErr = if (s.kahenEducationalStages.isEmpty()) {
                     UiText.StringRes(Res.string.field_required)
                 } else null
                 if (stageErr != null) {
@@ -774,11 +771,11 @@ class RegisterViewModel(
         val request = CompleteProfileRequest(
             role = role,
             khademProfile = if (role == UserRole.KHADEM) KhademProfileRequest(
-                educationalStageId = s.selectedEducationalStage?.id ?: 1L,
-                educationalYearId = s.selectedEducationalYear?.id
+                educationalStageId = s.servantEducationalStage?.id ?: 1L,
+                educationalYearId = s.servantEducationalYear?.id
             ) else null,
             kahenProfile = if (role == UserRole.KAHEN) KahenProfileRequest(
-                educationalStageIds = s.selectedEducationalStages.map { it.id }
+                educationalStageIds = s.kahenEducationalStages.map { it.id }
             ) else null,
             ordinationProfile = if (role != UserRole.KAHEN && role != UserRole.PARENT && s.isOrdained) OrdinationProfileRequest(
                 rankId = s.selectedRank?.id ?: 1L,
@@ -789,8 +786,8 @@ class RegisterViewModel(
             ) else null,
             makhdoomProfile = if (role == UserRole.MAKHDOOM) MakhdoomProfileRequest(
                 shamamsaStudyStatus = s.shamamsaStatus,
-                educationalStageId = s.selectedEducationalStage?.id ?: 1L,
-                educationalYearId = s.selectedEducationalYear?.id,
+                educationalStageId = s.studentEducationalStage?.id ?: 1L,
+                educationalYearId = s.studentEducationalYear?.id,
                 isFatherDeceased = s.isFatherDeceased,
                 fatherPhone = s.fatherPhone.ifBlank { null },
                 fatherWhatsapp = s.fatherWhatsapp.ifBlank { null },
@@ -868,18 +865,32 @@ class RegisterViewModel(
     }
 
     override fun onSelectEducationalStage(stage: LookupResponse) {
-        updateState { copy(selectedEducationalStage = stage, selectedEducationalYear = null, stageError = null, yearError = null) }
+        updateState {
+            val role = selectedRole
+            copy(
+                studentEducationalStage = if (role == UserRole.MAKHDOOM) stage else studentEducationalStage,
+                studentEducationalYear = if (role == UserRole.MAKHDOOM) null else studentEducationalYear,
+                servantEducationalStage = if (role == UserRole.KHADEM) stage else servantEducationalStage,
+                servantEducationalYear = if (role == UserRole.KHADEM) null else servantEducationalYear,
+                stageError = null,
+                yearError = null
+            )
+        }
     }
 
     override fun onToggleEducationalStageSelection(stage: LookupResponse) {
         updateState {
-            val currentList = selectedEducationalStages
+            val currentList = kahenEducationalStages
             val newList = if (currentList.any { it.id == stage.id }) {
                 currentList.filterNot { it.id == stage.id }
             } else {
                 currentList + stage
             }
-            copy(selectedEducationalStages = newList, stageError = null, stagesError = null)
+            copy(
+                kahenEducationalStages = if (selectedRole == UserRole.KAHEN) newList else kahenEducationalStages,
+                stageError = null,
+                stagesError = null
+            )
         }
     }
 
@@ -898,7 +909,14 @@ class RegisterViewModel(
     }
 
     override fun onSelectEducationalYear(year: LookupResponse) {
-        updateState { copy(selectedEducationalYear = year, yearError = null) }
+        updateState {
+            val role = selectedRole
+            copy(
+                studentEducationalYear = if (role == UserRole.MAKHDOOM) year else studentEducationalYear,
+                servantEducationalYear = if (role == UserRole.KHADEM) year else servantEducationalYear,
+                yearError = null
+            )
+        }
     }
 
     override fun onToggleYearSheet(visible: Boolean) {

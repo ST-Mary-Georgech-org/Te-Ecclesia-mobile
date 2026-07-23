@@ -11,10 +11,13 @@ data class KhademProfileResponseDto(
     @SerialName("educationalStage")
     val educationalStage: LookupResponseDto,
     @SerialName("educationalYear")
-    val educationalYear: LookupResponseDto? = null
+    val educationalYear: LookupResponseDto? = null,
+    @SerialName("canApproveRequests")
+    val canApproveRequests: Boolean = false
 )
 
 fun KhademProfileResponseDto.toDomain() = KhademProfileResponse(
     educationalStage = educationalStage.toDomain(),
-    educationalYear = educationalYear?.toDomain()
+    educationalYear = educationalYear?.toDomain(),
+    canApproveRequests = canApproveRequests
 )

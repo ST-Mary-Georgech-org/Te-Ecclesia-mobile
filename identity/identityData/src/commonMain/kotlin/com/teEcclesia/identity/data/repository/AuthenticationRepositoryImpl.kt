@@ -5,6 +5,7 @@ import com.teEcclesia.identity.data.dataSource.local.setting.accessToken
 import com.teEcclesia.identity.data.dataSource.local.setting.refreshToken
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
+import com.teEcclesia.identity.data.dataSource.local.setting.canApproveRequests
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -32,6 +33,18 @@ class AuthenticationRepositoryImpl(
 
     private val observableToken: MutableStateFlow<String> = MutableStateFlow(getInitialToken())
     private val observableAuthState: MutableStateFlow<AuthState> = MutableStateFlow(getInitialAuthState())
+    private val observableRequestsAccess: MutableStateFlow<Boolean> = MutableStateFlow(calculateRequestsAccess())
+
+    private fun calculateRequestsAccess(): Boolean {
+        val roleStr = settings.userRole
+        val role = if (roleStr.isBlank()) null else runCatching { UserRole.valueOf(roleStr) }.getOrNull()
+        val canApprove = settings.canApproveRequests
+        return role == UserRole.ADMIN || (role == UserRole.KHADEM && canApprove)
+    }
+
+    private fun updateRequestsAccess() {
+        observableRequestsAccess.value = calculateRequestsAccess()
+    }
 
     private fun getInitialToken(): String = settings.accessToken
 
@@ -107,12 +120,15 @@ class AuthenticationRepositoryImpl(
         saveTokensToSettings(AuthenticationTokens(accessToken = "", refreshToken = ""))
         settings.userRole = ""
         settings.userStatus = ""
+        settings.canApproveRequests = false
         emitToken("")
         observableAuthState.emit(AuthState.UNAUTHENTICATED)
+        updateRequestsAccess()
     }
 
     override suspend fun saveUserRole(role: UserRole) {
         settings.userRole = role.name
+        updateRequestsAccess()
     }
 
     override suspend fun getUserRole(): UserRole? {
@@ -133,6 +149,15 @@ class AuthenticationRepositoryImpl(
         val statusStr = settings.userStatus
         if (statusStr.isBlank()) return null
         return runCatching { UserStatus.valueOf(statusStr) }.getOrNull()
+    }
+
+    override suspend fun saveCanApproveRequests(canApprove: Boolean) {
+        settings.canApproveRequests = canApprove
+        updateRequestsAccess()
+    }
+
+    override suspend fun getCanApproveRequests(): Boolean {
+        return settings.canApproveRequests
     }
 
     override suspend fun saveRegistrationToken(token: String, refreshToken: String) {
@@ -170,6 +195,8 @@ class AuthenticationRepositoryImpl(
     override fun observeTokenChange(): StateFlow<String> = observableToken
 
     override fun observeAuthState(): StateFlow<AuthState> = observableAuthState
+
+    override fun observeRequestsAccess(): StateFlow<Boolean> = observableRequestsAccess
 
     override suspend fun saveAuthTokens(authTokens: AuthenticationTokens) {
         saveTokens(authTokens)

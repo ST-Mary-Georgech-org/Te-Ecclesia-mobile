@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation3.runtime.NavKey
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.designsystem.utils.pagination.PagedData
 import com.teEcclesia.designsystem.utils.pagination.Paginator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -163,33 +164,24 @@ abstract class BaseViewModel<STATE>(
         }
     }
 
-    protected fun <Key, Items> createPaginator(
-        initialKey: Key,
-        pageSize: Int,
-        loadPage: suspend (pageNumber: Key) -> List<Items>,
-        onSuccess: (items: List<Items>) -> Unit,
+    protected fun <Items> createPaginator(
+        initialKey: Int = 0,
+        loadPage: suspend (pageNumber: Int) -> PagedData<Items>,
+        onSuccess: (items: PagedData<Items>) -> Unit,
         onLoadUpdated: (Boolean) -> Unit,
         onError: (Throwable?) -> Unit = {},
-        endReached: (items: List<Items>, pageSize: Int) -> Boolean = { items, size ->
-            items.isEmpty() || items.size < size
-        }
-    ): Paginator<Key, List<Items>> {
+        endReached: (items: PagedData<Items>) -> Boolean = { page -> page.isLastPage }
+    ): Paginator<Int, PagedData<Items>> {
         return Paginator(
             initialKey = initialKey,
             onLoadUpdated = onLoadUpdated,
             onRequest = { pageNumber -> loadPage(pageNumber) },
-            getNextKey = { currentKey, _ ->
-                @Suppress("UNCHECKED_CAST")
-                when (currentKey) {
-                    is Int -> (currentKey + 1) as Key
-                    else -> currentKey
-                }
-            },
+            getNextKey = { currentKey, _ -> currentKey + 1 },
             onError = { throwable ->
                 onError(throwable)
             },
             onSuccess = { items, _ -> onSuccess(items) },
-            endReached = { _, result -> endReached(result, pageSize) }
+            endReached = { _, result -> endReached(result) }
         )
     }
 }
