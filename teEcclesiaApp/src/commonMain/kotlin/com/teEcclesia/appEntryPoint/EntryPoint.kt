@@ -20,6 +20,7 @@ import com.teEcclesia.designsystem.navigation.effector.EffectHandler
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.LoginRoute
+import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.VerifyPhoneRoute
 import com.teEcclesia.identity.api.ProfileRoute
@@ -30,17 +31,35 @@ import com.teEcclesia.util.buildNavigationSerializerConfig
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
+import kotlinx.coroutines.launch
+import com.teEcclesia.identity.domain.repository.ProfileRepository
+import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.domain.model.AuthState
+import coil3.ImageLoader
+import coil3.compose.setSingletonImageLoaderFactory
+import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.teEcclesia.identity.domain.model.UserStatus
+
 @Composable
 fun EntryPoint(
     viewModel: MainEntryViewModel = koinViewModel(),
     authorizationService: AuthorizationService = koinInject(),
+    profileRepository: ProfileRepository = koinInject(),
     effector: Effector = koinInject(),
 ) {
+    setSingletonImageLoaderFactory { context ->
+        ImageLoader.Builder(context)
+            .components {
+                add(KtorNetworkFetcherFactory())
+            }
+            .build()
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val accessToken by authorizationService.observeAccessToken().collectAsStateWithLifecycle()
+    val authState by authorizationService.observeAuthState().collectAsStateWithLifecycle()
 
     val navigationSerializerConfig = buildNavigationSerializerConfig()
-    val backStack = rememberNavBackStack(navigationSerializerConfig, LoginRoute)
+    val backStack = rememberNavBackStack(navigationSerializerConfig, SplashRoute)
     val currentRoute = backStack.lastOrNull()
 
     EffectHandler(effector.effect) { effect ->
@@ -57,25 +76,65 @@ fun EntryPoint(
                 backStack.clear()
                 backStack.add(effect.route)
             }
+
+            is Effect.ResetToMultiple -> {
+                backStack.clear()
+                backStack.addAll(effect.routes)
+            }
         }
     }
 
     val showBottomNavigation = currentRoute is HomeRoute
             || currentRoute is ProfileRoute
 
-    LaunchedEffect(accessToken) {
-        val targetRoute = if (accessToken.isBlank()) LoginRoute else HomeRoute
-        val isUnauthRoute = currentRoute == LoginRoute
-                || currentRoute == SignUpRoute
-                || currentRoute is VerifyPhoneRoute
+    LaunchedEffect(authState) {
+        when (authState) {
+            AuthState.AUTHENTICATED -> {
+                launch {
+                    runCatching {
+                        val previousStatus = authorizationService.getUserStatus()
+                        val profile = profileRepository.getRegistrationProfile()
+                        authorizationService.saveUserRole(profile.role)
+                        authorizationService.saveUserStatus(profile.status)
 
-        if (targetRoute == HomeRoute) {
-            if (isUnauthRoute) {
-                effector.resetTo(targetRoute, true)
+                        if (profile.status == UserStatus.PENDING_APPROVAL) {
+                            if (currentRoute !is PendingApprovalRoute) {
+                                effector.resetTo(PendingApprovalRoute, true)
+                            }
+                        } else if (previousStatus == UserStatus.PENDING_APPROVAL && profile.status == UserStatus.APPROVED) {
+                            effector.resetTo(HomeRoute, true)
+                        } else if (profile.status == UserStatus.REJECTED || profile.status == UserStatus.SUSPENDED) {
+                            effector.resetTo(LoginRoute, true)
+                        }
+                    }
+                }
+                val isUnauthRoute = currentRoute == LoginRoute
+                        || currentRoute is SignUpRoute
+                        || currentRoute is VerifyPhoneRoute
+                        || currentRoute is SplashRoute
+                if (isUnauthRoute) {
+                    effector.resetTo(HomeRoute, true)
+                }
             }
-        } else {
-            if (currentRoute != targetRoute) {
-                effector.resetTo(targetRoute, true)
+            AuthState.REGISTRATION_PENDING -> {
+                val userStatus = authorizationService.getUserStatus()
+                if (userStatus == UserStatus.PENDING_APPROVAL) {
+                    if (currentRoute !is PendingApprovalRoute) {
+                        effector.resetTo(PendingApprovalRoute, true)
+                    }
+                } else {
+                    val isUnauthRoute = currentRoute == LoginRoute
+                            || currentRoute is SplashRoute
+                    if (isUnauthRoute) {
+                        effector.resetTo(listOf(LoginRoute, SignUpRoute()), true)
+                    }
+                }
+            }
+            AuthState.UNAUTHENTICATED -> {
+                val isAuthRoute = currentRoute is HomeRoute || currentRoute is ProfileRoute
+                if (isAuthRoute || currentRoute is SplashRoute) {
+                    effector.resetTo(LoginRoute, true)
+                }
             }
         }
     }

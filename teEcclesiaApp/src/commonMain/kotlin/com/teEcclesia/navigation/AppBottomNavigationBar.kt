@@ -73,7 +73,7 @@ fun BoxScope.AppBottomNavigationBar(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Theme.colorScheme.background.secondary)
+                    .background(Theme.colorScheme.background)
                     .navigationBarsPadding()
             )
         }

@@ -32,7 +32,7 @@ fun NavigationRoot(
     NavDisplay(
         modifier = Modifier
             .fillMaxSize()
-            .background(Theme.colorScheme.background.primary),
+            .background(Theme.colorScheme.background),
         backStack = backStack,
         onBack = { backStack.removeLastOrNull() },
         sceneStrategy = DialogSceneStrategy(),

@@ -23,6 +23,9 @@ kotlin {
                 implementation(libs.androidx.navigation3.ui)
                 implementation(libs.androidx.lifecycle.viewmodel.navigation3)
                 
+                implementation(libs.coil.compose)
+                implementation(libs.coil.network.ktor)
+
                 implementation(projects.designSystem)
                 implementation(projects.identity.identityData)
                 implementation(projects.identity.identityDomain)
@@ -30,6 +33,11 @@ kotlin {
                 implementation(projects.identity.identityApi)
                 implementation(projects.home.homeApi)
                 implementation(projects.home.homePresentation)
+                
+                implementation(projects.lookups.lookupsData)
+                implementation(projects.lookups.lookupsDomain)
+                implementation(projects.notifications.notificationsData)
+                implementation(projects.notifications.notificationsDomain)
             }
         }
         commonTest {
