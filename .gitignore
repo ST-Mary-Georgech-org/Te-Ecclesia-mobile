@@ -32,3 +32,5 @@ debug.log
 */GoogleService-Info.plist
 *GoogleService-Info.plist
 /teEcclesiaApp/release
+/.agents/
+**/bin/

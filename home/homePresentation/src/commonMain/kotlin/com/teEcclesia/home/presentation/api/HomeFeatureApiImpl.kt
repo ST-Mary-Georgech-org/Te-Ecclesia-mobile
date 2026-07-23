@@ -31,17 +31,19 @@ class HomeFeatureApiImpl : HomeFeatureApi {
 @Composable
 fun HomeScreen() {
     Box(
-        Modifier.fillMaxSize().background(Color.Yellow),
+        Modifier.fillMaxSize().background(Theme.colorScheme.background),
         contentAlignment = androidx.compose.ui.Alignment.Center
     ) {
         Column {
-            Text(Res.string.home.asString(), Theme.typography.label.medium.medium)
+            Text(Res.string.home.asString(), Theme.typography.labelMedium, color = Theme.colorScheme.onBackground)
             Text(
                 "text",
-                Theme.typography.label.medium.medium,
+                Theme.typography.labelMedium,
                 modifier = Modifier.clickable {
 
-                })
+                },
+                color = Theme.colorScheme.onBackground
+            )
         }
     }
 }

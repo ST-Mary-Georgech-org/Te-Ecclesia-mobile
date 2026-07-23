@@ -9,6 +9,6 @@
         <item name="splashScreenIconSize">200dp</item>
 
         <!-- Post-splash theme -->
-        <item name="postSplashScreenTheme">@android:style/Theme.Material.Light.NoActionBar</item>
+        <item name="postSplashScreenTheme">@android:style/Theme.Material.NoActionBar</item>
     </style>
 </resources>

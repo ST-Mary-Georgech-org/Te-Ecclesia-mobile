@@ -8,18 +8,17 @@ import com.teEcclesia.notifications.domain.model.UnreadCountResponse
 import com.teEcclesia.notifications.domain.repository.NotificationRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
-import com.teEcclesia.shared.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.request.get
-import io.ktor.client.request.patch
 import io.ktor.client.request.parameter
+import io.ktor.client.request.patch
 
-class NotificationGateway(
+class NotificationRespositoryImpl(
     client: HttpClient
-) : BaseGateway(client), NotificationRepository {
+) : BaseRepository(client), NotificationRepository {
 
     override suspend fun getAllNotifications(pageQuery: PageQuery): PagedData<NotificationResponse> {
         return tryToExecute<BasePagedData<NotificationResponseDto>> {
@@ -27,13 +26,13 @@ class NotificationGateway(
                 parameter("page", pageQuery.page)
                 parameter("size", pageQuery.size)
             }
-        }.body<BasePagedData<NotificationResponseDto>>().toPagedData { it.toDomain() }
+        }.toPagedData { it.toDomain() }
     }
 
     override suspend fun getUnreadCount(): UnreadCountResponse {
         return tryToExecute<UnreadCountResponseDto> {
             get("/api/v1/notifications/unread-count")
-        }.body<UnreadCountResponseDto>().toDomain()
+        }.toDomain()
     }
 
     override suspend fun markAllAsRead() {

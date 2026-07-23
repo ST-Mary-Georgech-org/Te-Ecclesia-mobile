@@ -6,16 +6,16 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
-import com.teEcclesia.shared.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
-class LookupGateway(
+class LookupRepositoryImpl(
     client: HttpClient
-) : BaseGateway(client), LookupRepository {
+) : BaseRepository(client), LookupRepository {
 
     override suspend fun getRanks(pageQuery: PageQuery): PagedData<LookupResponse> {
         return tryToExecute<BasePagedData<LookupResponseDto>> {
@@ -35,12 +35,13 @@ class LookupGateway(
         }.toPagedData { it.toDomain() }
     }
 
-    override suspend fun getAreas(pageQuery: PageQuery): PagedData<LookupResponse> {
+    override suspend fun getAreas(query: String?, pageQuery: PageQuery): PagedData<String> {
         return tryToExecute<BasePagedData<LookupResponseDto>> {
             get("/api/v1/lookups/areas") {
+                query?.takeIf { it.isNotBlank() }?.let { parameter("query", it) }
                 parameter("page", pageQuery.page)
                 parameter("size", pageQuery.size)
             }
-        }.toPagedData { it.toDomain() }
+        }.toPagedData { it.name }
     }
 }
