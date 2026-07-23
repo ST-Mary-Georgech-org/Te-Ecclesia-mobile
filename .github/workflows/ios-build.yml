@@ -1,0 +1,78 @@
+name: iOS
+
+on:
+  pull_request:
+    branches: [ main, master, develop ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  detect:
+    name: Detect Changes
+    uses: ./.github/workflows/detect-changed-modules.yml
+    secrets: inherit
+
+  build:
+    name: Build
+    needs: detect
+    if: needs.detect.outputs.has_changes == 'true'
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: 17
+          cache: gradle
+
+      - name: Grant execute permission
+        run: chmod +x gradlew
+
+      - name: Create local.properties file
+        run: |
+          cat > local.properties << EOF
+          BASE_URL=${{ secrets.BASE_URL }}
+          KEYSTORE_STORE_FILE=androidApp/teEcclesia-keystore.jks
+          KEYSTORE_STORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_KEY_ALIAS=${{ secrets.ANDROID_KEY_ALIAS }}
+          KEYSTORE_KEY_PASSWORD=${{ secrets.ANDROID_KEY_ALIAS_PASSWORD }}
+          EOF
+
+      - name: Decode and create keystore file
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > androidApp/teEcclesia-keystore.jks
+
+      - name: Create GoogleService-Info.plist
+        run: echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+
+      - name: Integrate SwiftPM Linkage Package
+        run: |
+          XCODEPROJ_PATH="$PWD/iosApp/iosApp.xcodeproj" \
+          ./gradlew :teEcclesiaApp:integrateLinkagePackage -i
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add iosApp/iosApp.xcodeproj
+          git add iosApp/KotlinMultiplatformLinkedPackage || true
+          git commit -m "chore: integrate SwiftPM Firebase package dependency via integrateLinkagePackage" || echo "No changes to commit"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+
+      - name: Build KMP XCFramework
+        run: ./gradlew :teEcclesiaApp:assembleTeEcclesiaAppDebugXCFramework --parallel --build-cache
+
+      - name: Build iOS app
+        if: needs.detect.outputs.has_ios_changes == 'true'
+        run: |
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme "iosApp" \
+            -configuration Debug \
+            -destination "generic/platform=iOS Simulator" \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO

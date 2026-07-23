@@ -1,0 +1,31 @@
+package com.teEcclesia.identity.domain.model
+
+data class RegisterRequest(
+    val firstName: String,
+    val secondName: String,
+    val thirdName: String,
+    val lastName: String,
+    val displayName: String,
+    val nationalId: String,
+    val phone: String,
+    val homePhone: String,
+    val email: String?,
+    val password: String,
+    val imageUrl: String?,
+    val job: String?,
+    val buildingNo: String,
+    val street: String,
+    val streetBranch: String?,
+    val area: String,
+    val floor: String,
+    val apartment: String?,
+    val specialMark: String,
+    val role: UserRole?,
+    val confessionPriestId: String?,
+    val externalConfessionPriestName: String?,
+    val externalConfessionChurch: String?,
+    val externalConfessionPhone: String?,
+    val ordinationProfile: OrdinationProfileRequest?,
+    val makhdoomProfile: MakhdoomProfileRequest?,
+    val parentProfile: ParentProfileRequest?
+)

@@ -1,0 +1,44 @@
+rootProject.name = "TeEcclesia"
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+pluginManagement {
+    includeBuild("build-logic")
+    repositories {
+        google {
+            mavenContent {
+                includeGroupAndSubgroups("androidx")
+                includeGroupAndSubgroups("com.android")
+                includeGroupAndSubgroups("com.google")
+            }
+        }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+include(":teEcclesiaApp")
+include(":androidApp")
+include(":designSystem")
+include(":shared:sharedData")
+include(":shared:sharedDomain")
+include(":identity:identityData")
+include(":identity:identityDomain")
+include(":identity:identityPresentation")
+include(":identity:identityApi")
+include(":home:homeApi")
+include(":home:homePresentation")
+include(":lookups:lookupsData")
+include(":lookups:lookupsDomain")
+include(":notifications:notificationsData")
+include(":notifications:notificationsDomain")
