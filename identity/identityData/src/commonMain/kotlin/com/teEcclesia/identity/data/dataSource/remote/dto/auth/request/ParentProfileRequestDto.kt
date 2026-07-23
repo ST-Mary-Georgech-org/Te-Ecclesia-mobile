@@ -15,7 +15,7 @@ data class ParentProfileRequestDto(
 )
 
 fun ParentProfileRequest.toDto() = ParentProfileRequestDto(
-    partnerCode = partnerCode,
-    childrenCodes = childrenCodes,
-    nationalIdImageUrl = nationalIdImageUrl
+    partnerCode = partnerCode?.ifEmpty { null },
+    childrenCodes = childrenCodes?.takeIf { it.isNotEmpty() },
+    nationalIdImageUrl = nationalIdImageUrl?.ifEmpty { null }
 )

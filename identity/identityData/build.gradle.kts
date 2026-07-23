@@ -12,6 +12,7 @@ kotlin {
             dependencies {
                 implementation(projects.identity.identityDomain)
                 implementation(projects.shared.sharedData)
+                implementation(projects.shared.sharedDomain)
                 implementation(projects.lookups.lookupsData)
             }
         }

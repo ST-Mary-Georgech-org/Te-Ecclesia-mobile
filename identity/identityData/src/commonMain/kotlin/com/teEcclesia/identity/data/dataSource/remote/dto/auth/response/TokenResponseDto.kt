@@ -7,9 +7,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TokenResponseDto(
     @SerialName("token")
-    val token: String
+    val token: String,
+    @SerialName("refreshToken")
+    val refreshToken: String? = null
 )
 
 fun TokenResponseDto.toDomain() = TokenResponse(
-    token = token
+    token = token,
+    refreshToken = refreshToken
 )

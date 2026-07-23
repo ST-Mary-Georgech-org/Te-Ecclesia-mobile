@@ -15,6 +15,8 @@ data class CompleteProfileRequestDto(
     val makhdoomProfile: MakhdoomProfileRequestDto? = null,
     @SerialName("khademProfile")
     val khademProfile: KhademProfileRequestDto? = null,
+    @SerialName("kahenProfile")
+    val kahenProfile: KahenProfileRequestDto? = null,
     @SerialName("parentProfile")
     val parentProfile: ParentProfileRequestDto? = null
 )
@@ -24,5 +26,6 @@ fun CompleteProfileRequest.toDto() = CompleteProfileRequestDto(
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
     khademProfile = khademProfile?.toDto(),
+    kahenProfile = kahenProfile?.toDto(),
     parentProfile = parentProfile?.toDto()
 )

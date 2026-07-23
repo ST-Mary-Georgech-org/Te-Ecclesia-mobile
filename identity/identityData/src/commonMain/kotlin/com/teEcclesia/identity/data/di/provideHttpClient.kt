@@ -76,8 +76,13 @@ internal fun provideHttpClient(
                     }
 
                     return@refreshTokens try {
+                        val newAccessToken = if (authorizationService().isRegistrationPending()) {
+                            authorizationService().getNewRegistrationToken()
+                        } else {
+                            authorizationService().getNewAccessToken()
+                        }
                         BearerTokens(
-                            accessToken = authorizationService().getNewAccessToken(),
+                            accessToken = newAccessToken,
                             refreshToken = currentRefreshToken,
                         )
                     } catch (e: CancellationException) {
@@ -108,7 +113,7 @@ internal fun provideCoilClient(): HttpClient {
     }
 }
 
-const val NETWORK_TIMEOUT_MS = 15_000L
+const val NETWORK_TIMEOUT_MS = 30_000L
 private val whiteListEndPoints = listOf(
     LOGIN_ENDPOINT,
     REFRESH_ENDPOINT,

@@ -4,6 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import com.teEcclesia.identity.domain.model.MakhdoomProfileRequest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
+import com.teEcclesia.identity.data.mapper.normalizeEgyptPhone
 
 @Serializable
 data class MakhdoomProfileRequestDto(
@@ -33,11 +34,11 @@ fun MakhdoomProfileRequest.toDto() = MakhdoomProfileRequestDto(
     shamamsaStudyStatus = shamamsaStudyStatus,
     educationalStageId = educationalStageId,
     educationalYearId = educationalYearId,
-    fatherPhone = fatherPhone,
-    fatherWhatsapp = fatherWhatsapp,
-    motherPhone = motherPhone,
-    motherWhatsapp = motherWhatsapp,
+    fatherPhone = fatherPhone?.ifEmpty { null }?.normalizeEgyptPhone(),
+    fatherWhatsapp = fatherWhatsapp?.ifEmpty { null }?.normalizeEgyptPhone(),
+    motherPhone = motherPhone?.ifEmpty { null }?.normalizeEgyptPhone(),
+    motherWhatsapp = motherWhatsapp?.ifEmpty { null }?.normalizeEgyptPhone(),
     isFatherDeceased = isFatherDeceased,
     isMotherDeceased = isMotherDeceased,
-    identityDocumentImageUrl = identityDocumentImageUrl
+    identityDocumentImageUrl = identityDocumentImageUrl?.ifEmpty { null }
 )

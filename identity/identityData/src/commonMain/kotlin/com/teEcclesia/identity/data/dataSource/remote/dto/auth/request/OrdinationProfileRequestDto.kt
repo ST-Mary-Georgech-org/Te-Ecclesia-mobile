@@ -24,7 +24,7 @@ fun OrdinationProfileRequest.toDto() = OrdinationProfileRequestDto(
     rankId = rankId,
     isOrdinationInAnotherChurch = isOrdinationInAnotherChurch,
     ordinationYear = ordinationYear,
-    bishopName = bishopName,
-    ordinationPlace = ordinationPlace,
-    certificateImageUrl = certificateImageUrl
+    bishopName = bishopName?.ifEmpty { null },
+    ordinationPlace = ordinationPlace?.ifEmpty { null },
+    certificateImageUrl = certificateImageUrl?.ifEmpty { null }
 )

@@ -7,6 +7,9 @@ import com.teEcclesia.identity.domain.model.UserRole
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
+import com.teEcclesia.identity.data.dto.PriestDto
+import com.teEcclesia.identity.data.dto.toDomain
+
 @Serializable
 data class ProfileResponseDto(
     @SerialName("id")
@@ -23,30 +26,62 @@ data class ProfileResponseDto(
     val displayName: String,
     @SerialName("fullName")
     val fullName: String,
+    @SerialName("nationalId")
+    val nationalId: String? = null,
     @SerialName("phone")
     val phone: String,
+    @SerialName("homePhone")
+    val homePhone: String? = null,
     @SerialName("email")
-    val email: String?,
+    val email: String? = null,
     @SerialName("isEmailVerified")
-    val isEmailVerified: Boolean,
+    val isEmailVerified: Boolean = false,
     @SerialName("isPhoneVerified")
-    val isPhoneVerified: Boolean,
+    val isPhoneVerified: Boolean = false,
     @SerialName("imageUrl")
-    val imageUrl: String?,
+    val imageUrl: String? = null,
+    @SerialName("job")
+    val job: String? = null,
+    @SerialName("buildingNo")
+    val buildingNo: String? = null,
+    @SerialName("street")
+    val street: String? = null,
+    @SerialName("streetBranch")
+    val streetBranch: String? = null,
+    @SerialName("area")
+    val area: String? = null,
+    @SerialName("floor")
+    val floor: String? = null,
+    @SerialName("apartment")
+    val apartment: String? = null,
     @SerialName("specialMark")
-    val specialMark: String,
+    val specialMark: String? = null,
     @SerialName("gender")
     val gender: Gender,
     @SerialName("status")
     val status: UserStatus,
     @SerialName("statusReason")
-    val statusReason: String?,
+    val statusReason: String? = null,
     @SerialName("role")
     val role: UserRole,
+    @SerialName("confessionPriest")
+    val confessionPriest: PriestDto? = null,
+    @SerialName("externalConfessionPriestName")
+    val externalConfessionPriestName: String? = null,
+    @SerialName("externalConfessionChurch")
+    val externalConfessionChurch: String? = null,
+    @SerialName("externalConfessionPhone")
+    val externalConfessionPhone: String? = null,
     @SerialName("khademProfile")
     val khademProfile: KhademProfileResponseDto? = null,
+    @SerialName("kahenProfile")
+    val kahenProfile: KahenProfileResponseDto? = null,
     @SerialName("parentProfile")
-    val parentProfile: ParentProfileResponseDto? = null
+    val parentProfile: ParentProfileResponseDto? = null,
+    @SerialName("ordinationProfile")
+    val ordinationProfile: OrdinationProfileResponseDto? = null,
+    @SerialName("makhdoomProfile")
+    val makhdoomProfile: MakhdoomProfileResponseDto? = null
 )
 
 fun ProfileResponseDto.toDomain() = ProfileResponse(
@@ -57,16 +92,32 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     lastName = lastName,
     displayName = displayName,
     fullName = fullName,
+    nationalId = nationalId.orEmpty(),
     phone = phone,
-    email = email,
+    homePhone = homePhone.orEmpty(),
+    email = email.orEmpty(),
     isEmailVerified = isEmailVerified,
     isPhoneVerified = isPhoneVerified,
     imageUrl = imageUrl,
-    specialMark = specialMark,
+    job = job.orEmpty(),
+    buildingNo = buildingNo.orEmpty(),
+    street = street.orEmpty(),
+    streetBranch = streetBranch.orEmpty(),
+    area = area.orEmpty(),
+    floor = floor.orEmpty(),
+    apartment = apartment.orEmpty(),
+    specialMark = specialMark.orEmpty(),
     gender = gender,
     status = status,
     statusReason = statusReason,
     role = role,
+    confessionPriest = confessionPriest?.toDomain(),
+    externalConfessionPriestName = externalConfessionPriestName.orEmpty(),
+    externalConfessionChurch = externalConfessionChurch.orEmpty(),
+    externalConfessionPhone = externalConfessionPhone.orEmpty(),
     khademProfile = khademProfile?.toDomain(),
-    parentProfile = parentProfile?.toDomain()
+    kahenProfile = kahenProfile?.toDomain(),
+    parentProfile = parentProfile?.toDomain(),
+    ordinationProfile = ordinationProfile?.toDomain(),
+    makhdoomProfile = makhdoomProfile?.toDomain()
 )

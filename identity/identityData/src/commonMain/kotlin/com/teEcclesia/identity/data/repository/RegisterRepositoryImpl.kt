@@ -7,7 +7,7 @@ import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.Register
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.TokenResponseDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toDomain
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
-import com.teEcclesia.shared.data.shared.BaseGateway
+import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.identity.data.utils.invalidateAuthTokens
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.InitiateWhatsAppVerificationResponse
@@ -27,10 +27,20 @@ import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
 import kotlinx.serialization.json.Json
 
+import com.teEcclesia.identity.data.dto.PriestDto
+import com.teEcclesia.identity.data.dto.UserSummaryDto
+import com.teEcclesia.identity.data.dto.toDomain
+import com.teEcclesia.identity.domain.model.Priest
+import com.teEcclesia.identity.domain.model.UserSummary
+import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
+import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
+import com.teEcclesia.shared.domain.utils.PageQuery
+import com.teEcclesia.shared.domain.utils.PagedData
+
 class RegisterRepositoryImpl(
     client: HttpClient,
     private val authenticationRepository: AuthenticationRepository
-) : BaseGateway(client), RegisterRepository {
+) : BaseRepository(client), RegisterRepository {
 
     override suspend fun register(
         request: RegisterRequest,
@@ -123,10 +133,37 @@ class RegisterRepositoryImpl(
             get(WHATSAPP_STATUS) {
                 parameter("token", token)
             }
-        } ?: throw Exception("Verification pending or failed")
+        }
         
         authenticationRepository.saveAuthTokens(response.toDomain())
         client.invalidateAuthTokens()
+    }
+
+    override suspend fun getConfessionPriests(pageQuery: PageQuery): PagedData<Priest> {
+        return tryToExecute<BasePagedData<PriestDto>> {
+            get(PRIESTS) {
+                parameter("page", pageQuery.page)
+                parameter("size", pageQuery.size)
+            }
+        }.toPagedData { it.toDomain() }
+    }
+
+    override suspend fun searchParent(query: String): UserSummary? {
+        val dto = tryToExecute<UserSummaryDto?> {
+            get(SEARCH_PARENTS) {
+                parameter("query", query)
+            }
+        }
+        return dto?.toDomain()
+    }
+
+    override suspend fun searchMakhdoom(query: String): UserSummary? {
+        val dto = tryToExecute<UserSummaryDto?> {
+            get(SEARCH_MAKHDOOMS) {
+                parameter("query", query)
+            }
+        }
+        return dto?.toDomain()
     }
 
     companion object {
@@ -135,5 +172,8 @@ class RegisterRepositoryImpl(
         const val VERIFY_EMAIL = "api/v1/identity/auth/verify-email"
         const val WHATSAPP_INITIATE = "api/v1/identity/auth/whatsapp/initiate"
         const val WHATSAPP_STATUS = "api/v1/identity/auth/whatsapp/status"
+        const val PRIESTS = "api/v1/identity/auth/priests"
+        const val SEARCH_PARENTS = "api/v1/identity/auth/search-parents"
+        const val SEARCH_MAKHDOOMS = "api/v1/identity/auth/search-makhdooms"
     }
 }
