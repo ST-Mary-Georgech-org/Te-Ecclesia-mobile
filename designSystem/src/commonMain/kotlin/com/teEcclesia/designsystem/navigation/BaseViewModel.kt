@@ -67,6 +67,13 @@ abstract class BaseViewModel<STATE>(
         viewModelScope.launch { effector.resetTo(route, forceNavigate) }
     }
 
+    protected fun resetTo(
+        routes: List<NavKey>,
+        forceNavigate: Boolean = false
+    ) {
+        viewModelScope.launch { effector.resetTo(routes, forceNavigate) }
+    }
+
     protected fun showSnackBar(
         title: UiText,
         message: UiText? = null,

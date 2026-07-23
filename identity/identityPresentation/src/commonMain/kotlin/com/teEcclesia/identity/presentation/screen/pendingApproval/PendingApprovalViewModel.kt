@@ -22,6 +22,6 @@ class PendingApprovalViewModel(
     }
 
     override fun onClickEditRequest() {
-        resetTo(SignUpRoute(isEditMode = true))
+        resetTo(listOf(LoginRoute, SignUpRoute(isEditMode = true)))
     }
 }
