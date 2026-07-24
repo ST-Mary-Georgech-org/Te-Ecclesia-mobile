@@ -1,6 +1,8 @@
 package com.teEcclesia
 
 import platform.Foundation.NSBundle
+import kotlin.experimental.ExperimentalNativeApi
+import kotlin.native.Platform
 
 actual object AppEnvironment {
     actual val baseUrl: String =
@@ -9,4 +11,7 @@ actual object AppEnvironment {
     actual val versionName: String =
         NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleShortVersionString") as? String
             ?: throw Exception("App version not found")
+
+    @OptIn(ExperimentalNativeApi::class)
+    actual val isDebug: Boolean = Platform.isDebug
 }

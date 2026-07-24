@@ -9,6 +9,7 @@ class TeEcclesiaApp : Application() {
 
         AppEnvironment.internalBaseUrl = BuildConfig.BASE_URL
         AppEnvironment.internalVersionName = BuildConfig.VERSION_NAME
+        AppEnvironment.internalIsDebug = BuildConfig.DEBUG
 
         initKoin {
             androidContext(this@TeEcclesiaApp)

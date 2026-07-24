@@ -6,6 +6,7 @@ import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.ProfileRoute
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.VerifyPhoneRoute
 import kotlinx.serialization.modules.SerializersModule
@@ -20,6 +21,7 @@ fun buildNavigationSerializerConfig(): SavedStateConfiguration = SavedStateConfi
             subclass(VerifyPhoneRoute::class, VerifyPhoneRoute.serializer())
             subclass(ProfileRoute::class, ProfileRoute.serializer())
             subclass(HomeRoute::class, HomeRoute.serializer())
+            subclass(RegistrationRequestsRoute::class, RegistrationRequestsRoute.serializer())
         }
     }
 }

@@ -22,11 +22,11 @@ import androidx.navigation3.runtime.NavKey
 import com.teEcclesia.appEntryPoint.MainEntryInteractionListener
 import com.teEcclesia.designsystem.components.bottomNavigation.BottomNavigationBar
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.home
 import teecclesia.designsystem.generated.resources.ic_folder
@@ -60,7 +60,7 @@ fun BoxScope.AppBottomNavigationBar(
                     bottomNavigationItem(
                         selectedIcon = painterResource(Res.drawable.ic_home_selected),
                         notSelectedIcon = painterResource(Res.drawable.ic_home),
-                        title = Res.string.home.asString(),
+                        title = stringResource(Res.string.home),
                         entry = {
                             interactionListener.resetToRoute(HomeRoute)
                         }
@@ -70,7 +70,7 @@ fun BoxScope.AppBottomNavigationBar(
                         bottomNavigationItem(
                             selectedIcon = painterResource(Res.drawable.ic_folder),
                             notSelectedIcon = painterResource(Res.drawable.ic_folder),
-                            title = Res.string.requests.asString(),
+                            title = stringResource(Res.string.requests),
                             entry = {
                                 interactionListener.resetToRoute(RegistrationRequestsRoute)
                             }
@@ -80,7 +80,7 @@ fun BoxScope.AppBottomNavigationBar(
                     bottomNavigationItem(
                         selectedIcon = painterResource(Res.drawable.ic_profile),
                         notSelectedIcon = painterResource(Res.drawable.ic_profile),
-                        title = Res.string.profile.asString(),
+                        title = stringResource(Res.string.profile),
                         entry = {
                             interactionListener.resetToRoute(ProfileRoute)
                         }
