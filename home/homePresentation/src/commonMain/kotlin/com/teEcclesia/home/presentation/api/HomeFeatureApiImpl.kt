@@ -7,15 +7,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.home.api.HomeFeatureApi
 import com.teEcclesia.home.api.HomeRoute
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.home
 
@@ -35,7 +34,7 @@ fun HomeScreen() {
         contentAlignment = androidx.compose.ui.Alignment.Center
     ) {
         Column {
-            Text(Res.string.home.asString(), Theme.typography.labelMedium, color = Theme.colorScheme.onBackground)
+            Text(stringResource(Res.string.home), Theme.typography.labelMedium, color = Theme.colorScheme.onBackground)
             Text(
                 "text",
                 Theme.typography.labelMedium,

@@ -1,11 +1,11 @@
-package com.teEcclesia.shared.domain.utils
+package com.teEcclesia.shared.domain.utils.validation
 
 fun isValidEmailInput(email: String): Boolean {
     // 1. Block spaces
     if (email.contains(" ")) return false
     
     // 2. Prevent consecutive dots (e.g., "john..smith")
-    if (email.contains("..")) return false
+    if (email.contains("")) return false
 
     // 3. Progressive regex for typing state
     // - Local part: letters, numbers, and allowed symbols (. _ - +)
