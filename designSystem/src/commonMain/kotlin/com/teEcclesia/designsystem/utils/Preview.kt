@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 import com.teEcclesia.designsystem.theme.theme.Theme
 
 @Composable
-fun TeEcclesiaPreview(
+fun Preview(
     modifier: Modifier = Modifier,
     color: Color = Theme.colorScheme.background,
     darkTheme: Boolean = false,

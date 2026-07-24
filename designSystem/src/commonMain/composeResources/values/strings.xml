@@ -65,11 +65,15 @@
     <string name="field_required">Field is required</string>
     <string name="invalid_arabic_name">Arabic letters only, min 3 chars, no spaces</string>
     <string name="invalid_national_id_format">National ID must be exactly 14 digits</string>
+    <string name="invalid_national_id_length">National ID must be exactly 14 digits</string>
+    <string name="invalid_national_id_century">Invalid century digit in National ID (must start with 2 or 3)</string>
+    <string name="invalid_national_id_date">Invalid date of birth in National ID</string>
+    <string name="invalid_national_id_governorate">Invalid governorate code in National ID</string>
     <string name="invalid_phone_format">Phone must be 11 digits starting with 01</string>
     <string name="invalid_home_phone_format">Home phone must be 8 digits</string>
     <string name="invalid_year_format">Year must be 4 digits</string>
     <string name="invalid_email_format">Invalid email format</string>
-    <string name="invalid_password_format">8 or more characters with a mix of uppercase and lowercase letters, numbers, and symbols</string>
+    <string name="invalid_password_format">8 or more characters with a mix of uppercase and lowercase letters, numbers, and symbols, EX: Aa@123456</string>
 
     <string name="address_info">Address Details</string>
     <string name="building_no">Building No</string>
@@ -95,6 +99,8 @@
     <string name="ordained">Ordained?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="history">History</string>
+    <string name="history_long">History: Long</string>
     <string name="rank">Rank</string>
     <string name="ordained_in_this_church">Ordained in this church?</string>
     <string name="ordination_year">Ordination Year</string>
@@ -115,7 +121,7 @@
     <string name="password_need_uppercase">Password must contain at least 1 uppercase letter (A-Z)</string>
     <string name="password_need_lowercase">Password must contain at least 1 lowercase letter (a-z)</string>
     <string name="password_need_digit">Password must contain at least 1 number (0-9)</string>
-    <string name="password_need_special_char">Password must contain at least 1 special character (@, #, $, \", etc.)</string>
+    <string name="password_need_special_char">Password must contain at least 1 special character (@, #, $, %, ^, &amp;, +, =, !)</string>
     <string name="educational_year">Educational Year</string>
     <string name="father_deceased">Father Deceased?</string>
     <string name="father_phone">Father Phone</string>
@@ -140,7 +146,10 @@
 
     <!-- Operation Error Titles & Messages -->
     <string name="failed_to_load_priests">Failed to Load Priests</string>
-    <string name="failed_to_load_lookups">Failed to Load Data</string>
+    <string name="failed_to_load_areas">Failed to Load Areas</string>
+    <string name="failed_to_load_requests">Failed to Load Requests</string>
+    <string name="failed_to_load_educational_stages">Failed to Load Educational Stages</string>
+    <string name="failed_to_load_ranks">Failed to Load Ranks</string>
     <string name="failed_to_register">Registration Failed</string>
     <string name="failed_to_complete_profile">Failed to Complete Profile</string>
     <string name="failed_to_search_partner">Failed to Search Partner</string>
@@ -161,7 +170,8 @@
 
     <!-- Registration Requests -->
     <string name="requests">Requests</string>
-    <string name="search_requests">Search Registration Requests</string>
+    <string name="registration_requests">Registration Requests</string>
+    <string name="search_requests">Search Requests</string>
     <string name="sort_by">Sort By</string>
     <string name="all_roles">All</string>
     <string name="accept">Accept</string>
@@ -171,4 +181,5 @@
     <string name="name_asc">Name (A-Z)</string>
     <string name="name_desc">Name (Z-A)</string>
     <string name="role_admin">Admin</string>
+    <string name="not_implemented_yet">Not Implemented Yet</string>
 </resources>

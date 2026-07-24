@@ -36,7 +36,7 @@ import com.teEcclesia.designsystem.modifier.dialogPosition
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.util.extentions.painter
 import com.teEcclesia.designsystem.utils.PreviewMultiDevices
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.customShadow
 import kotlinx.coroutines.delay
 import teecclesia.designsystem.generated.resources.Res
@@ -153,7 +153,7 @@ data class SnackBarData(
 
 @Composable
 @PreviewMultiDevices
-fun CustomSnackBarPreview() = TeEcclesiaPreview {
+fun CustomSnackBarPreview() = Preview {
     Column(
         modifier = Modifier
             .fillMaxWidth()

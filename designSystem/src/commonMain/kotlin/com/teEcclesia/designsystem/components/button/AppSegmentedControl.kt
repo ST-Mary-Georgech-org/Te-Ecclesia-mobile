@@ -33,8 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.login
 import teecclesia.designsystem.generated.resources.signup
@@ -119,7 +119,7 @@ fun <T : Enum<T>> AppSegmentedControl(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = option.getName().asString(),
+                        text = stringResource(option.getName()),
                         style = Theme.typography.labelLarge,
                         color = textColor
                     )

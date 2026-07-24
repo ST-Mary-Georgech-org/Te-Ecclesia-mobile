@@ -7,6 +7,7 @@ import org.jetbrains.compose.resources.getPluralString
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
+import kotlin.jvm.JvmName
 
 sealed class UiText {
     data class DynamicString(val value: String = "") : UiText()
@@ -25,7 +26,7 @@ sealed class UiText {
 }
 
 @Composable
-fun UiText?.asString(): String {
+fun UiText.asString(): String {
     return when (this) {
         is UiText.DynamicString -> value
         is UiText.StringRes -> stringResource(resId)
@@ -36,9 +37,12 @@ fun UiText?.asString(): String {
                 pluralStringResource(resId, quantity, *formatArgs.toTypedArray())
             }
         }
-        null -> ""
     }
 }
+
+@Composable
+@JvmName("asStringNullable")
+fun UiText?.asString(): String? = this?.asString()
 
 suspend fun UiText?.asStringSuspend(): String {
     return when (this) {
