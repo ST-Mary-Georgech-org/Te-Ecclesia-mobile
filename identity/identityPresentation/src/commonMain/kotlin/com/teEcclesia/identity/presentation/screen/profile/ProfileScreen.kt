@@ -11,15 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.components.button.Button
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
@@ -30,6 +31,8 @@ import teecclesia.designsystem.generated.resources.profile
 fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -45,28 +48,21 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = Res.string.profile.asString(),
+                text = stringResource(Res.string.profile),
                 style = Theme.typography.headlineLarge,
                 color = Theme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = viewModel::onClickLogout,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.error,
-                contentColor = Theme.colorScheme.onError
-            ) {
-                Text(
-                    text = stringResource(Res.string.logout),
-                    style = Theme.typography.labelLarge,
-                    color = Theme.colorScheme.onError
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.logout),
+                state = state.actionButtonState,
+                enablePrimaryBackgroundColor = Theme.colorScheme.error
+            )
         }
     }
 }

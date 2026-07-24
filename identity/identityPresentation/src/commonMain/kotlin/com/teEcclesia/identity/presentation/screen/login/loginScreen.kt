@@ -28,12 +28,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.login.components.LoginFormContent
 import com.teEcclesia.identity.presentation.screen.login.components.OnboardingContent
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.hello_welcome_back
@@ -71,7 +71,7 @@ fun LoginScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = Res.string.hello_welcome_back.asString(),
+                    text = stringResource(Res.string.hello_welcome_back),
                     style = Theme.typography.headlineLarge,
                     color = Theme.colorScheme.onBackground
                 )

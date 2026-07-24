@@ -18,7 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.date_asc
 import teecclesia.designsystem.generated.resources.date_desc
@@ -50,32 +50,32 @@ fun SortingOptionBottomSheet(
                     .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
                 Text(
-                    text = Res.string.sort_by.asString(),
+                    text = stringResource(Res.string.sort_by),
                     style = Theme.typography.titleMedium,
                     color = Theme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 SortOptionRow(
-                    text = Res.string.date_desc.asString(),
+                    text = stringResource(Res.string.date_desc),
                     isSelected = currentSortBy == "createdAt" && currentSortOrder == "DESC",
                     onClick = { onSortOptionSelected("createdAt", "DESC") }
                 )
 
                 SortOptionRow(
-                    text = Res.string.date_asc.asString(),
+                    text = stringResource(Res.string.date_asc),
                     isSelected = currentSortBy == "createdAt" && currentSortOrder == "ASC",
                     onClick = { onSortOptionSelected("createdAt", "ASC") }
                 )
 
                 SortOptionRow(
-                    text = Res.string.name_asc.asString(),
+                    text = stringResource(Res.string.name_asc),
                     isSelected = currentSortBy == "firstName" && currentSortOrder == "ASC",
                     onClick = { onSortOptionSelected("firstName", "ASC") }
                 )
 
                 SortOptionRow(
-                    text = Res.string.name_desc.asString(),
+                    text = stringResource(Res.string.name_desc),
                     isSelected = currentSortBy == "firstName" && currentSortOrder == "DESC",
                     onClick = { onSortOptionSelected("firstName", "DESC") }
                 )

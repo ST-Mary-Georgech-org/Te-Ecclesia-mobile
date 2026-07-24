@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,17 +21,17 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
+import org.jetbrains.compose.resources.stringResource
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.designsystem.util.extentions.painter
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.presentation.screen.login.LoginInteractionListener
 import com.teEcclesia.identity.presentation.screen.login.LoginScreenState
+import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.dont_have_an_account
 import teecclesia.designsystem.generated.resources.password
@@ -58,32 +57,16 @@ fun LoginFormContent(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-            val isPhoneInput = state.username.matches("^01[0125][0-9]{0,9}$".toRegex()) && state.username.length in 1..11
+            val isPhoneInput = isValidPhoneInput(state.username)
 
             Box(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.username,
                     onValueChange = interactionListener::onUsernameChange,
-                    label = {
-                        Text(
-                            Res.string.phone_number.asString(),
-                            style = Theme.typography.bodyLarge,
-                            color = Theme.colorScheme.onSurfaceVariant
-                        )
-                    },
+                    labelText = stringResource(Res.string.phone_number),
                     modifier = Modifier.fillMaxWidth(),
-                    isError = state.usernameError != null,
-                    supportingText = {
-                        if (state.usernameError != null) {
-                            Text(state.usernameError.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error)
-                        } else {
-                            Text(
-                                Res.string.phone_number_supporting_text.asString(),
-                                style = Theme.typography.bodySmall,
-                                color = Theme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    },
+                    errorText = state.usernameError?.asString(),
+                    supportingText = stringResource(Res.string.phone_number_supporting_text),
                     textStyle = if (isPhoneInput) {
                         Theme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr)
                     } else {
@@ -103,49 +86,28 @@ fun LoginFormContent(
                 )
             }
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.password,
                 onValueChange = interactionListener::onPasswordChange,
-                label = {
-                    Text(
-                        Res.string.password.asString(),
-                        style = Theme.typography.bodyLarge,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
-                },
+                labelText = stringResource(Res.string.password),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                isError = state.passwordError != null,
-                supportingText = state.passwordError?.let {
-                    {
-                        Text(
-                            it.asString(),
-                            style = Theme.typography.bodySmall,
-                            color = Theme.colorScheme.error
-                        )
-                    }
-                },
+                errorText = state.passwordError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 visualTransformation = if (state.isPasswordVisible) {
                     VisualTransformation.None
                 } else {
                     PasswordVisualTransformation()
                 },
-                trailingIcon = {
-                    Icon(
-                        painter = when (state.isPasswordVisible) {
-                            true -> Res.drawable.ic_eye_closed.painter()
-                            false -> Res.drawable.ic_eye_opened.painter()
-                        },
-                        contentDescription = null,
-                        tint = Theme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickable(onClick = interactionListener::onTogglePasswordVisibility)
-                    )
-                }
+                trailingIcon = when (state.isPasswordVisible) {
+                    true -> Res.drawable.ic_eye_closed.painter()
+                    false -> Res.drawable.ic_eye_opened.painter()
+                },
+                onTrailingIconClick = interactionListener::onTogglePasswordVisibility
             )
 
             Text(
-                text = Res.string.forget_your_password.asString(),
+                text = stringResource(Res.string.forget_your_password),
                 color = Theme.colorScheme.primary,
                 style = Theme.typography.labelMedium,
                 modifier = Modifier.clickable(onClick = interactionListener::onForgotPasswordClicked)
@@ -159,34 +121,25 @@ fun LoginFormContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = interactionListener::onLoginClicked,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(
-                    text = Res.string.login.asString(),
-                    style = Theme.typography.labelLarge,
-                    color = Theme.colorScheme.onPrimary
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.login),
+                state = state.actionButtonState
+            )
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = Res.string.dont_have_an_account.asString(),
+                    text = stringResource(Res.string.dont_have_an_account),
                     color = Theme.colorScheme.onSurfaceVariant,
                     style = Theme.typography.labelMedium
                 )
                 Text(
-                    text = Res.string.register.asString(),
+                    text = stringResource(Res.string.register),
                     color = Theme.colorScheme.primary,
                     style = Theme.typography.labelLarge,
                     modifier = Modifier.clickable(onClick = interactionListener::onSignUpClicked)

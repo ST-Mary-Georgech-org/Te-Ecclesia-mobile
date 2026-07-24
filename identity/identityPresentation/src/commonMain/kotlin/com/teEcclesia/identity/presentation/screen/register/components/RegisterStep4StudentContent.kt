@@ -17,14 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import com.teEcclesia.designsystem.components.checkbox.Checkbox
-import com.teEcclesia.designsystem.components.menu.DropdownMenu
-import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
-import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
-import com.teEcclesia.designsystem.components.radioButton.RadioButton
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,18 +25,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.checkbox.Checkbox
+import com.teEcclesia.designsystem.components.menu.DropdownMenu
+import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
+import com.teEcclesia.designsystem.components.radioButton.RadioButton
+import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -85,6 +84,7 @@ fun RegisterStep4StudentContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.fillMaxWidth().animateContentSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -93,212 +93,194 @@ fun RegisterStep4StudentContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.ordination_info),
-                style = Theme.typography.headlineMedium,
-                color = Theme.colorScheme.onBackground
-            )
+            if (state.isMale != false) {
+                Text(
+                    text = stringResource(Res.string.ordination_info),
+                    style = Theme.typography.headlineMedium,
+                    color = Theme.colorScheme.onBackground
+                )
 
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(text = stringResource(Res.string.ordained), style = Theme.typography.bodyLarge, color = Theme.colorScheme.onBackground)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        RadioButton(
-                            selected = state.isOrdained,
-                            onClick = { listener.onToggleOrdained(true) }
-                        )
-                        Text(
-                            text = stringResource(Res.string.yes),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onBackground,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleOrdained(true) })
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                        RadioButton(
-                            selected = !state.isOrdained,
-                            onClick = { listener.onToggleOrdained(false) }
-                        )
-                        Text(
-                            text = stringResource(Res.string.no),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onBackground,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleOrdained(false) })
-                    }
-                }
-            }
-
-            AnimatedVisibility(visible = state.isOrdained) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Box(modifier = Modifier.fillMaxWidth()) {
-                        OutlinedTextField(
-                            value = state.selectedRank?.name ?: "",
-                            onValueChange = {},
-                            label = {
-                                Text(
-                                    stringResource(Res.string.rank),
-                                    style = Theme.typography.bodyMedium,
-                                    color = Theme.colorScheme.onBackground
-                                )
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                                .clickableNoRipple { listener.onToggleRankSheet(true) },
-                            readOnly = true,
-                            enabled = false,
-                            isError = state.rankError != null,
-                            supportingText = state.rankError?.let {
-                                {
-                                    Text(
-                                        it.asString(),
-                                        style = Theme.typography.bodySmall,
-                                        color = Theme.colorScheme.error
-                                    )
-                                }
-                            },
-                            trailingIcon = {
-                                Icon(
-                                    painter = painterResource(Res.drawable.ic_chevron_down),
-                                    contentDescription = null,
-                                    tint = Theme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.clickableNoRipple {
-                                        listener.onToggleRankSheet(
-                                            true
-                                        )
-                                    }
-                                )
-                            }
-                        )
-
-                        DropdownMenu(
-                            expanded = state.isRankSheetVisible,
-                            onDismissRequest = { listener.onToggleRankSheet(false) },
-                            modifier = Modifier.fillMaxWidth(0.9f)
-                        ) {
-                            state.ranks.forEach { rank ->
-                                DropdownMenuItem(
-                                    text = { Text(rank.name, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onBackground) },
-                                    onClick = {
-                                        listener.onSelectRank(rank)
-                                        listener.onToggleRankSheet(false)
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    Column(
+                    Text(
+                        text = stringResource(Res.string.ordained),
+                        style = Theme.typography.bodyLarge,
+                        color = Theme.colorScheme.onBackground
+                    )
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = stringResource(Res.string.ordained_in_this_church),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onBackground
-                        )
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                RadioButton(
-                                    selected = state.isOrdainedInThisChurch,
-                                    onClick = { listener.onToggleOrdainedInThisChurch(true) }
-                                )
-                                Text(
-                                    stringResource(Res.string.yes),
-                                    color = Theme.colorScheme.onBackground,
-                                    style = Theme.typography.bodyMedium
-                                )
-                            }
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                RadioButton(
-                                    selected = !state.isOrdainedInThisChurch,
-                                    onClick = { listener.onToggleOrdainedInThisChurch(false) }
-                                )
-                                Text(
-                                    stringResource(Res.string.no),
-                                    style = Theme.typography.bodyMedium,
-                                    color = Theme.colorScheme.onBackground
-                                )
-                            }
+                            RadioButton(
+                                selected = state.isOrdained,
+                                onClick = { listener.onToggleOrdained(true) }
+                            )
+                            Text(
+                                text = stringResource(Res.string.yes),
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onBackground,
+                                modifier = Modifier.clickableNoRipple {
+                                    listener.onToggleOrdained(
+                                        true
+                                    )
+                                })
+                        }
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            RadioButton(
+                                selected = !state.isOrdained,
+                                onClick = { listener.onToggleOrdained(false) }
+                            )
+                            Text(
+                                text = stringResource(Res.string.no),
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onBackground,
+                                modifier = Modifier.clickableNoRipple {
+                                    listener.onToggleOrdained(
+                                        false
+                                    )
+                                })
                         }
                     }
+                }
 
-                    OutlinedTextField(
-                        value = state.ordinationYear,
-                        onValueChange = listener::onOrdinationYearChange,
-                        label = {
+                AnimatedVisibility(visible = state.isOrdained) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(modifier = Modifier.fillMaxWidth()) {
+                            CustomTextField(
+                                value = state.selectedRank?.name ?: "",
+                                onValueChange = {},
+                                labelText = stringResource(Res.string.rank),
+                                modifier = Modifier.fillMaxWidth(),
+                                onClick = {
+                                    focusManager.clearFocus()
+                                    listener.onToggleRankSheet(true)
+                                },
+                                readOnly = true,
+                                enabled = false,
+                                errorText = state.rankError?.asString(),
+                                trailingIcon = painterResource(Res.drawable.ic_chevron_down)
+                            )
+
+                            DropdownMenu(
+                                expanded = state.isRankSheetVisible,
+                                onDismissRequest = { listener.onToggleRankSheet(false) },
+                                modifier = Modifier.fillMaxWidth(0.9f)
+                            ) {
+                                state.ranks.forEach { rank ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Text(
+                                                rank.name,
+                                                style = Theme.typography.bodyMedium,
+                                                color = Theme.colorScheme.onBackground
+                                            )
+                                        },
+                                        onClick = {
+                                            listener.onSelectRank(rank)
+                                            listener.onToggleRankSheet(false)
+                                        }
+                                    )
+                                }
+                            }
+                        }
+
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
                             Text(
-                                stringResource(Res.string.ordination_year),
+                                text = stringResource(Res.string.ordained_in_this_church),
                                 style = Theme.typography.bodyMedium,
                                 color = Theme.colorScheme.onBackground
                             )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        isError = state.ordinationYearError != null,
-                        supportingText = state.ordinationYearError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    RadioButton(
+                                        selected = state.isOrdainedInThisChurch,
+                                        onClick = { listener.onToggleOrdainedInThisChurch(true) }
+                                    )
+                                    Text(
+                                        stringResource(Res.string.yes),
+                                        color = Theme.colorScheme.onBackground,
+                                        style = Theme.typography.bodyMedium
+                                    )
+                                }
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    RadioButton(
+                                        selected = !state.isOrdainedInThisChurch,
+                                        onClick = { listener.onToggleOrdainedInThisChurch(false) }
+                                    )
+                                    Text(
+                                        stringResource(Res.string.no),
+                                        style = Theme.typography.bodyMedium,
+                                        color = Theme.colorScheme.onBackground
+                                    )
+                                }
+                            }
+                        }
+
+                        CustomTextField(
+                            value = state.ordinationYear,
+                            onValueChange = listener::onOrdinationYearChange,
+                            labelText = stringResource(Res.string.ordination_year),
+                            modifier = Modifier.fillMaxWidth(),
+                            errorText = state.ordinationYearError?.asString(),
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                        )
+
+                        CustomTextField(
+                            value = state.bishopName,
+                            onValueChange = listener::onBishopNameChange,
+                            labelText = stringResource(Res.string.bishop_name),
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
+                        CustomTextField(
+                            value = state.ordinationPlace,
+                            onValueChange = listener::onOrdinationPlaceChange,
+                            labelText = stringResource(Res.string.ordination_place),
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
+                        FilePickerCard(
+                            modifier = Modifier.padding(top = 8.dp),
+                            title = stringResource(Res.string.upload_ordination_certificate),
+                            fileName = state.ordinationCertificateFileName,
+                            onUploadClick = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
+                            onClearClick = {
+                                listener.onSelectImageBytes(
+                                    UploadTarget.ORDINATION_CERTIFICATE,
+                                    null,
+                                    null
                                 )
                             }
-                        },
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                    )
-
-                    OutlinedTextField(
-                        value = state.bishopName,
-                        onValueChange = listener::onBishopNameChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.bishop_name),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    OutlinedTextField(
-                        value = state.ordinationPlace,
-                        onValueChange = listener::onOrdinationPlaceChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.ordination_place),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
-
-                    FilePickerCard(
-                        modifier = Modifier.padding(top = 8.dp),
-                        title = stringResource(Res.string.upload_ordination_certificate),
-                        fileName = state.ordinationCertificateFileName,
-                        onUploadClick = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
-                        onClearClick = {
-                            listener.onSelectImageBytes(
-                                UploadTarget.ORDINATION_CERTIFICATE,
-                                null,
-                                null
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             Text(
                 text = stringResource(Res.string.deacons_school_details),
@@ -316,7 +298,10 @@ fun RegisterStep4StudentContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         RadioButton(
                             selected = state.shamamsaStatus == ShamamsaStudyStatus.YES,
                             onClick = { listener.onShamamsaStatusSelected(ShamamsaStudyStatus.YES) }
@@ -327,7 +312,10 @@ fun RegisterStep4StudentContent(
                             color = Theme.colorScheme.onBackground
                         )
                     }
-                    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
                         RadioButton(
                             selected = state.shamamsaStatus == ShamamsaStudyStatus.NO,
                             onClick = { listener.onShamamsaStatusSelected(ShamamsaStudyStatus.NO) }
@@ -343,38 +331,19 @@ fun RegisterStep4StudentContent(
 
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.studentEducationalStage?.name ?: "",
                     onValueChange = {},
-                    label = {
-                        Text(
-                            stringResource(Res.string.educational_stage),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onBackground
-                        )
+                    labelText = stringResource(Res.string.educational_stage),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        focusManager.clearFocus()
+                        listener.onToggleStageSheet(true)
                     },
-                    modifier = Modifier.fillMaxWidth()
-                        .clickableNoRipple { listener.onToggleStageSheet(true) },
                     readOnly = true,
                     enabled = false,
-                    isError = state.stageError != null,
-                    supportingText = state.stageError?.let {
-                        {
-                            Text(
-                                it.asString(),
-                                style = Theme.typography.bodySmall,
-                                color = Theme.colorScheme.error
-                            )
-                        }
-                    },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_down),
-                            contentDescription = null,
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleStageSheet(true) }
-                        )
-                    }
+                    errorText = state.stageError?.asString(),
+                    trailingIcon = painterResource(Res.drawable.ic_chevron_down)
                 )
 
                 BottomSheet(
@@ -429,7 +398,8 @@ fun RegisterStep4StudentContent(
                 }
             }
 
-            val hasYears = !state.studentEducationalStage?.subItems.isNullOrEmpty() || state.studentEducationalYear != null
+            val hasYears =
+                !state.studentEducationalStage?.subItems.isNullOrEmpty() || state.studentEducationalYear != null
 
             AnimatedVisibility(
                 visible = hasYears,
@@ -437,40 +407,19 @@ fun RegisterStep4StudentContent(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.studentEducationalYear?.name ?: "",
                         onValueChange = {},
-                        label = {
-                            Text(
-                                stringResource(Res.string.educational_year),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
+                        labelText = stringResource(Res.string.educational_year),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            focusManager.clearFocus()
+                            listener.onToggleYearSheet(true)
                         },
-                        modifier = Modifier.fillMaxWidth()
-                            .clickableNoRipple { listener.onToggleYearSheet(true) },
                         readOnly = true,
                         enabled = false,
-                        isError = state.yearError != null,
-                        supportingText = state.yearError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
-                                )
-                            }
-                        },
-                        trailingIcon = {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_chevron_down),
-                                contentDescription = null,
-                                tint = Theme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.clickableNoRipple {
-                                    listener.onToggleYearSheet(true)
-                                }
-                            )
-                        }
+                        errorText = state.yearError?.asString(),
+                        trailingIcon = painterResource(Res.drawable.ic_chevron_down),
                     )
 
                     BottomSheet(
@@ -532,52 +481,22 @@ fun RegisterStep4StudentContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.fatherPhone,
                         onValueChange = listener::onFatherPhoneChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.father_phone),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
+                        labelText = stringResource(Res.string.father_phone),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.fatherPhoneError != null,
-                        supportingText = state.fatherPhoneError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
-                                )
-                            }
-                        },
+                        errorText = state.fatherPhoneError?.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
 
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.fatherWhatsapp,
                         onValueChange = listener::onFatherWhatsappChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.father_whatsapp),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
+                        labelText = stringResource(Res.string.father_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.fatherWhatsappError != null,
-                        supportingText = state.fatherWhatsappError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
-                                )
-                            }
-                        },
+                        errorText = state.fatherWhatsappError?.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
@@ -600,52 +519,22 @@ fun RegisterStep4StudentContent(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.motherPhone,
                         onValueChange = listener::onMotherPhoneChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.mother_phone),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
+                        labelText = stringResource(Res.string.mother_phone),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.motherPhoneError != null,
-                        supportingText = state.motherPhoneError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
-                                )
-                            }
-                        },
+                        errorText = state.motherPhoneError.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
 
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.motherWhatsapp,
                         onValueChange = listener::onMotherWhatsappChange,
-                        label = {
-                            Text(
-                                stringResource(Res.string.mother_whatsapp),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onBackground
-                            )
-                        },
+                        labelText = stringResource(Res.string.mother_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.motherWhatsappError != null,
-                        supportingText = state.motherWhatsappError?.let {
-                            {
-                                Text(
-                                    it.asString(),
-                                    style = Theme.typography.bodySmall,
-                                    color = Theme.colorScheme.error
-                                )
-                            }
-                        },
+                        errorText = state.motherWhatsappError?.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )
@@ -673,26 +562,20 @@ fun RegisterStep4StudentContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -700,7 +583,15 @@ fun RegisterStep4StudentContent(
 @Preview(heightDp = 1600)
 @Composable
 private fun RegisterStep4StudentContentPreviewLightDark() {
-    var state by remember { mutableStateOf(RegisterScreenState(currentStep = 4, selectedRole = UserRole.MAKHDOOM)) }
+    var state by remember {
+        mutableStateOf(
+            RegisterScreenState(
+                currentStep = 4,
+                selectedRole = UserRole.MAKHDOOM,
+                isMale = true
+            )
+        )
+    }
     val listener = remember(state) {
         object : RegisterInteractionListener {
             override fun onClickNextStep() {}
@@ -734,24 +625,84 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onApartmentChange(value: String) {}
             override fun onSpecialMarkChange(value: String) {}
             override fun onRoleSelected(role: UserRole) {}
-            override fun onToggleOrdained(ordained: Boolean) { state = state.copy(isOrdained = ordained, ordinationYearError = if (!ordained) null else state.ordinationYearError, rankError = if (!ordained) null else state.rankError) }
-            override fun onSelectRank(rank: LookupResponse) { state = state.copy(selectedRank = rank) }
-            override fun onToggleRankSheet(visible: Boolean) { state = state.copy(isRankSheetVisible = visible) }
-            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) { state = state.copy(isOrdainedInThisChurch = inThisChurch) }
-            override fun onOrdinationYearChange(value: String) { state = state.copy(ordinationYear = value, ordinationYearError = null) }
-            override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value) }
-            override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value) }
-            override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) { state = state.copy(shamamsaStatus = status) }
-            override fun onSelectEducationalStage(stage: LookupResponse) {  }
-            override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
-            override fun onSelectEducationalYear(year: LookupResponse) {  }
-            override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
-            override fun onToggleFatherDeceased(deceased: Boolean) { state = state.copy(isFatherDeceased = deceased, fatherPhoneError = if (deceased) null else state.fatherPhoneError, fatherWhatsappError = if (deceased) null else state.fatherWhatsappError) }
-            override fun onFatherPhoneChange(value: String) { state = state.copy(fatherPhone = value, fatherPhoneError = null) }
-            override fun onFatherWhatsappChange(value: String) { state = state.copy(fatherWhatsapp = value, fatherWhatsappError = null) }
-            override fun onToggleMotherDeceased(deceased: Boolean) { state = state.copy(isMotherDeceased = deceased, motherPhoneError = if (deceased) null else state.motherPhoneError, motherWhatsappError = if (deceased) null else state.motherWhatsappError) }
-            override fun onMotherPhoneChange(value: String) { state = state.copy(motherPhone = value, motherPhoneError = null) }
-            override fun onMotherWhatsappChange(value: String) { state = state.copy(motherWhatsapp = value, motherWhatsappError = null) }
+            override fun onToggleOrdained(ordained: Boolean) {
+                state = state.copy(
+                    isOrdained = ordained,
+                    ordinationYearError = if (!ordained) null else state.ordinationYearError,
+                    rankError = if (!ordained) null else state.rankError
+                )
+            }
+
+            override fun onSelectRank(rank: LookupResponse) {
+                state = state.copy(selectedRank = rank)
+            }
+
+            override fun onToggleRankSheet(visible: Boolean) {
+                state = state.copy(isRankSheetVisible = visible)
+            }
+
+            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {
+                state = state.copy(isOrdainedInThisChurch = inThisChurch)
+            }
+
+            override fun onOrdinationYearChange(value: String) {
+                state = state.copy(ordinationYear = value, ordinationYearError = null)
+            }
+
+            override fun onBishopNameChange(value: String) {
+                state = state.copy(bishopName = value)
+            }
+
+            override fun onOrdinationPlaceChange(value: String) {
+                state = state.copy(ordinationPlace = value)
+            }
+
+            override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {
+                state = state.copy(shamamsaStatus = status)
+            }
+
+            override fun onSelectEducationalStage(stage: LookupResponse) {}
+            override fun onToggleStageSheet(visible: Boolean) {
+                state = state.copy(isStageSheetVisible = visible)
+            }
+
+            override fun onSelectEducationalYear(year: LookupResponse) {}
+            override fun onToggleYearSheet(visible: Boolean) {
+                state = state.copy(isYearSheetVisible = visible)
+            }
+
+            override fun onToggleFatherDeceased(deceased: Boolean) {
+                state = state.copy(
+                    isFatherDeceased = deceased,
+                    fatherPhoneError = if (deceased) null else state.fatherPhoneError,
+                    fatherWhatsappError = if (deceased) null else state.fatherWhatsappError
+                )
+            }
+
+            override fun onFatherPhoneChange(value: String) {
+                state = state.copy(fatherPhone = value, fatherPhoneError = null)
+            }
+
+            override fun onFatherWhatsappChange(value: String) {
+                state = state.copy(fatherWhatsapp = value, fatherWhatsappError = null)
+            }
+
+            override fun onToggleMotherDeceased(deceased: Boolean) {
+                state = state.copy(
+                    isMotherDeceased = deceased,
+                    motherPhoneError = if (deceased) null else state.motherPhoneError,
+                    motherWhatsappError = if (deceased) null else state.motherWhatsappError
+                )
+            }
+
+            override fun onMotherPhoneChange(value: String) {
+                state = state.copy(motherPhone = value, motherPhoneError = null)
+            }
+
+            override fun onMotherWhatsappChange(value: String) {
+                state = state.copy(motherWhatsapp = value, motherWhatsappError = null)
+            }
+
             override fun onPartnerQueryChange(query: String) {}
             override fun onSearchPartner() {}
             override fun onRemovePartner() {}
@@ -760,17 +711,22 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(
+                target: UploadTarget,
+                bytes: ByteArray?,
+                fileName: String?
+            ) {
+            }
+
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep4StudentContent(state = state, listener = listener)
         }
     }

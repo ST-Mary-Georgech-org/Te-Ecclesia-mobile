@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_occurred
-import teecclesia.designsystem.generated.resources.failed_to_load_lookups
+import teecclesia.designsystem.generated.resources.failed_to_load_requests
 import kotlin.time.Duration.Companion.milliseconds
 
 class RegistrationRequestsViewModel(
@@ -68,7 +68,7 @@ class RegistrationRequestsViewModel(
             }
             throwable?.let { t ->
                 showSnackBar(
-                    title = UiText.StringRes(Res.string.failed_to_load_lookups),
+                    title = UiText.StringRes(Res.string.failed_to_load_requests),
                     message = getLocalizedErrorMessage(t),
                     isSuccess = false
                 )
@@ -82,7 +82,7 @@ class RegistrationRequestsViewModel(
 
     private fun loadRequests() {
         viewModelScope.launch {
-            updateState { it.copy(page = 0) }
+            updateState { it.copy(page = 0, requests = emptyList()) }
             requestsPaginator.reset()
             requestsPaginator.loadNextItems()
         }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -26,21 +25,16 @@ import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.ui.window.PopupProperties
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.menu.DropdownMenu
 import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
-import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
-import com.teEcclesia.designsystem.modifier.clickableNoRipple
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
@@ -55,7 +49,6 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_eye_closed
 import teecclesia.designsystem.generated.resources.ic_eye_opened
-import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.phone_number
 import teecclesia.designsystem.generated.resources.home_phone
 import teecclesia.designsystem.generated.resources.email_optional
@@ -72,7 +65,6 @@ import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.invalid_password_format
 import teecclesia.designsystem.generated.resources.account_and_contact
-import teecclesia.designsystem.generated.resources.phone_number_supporting_text
 import teecclesia.designsystem.generated.resources.you_should_have_whatsapp_on_this_phone
 
 @Composable
@@ -96,27 +88,13 @@ fun RegisterStep2Content(
 
             val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.phone,
                 onValueChange = listener::onPhoneChange,
-                label = { Text(stringResource(Res.string.phone_number), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.phone_number),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.phoneError != null,
-                supportingText = state.phoneError?.let {
-                    {
-                        Text(
-                            it.asString(),
-                            style = Theme.typography.bodySmall,
-                            color = Theme.colorScheme.error
-                        )
-                    }
-                } ?: {
-                    Text(
-                        stringResource(Res.string.you_should_have_whatsapp_on_this_phone),
-                        style = Theme.typography.bodySmall,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
-                },
+                errorText = state.phoneError?.asString(),
+                supportingText = stringResource(Res.string.you_should_have_whatsapp_on_this_phone),
                 textStyle = Theme.typography.bodyLarge.copy(
                     textDirection = TextDirection.Ltr
                 ),
@@ -130,13 +108,13 @@ fun RegisterStep2Content(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.homePhone,
                 onValueChange = listener::onHomePhoneChange,
-                label = { Text(stringResource(Res.string.home_phone), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.home_phone),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                supportingText = state.homePhoneError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                errorText = state.homePhoneError?.asString(),
                 textStyle = Theme.typography.bodyLarge.copy(
                     textDirection = TextDirection.Ltr
                 ),
@@ -149,41 +127,28 @@ fun RegisterStep2Content(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.email,
                 onValueChange = listener::onEmailChange,
-                label = { Text(stringResource(Res.string.email_optional), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.email_optional),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.emailError != null,
-                supportingText = state.emailError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                errorText = state.emailError?.asString(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.password,
                 onValueChange = listener::onPasswordChange,
-                label = { Text(stringResource(Res.string.password), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
-                supportingText = {
-                    if (state.passwordError != null) {
-                        Text(state.passwordError.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error)
-                    } else {
-                        Text(stringResource(Res.string.invalid_password_format), style = Theme.typography.bodySmall, color = Theme.colorScheme.onSurfaceVariant)
-                    }
-                },
+                labelText = stringResource(Res.string.password),
+                supportingText = stringResource(Res.string.invalid_password_format),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.passwordError != null,
+                errorText = state.passwordError?.asString(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Next),
                 visualTransformation = if (state.isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(if (state.isPasswordVisible) Res.drawable.ic_eye_closed else Res.drawable.ic_eye_opened),
-                        contentDescription = null,
-                        tint = Theme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.clickableNoRipple(onClick = listener::onTogglePasswordVisibility)
-                    )
-                }
+                trailingIcon = painterResource(if (state.isPasswordVisible) Res.drawable.ic_eye_closed else Res.drawable.ic_eye_opened),
+                onTrailingIconClick = listener::onTogglePasswordVisibility
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -194,106 +159,60 @@ fun RegisterStep2Content(
                 color = Theme.colorScheme.onBackground
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.buildingNo,
                 onValueChange = listener::onBuildingNoChange,
-                label = { Text(stringResource(Res.string.building_no), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.building_no),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.buildingNoError != null,
-                supportingText = state.buildingNoError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                errorText = state.buildingNoError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                 singleLine = true
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.street,
                 onValueChange = listener::onStreetChange,
-                label = { Text(stringResource(Res.string.street), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.street),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.streetError != null,
-                supportingText = state.streetError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                errorText = state.streetError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                 singleLine = true
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.streetBranch,
                 onValueChange = listener::onStreetBranchChange,
-                label = { Text(stringResource(Res.string.branching_from), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.branching_from),
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
                 singleLine = true
             )
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.selectedArea ?: "",
                     onValueChange = listener::onAreaChange,
-                    label = { Text(stringResource(Res.string.area), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.area),
                     modifier = Modifier.fillMaxWidth(),
-                    isError = state.areaError != null,
-                    supportingText = state.areaError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.areaError?.asString(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_down),
-                            contentDescription = null,
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleAreaSheet(!state.isAreaSheetVisible) }
-                        )
-                    }
                 )
 
-                BottomSheet(
-                    isVisible = state.isAreaSheetVisible,
-                    onDismiss = { listener.onToggleAreaSheet(false) }
+                DropdownMenu(
+                    expanded = state.isAreaSheetVisible && state.areas.isNotEmpty(),
+                    onDismissRequest = { listener.onToggleAreaSheet(false) },
+                    properties = PopupProperties(focusable = false),
+                    modifier = Modifier.fillMaxWidth(0.9f)
                 ) {
-                    val areaListState = rememberLazyListState()
-
-                    Text(
-                        text = stringResource(Res.string.area),
-                        style = Theme.typography.headlineSmall,
-                        color = Theme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    LazyColumn(
-                        state = areaListState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = false),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        items(
-                            items = state.areas,
-                            key = { area -> area }
-                        ) { area ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickableNoRipple {
-                                        listener.onSelectArea(area)
-                                        listener.onToggleAreaSheet(false)
-                                    }
-                                    .padding(vertical = 12.dp, horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = area,
-                                    style = Theme.typography.bodyLarge,
-                                    color = Theme.colorScheme.onSurface
-                                )
+                    state.areas.forEach { area ->
+                        DropdownMenuItem(
+                            text = { Text(area, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
+                            onClick = {
+                                listener.onSelectArea(area)
                             }
-                        }
+                        )
                     }
-
-                    PaginationTrigger(
-                        list = state.areas,
-                        listState = areaListState,
-                        remainingItemsToLoadNextPage = 5,
-                        loadNextItems = listener::onLoadNextAreas
-                    )
                 }
             }
 
@@ -301,34 +220,32 @@ fun RegisterStep2Content(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.floor,
                     onValueChange = listener::onFloorChange,
-                    label = { Text(stringResource(Res.string.floor), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.floor),
                     modifier = Modifier.weight(1f),
-                    isError = state.floorError != null,
-                    supportingText = state.floorError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.floorError?.asString(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                     singleLine = true
                 )
 
-                OutlinedTextField(
+                CustomTextField(
                     value = state.apartment,
                     onValueChange = listener::onApartmentChange,
-                    label = { Text(stringResource(Res.string.apartment), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.apartment),
                     modifier = Modifier.weight(1f),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
                     singleLine = true
                 )
             }
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.specialMark,
                 onValueChange = listener::onSpecialMarkChange,
-                label = { Text(stringResource(Res.string.special_mark), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                labelText = stringResource(Res.string.special_mark),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.specialMarkError != null,
-                supportingText = state.specialMarkError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                errorText = state.specialMarkError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                 singleLine = true
             )
@@ -340,26 +257,20 @@ fun RegisterStep2Content(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -431,13 +342,12 @@ private fun RegisterStep2ContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep2Content(state = state, listener = listener)
         }
     }

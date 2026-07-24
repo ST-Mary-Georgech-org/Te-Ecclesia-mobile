@@ -8,30 +8,23 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.modifier.dashedBorder
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -97,22 +90,14 @@ fun FilePickerCard(
                     )
                 }
             } else {
-                OutlinedTextField(
+                CustomTextField(
                     value = fileName.orEmpty(),
                     onValueChange = {},
                     enabled = false,
                     modifier = Modifier
                         .fillMaxWidth(),
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_close),
-                            contentDescription = "Clear file",
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .clickableNoRipple(onClick = onClearClick)
-                                .padding(4.dp)
-                        )
-                    },
+                    trailingIcon = painterResource(Res.drawable.ic_close),
+                    onTrailingIconClick = onClearClick,
                 )
             }
         }

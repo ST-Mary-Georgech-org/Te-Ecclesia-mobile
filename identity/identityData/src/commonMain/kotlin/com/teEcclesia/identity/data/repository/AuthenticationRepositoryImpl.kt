@@ -2,10 +2,10 @@ package com.teEcclesia.identity.data.repository
 
 import com.russhwolf.settings.Settings
 import com.teEcclesia.identity.data.dataSource.local.setting.accessToken
+import com.teEcclesia.identity.data.dataSource.local.setting.canApproveRequests
 import com.teEcclesia.identity.data.dataSource.local.setting.refreshToken
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
-import com.teEcclesia.identity.data.dataSource.local.setting.canApproveRequests
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -19,12 +19,16 @@ import com.teEcclesia.identity.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.shared.data.shared.BaseRepository
+import com.teEcclesia.shared.domain.exception.UnAuthorizedException
+import com.teEcclesia.shared.domain.exception.UserIsBlockedException
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.withContext
 
 class AuthenticationRepositoryImpl(
     client: HttpClient,
@@ -32,12 +36,15 @@ class AuthenticationRepositoryImpl(
 ) : BaseRepository(client), AuthenticationRepository {
 
     private val observableToken: MutableStateFlow<String> = MutableStateFlow(getInitialToken())
-    private val observableAuthState: MutableStateFlow<AuthState> = MutableStateFlow(getInitialAuthState())
-    private val observableRequestsAccess: MutableStateFlow<Boolean> = MutableStateFlow(calculateRequestsAccess())
+    private val observableAuthState: MutableStateFlow<AuthState> =
+        MutableStateFlow(getInitialAuthState())
+    private val observableRequestsAccess: MutableStateFlow<Boolean> =
+        MutableStateFlow(calculateRequestsAccess())
 
     private fun calculateRequestsAccess(): Boolean {
         val roleStr = settings.userRole
-        val role = if (roleStr.isBlank()) null else runCatching { UserRole.valueOf(roleStr) }.getOrNull()
+        val role =
+            if (roleStr.isBlank()) null else runCatching { UserRole.valueOf(roleStr) }.getOrNull()
         val canApprove = settings.canApproveRequests
         return role == UserRole.ADMIN || (role == UserRole.KHADEM && canApprove)
     }
@@ -57,6 +64,7 @@ class AuthenticationRepositoryImpl(
             UserStatus.PENDING_APPROVAL,
             UserStatus.PROFILE_INCOMPLETE,
             UserStatus.UNVERIFIED -> AuthState.REGISTRATION_PENDING
+
             else -> if (statusStr.isBlank()) AuthState.AUTHENTICATED else AuthState.REGISTRATION_PENDING
         }
     }
@@ -73,24 +81,40 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
-        tryToExecute<Unit> {
-            post(LOGOUT_ENDPOINT) {
-                setBody(RefreshRequestDto(settings.refreshToken))
+        withContext(NonCancellable) {
+            tryToExecute<Unit> {
+                post(LOGOUT_ENDPOINT) {
+                    setBody(RefreshRequestDto(settings.refreshToken))
+                }
             }
+            clearAuthState()
         }
-        client.invalidateAuthTokens()
-        clearAuthTokens()
     }
 
     override suspend fun refreshAccessToken(): String {
-        val response = tryToExecute<AuthenticationResponse> {
-            post(REFRESH_ENDPOINT) {
-                setBody(RefreshRequestDto(settings.refreshToken))
+        return withContext(NonCancellable) {
+            try {
+                val response = tryToExecute<AuthenticationResponse> {
+                    post(REFRESH_ENDPOINT) {
+                        setBody(RefreshRequestDto(settings.refreshToken))
+                    }
+                }
+                saveTokens(response.toDomain())
+                client.invalidateAuthTokens()
+                settings.accessToken
+            } catch (e: UnAuthorizedException) {
+                clearAuthState()
+                throw e
+            } catch (e: UserIsBlockedException) {
+                clearAuthState()
+                throw e
             }
         }
-        saveTokens(response.toDomain())
+    }
+
+    private suspend fun clearAuthState() {
         client.invalidateAuthTokens()
-        return settings.accessToken
+        clearAuthTokens()
     }
 
     override suspend fun refreshRegistrationToken(): String {
@@ -172,8 +196,8 @@ class AuthenticationRepositoryImpl(
     override suspend fun isRegistrationPending(): Boolean {
         val status = getUserStatus()
         return status == UserStatus.PROFILE_INCOMPLETE ||
-               status == UserStatus.UNVERIFIED ||
-               status == UserStatus.PENDING_APPROVAL
+                status == UserStatus.UNVERIFIED ||
+                status == UserStatus.PENDING_APPROVAL
     }
 
     override suspend fun updateDeviceToken(deviceToken: String) {

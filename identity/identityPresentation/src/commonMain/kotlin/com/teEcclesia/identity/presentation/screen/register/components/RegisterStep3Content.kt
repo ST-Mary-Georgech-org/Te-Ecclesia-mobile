@@ -16,11 +16,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -108,26 +109,20 @@ fun RegisterStep3Content(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.selectedRole != null
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = if (state.selectedRole != null) AppButtonState.Enabled else AppButtonState.Disabled
+            )
         }
     }
 }
@@ -199,13 +194,12 @@ private fun RegisterStep3ContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep3Content(state = state, listener = listener)
         }
     }

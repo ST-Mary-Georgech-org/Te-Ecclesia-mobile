@@ -29,7 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
@@ -234,13 +234,12 @@ private fun RegisterScreenPreview() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterScreenContent(
                 state = state,
                 listener = listener

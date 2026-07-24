@@ -22,11 +22,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.teEcclesia.designsystem.components.button.Button
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
@@ -89,39 +90,22 @@ fun PendingApprovalContent(
 
             Spacer(modifier = Modifier.height(48.dp))
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickEditRequest,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary
-            ) {
-                Text(
-                    text = stringResource(Res.string.edit_registration),
-                    style = Theme.typography.labelLarge,
-                    color = Theme.colorScheme.onPrimary
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.edit_registration)
+            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickLogout,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(
-                    text = stringResource(Res.string.back_to_login),
-                    style = Theme.typography.labelLarge,
-                    color = Theme.colorScheme.onSecondaryContainer
-                )
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.back_to_login),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -134,7 +118,7 @@ private fun PendingApprovalScreenPreview() {
         override fun onClickEditRequest() {}
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             PendingApprovalContent(
                 state = PendingApprovalScreenState(),
                 listener = listener

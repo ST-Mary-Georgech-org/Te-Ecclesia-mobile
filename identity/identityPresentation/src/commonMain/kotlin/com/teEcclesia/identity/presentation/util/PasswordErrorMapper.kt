@@ -1,7 +1,7 @@
 package com.teEcclesia.identity.presentation.util
 
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.shared.domain.utils.PasswordValidationError
+import com.teEcclesia.shared.domain.utils.validation.PasswordValidationError
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.password_min_length
 import teecclesia.designsystem.generated.resources.password_need_uppercase

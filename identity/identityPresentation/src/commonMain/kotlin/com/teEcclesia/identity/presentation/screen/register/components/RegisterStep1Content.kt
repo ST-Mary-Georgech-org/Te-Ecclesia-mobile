@@ -13,6 +13,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -23,30 +27,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
-import com.teEcclesia.designsystem.components.menu.DropdownMenu
-import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
-import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -58,33 +57,34 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.personal_info
-import teecclesia.designsystem.generated.resources.full_name_in_arabic
-import teecclesia.designsystem.generated.resources.first_name
-import teecclesia.designsystem.generated.resources.second_name
-import teecclesia.designsystem.generated.resources.third_name
-import teecclesia.designsystem.generated.resources.last_name
+import teecclesia.designsystem.generated.resources.already_have_an_account
+import teecclesia.designsystem.generated.resources.confession_priest
+import teecclesia.designsystem.generated.resources.confession_priest_church
+import teecclesia.designsystem.generated.resources.confession_priest_name
+import teecclesia.designsystem.generated.resources.confession_priest_phone
 import teecclesia.designsystem.generated.resources.display_name
 import teecclesia.designsystem.generated.resources.display_name_hint
-import teecclesia.designsystem.generated.resources.national_id
-import teecclesia.designsystem.generated.resources.national_id_hint
+import teecclesia.designsystem.generated.resources.first_name
+import teecclesia.designsystem.generated.resources.from_another_church
+import teecclesia.designsystem.generated.resources.full_name_in_arabic
+import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.job
 import teecclesia.designsystem.generated.resources.job_hint
-import teecclesia.designsystem.generated.resources.confession_priest
-import teecclesia.designsystem.generated.resources.from_another_church
-import teecclesia.designsystem.generated.resources.confession_priest_name
-import teecclesia.designsystem.generated.resources.confession_priest_church
-import teecclesia.designsystem.generated.resources.confession_priest_phone
-import teecclesia.designsystem.generated.resources.next
-import teecclesia.designsystem.generated.resources.already_have_an_account
+import teecclesia.designsystem.generated.resources.last_name
 import teecclesia.designsystem.generated.resources.login
-import teecclesia.designsystem.generated.resources.ic_chevron_down
+import teecclesia.designsystem.generated.resources.national_id
+import teecclesia.designsystem.generated.resources.national_id_hint
+import teecclesia.designsystem.generated.resources.next
+import teecclesia.designsystem.generated.resources.personal_info
+import teecclesia.designsystem.generated.resources.second_name
+import teecclesia.designsystem.generated.resources.third_name
 
 @Composable
 fun RegisterStep1Content(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -119,24 +119,22 @@ fun RegisterStep1Content(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.firstName,
                     onValueChange = listener::onFirstNameChange,
-                    label = { Text(stringResource(Res.string.first_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.first_name),
                     modifier = Modifier.weight(1f),
-                    isError = state.firstNameError != null,
-                    supportingText = state.firstNameError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.firstNameError?.asString(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
 
-                OutlinedTextField(
+                CustomTextField(
                     value = state.secondName,
                     onValueChange = listener::onSecondNameChange,
-                    label = { Text(stringResource(Res.string.second_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.second_name),
                     modifier = Modifier.weight(1f),
-                    isError = state.secondNameError != null,
-                    supportingText = state.secondNameError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.secondNameError?.asString(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
@@ -146,70 +144,55 @@ fun RegisterStep1Content(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.thirdName,
                     onValueChange = listener::onThirdNameChange,
-                    label = { Text(stringResource(Res.string.third_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.third_name),
                     modifier = Modifier.weight(1f),
-                    isError = state.thirdNameError != null,
-                    supportingText = state.thirdNameError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.thirdNameError?.asString(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
 
-                OutlinedTextField(
+                CustomTextField(
                     value = state.lastName,
                     onValueChange = listener::onLastNameChange,
-                    label = { Text(stringResource(Res.string.last_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                    labelText = stringResource(Res.string.last_name),
                     modifier = Modifier.weight(1f),
-                    isError = state.lastNameError != null,
-                    supportingText = state.lastNameError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                    errorText = state.lastNameError?.asString(),
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
             }
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.displayName,
                 onValueChange = listener::onDisplayNameChange,
-                label = { Text(stringResource(Res.string.display_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
-                supportingText = {
-                    if (state.displayNameError != null) {
-                        Text(state.displayNameError.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error)
-                    } else {
-                        Text(stringResource(Res.string.display_name_hint), style = Theme.typography.bodySmall, color = Theme.colorScheme.onSurfaceVariant)
-                    }
-                },
+                labelText = stringResource(Res.string.display_name),
+                supportingText = stringResource(Res.string.display_name_hint),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.displayNameError != null,
+                errorText = state.displayNameError?.asString(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.nationalId,
                 onValueChange = listener::onNationalIdChange,
-                label = { Text(stringResource(Res.string.national_id), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
-                supportingText = {
-                    if (state.nationalIdError != null) {
-                        Text(state.nationalIdError.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error)
-                    } else {
-                        Text(stringResource(Res.string.national_id_hint), style = Theme.typography.bodySmall, color = Theme.colorScheme.onSurfaceVariant)
-                    }
-                },
+                labelText = stringResource(Res.string.national_id),
+                supportingText = stringResource(Res.string.national_id_hint),
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.nationalIdError != null,
+                errorText = state.nationalIdError?.asString(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.job,
                 onValueChange = listener::onJobChange,
-                label = { Text(stringResource(Res.string.job), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
-                supportingText = {
-                    Text(stringResource(Res.string.job_hint), style = Theme.typography.bodySmall, color = Theme.colorScheme.onSurfaceVariant)
-                },
+                labelText = stringResource(Res.string.job),
+                supportingText =
+                    stringResource(Res.string.job_hint),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
@@ -232,22 +215,18 @@ fun RegisterStep1Content(
                     }
                 }
 
-                OutlinedTextField(
+                CustomTextField(
                     value = priestText,
                     onValueChange = {},
-                    label = { Text(stringResource(Res.string.confession_priest), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
-                    modifier = Modifier.fillMaxWidth().clickableNoRipple { listener.onTogglePriestSheet(true) },
+                    labelText = stringResource(Res.string.confession_priest),
+                    modifier = Modifier.fillMaxWidth(),
                     readOnly = true,
-                    enabled = true,
-                    isError = state.confessionPriestError != null,
-                    supportingText = state.confessionPriestError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_down),
-                            contentDescription = null,
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickableNoRipple { listener.onTogglePriestSheet(true) }
-                        )
+                    enabled = false,
+                    errorText = state.confessionPriestError?.asString(),
+                    trailingIcon = painterResource(Res.drawable.ic_chevron_down),
+                    onClick = {
+                        focusManager.clearFocus()
+                        listener.onTogglePriestSheet(true)
                     }
                 )
 
@@ -331,37 +310,34 @@ fun RegisterStep1Content(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.externalPriestName,
                         onValueChange = listener::onExternalPriestNameChange,
-                        label = { Text(stringResource(Res.string.confession_priest_name), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                        labelText = stringResource(Res.string.confession_priest_name),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.externalPriestNameError != null,
-                        supportingText = state.externalPriestNameError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                        errorText = state.externalPriestNameError?.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
 
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.externalPriestChurch,
                         onValueChange = listener::onExternalPriestChurchChange,
-                        label = { Text(stringResource(Res.string.confession_priest_church), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                        labelText = stringResource(Res.string.confession_priest_church),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.externalPriestChurchError != null,
-                        supportingText = state.externalPriestChurchError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                        errorText = state.externalPriestChurchError?.asString(),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                     )
 
                     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
 
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.externalPriestPhone,
                         onValueChange = listener::onExternalPriestPhoneChange,
-                        label = { Text(stringResource(Res.string.confession_priest_phone), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurfaceVariant) },
+                        labelText = stringResource(Res.string.confession_priest_phone),
                         modifier = Modifier.fillMaxWidth(),
-                        isError = state.externalPriestPhoneError != null,
-                        supportingText = state.externalPriestPhoneError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
+                        errorText = state.externalPriestPhoneError?.asString(),
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -380,16 +356,13 @@ fun RegisterStep1Content(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Button(
+        AppButton(
+            type = AppButtonType.Primary,
             onClick = listener::onClickNextStep,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            containerColor = Theme.colorScheme.primary,
-            contentColor = Theme.colorScheme.onPrimary,
-            enabled = state.actionButtonState == AppButtonState.Enabled
-        ) {
-            Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-        }
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(Res.string.next),
+            state = state.actionButtonState
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -412,7 +385,7 @@ fun RegisterStep1Content(
     }
 }
 
-@PreviewLightDark
+@Preview
 @Composable
 private fun RegisterStep1ContentPreviewLightDark() {
     var state by remember { mutableStateOf(RegisterScreenState()) }
@@ -479,13 +452,12 @@ private fun RegisterStep1ContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep1Content(state = state, listener = listener)
         }
     }
