@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -12,13 +13,13 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +29,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,22 +37,28 @@ fun BottomSheet(
     onDismiss: () -> Unit,
     showDragHandle: Boolean = true,
     horizontalPadding: Dp = 16.dp,
-    skipPartiallyExpanded: Boolean = false,
+    skipPartiallyExpanded: Boolean = true,
     containerColor: Color = Theme.colorScheme.background,
+    scrimColor: Color = Color.Black.copy(alpha = 0.33f),
+    canSwipeToDismiss: Boolean = true,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = skipPartiallyExpanded
+        skipPartiallyExpanded = skipPartiallyExpanded,
+        confirmValueChange = { sheetValue ->
+            !(!canSwipeToDismiss && sheetValue == SheetValue.Hidden && isVisible)
+        }
     )
-    val scope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
 
     LaunchedEffect(isVisible) {
         if (isVisible) {
             showSheet = true
         } else {
-            scope.launch {
+            try {
                 sheetState.hide()
+            } catch (_: Exception) {
+            } finally {
                 showSheet = false
             }
         }
@@ -61,12 +67,15 @@ fun BottomSheet(
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                showSheet = false
-                onDismiss()
+                if (canSwipeToDismiss) {
+                    showSheet = false
+                    onDismiss()
+                }
             },
+            contentWindowInsets = { WindowInsets(0.dp) },
             sheetState = sheetState,
             containerColor = containerColor,
-            scrimColor = Color.Black.copy(alpha = 0.33f),
+            scrimColor = scrimColor,
             shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
             dragHandle = if (showDragHandle) {
                 { BottomSheetDragHandle() }
