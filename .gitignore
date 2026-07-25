@@ -34,3 +34,4 @@ debug.log
 /teEcclesiaApp/release
 /.agents/
 **/bin/
+/androidApp/release

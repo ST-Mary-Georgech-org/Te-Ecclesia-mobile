@@ -13,5 +13,5 @@ actual object AppEnvironment {
             ?: throw Exception("App version not found")
 
     @OptIn(ExperimentalNativeApi::class)
-    actual val isDebug: Boolean = Platform.isDebug
+    actual val isDebug: Boolean = Platform.isDebugBinary
 }

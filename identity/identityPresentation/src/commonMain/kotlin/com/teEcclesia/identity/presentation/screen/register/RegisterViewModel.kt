@@ -61,7 +61,6 @@ import teecclesia.designsystem.generated.resources.field_required
 import teecclesia.designsystem.generated.resources.invalid_arabic_name
 import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
-import teecclesia.designsystem.generated.resources.invalid_national_id_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
 

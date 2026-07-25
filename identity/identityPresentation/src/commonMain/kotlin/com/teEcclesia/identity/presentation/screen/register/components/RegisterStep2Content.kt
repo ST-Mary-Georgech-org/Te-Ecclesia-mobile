@@ -151,7 +151,7 @@ fun RegisterStep2Content(
                 onTrailingIconClick = listener::onTogglePasswordVisibility
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(Res.string.address_info),
