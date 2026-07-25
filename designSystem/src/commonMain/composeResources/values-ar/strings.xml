@@ -16,7 +16,7 @@
     <string name="dark_theme">داكن</string>
     <string name="select_language">اختر اللغة</string>
     <string name="select_theme">اختر المظهر</string>
-    <string name="hello_welcome_back">مرحبًا\nمرحبًا بعودتك!</string>
+    <string name="hello_welcome_back">مرحبًا بعودتك!</string>
     <string name="phone_number_supporting_text">يمكنك كتابة رقم الهاتف/الهوية الوطنية/الرمز/البريد الإلكتروني الموثق</string>
     <string name="register">تسجيل</string>
 
@@ -65,11 +65,15 @@
     <string name="field_required">هذا الحقل مطلوب</string>
     <string name="invalid_arabic_name">حروف عربية فقط، 3 حروف على الأقل، بدون مسافات</string>
     <string name="invalid_national_id_format">الرقم القومي يجب أن يتكون من 14 رقماً</string>
+    <string name="invalid_national_id_length">الرقم القومي يجب أن يتكون من 14 رقماً</string>
+    <string name="invalid_national_id_century">رمز القرن في الرقم القومي غير صحيح (يجب أن يبدأ بـ 2 أو 3)</string>
+    <string name="invalid_national_id_date">تاريخ الميلاد بالرقم القومي غير صحيح</string>
+    <string name="invalid_national_id_governorate">كود المحافظة بالرقم القومي غير صحيح</string>
     <string name="invalid_phone_format">يجب أن يتكون رقم الهاتف من 11 رقماً ويبدأ بـ 01</string>
     <string name="invalid_home_phone_format">يجب أن يتكون رقم الهاتف الأرضي من 8 أرقام</string>
     <string name="invalid_year_format">يجب أن تتكون السنة من 4 أرقام</string>
     <string name="invalid_email_format">البريد الإلكتروني غير صالح</string>
-    <string name="invalid_password_format">8 أحرف أو أكثر مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز</string>
+    <string name="invalid_password_format">8 أحرف أو أكثر مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز, مثال: Aa@123456</string>
 
     <string name="address_info">بيانات العنوان</string>
     <string name="building_no">رقم المبنى</string>
@@ -95,6 +99,8 @@
     <string name="ordained">مرسوم؟</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
+    <string name="history">تاريخ</string>
+    <string name="history_long">تاريخ قديم</string>
     <string name="rank">الرتبة</string>
     <string name="ordained_in_this_church">هل رسمت في هذه الكنيسة؟</string>
     <string name="ordination_year">سنة السيامة</string>
@@ -115,7 +121,7 @@
     <string name="password_need_uppercase">كلمة المرور يجب أن تحتوي على حرف كبير واحد على الأقل (A-Z)</string>
     <string name="password_need_lowercase">كلمة المرور يجب أن تحتوي على حرف صغير واحد على الأقل (a-z)</string>
     <string name="password_need_digit">كلمة المرور يجب أن تحتوي على رقم واحد على الأقل (0-9)</string>
-    <string name="password_need_special_char">كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل (@, #, $, \"...)</string>
+    <string name="password_need_special_char">كلمة المرور يجب أن تحتوي على رمز خاص واحد على الأقل (@, #, $, %, ^, &amp;, +, =, !)</string>
     <string name="educational_year">السنة الدراسية</string>
     <string name="father_deceased">الأب متوفى؟</string>
     <string name="father_phone">هاتف الأب</string>
@@ -140,7 +146,10 @@
 
     <!-- Operation Error Titles & Messages -->
     <string name="failed_to_load_priests">تعذر تحميل آباء الاعتراف</string>
-    <string name="failed_to_load_lookups">تعذر تحميل البيانات</string>
+    <string name="failed_to_load_areas">تعذر تحميل المناطق</string>
+    <string name="failed_to_load_requests">تعذر تحميل الطلبات</string>
+    <string name="failed_to_load_educational_stages">تعذر تحميل المراحل الدراسية</string>
+    <string name="failed_to_load_ranks">تعذر تحميل الرتب</string>
     <string name="failed_to_register">فشل التسجيل</string>
     <string name="failed_to_complete_profile">تعذر إكمال الملف الشخصي</string>
     <string name="failed_to_search_partner">تعذر البحث عن شريك الحياة</string>
@@ -161,7 +170,8 @@
 
     <!-- Registration Requests -->
     <string name="requests">الطلبات</string>
-    <string name="search_requests">البحث في طلبات التسجيل</string>
+    <string name="registration_requests">طلبات التسجيل</string>
+    <string name="search_requests">البحث في الطلبات</string>
     <string name="sort_by">ترتيب حسب</string>
     <string name="all_roles">الكل</string>
     <string name="accept">قبول</string>
@@ -171,4 +181,5 @@
     <string name="name_asc">الاسم (أ-ي)</string>
     <string name="name_desc">الاسم (ي-أ)</string>
     <string name="role_admin">أدمن</string>
+    <string name="not_implemented_yet">لم يتم تنفيذ هذه الميزة بعد</string>
 </resources>

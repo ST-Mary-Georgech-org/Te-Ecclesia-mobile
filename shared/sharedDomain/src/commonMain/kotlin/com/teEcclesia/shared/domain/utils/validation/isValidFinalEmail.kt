@@ -1,4 +1,4 @@
-package com.teEcclesia.shared.domain.utils
+package com.teEcclesia.shared.domain.utils.validation
 
 fun isValidFinalEmail(email: String): Boolean {
     // Standard RFC-compliant email regex

@@ -21,7 +21,7 @@ import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.modifier.thenIf
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_servant
@@ -77,7 +77,7 @@ fun RoleCard(
 @Composable
 @PreviewLightDark
 fun RoleCardPreview() = Theme {
-    TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+    Preview(darkTheme = Theme.isDarkTheme) {
         RoleCard(
             title = "Khadem",
             icon = painterResource(Res.drawable.ic_servant),

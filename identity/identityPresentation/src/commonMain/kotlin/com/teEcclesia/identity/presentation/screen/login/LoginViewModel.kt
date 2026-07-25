@@ -10,9 +10,8 @@ import com.teEcclesia.identity.domain.model.LoginRequest
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.presentation.util.toUiText
-import com.teEcclesia.shared.domain.utils.getPasswordValidationError
-import com.teEcclesia.shared.domain.utils.validatePassword
-import com.teEcclesia.shared.domain.utils.validateUsername
+import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
+import com.teEcclesia.shared.domain.utils.validation.validateUsername
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
@@ -24,10 +23,10 @@ import com.teEcclesia.shared.domain.exception.IncompleteProfileException
 import com.teEcclesia.shared.domain.exception.PhoneNotVerifiedException
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_login
-import teecclesia.designsystem.generated.resources.invalid_password
 import teecclesia.designsystem.generated.resources.invalid_phone_or_national_id_or_code_or_email
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
+import teecclesia.designsystem.generated.resources.not_implemented_yet
 
 class LoginViewModel(
     private val authenticationRepository: AuthenticationRepository,
@@ -147,7 +146,12 @@ class LoginViewModel(
         navigate(SignUpRoute())
     }
 
-    override fun onForgotPasswordClicked() {}
+    override fun onForgotPasswordClicked() {
+        showSnackBar(
+            title = UiText.StringRes(Res.string.not_implemented_yet),
+            isSuccess = true,
+        )
+    }
 
     override fun onUsernameChange(newUsername: String) {
         updateState { copy(username = newUsername, usernameError = null) }

@@ -30,6 +30,7 @@ internal fun provideHttpClient(
     baseUrl: String,
     authorizationService: suspend () -> AuthorizationService,
     settingsRepository: () -> SettingsRepository,
+    isDebug: Boolean = false
 ): HttpClient {
     return createHttpClient {
         expectSuccess = true
@@ -52,11 +53,13 @@ internal fun provideHttpClient(
             )
         }
 
-        install(Logging) {
-            level = LogLevel.ALL
-            logger = object : Logger {
-                override fun log(message: String) {
-                    println("Identity Client: $message")
+        if (isDebug) {
+            install(Logging) {
+                level = LogLevel.ALL
+                logger = object : Logger {
+                    override fun log(message: String) {
+                        println("Identity Client: $message")
+                    }
                 }
             }
         }

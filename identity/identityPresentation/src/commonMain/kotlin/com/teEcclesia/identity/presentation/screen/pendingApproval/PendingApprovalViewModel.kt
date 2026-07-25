@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.pendingApproval
 
+import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.SignUpRoute
@@ -11,13 +12,15 @@ class PendingApprovalViewModel(
 
     override fun onClickLogout() {
         tryToCall(
+            onStart = { updateState { copy(actionButtonState = AppButtonState.Loading) } },
             block = { authenticationRepository.clearAuthTokens() },
             onSuccess = {
                 resetTo(LoginRoute)
             },
             onError = {
                 resetTo(LoginRoute)
-            }
+            },
+            onEnd = { updateState { copy(actionButtonState = AppButtonState.Enabled) } }
         )
     }
 

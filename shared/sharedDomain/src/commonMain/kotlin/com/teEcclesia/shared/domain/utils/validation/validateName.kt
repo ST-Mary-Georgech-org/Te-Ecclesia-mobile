@@ -1,4 +1,4 @@
-package com.teEcclesia.shared.domain.utils
+package com.teEcclesia.shared.domain.utils.validation
 
 fun validateName(fullName: String): Boolean {
     val parts = fullName.trim().split(" ")

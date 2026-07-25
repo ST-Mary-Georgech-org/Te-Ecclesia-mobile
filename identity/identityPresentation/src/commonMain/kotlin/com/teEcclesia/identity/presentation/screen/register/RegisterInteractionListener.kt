@@ -87,7 +87,6 @@ interface RegisterInteractionListener {
 
     // Pagination
     fun onLoadNextPriests()
-    fun onLoadNextAreas()
     fun onLoadNextRanks()
     fun onLoadNextEducationalStages()
 }

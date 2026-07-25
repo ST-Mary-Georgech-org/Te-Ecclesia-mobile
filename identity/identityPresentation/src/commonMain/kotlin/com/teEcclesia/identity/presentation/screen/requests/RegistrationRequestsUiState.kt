@@ -13,6 +13,8 @@ import teecclesia.designsystem.generated.resources.role_makhdoom
 import teecclesia.designsystem.generated.resources.role_parent
 import teecclesia.designsystem.generated.resources.role_priest
 import teecclesia.designsystem.generated.resources.yes
+import teecclesia.designsystem.generated.resources.history
+import teecclesia.designsystem.generated.resources.history_long
 
 data class RegistrationRequestsUiState(
     val isLoading: Boolean = false,
@@ -47,5 +49,13 @@ fun ShamamsaStudyStatus.toText(): StringResource {
         ShamamsaStudyStatus.YES -> Res.string.yes
         ShamamsaStudyStatus.NO -> Res.string.no
         ShamamsaStudyStatus.LONG_AGO -> Res.string.yes
+    }
+}
+
+fun ShamamsaStudyStatus.toHistory(): StringResource {
+    return when (this) {
+        ShamamsaStudyStatus.YES -> Res.string.history
+        ShamamsaStudyStatus.NO -> Res.string.no
+        ShamamsaStudyStatus.LONG_AGO -> Res.string.history_long
     }
 }

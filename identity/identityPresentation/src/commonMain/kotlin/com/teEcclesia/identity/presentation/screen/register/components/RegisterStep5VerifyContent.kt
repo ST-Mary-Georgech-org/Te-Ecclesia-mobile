@@ -16,11 +16,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -67,29 +68,23 @@ fun RegisterStep5VerifyContent(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = {
                     state.whatsAppDeepLink?.let { uriHandler.openUri(it) }
                     listener.onClickVerifyWhatsApp()
                 },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary
-            ) {
-                Text(stringResource(Res.string.verify_whatsapp), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.verify_whatsapp)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickCheckWhatsAppStatus,
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.check_verification_status), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.check_verification_status),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -161,13 +156,12 @@ private fun RegisterStep5VerifyContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep5VerifyContent(state = state, listener = listener)
         }
     }

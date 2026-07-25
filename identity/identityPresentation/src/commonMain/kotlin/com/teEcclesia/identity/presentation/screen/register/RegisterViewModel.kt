@@ -1,10 +1,11 @@
 package com.teEcclesia.identity.presentation.screen.register
 
 import androidx.lifecycle.viewModelScope
+import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
 import com.teEcclesia.identity.api.LoginRoute
+import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
@@ -14,25 +15,30 @@ import com.teEcclesia.identity.domain.model.ParentProfileRequest
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
+import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
+import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
+import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.identity.presentation.util.toPagedData
+import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
-import com.teEcclesia.shared.domain.utils.isValidEgyptianNationalId
-import com.teEcclesia.shared.domain.utils.isValidEmailInput
-import com.teEcclesia.shared.domain.utils.isValidFinalEmail
-import com.teEcclesia.shared.domain.utils.isValidNationalIdInput
-import com.teEcclesia.shared.domain.utils.isValidPhoneInput
-import com.teEcclesia.shared.domain.utils.validateArabicName
-import com.teEcclesia.identity.presentation.util.toUiText
-import com.teEcclesia.shared.domain.utils.getPasswordValidationError
-import com.teEcclesia.shared.domain.utils.validatePhone
+import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
+import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
+import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
+import com.teEcclesia.shared.domain.utils.validation.isValidEgyptianNationalId
+import com.teEcclesia.shared.domain.utils.validation.isValidEmailInput
+import com.teEcclesia.shared.domain.utils.validation.isValidFinalEmail
+import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
+import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
+import com.teEcclesia.shared.domain.utils.validation.validateArabicName
+import com.teEcclesia.shared.domain.utils.validation.validatePhone
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitCameraType
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -43,6 +49,15 @@ import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.failed_to_complete_profile
+import teecclesia.designsystem.generated.resources.failed_to_load_areas
+import teecclesia.designsystem.generated.resources.failed_to_load_priests
+import teecclesia.designsystem.generated.resources.failed_to_load_ranks
+import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
+import teecclesia.designsystem.generated.resources.failed_to_register
+import teecclesia.designsystem.generated.resources.failed_to_search_child
+import teecclesia.designsystem.generated.resources.failed_to_search_partner
+import teecclesia.designsystem.generated.resources.failed_to_verify_whatsapp
 import teecclesia.designsystem.generated.resources.field_required
 import teecclesia.designsystem.generated.resources.invalid_arabic_name
 import teecclesia.designsystem.generated.resources.invalid_email_format
@@ -50,17 +65,6 @@ import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_national_id_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
-import teecclesia.designsystem.generated.resources.failed_to_load_priests
-import teecclesia.designsystem.generated.resources.failed_to_load_lookups
-import teecclesia.designsystem.generated.resources.failed_to_register
-import teecclesia.designsystem.generated.resources.failed_to_complete_profile
-import teecclesia.designsystem.generated.resources.failed_to_search_partner
-import teecclesia.designsystem.generated.resources.failed_to_search_child
-import teecclesia.designsystem.generated.resources.failed_to_verify_whatsapp
-
-import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.domain.service.AuthorizationService
-import com.teEcclesia.identity.presentation.util.toPagedData
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -97,33 +101,6 @@ class RegisterViewModel(
         }
     )
 
-    private var currentAreaSearchQuery: String? = null
-    private var areasPaginator = createAreasPaginator()
-
-    private fun createAreasPaginator(query: String? = null) = createPaginator(
-        loadPage = { page ->
-            lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = page, size = 20)).toPagedData()
-        },
-        onSuccess = { items ->
-            updateState {
-                copy(
-                    areas = if (isAreaLoading && areas.isEmpty()) items.data else areas + items.data,
-                    isAreaEndReached = items.isLastPage
-                )
-            }
-        },
-        onLoadUpdated = { loading ->
-            updateState { copy(isAreaLoading = loading) }
-        },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_lookups),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
-        }
-    )
-
     private val ranksPaginator = createPaginator(
         loadPage = { page ->
             lookupRepository.getRanks(PageQuery(page = page, size = 20)).toPagedData()
@@ -141,7 +118,7 @@ class RegisterViewModel(
         },
         onError = { throwable ->
             showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_lookups),
+                title = UiText.StringRes(Res.string.failed_to_load_ranks),
                 message = getLocalizedErrorMessage(throwable),
                 isSuccess = false
             )
@@ -165,7 +142,7 @@ class RegisterViewModel(
         },
         onError = { throwable ->
             showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_lookups),
+                title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
                 message = getLocalizedErrorMessage(throwable),
                 isSuccess = false
             )
@@ -175,7 +152,6 @@ class RegisterViewModel(
     init {
         checkAndLoadPendingRegistration()
         onLoadNextPriests()
-        onLoadNextAreas()
         onLoadNextRanks()
         onLoadNextEducationalStages()
     }
@@ -219,6 +195,7 @@ class RegisterViewModel(
                             displayName = profile.displayName,
                             nationalId = profile.nationalId,
                             job = profile.job,
+                            isMale = isMaleFromEgyptianNationalId(profile.nationalId),
                             selectedConfessionPriest = profile.confessionPriest,
                             isFromAnotherChurch = profile.confessionPriest == null && profile.externalConfessionPriestName.isNotBlank(),
                             externalPriestName = profile.externalConfessionPriestName,
@@ -236,7 +213,7 @@ class RegisterViewModel(
                             apartment = profile.apartment,
                             specialMark = profile.specialMark,
                             selectedRole = if (hasSelectedSpecificRole) profile.role else null,
-                            
+
                             // Makhdoom / Student fields
                             isFatherDeceased = makhdoom?.isFatherDeceased ?: false,
                             fatherPhone = makhdoom?.fatherPhone?.removePrefix("+2") ?: "",
@@ -244,23 +221,26 @@ class RegisterViewModel(
                             isMotherDeceased = makhdoom?.isMotherDeceased ?: false,
                             motherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: "",
                             motherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: "",
-                            shamamsaStatus = makhdoom?.shamamsaStudyStatus ?: ShamamsaStudyStatus.YES,
+                            shamamsaStatus = makhdoom?.shamamsaStudyStatus
+                                ?: ShamamsaStudyStatus.YES,
                             studentEducationalStage = makhdoom?.educationalStage,
                             studentEducationalYear = makhdoom?.educationalYear,
-                            
+
                             // Servant fields
                             servantEducationalStage = khadem?.educationalStage,
                             servantEducationalYear = khadem?.educationalYear,
-                            
+
                             // Ordination fields
                             isOrdained = ordination != null,
                             selectedRank = ordination?.rank,
-                            isOrdainedInThisChurch = ordination?.isOrdinationInAnotherChurch?.not() ?: true,
+                            isOrdainedInThisChurch = ordination?.isOrdinationInAnotherChurch?.not()
+                                ?: true,
                             ordinationYear = ordination?.ordinationYear?.toString() ?: "",
                             bishopName = ordination?.bishopName ?: "",
                             ordinationPlace = ordination?.ordinationPlace ?: "",
 
-                            kahenEducationalStages = profile.kahenProfile?.educationalStages ?: emptyList(),
+                            kahenEducationalStages = profile.kahenProfile?.educationalStages
+                                ?: emptyList(),
                             currentStep = targetStep
                         )
                     }
@@ -278,14 +258,6 @@ class RegisterViewModel(
         viewModelScope.launch {
             if (!state.value.isPriestEndReached && !state.value.isPriestLoading) {
                 priestsPaginator.loadNextItems()
-            }
-        }
-    }
-
-    override fun onLoadNextAreas() {
-        viewModelScope.launch {
-            if (!state.value.isAreaEndReached && !state.value.isAreaLoading) {
-                areasPaginator.loadNextItems()
             }
         }
     }
@@ -317,11 +289,12 @@ class RegisterViewModel(
 
     override fun onClickPreviousStep() {
         if (state.value.currentStep > 1) {
-            val prevStep = if (state.value.currentStep == 5 && state.value.selectedRole == UserRole.KAHEN) {
-                3
-            } else {
-                state.value.currentStep - 1
-            }
+            val prevStep =
+                if (state.value.currentStep == 5 && state.value.selectedRole == UserRole.KAHEN) {
+                    3
+                } else {
+                    state.value.currentStep - 1
+                }
             updateState { copy(currentStep = prevStep) }
         } else {
             popBackStack()
@@ -363,11 +336,8 @@ class RegisterViewModel(
             UiText.StringRes(Res.string.field_required)
         } else null
 
-        val nationalIdError = if (isValidEgyptianNationalId(s.nationalId)) {
-            null
-        } else {
-            UiText.StringRes(Res.string.invalid_national_id_format)
-        }
+        val nationalIdError = getNationalIdValidationError(s.nationalId)?.toUiText()
+        val isMale = isMaleFromEgyptianNationalId(s.nationalId)
 
         val confessionPriestErr =
             if (!s.isFromAnotherChurch && s.selectedConfessionPriest == null) UiText.StringRes(Res.string.field_required) else null
@@ -399,6 +369,7 @@ class RegisterViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                isMale = isMale,
                 confessionPriestError = confessionPriestErr,
                 externalPriestNameError = externalNameErr,
                 externalPriestChurchError = externalChurchErr,
@@ -413,22 +384,42 @@ class RegisterViewModel(
 
     override fun onFirstNameChange(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(name = value)) updateState { copy(firstName = value, firstNameError = null) }
+        if (value.isEmpty() || validateArabicName(name = value)) updateState {
+            copy(
+                firstName = value,
+                firstNameError = null
+            )
+        }
     }
 
     override fun onSecondNameChange(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(name = value)) updateState { copy(secondName = value, secondNameError = null) }
+        if (value.isEmpty() || validateArabicName(name = value)) updateState {
+            copy(
+                secondName = value,
+                secondNameError = null
+            )
+        }
     }
 
     override fun onThirdNameChange(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(name = value)) updateState { copy(thirdName = value, thirdNameError = null) }
+        if (value.isEmpty() || validateArabicName(name = value)) updateState {
+            copy(
+                thirdName = value,
+                thirdNameError = null
+            )
+        }
     }
 
     override fun onLastNameChange(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(name = value)) updateState { copy(lastName = value, lastNameError = null) }
+        if (value.isEmpty() || validateArabicName(name = value)) updateState {
+            copy(
+                lastName = value,
+                lastNameError = null
+            )
+        }
     }
 
     override fun onDisplayNameChange(value: String) {
@@ -438,7 +429,19 @@ class RegisterViewModel(
     override fun onNationalIdChange(value: String) {
         val value = value.trim()
         if (value.isEmpty() || isValidNationalIdInput(value)) {
-            updateState { copy(nationalId = value, nationalIdError = null) }
+            val error = if (value.length == 14) {
+                getNationalIdValidationError(value)?.toUiText()
+            } else {
+                null
+            }
+            val isMale = isMaleFromEgyptianNationalId(value)
+            updateState {
+                copy(
+                    nationalId = value,
+                    nationalIdError = error,
+                    isMale = isMale
+                )
+            }
         }
     }
 
@@ -447,11 +450,23 @@ class RegisterViewModel(
     }
 
     override fun onSelectConfessionPriest(priest: Priest?) {
-        updateState { copy(selectedConfessionPriest = priest, isFromAnotherChurch = false, confessionPriestError = null) }
+        updateState {
+            copy(
+                selectedConfessionPriest = priest,
+                isFromAnotherChurch = false,
+                confessionPriestError = null
+            )
+        }
     }
 
     override fun onSelectFromAnotherChurch() {
-        updateState { copy(isFromAnotherChurch = true, selectedConfessionPriest = null, confessionPriestError = null) }
+        updateState {
+            copy(
+                isFromAnotherChurch = true,
+                selectedConfessionPriest = null,
+                confessionPriestError = null
+            )
+        }
     }
 
     override fun onExternalPriestNameChange(value: String) {
@@ -480,7 +495,9 @@ class RegisterViewModel(
         val homePhoneErr =
             if (s.homePhone.isBlank() || s.homePhone.length == 8) null else UiText.StringRes(Res.string.invalid_home_phone_format)
         val emailErr =
-            if (s.email.isNotBlank() && isValidFinalEmail(s.email) || s.email.isBlank()) null else UiText.StringRes(Res.string.invalid_email_format)
+            if (s.email.isNotBlank() && isValidFinalEmail(s.email) || s.email.isBlank()) null else UiText.StringRes(
+                Res.string.invalid_email_format
+            )
         val passErr =
             getPasswordValidationError(s.password)?.toUiText()
         val buildingErr =
@@ -558,9 +575,12 @@ class RegisterViewModel(
                         imageBytes = s.imageBytes,
                         certificateImageBytes = null
                     )
-                    authenticationRepository.saveRegistrationToken(tokenResponse.token, tokenResponse.refreshToken ?: "")
+                    authenticationRepository.saveRegistrationToken(
+                        tokenResponse.token,
+                        tokenResponse.refreshToken ?: ""
+                    )
                 },
-                onStart = { updateState { copy(isLoading = true) } },
+                onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
                 onSuccess = {
                     updateState { copy(currentStep = 3) }
                 },
@@ -571,7 +591,7 @@ class RegisterViewModel(
                         isSuccess = false
                     )
                 },
-                onEnd = { updateState { copy(isLoading = false) } }
+                onEnd = { updateState { copy(isLoading = false, actionButtonState = AppButtonState.Enabled) } }
             )
         }
     }
@@ -595,7 +615,8 @@ class RegisterViewModel(
     }
 
     override fun onPasswordChange(value: String) {
-        updateState { copy(password = value, passwordError = null) }
+        val error = getPasswordValidationError(value)
+        updateState { copy(password = value, passwordError = error?.toUiText()) }
     }
 
     override fun onTogglePasswordVisibility() {
@@ -621,15 +642,34 @@ class RegisterViewModel(
             copy(
                 selectedArea = value,
                 areaError = null,
-                isAreaSheetVisible = true,
+                isAreaSheetVisible = false,
                 areas = emptyList(),
-                isAreaEndReached = false
             )
         }
-        currentAreaSearchQuery = value
-        areasPaginator.reset()
-        areasPaginator = createAreasPaginator(value)
-        onLoadNextAreas()
+        searchAreas(value)
+    }
+
+    private fun searchAreas(query: String) {
+        tryToCall(
+            block = {
+                lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = 0, size = 20))
+                    .toPagedData()
+            },
+            onStart = { updateState { copy(isAreaLoading = true) } },
+            onSuccess = { items ->
+                updateState {
+                    copy(areas = items.data, isAreaSheetVisible = true)
+                }
+            },
+            onError = { throwable ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_load_areas),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            },
+            onEnd = { updateState { copy(isAreaLoading = false) } }
+        )
     }
 
     override fun onSelectArea(area: String) {
@@ -674,10 +714,12 @@ class RegisterViewModel(
 
         when (role) {
             UserRole.KHADEM -> {
-                val stageErr = if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
-                val yearErr = if (!s.servantEducationalStage?.subItems.isNullOrEmpty() && s.servantEducationalYear == null) {
-                    UiText.StringRes(Res.string.field_required)
-                } else null
+                val stageErr =
+                    if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
+                val yearErr =
+                    if (!s.servantEducationalStage?.subItems.isNullOrEmpty() && s.servantEducationalYear == null) {
+                        UiText.StringRes(Res.string.field_required)
+                    } else null
 
                 val hasError = listOfNotNull(stageErr, yearErr).isNotEmpty()
                 updateState {
@@ -688,12 +730,16 @@ class RegisterViewModel(
                 }
                 if (hasError) return
             }
+
             UserRole.MAKHDOOM -> {
-                val rankErr = if (s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
-                val stageErr = if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
-                val yearErr = if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
-                    UiText.StringRes(Res.string.field_required)
-                } else null
+                val rankErr =
+                    if (s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
+                val stageErr =
+                    if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
+                val yearErr =
+                    if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
+                        UiText.StringRes(Res.string.field_required)
+                    } else null
 
                 val ordinationYearErr = if (s.isOrdained) {
                     if (s.ordinationYear.isBlank()) {
@@ -753,9 +799,11 @@ class RegisterViewModel(
                 }
                 if (hasError) return
             }
+
             UserRole.PARENT -> {
                 // Parent profile validation
             }
+
             UserRole.KAHEN -> {
                 val stageErr = if (s.kahenEducationalStages.isEmpty()) {
                     UiText.StringRes(Res.string.field_required)
@@ -765,6 +813,7 @@ class RegisterViewModel(
                     return
                 }
             }
+
             else -> {}
         }
 
@@ -809,7 +858,7 @@ class RegisterViewModel(
                         ?: s.identityCertificateBytes
                 )
             },
-            onStart = { updateState { copy(isLoading = true) } },
+            onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
             onSuccess = {
                 initiateWhatsAppStep5()
             },
@@ -820,7 +869,7 @@ class RegisterViewModel(
                     isSuccess = false
                 )
             },
-            onEnd = { updateState { copy(isLoading = false) } }
+            onEnd = { updateState { copy(isLoading = false, actionButtonState = AppButtonState.Enabled) } }
         )
     }
 
@@ -1036,7 +1085,11 @@ class RegisterViewModel(
         viewModelScope.launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
-                FilePickOption.GALLERY -> FileKit.openFilePicker(type = FileKitType.Image, mode = FileKitMode.Single)
+                FilePickOption.GALLERY -> FileKit.openFilePicker(
+                    type = FileKitType.Image,
+                    mode = FileKitMode.Single
+                )
+
                 FilePickOption.FILES -> FileKit.openFilePicker(
                     type = FileKitType.File(
                         extensions = listOf("pdf", "png", "jpg", "jpeg", "webp")
@@ -1096,6 +1149,7 @@ class RegisterViewModel(
         val token = whatsappToken
         if (token != null) {
             tryToCall(
+                onStart = { updateState { copy(actionButtonState = AppButtonState.Loading) } },
                 block = {
                     registerRepository.getWhatsAppStatus(token)
                     resetTo(PendingApprovalRoute)
@@ -1107,7 +1161,8 @@ class RegisterViewModel(
                         message = getLocalizedErrorMessage(throwable),
                         isSuccess = false
                     )
-                }
+                },
+                onEnd = { updateState { copy(actionButtonState = AppButtonState.Enabled) } }
             )
         }
     }

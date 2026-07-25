@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,14 +16,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
-import com.teEcclesia.designsystem.modifier.clickableNoRipple
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -65,22 +63,14 @@ fun RegisterStep4ParentContent(
             )
 
             if (state.selectedPartner == null) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.partnerQuery,
                     onValueChange = listener::onPartnerQueryChange,
-                    label = { Text(stringResource(Res.string.search_partner), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
+                    labelText = stringResource(Res.string.search_partner),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_plus),
-                            contentDescription = "Search Partner",
-                            tint = Theme.colorScheme.primary,
-                            modifier = Modifier
-                                .clickableNoRipple(onClick = listener::onSearchPartner)
-                                .padding(8.dp)
-                        )
-                    }
+                    trailingIcon = painterResource(Res.drawable.ic_plus),
+                    onTrailingIconClick = listener::onSearchPartner,
                 )
             } else {
                 UserChip(
@@ -97,22 +87,14 @@ fun RegisterStep4ParentContent(
                 color = Theme.colorScheme.onBackground
             )
 
-            OutlinedTextField(
+            CustomTextField(
                 value = state.childQuery,
                 onValueChange = listener::onChildQueryChange,
-                label = { Text(stringResource(Res.string.search_child), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
+                labelText = stringResource(Res.string.search_child),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                trailingIcon = {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_plus),
-                        contentDescription = "Search Child",
-                        tint = Theme.colorScheme.primary,
-                        modifier = Modifier
-                            .clickableNoRipple(onClick = listener::onSearchChild)
-                            .padding(8.dp)
-                    )
-                }
+                trailingIcon = painterResource(Res.drawable.ic_plus),
+                onTrailingIconClick = listener::onSearchChild,
             )
 
             Column(
@@ -143,26 +125,20 @@ fun RegisterStep4ParentContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -234,13 +210,12 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep4ParentContent(state = state, listener = listener)
         }
     }

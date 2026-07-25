@@ -10,16 +10,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.button.AppSegmentedControl
-import com.teEcclesia.designsystem.components.button.Button
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.util.extentions.asString
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.login.LoginInteractionListener
 import com.teEcclesia.identity.presentation.screen.login.LoginScreenState
 import com.teEcclesia.identity.presentation.screen.login.getName
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.continue_text
 import teecclesia.designsystem.generated.resources.select_language
@@ -35,7 +36,7 @@ fun OnboardingContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = Res.string.select_language.asString(),
+            text = stringResource(Res.string.select_language),
             style = Theme.typography.titleMedium,
             color = Theme.colorScheme.onBackground,
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
@@ -49,7 +50,7 @@ fun OnboardingContent(
         )
         Spacer(modifier = Modifier.height(24.dp))
         Text(
-            text = Res.string.select_theme.asString(),
+            text = stringResource(Res.string.select_theme),
             style = Theme.typography.titleMedium,
             color = Theme.colorScheme.onBackground,
             modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
@@ -62,21 +63,13 @@ fun OnboardingContent(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         )
 
-        Button(
+        AppButton(
+            type = AppButtonType.Primary,
             onClick = interactionListener::onContinueClicked,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 24.dp)
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            containerColor = Theme.colorScheme.primary,
-            contentColor = Theme.colorScheme.onPrimary
-        ) {
-            Text(
-                text = Res.string.continue_text.asString(),
-                style = Theme.typography.labelLarge,
-                color = Theme.colorScheme.onPrimary
-            )
-        }
+                .padding(bottom = 24.dp),
+            text = stringResource(Res.string.continue_text)
+        )
     }
 }

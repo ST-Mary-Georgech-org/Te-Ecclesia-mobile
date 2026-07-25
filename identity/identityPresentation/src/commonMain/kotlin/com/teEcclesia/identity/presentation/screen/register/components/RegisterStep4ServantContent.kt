@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,23 +24,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
-import com.teEcclesia.designsystem.components.icon.Icon
-import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -48,18 +49,19 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.servant_info
+import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.educational_year
-import teecclesia.designsystem.generated.resources.cancel
-import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.ic_chevron_down
+import teecclesia.designsystem.generated.resources.next
+import teecclesia.designsystem.generated.resources.servant_info
 
 @Composable
 fun RegisterStep4ServantContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -75,23 +77,19 @@ fun RegisterStep4ServantContent(
             )
 
             Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedTextField(
+                CustomTextField(
                     value = state.servantEducationalStage?.name ?: "",
                     onValueChange = {},
-                    label = { Text(stringResource(Res.string.educational_stage), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                    modifier = Modifier.fillMaxWidth().clickableNoRipple { listener.onToggleStageSheet(true) },
+                    labelText = stringResource(Res.string.educational_stage),
+                    modifier = Modifier.fillMaxWidth(),
+                    onClick = {
+                        focusManager.clearFocus()
+                        listener.onToggleStageSheet(true)
+                    },
                     readOnly = true,
                     enabled = false,
-                    isError = state.stageError != null,
-                    supportingText = state.stageError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_down),
-                            contentDescription = null,
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleStageSheet(true) }
-                        )
-                    }
+                    errorText = state.stageError?.asString(),
+                    trailingIcon = painterResource(Res.drawable.ic_chevron_down)
                 )
 
                 BottomSheet(
@@ -146,7 +144,8 @@ fun RegisterStep4ServantContent(
                 }
             }
 
-            val hasYears = !state.servantEducationalStage?.subItems.isNullOrEmpty() || state.servantEducationalYear != null
+            val hasYears =
+                !state.servantEducationalStage?.subItems.isNullOrEmpty() || state.servantEducationalYear != null
 
             AnimatedVisibility(
                 visible = hasYears,
@@ -154,23 +153,19 @@ fun RegisterStep4ServantContent(
                 exit = fadeOut() + shrinkVertically()
             ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
+                    CustomTextField(
                         value = state.servantEducationalYear?.name ?: "",
                         onValueChange = {},
-                        label = { Text(stringResource(Res.string.educational_year), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                        modifier = Modifier.fillMaxWidth().clickableNoRipple { listener.onToggleYearSheet(true) },
+                        labelText = stringResource(Res.string.educational_year),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            focusManager.clearFocus()
+                            listener.onToggleYearSheet(true)
+                        },
                         readOnly = true,
                         enabled = false,
-                        isError = state.yearError != null,
-                        supportingText = state.yearError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
-                        trailingIcon = {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_chevron_down),
-                                contentDescription = null,
-                                tint = Theme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.clickableNoRipple { listener.onToggleYearSheet(true) }
-                            )
-                        }
+                        errorText = state.yearError?.asString(),
+                        trailingIcon = painterResource(Res.drawable.ic_chevron_down)
                     )
 
                     BottomSheet(
@@ -223,26 +218,20 @@ fun RegisterStep4ServantContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = state.actionButtonState
+            )
         }
     }
 }
@@ -250,7 +239,14 @@ fun RegisterStep4ServantContent(
 @PreviewLightDark
 @Composable
 private fun RegisterStep4ServantContentPreviewLightDark() {
-    var state by remember { mutableStateOf(RegisterScreenState(currentStep = 4, selectedRole = UserRole.KHADEM)) }
+    var state by remember {
+        mutableStateOf(
+            RegisterScreenState(
+                currentStep = 4,
+                selectedRole = UserRole.KHADEM
+            )
+        )
+    }
     val listener = remember(state) {
         object : RegisterInteractionListener {
             override fun onClickNextStep() {}
@@ -292,10 +288,16 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onBishopNameChange(value: String) {}
             override fun onOrdinationPlaceChange(value: String) {}
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
-            override fun onSelectEducationalStage(stage: LookupResponse) {  }
-            override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
-            override fun onSelectEducationalYear(year: LookupResponse) {  }
-            override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
+            override fun onSelectEducationalStage(stage: LookupResponse) {}
+            override fun onToggleStageSheet(visible: Boolean) {
+                state = state.copy(isStageSheetVisible = visible)
+            }
+
+            override fun onSelectEducationalYear(year: LookupResponse) {}
+            override fun onToggleYearSheet(visible: Boolean) {
+                state = state.copy(isYearSheetVisible = visible)
+            }
+
             override fun onToggleFatherDeceased(deceased: Boolean) {}
             override fun onFatherPhoneChange(value: String) {}
             override fun onFatherWhatsappChange(value: String) {}
@@ -310,17 +312,22 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(
+                target: UploadTarget,
+                bytes: ByteArray?,
+                fileName: String?
+            ) {
+            }
+
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep4ServantContent(state = state, listener = listener)
         }
     }

@@ -1,4 +1,4 @@
-package com.teEcclesia.shared.domain.utils
+package com.teEcclesia.shared.domain.utils.validation
 
 fun validateUsername(username: String): Boolean {
     val trimmed = username.trim()

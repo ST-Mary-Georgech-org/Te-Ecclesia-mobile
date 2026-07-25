@@ -19,20 +19,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.Button
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
-import com.teEcclesia.designsystem.components.icon.Icon
-import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.OutlinedTextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.TeEcclesiaPreview
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -56,6 +57,7 @@ fun RegisterStep4KahenContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
+    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -73,25 +75,20 @@ fun RegisterStep4KahenContent(
             Box(modifier = Modifier.fillMaxWidth()) {
                 val selectedText = state.kahenEducationalStages.joinToString(", ") { it.name }
                 val currentError = state.stageError ?: state.stagesError
-                OutlinedTextField(
+                CustomTextField(
                     value = selectedText,
                     onValueChange = {},
-                    label = { Text(stringResource(Res.string.educational_stages), style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
+                    labelText = stringResource(Res.string.educational_stages),
+                    onClick = {
+                        focusManager.clearFocus()
+                        listener.onToggleStagesSheet(true)
+                    },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .clickableNoRipple { listener.onToggleStagesSheet(true) },
+                        .fillMaxWidth(),
                     readOnly = true,
                     enabled = false,
-                    isError = currentError != null,
-                    supportingText = currentError?.let { { Text(it.asString(), style = Theme.typography.bodySmall, color = Theme.colorScheme.error) } },
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_chevron_down),
-                            contentDescription = null,
-                            tint = Theme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.clickableNoRipple { listener.onToggleStagesSheet(true) }
-                        )
-                    }
+                    errorText = currentError?.asString(),
+                    trailingIcon = painterResource(Res.drawable.ic_chevron_down)
                 )
             }
         }
@@ -102,26 +99,20 @@ fun RegisterStep4KahenContent(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Button(
+            AppButton(
+                type = AppButtonType.Secondary,
                 onClick = listener::onClickPreviousStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.secondaryContainer,
-                contentColor = Theme.colorScheme.onSecondaryContainer
-            ) {
-                Text(stringResource(Res.string.cancel), style = Theme.typography.labelLarge, color = Theme.colorScheme.onSecondaryContainer)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.cancel)
+            )
 
-            Button(
+            AppButton(
+                type = AppButtonType.Primary,
                 onClick = listener::onClickNextStep,
-                modifier = Modifier.weight(1f).height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                containerColor = Theme.colorScheme.primary,
-                contentColor = Theme.colorScheme.onPrimary,
-                enabled = state.actionButtonState == AppButtonState.Enabled
-            ) {
-                Text(stringResource(Res.string.next), style = Theme.typography.labelLarge, color = Theme.colorScheme.onPrimary)
-            }
+                modifier = Modifier.weight(1f),
+                text = stringResource(Res.string.next),
+                state = state.actionButtonState
+            )
         }
     }
 
@@ -188,28 +179,26 @@ fun RegisterStep4KahenContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(
+        AppButton(
+            type = AppButtonType.Primary,
             onClick = { listener.onToggleStagesSheet(false) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(52.dp),
-            shape = RoundedCornerShape(16.dp),
-            containerColor = Theme.colorScheme.primary,
-            contentColor = Theme.colorScheme.onPrimary
-        ) {
-            Text(
-                text = stringResource(Res.string.ok),
-                style = Theme.typography.labelLarge,
-                color = Theme.colorScheme.onPrimary
-            )
-        }
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(Res.string.ok)
+        )
     }
 }
 
 @PreviewLightDark
 @Composable
 private fun RegisterStep4KahenContentPreviewLightDark() {
-    var state by remember { mutableStateOf(RegisterScreenState(currentStep = 4, selectedRole = UserRole.KAHEN)) }
+    var state by remember {
+        mutableStateOf(
+            RegisterScreenState(
+                currentStep = 4,
+                selectedRole = UserRole.KAHEN
+            )
+        )
+    }
     val listener = remember(state) {
         object : RegisterInteractionListener {
             override fun onClickNextStep() {}
@@ -255,8 +244,15 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onToggleEducationalStageSelection(stage: LookupResponse) {
 
             }
-            override fun onToggleStagesSheet(visible: Boolean) { state = state.copy(isStagesSheetVisible = visible) }
-            override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
+
+            override fun onToggleStagesSheet(visible: Boolean) {
+                state = state.copy(isStagesSheetVisible = visible)
+            }
+
+            override fun onToggleStageSheet(visible: Boolean) {
+                state = state.copy(isStageSheetVisible = visible)
+            }
+
             override fun onSelectEducationalYear(year: LookupResponse) {}
             override fun onToggleYearSheet(visible: Boolean) {}
             override fun onToggleFatherDeceased(deceased: Boolean) {}
@@ -273,17 +269,22 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(
+                target: UploadTarget,
+                bytes: ByteArray?,
+                fileName: String?
+            ) {
+            }
+
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
-            override fun onLoadNextAreas() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
-        TeEcclesiaPreview(darkTheme = Theme.isDarkTheme) {
+        Preview(darkTheme = Theme.isDarkTheme) {
             RegisterStep4KahenContent(state = state, listener = listener)
         }
     }

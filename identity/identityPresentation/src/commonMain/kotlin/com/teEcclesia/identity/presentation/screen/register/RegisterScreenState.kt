@@ -28,6 +28,7 @@ data class RegisterScreenState(
     val displayNameError: UiText? = null,
     val nationalId: String = "",
     val nationalIdError: UiText? = null,
+    val isMale: Boolean? = null,
     val job: String = "",
 
     val confessionPriests: List<Priest> = emptyList(),
@@ -62,7 +63,6 @@ data class RegisterScreenState(
     val streetBranch: String = "",
     val areas: List<String> = emptyList(),
     val isAreaLoading: Boolean = false,
-    val isAreaEndReached: Boolean = false,
     val selectedArea: String? = null,
     val areaError: UiText? = null,
     val isAreaSheetVisible: Boolean = false,
@@ -158,7 +158,6 @@ data class RegisterScreenState(
         if (isPriestSheetVisible != other.isPriestSheetVisible) return false
         if (isPasswordVisible != other.isPasswordVisible) return false
         if (isAreaLoading != other.isAreaLoading) return false
-        if (isAreaEndReached != other.isAreaEndReached) return false
         if (isAreaSheetVisible != other.isAreaSheetVisible) return false
         if (isOrdained != other.isOrdained) return false
         if (isRankLoading != other.isRankLoading) return false
@@ -188,6 +187,7 @@ data class RegisterScreenState(
         if (displayNameError != other.displayNameError) return false
         if (nationalId != other.nationalId) return false
         if (nationalIdError != other.nationalIdError) return false
+        if (isMale != other.isMale) return false
         if (job != other.job) return false
         if (confessionPriests != other.confessionPriests) return false
         if (selectedConfessionPriest != other.selectedConfessionPriest) return false
@@ -268,7 +268,6 @@ data class RegisterScreenState(
         result = 31 * result + isPriestSheetVisible.hashCode()
         result = 31 * result + isPasswordVisible.hashCode()
         result = 31 * result + isAreaLoading.hashCode()
-        result = 31 * result + isAreaEndReached.hashCode()
         result = 31 * result + isAreaSheetVisible.hashCode()
         result = 31 * result + isOrdained.hashCode()
         result = 31 * result + isRankLoading.hashCode()
@@ -298,6 +297,7 @@ data class RegisterScreenState(
         result = 31 * result + (displayNameError?.hashCode() ?: 0)
         result = 31 * result + nationalId.hashCode()
         result = 31 * result + (nationalIdError?.hashCode() ?: 0)
+        result = 31 * result + (isMale?.hashCode() ?: 0)
         result = 31 * result + job.hashCode()
         result = 31 * result + confessionPriests.hashCode()
         result = 31 * result + (selectedConfessionPriest?.hashCode() ?: 0)
