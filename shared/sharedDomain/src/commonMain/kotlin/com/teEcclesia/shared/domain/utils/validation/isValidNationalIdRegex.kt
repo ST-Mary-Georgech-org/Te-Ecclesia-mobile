@@ -1,5 +1,9 @@
 package com.teEcclesia.shared.domain.utils.validation
 
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Clock
+
 fun isValidNationalIdRegex(nationalId: String): Boolean {
     val regex = "^([23])\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\\d|3[01])(01|02|03|04|11|12|13|14|15|16|17|18|19|21|22|23|24|25|26|27|28|29|31|32|33|34|35|88)\\d{5}$".toRegex()
     return regex.matches(nationalId)
@@ -50,6 +54,10 @@ fun isMaleFromEgyptianNationalId(nationalId: String): Boolean? {
 }
 
 private fun isValidDate(year: Int, month: Int, day: Int): Boolean {
+    val currentYear = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).year
+
+    if (year > currentYear) return false
+
     if (month !in 1..12 || day !in 1..31) return false
 
     val daysInMonth = when (month) {

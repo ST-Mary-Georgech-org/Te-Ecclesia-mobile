@@ -9,6 +9,7 @@ import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl.Compa
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpRequestRetry
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
@@ -103,6 +104,13 @@ internal fun provideHttpClient(
         install(HttpTimeout) {
             connectTimeoutMillis = NETWORK_TIMEOUT_MS
             requestTimeoutMillis = NETWORK_TIMEOUT_MS
+            socketTimeoutMillis = NETWORK_TIMEOUT_MS
+        }
+        install(HttpRequestRetry) {
+            maxRetries = 2
+            retryOnServerErrors(maxRetries = 2)
+            retryOnException(maxRetries = 2, retryOnTimeout = true)
+            exponentialDelay()
         }
     }
 }
@@ -112,6 +120,13 @@ internal fun provideCoilClient(): HttpClient {
         install(HttpTimeout) {
             connectTimeoutMillis = NETWORK_TIMEOUT_MS
             requestTimeoutMillis = NETWORK_TIMEOUT_MS
+            socketTimeoutMillis = NETWORK_TIMEOUT_MS
+        }
+        install(HttpRequestRetry) {
+            maxRetries = 2
+            retryOnServerErrors(maxRetries = 2)
+            retryOnException(maxRetries = 2, retryOnTimeout = true)
+            exponentialDelay()
         }
     }
 }

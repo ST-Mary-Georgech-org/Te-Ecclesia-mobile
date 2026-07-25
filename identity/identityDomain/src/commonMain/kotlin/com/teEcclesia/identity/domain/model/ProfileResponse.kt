@@ -35,5 +35,7 @@ data class ProfileResponse(
     val kahenProfile: KahenProfileResponse?,
     val parentProfile: ParentProfileResponse?,
     val ordinationProfile: OrdinationProfileResponse?,
-    val makhdoomProfile: MakhdoomProfileResponse?
+    val makhdoomProfile: MakhdoomProfileResponse?,
+    val createdAt: String? = null,
+    val actionTakenAt: String? = null
 )

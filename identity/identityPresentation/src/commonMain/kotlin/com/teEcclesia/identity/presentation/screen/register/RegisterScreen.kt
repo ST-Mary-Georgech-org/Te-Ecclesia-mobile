@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -31,6 +32,8 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.utils.Preview
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.material3.CircularProgressIndicator
+import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
 import com.teEcclesia.designsystem.components.text.Text
@@ -134,29 +137,38 @@ fun RegisterScreenContent(
                 .height(4.dp)
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
-            AnimatedContent(
-                targetState = state.currentStep,
-                transitionSpec = { fadeIn() togetherWith fadeOut() },
-                label = "RegisterStepTransition"
-            ) { targetStep ->
-                when (targetStep) {
-                    1 -> RegisterStep1Content(state = state, listener = listener)
-                    2 -> RegisterStep2Content(state = state, listener = listener)
-                    3 -> RegisterStep3Content(state = state, listener = listener)
-                    4 -> when (state.selectedRole) {
-                        UserRole.MAKHDOOM -> RegisterStep4StudentContent(state = state, listener = listener)
-                        UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
-                        UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
-                        UserRole.PARENT -> RegisterStep4ParentContent(state = state, listener = listener)
-                        else -> RegisterStep4ServantContent(state = state, listener = listener)
+        if (state.isLoading && state.actionButtonState != AppButtonState.Loading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Theme.colorScheme.primary)
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            ) {
+                AnimatedContent(
+                    targetState = state.currentStep,
+                    transitionSpec = { fadeIn() togetherWith fadeOut() },
+                    label = "RegisterStepTransition"
+                ) { targetStep ->
+                    when (targetStep) {
+                        1 -> RegisterStep1Content(state = state, listener = listener)
+                        2 -> RegisterStep2Content(state = state, listener = listener)
+                        3 -> RegisterStep3Content(state = state, listener = listener)
+                        4 -> when (state.selectedRole) {
+                            UserRole.MAKHDOOM -> RegisterStep4StudentContent(state = state, listener = listener)
+                            UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
+                            UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
+                            UserRole.PARENT -> RegisterStep4ParentContent(state = state, listener = listener)
+                            else -> RegisterStep4ServantContent(state = state, listener = listener)
+                        }
+                        5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                     }
-                    5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                 }
             }
         }

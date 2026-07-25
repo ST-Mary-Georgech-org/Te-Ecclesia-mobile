@@ -16,28 +16,29 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.chips.FilterChip
-import com.teEcclesia.designsystem.utils.Preview
-import com.teEcclesia.identity.domain.model.Gender
-import com.teEcclesia.identity.domain.model.ProfileResponse
-import com.teEcclesia.identity.domain.model.UserRole
-import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.identity.domain.model.Gender
+import com.teEcclesia.identity.domain.model.ProfileResponse
+import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.presentation.screen.requests.components.RegistrationRequestCard
 import com.teEcclesia.identity.presentation.screen.requests.components.SortingOptionBottomSheet
 import kotlinx.datetime.LocalDateTime
@@ -68,66 +69,67 @@ private fun RegistrationRequestsContent(
     listener: RegistrationRequestsInteractionListener
 ) {
     val listState = rememberLazyListState()
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Theme.colorScheme.background)
-            .navigationBarsPadding()
-            .statusBarsPadding()
-            .padding(top = 16.dp)
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = listener::onRefresh,
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = stringResource(Res.string.registration_requests),
-            style = Theme.typography.titleLarge,
-            color = Theme.colorScheme.onBackground,
-            modifier = Modifier.padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        CustomTextField(
-            value = state.searchQuery,
-            onValueChange = listener::onSearchQueryChanged,
-            labelText = stringResource(Res.string.search_requests),
-            trailingIcon = painterResource(Res.drawable.ic_menu),
-            leadingIcon = painterResource(Res.drawable.ic_search),
-            onTrailingIconClick = { listener.onToggleSortingSheet(true) },
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyRow(
-            modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(Theme.colorScheme.background)
+                .navigationBarsPadding()
+                .statusBarsPadding()
+                .padding(top = 16.dp)
         ) {
-            items(state.roles) { role ->
-                FilterChip(
-                    selected = state.selectedRole == role,
-                    onClick = { listener.onRoleFilterSelected(role) },
-                    label = {
-                        Text(
-                            text = stringResource(role.toText()),
-                            style = Theme.typography.bodyMedium,
-                            color = if (state.selectedRole == role) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
+            Text(
+                text = stringResource(Res.string.registration_requests),
+                style = Theme.typography.titleLarge,
+                color = Theme.colorScheme.onBackground,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            CustomTextField(
+                value = state.searchQuery,
+                shape = RoundedCornerShape(28.dp),
+                onValueChange = listener::onSearchQueryChanged,
+                labelText = stringResource(Res.string.search_requests),
+                trailingIcon = painterResource(Res.drawable.ic_menu),
+                leadingIcon = painterResource(Res.drawable.ic_search),
+                onTrailingIconClick = { listener.onToggleSortingSheet(true) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LazyRow(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = PaddingValues(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                items(state.roles) { role ->
+                    FilterChip(
+                        selected = state.selectedRole == role,
+                        onClick = { listener.onRoleFilterSelected(role) },
+                        label = {
+                            Text(
+                                text = stringResource(role.toText()),
+                                style = Theme.typography.bodyMedium,
+                                color = if (state.selectedRole == role) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    )
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        PullToRefresh(
-            isRefreshing = state.isRefreshing,
-            onRefresh = listener::onRefresh,
-            modifier = Modifier.fillMaxSize()
-        ) {
+
             Box(modifier = Modifier.fillMaxSize()) {
                 if (state.isLoading && !state.isRefreshing) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -147,7 +149,13 @@ private fun RegistrationRequestsContent(
                                 },
                                 imageUrl = request.imageUrl,
                                 fullName = request.fullName,
-                                requestDateTime = LocalDateTime(2024, 6, 1, 12, 0), // TODO: Replace with actual request date time
+                                requestDateTime = LocalDateTime(
+                                    2024,
+                                    6,
+                                    1,
+                                    12,
+                                    0
+                                ), // TODO: Replace with actual request date time
                                 role = request.role,
                                 stage = request.makhdoomProfile?.educationalStage,
                                 year = request.makhdoomProfile?.educationalYear,

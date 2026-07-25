@@ -32,7 +32,6 @@ import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
-import com.teEcclesia.shared.domain.utils.validation.isValidEgyptianNationalId
 import com.teEcclesia.shared.domain.utils.validation.isValidEmailInput
 import com.teEcclesia.shared.domain.utils.validation.isValidFinalEmail
 import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
@@ -249,8 +248,10 @@ class RegisterViewModel(
                     }
                 }
             },
+            onStart = { updateState { copy(isLoading = true) } },
             onSuccess = {},
-            onError = { /* Ignore error on pending profile fetch */ }
+            onError = { /* Ignore error on pending profile fetch */ },
+            onEnd = { updateState { copy(isLoading = false) } }
         )
     }
 

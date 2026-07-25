@@ -90,7 +90,7 @@
     <string name="role_makhdoom">Student</string>
     <string name="role_khadem">Servant</string>
     <string name="role_parent">Parent</string>
-    <string name="role_priest">Confession Priest</string>
+    <string name="role_priest">Priest</string>
 
     <string name="student_info">Student Info</string>
     <string name="servant_info">Servant Info</string>
