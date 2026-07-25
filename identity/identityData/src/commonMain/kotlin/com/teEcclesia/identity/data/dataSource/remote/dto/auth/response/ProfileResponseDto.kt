@@ -81,7 +81,11 @@ data class ProfileResponseDto(
     @SerialName("ordinationProfile")
     val ordinationProfile: OrdinationProfileResponseDto? = null,
     @SerialName("makhdoomProfile")
-    val makhdoomProfile: MakhdoomProfileResponseDto? = null
+    val makhdoomProfile: MakhdoomProfileResponseDto? = null,
+    @SerialName("createdAt")
+    val createdAt: String? = null,
+    @SerialName("actionTakenAt")
+    val actionTakenAt: String? = null
 )
 
 fun ProfileResponseDto.toDomain() = ProfileResponse(
@@ -119,5 +123,7 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     kahenProfile = kahenProfile?.toDomain(),
     parentProfile = parentProfile?.toDomain(),
     ordinationProfile = ordinationProfile?.toDomain(),
-    makhdoomProfile = makhdoomProfile?.toDomain()
+    makhdoomProfile = makhdoomProfile?.toDomain(),
+    createdAt = createdAt,
+    actionTakenAt = actionTakenAt
 )

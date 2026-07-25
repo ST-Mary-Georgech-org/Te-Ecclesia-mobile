@@ -11,7 +11,6 @@ import com.teEcclesia.identity.domain.util.AppLocalizer
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
 import org.koin.android.ext.android.inject
-import kotlin.getValue
 
 class MainActivity : ComponentActivity() {
 
@@ -21,12 +20,19 @@ class MainActivity : ComponentActivity() {
         val splashScreen = installSplashScreen()
         splashScreen.setKeepOnScreenCondition { false }
         FileKit.init(this)
-        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         localizer.applyLocaleToContext()
 
         setContent {
             App()
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) {
+            window.decorView.requestFocus()
         }
     }
 }
