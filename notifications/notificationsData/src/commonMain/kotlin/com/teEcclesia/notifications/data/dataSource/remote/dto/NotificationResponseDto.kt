@@ -2,6 +2,7 @@ package com.teEcclesia.notifications.data.dataSource.remote.dto
 
 import com.teEcclesia.notifications.domain.model.NotificationResponse
 import com.teEcclesia.notifications.domain.model.NotificationType
+import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,6 +27,6 @@ fun NotificationResponseDto.toDomain() = NotificationResponse(
     title = title,
     message = message,
     type = type,
-    sentAt = sentAt,
+    sentAt = sentAt.toLocalDateTimeOrDefault(),
     isRead = isRead
 )
