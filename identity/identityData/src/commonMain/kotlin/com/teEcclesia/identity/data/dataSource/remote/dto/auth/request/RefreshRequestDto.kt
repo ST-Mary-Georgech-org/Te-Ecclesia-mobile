@@ -6,5 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RefreshRequestDto(
     @SerialName("refreshToken")
-    val refreshToken: String
+    val refreshToken: String,
+    @SerialName("deviceToken")
+    val deviceToken: String? = null
 )

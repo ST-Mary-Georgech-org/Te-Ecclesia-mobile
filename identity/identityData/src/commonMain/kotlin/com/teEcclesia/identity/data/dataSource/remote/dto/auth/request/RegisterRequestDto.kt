@@ -27,7 +27,7 @@ data class RegisterRequestDto(
     @SerialName("email")
     val email: String?,
     @SerialName("password")
-    val password: String,
+    val password: String? = null,
     @SerialName("imageUrl")
     val imageUrl: String?,
     @SerialName("job")
@@ -61,10 +61,16 @@ data class RegisterRequestDto(
     @SerialName("makhdoomProfile")
     val makhdoomProfile: MakhdoomProfileRequestDto?,
     @SerialName("parentProfile")
-    val parentProfile: ParentProfileRequestDto?
+    val parentProfile: ParentProfileRequestDto?,
+    @SerialName("khademProfile")
+    val khademProfile: KhademProfileRequestDto? = null,
+    @SerialName("kahenProfile")
+    val kahenProfile: KahenProfileRequestDto? = null,
+    @SerialName("deviceToken")
+    val deviceToken: String? = null
 )
 
-fun RegisterRequest.toDto() = RegisterRequestDto(
+fun RegisterRequest.toDto(deviceToken: String? = null) = RegisterRequestDto(
     firstName = firstName,
     secondName = secondName,
     thirdName = thirdName,
@@ -72,9 +78,9 @@ fun RegisterRequest.toDto() = RegisterRequestDto(
     displayName = displayName,
     nationalId = nationalId,
     phone = phone.normalizeEgyptPhone(),
-    homePhone = homePhone?.ifEmpty { null },
+    homePhone = homePhone.ifEmpty { null },
     email = email?.ifEmpty { null },
-    password = password,
+    password = password?.ifEmpty { null },
     imageUrl = imageUrl?.ifEmpty { null },
     job = job?.ifEmpty { null },
     buildingNo = buildingNo,
@@ -91,5 +97,8 @@ fun RegisterRequest.toDto() = RegisterRequestDto(
     externalConfessionPhone = externalConfessionPhone?.ifEmpty { null },
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
-    parentProfile = parentProfile?.toDto()
+    parentProfile = parentProfile?.toDto(),
+    khademProfile = khademProfile?.toDto(),
+    kahenProfile = kahenProfile?.toDto(),
+    deviceToken = deviceToken
 )

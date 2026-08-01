@@ -5,5 +5,7 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 data class KhademProfileResponse(
     val educationalStage: LookupResponse,
     val educationalYear: LookupResponse?,
-    val canApproveRequests: Boolean = false
+    val canApproveRequests: Boolean = false,
+    val responsibleStages: List<LookupResponse> = emptyList(),
+    val responsibleYears: List<LookupResponse> = emptyList()
 )

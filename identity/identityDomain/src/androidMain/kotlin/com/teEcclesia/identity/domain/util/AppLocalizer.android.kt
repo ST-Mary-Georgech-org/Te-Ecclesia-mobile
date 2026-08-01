@@ -1,4 +1,5 @@
 package com.teEcclesia.identity.domain.util
+
 import android.content.Context
 import android.os.LocaleList
 import androidx.core.os.LocaleListCompat

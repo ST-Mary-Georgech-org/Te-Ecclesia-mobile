@@ -1,10 +1,10 @@
 package com.teEcclesia.identity.domain.model
 
 enum class UserStatus {
-    PROFILE_INCOMPLETE,
     UNVERIFIED,
+    PROFILE_INCOMPLETE,
     PENDING_APPROVAL,
     APPROVED,
     REJECTED,
-    SUSPENDED
+    BANNED
 }

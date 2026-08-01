@@ -13,6 +13,7 @@ interface AuthenticationRepository {
     suspend fun logout()
     suspend fun refreshAccessToken(): String
     suspend fun refreshRegistrationToken(): String
+    suspend fun upgradeRegistrationToken(): String
     suspend fun getAccessToken(): String
     suspend fun getAuthTokens(): AuthenticationTokens?
     suspend fun saveAuthTokens(authTokens: AuthenticationTokens)
@@ -22,11 +23,17 @@ interface AuthenticationRepository {
     suspend fun saveUserRole(role: UserRole)
     suspend fun getUserRole(): UserRole?
     suspend fun saveUserStatus(status: UserStatus)
-    suspend fun getUserStatus(): UserStatus?
+    fun getUserStatus(): UserStatus?
     suspend fun saveCanApproveRequests(canApprove: Boolean)
     suspend fun getCanApproveRequests(): Boolean
+    fun getKhademStageId(): Long?
+    fun getKhademYearId(): Long?
+    fun getResponsibleStageIds(): List<Long>
+    fun getResponsibleYearIds(): List<Long>
+    fun saveKhademAuthorizationDetails(stageId: Long?, yearId: Long?, responsibleStageIds: List<Long>, responsibleYearIds: List<Long>)
     suspend fun updateDeviceToken(deviceToken: String)
     fun observeTokenChange(): StateFlow<String>
     fun observeAuthState(): StateFlow<AuthState>
     fun observeRequestsAccess(): StateFlow<Boolean>
+    fun observeAttendanceAccess(): StateFlow<Boolean>
 }

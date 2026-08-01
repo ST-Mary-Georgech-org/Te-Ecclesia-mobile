@@ -14,8 +14,8 @@ data class LoginRequestDto(
     val deviceToken: String? = null
 )
 
-fun LoginRequest.toDto() = LoginRequestDto(
+fun LoginRequest.toDto(deviceToken: String? = null) = LoginRequestDto(
     identifier = identifier,
     password = password,
-    deviceToken = deviceToken
+    deviceToken = deviceToken ?: this.deviceToken
 )

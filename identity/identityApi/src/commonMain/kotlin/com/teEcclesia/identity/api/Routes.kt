@@ -23,3 +23,25 @@ data object PendingApprovalRoute : NavKey
 
 @Serializable
 data object RegistrationRequestsRoute : NavKey
+
+@Serializable
+data class ReviewAndEditRequestRoute(val userId: String) : NavKey
+
+@Serializable
+data object AddUserRoute : NavKey
+
+@Serializable
+data object UsersSearchRoute : NavKey
+
+@Serializable
+data class ForgotPasswordRoute(val key: String = "") : NavKey
+
+@Serializable
+data class VerifyPhoneResetPasswordRoute(val phone: String, val token: String, val link: String) : NavKey
+
+@Serializable
+data class VerifyEmailResetPasswordRoute(val email: String) : NavKey
+
+@Serializable
+data class CreateNewPasswordRoute(val key: String, val otp: String, val isPhone: Boolean) : NavKey
+

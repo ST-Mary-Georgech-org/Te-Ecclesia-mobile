@@ -1,11 +1,13 @@
 package com.teEcclesia.identity.data.di
 
 import com.russhwolf.settings.Settings
+import com.teEcclesia.identity.data.repository.AttendanceRepositoryImpl
 import com.teEcclesia.identity.data.repository.AuthenticationRepositoryImpl
 import com.teEcclesia.identity.data.repository.ProfileRepositoryImpl
 import com.teEcclesia.identity.data.repository.RegisterRepositoryImpl
 import com.teEcclesia.identity.data.repository.ResetPasswordRepositoryImpl
 import com.teEcclesia.identity.data.repository.SettingsRepositoryImpl
+import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
@@ -24,8 +26,6 @@ private const val BASE_URL = "baseUrl"
 private const val IDENTITY_SCOPE = "IdentityScope"
 
 val identityDataModule = module {
-    singleOf(::Settings)
-
     singleOf(::AuthenticationRepositoryImpl) bind AuthenticationRepository::class
 
     singleOf(::ResetPasswordRepositoryImpl) bind ResetPasswordRepository::class
@@ -51,4 +51,5 @@ val identityDataModule = module {
     single(named(IDENTITY_SCOPE)) { CoroutineScope(Dispatchers.Default) }
     includes(platformIdentityDataModule)
     singleOf(::ProfileRepositoryImpl) bind ProfileRepository::class
+    singleOf(::AttendanceRepositoryImpl) bind AttendanceRepository::class
 }
