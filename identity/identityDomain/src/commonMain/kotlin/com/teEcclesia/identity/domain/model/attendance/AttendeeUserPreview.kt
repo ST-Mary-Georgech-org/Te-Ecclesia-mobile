@@ -1,6 +1,6 @@
 package com.teEcclesia.identity.domain.model.attendance
 
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 
 data class AttendeeUserPreview(
     val id: String,

@@ -1,6 +1,6 @@
 package com.teEcclesia.identity.data.model.attendance
 
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

@@ -1,4 +1,4 @@
-package com.teEcclesia.identity.domain.model
+package com.teEcclesia.shared.domain.model
 
 enum class UserRole {
     ADMIN,

@@ -33,7 +33,7 @@ import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.TextField
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.shared.domain.utils.getNow

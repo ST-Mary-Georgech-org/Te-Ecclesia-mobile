@@ -5,7 +5,6 @@ import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
-import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
@@ -15,7 +14,7 @@ import com.teEcclesia.identity.domain.model.ParentProfileRequest
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
@@ -49,7 +48,6 @@ import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
-import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_complete_profile
 import teecclesia.designsystem.generated.resources.failed_to_load_areas
@@ -128,7 +126,10 @@ class RegisterViewModel(
 
     private val stagesPaginator = createPaginator(
         loadPage = { page ->
-            lookupRepository.getEducationalStages(PageQuery(page = page, size = 20)).toPagedData()
+            lookupRepository.getEducationalStages(
+                pageQuery = PageQuery(page = page, size = 20),
+                forRole = state.value.selectedRole
+            ).toPagedData()
         },
         onSuccess = { items ->
             updateState {
@@ -154,7 +155,6 @@ class RegisterViewModel(
         checkAndLoadPendingRegistration()
         onLoadNextPriests()
         onLoadNextRanks()
-        onLoadNextEducationalStages()
     }
 
     private fun checkAndLoadPendingRegistration() {
@@ -255,7 +255,10 @@ class RegisterViewModel(
             onStart = { updateState { copy(isLoading = true) } },
             onSuccess = {},
             onError = { /* Ignore error on pending profile fetch */ },
-            onEnd = { updateState { copy(isLoading = false) } }
+            onEnd = {
+                updateState { copy(isLoading = false) }
+                onLoadNextEducationalStages()
+            }
         )
     }
 
@@ -709,7 +712,22 @@ class RegisterViewModel(
     }
 
     override fun onRoleSelected(role: UserRole) {
-        updateState { copy(selectedRole = role) }
+        if (state.value.selectedRole != role) {
+            updateState {
+                copy(
+                    selectedRole = role,
+                    educationalStages = emptyList(),
+                    studentEducationalStage = null,
+                    studentEducationalYear = null,
+                    servantEducationalStage = null,
+                    servantEducationalYear = null,
+                    kahenEducationalStages = emptyList(),
+                    isStageEndReached = false
+                )
+            }
+            stagesPaginator.reset()
+            onLoadNextEducationalStages()
+        }
     }
 
     // Step 4 logic

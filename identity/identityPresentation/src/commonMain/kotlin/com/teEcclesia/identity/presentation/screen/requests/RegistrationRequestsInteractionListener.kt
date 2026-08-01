@@ -1,6 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.requests
 
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 
 interface RegistrationRequestsInteractionListener {
     fun onSearchQueryChanged(query: String)

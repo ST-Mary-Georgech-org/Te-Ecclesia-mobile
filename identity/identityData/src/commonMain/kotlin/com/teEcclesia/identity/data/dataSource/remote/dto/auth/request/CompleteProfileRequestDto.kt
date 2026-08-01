@@ -3,7 +3,7 @@ package com.teEcclesia.identity.data.dataSource.remote.dto.auth.request
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 
 @Serializable
 data class CompleteProfileRequestDto(

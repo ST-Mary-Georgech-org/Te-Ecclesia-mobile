@@ -5,7 +5,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
@@ -103,13 +103,19 @@ class ReviewAndEditRequestViewModel(
 
     private val stagesPaginator = createPaginator(
         loadPage = { page ->
-            lookupRepository.getEducationalStages(PageQuery(page = page, size = 20)).toPagedData()
+            lookupRepository.getEducationalStages(
+                pageQuery = PageQuery(page = page, size = 20),
+                forRole = state.value.selectedRole
+            ).toPagedData()
         },
         onSuccess = { items ->
             rawEducationalStages = rawEducationalStages + items.data
+            updateState { it.copy(isStageEndReached = items.isLastPage) }
             filterAndApplyEducationalStages()
         },
-        onLoadUpdated = { _ -> },
+        onLoadUpdated = { loading ->
+            updateState { it.copy(isStageLoading = loading) }
+        },
         onError = { throwable ->
             showSnackBar(
                 title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
@@ -141,8 +147,15 @@ class ReviewAndEditRequestViewModel(
     )
 
     private fun filterAndApplyEducationalStages() {
+        val targetRole = state.value.selectedRole
+        val stagesForApplicant = if (targetRole == UserRole.MAKHDOOM) {
+            rawEducationalStages.filter { !it.isKhademOnly }
+        } else {
+            rawEducationalStages
+        }
+
         val filtered = if (callerRole == UserRole.KHADEM) {
-            rawEducationalStages.mapNotNull { stage ->
+            stagesForApplicant.mapNotNull { stage ->
                 val isStageResp = callerResponsibleStageIds.contains(stage.id)
                 val respYears = stage.subItems.filter { year ->
                     callerResponsibleYearIds.contains(year.id)
@@ -155,7 +168,7 @@ class ReviewAndEditRequestViewModel(
                 } else null
             }
         } else {
-            rawEducationalStages
+            stagesForApplicant
         }
 
         updateState { current ->
@@ -887,7 +900,22 @@ class ReviewAndEditRequestViewModel(
     override fun onSpecialMarkChanged(value: String) = updateState { it.copy(specialMark = value, specialMarkError = null) }
 
     override fun onRoleSelected(role: UserRole) {
-        updateState { it.copy(selectedRole = role) }
+        if (state.value.selectedRole != role) {
+            rawEducationalStages = emptyList()
+            updateState {
+                it.copy(
+                    selectedRole = role,
+                    educationalStages = emptyList(),
+                    studentEducationalStage = null,
+                    studentEducationalYear = null,
+                    servantEducationalStages = emptyList(),
+                    kahenEducationalStages = emptyList(),
+                    isStageEndReached = false
+                )
+            }
+            stagesPaginator.reset()
+            onLoadNextEducationalStages()
+        }
     }
 
     override fun onToggleRoleSheet(visible: Boolean) {

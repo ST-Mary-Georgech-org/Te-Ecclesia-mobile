@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.StateFlow
 import com.teEcclesia.identity.domain.model.AuthenticationTokens
 
 import com.teEcclesia.identity.domain.model.AuthState
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 
 interface AuthenticationRepository {

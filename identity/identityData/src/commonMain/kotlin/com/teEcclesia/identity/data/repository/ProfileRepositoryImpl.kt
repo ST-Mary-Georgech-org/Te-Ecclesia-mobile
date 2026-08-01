@@ -11,7 +11,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.request.parameter
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
 import com.teEcclesia.shared.domain.utils.PagedData

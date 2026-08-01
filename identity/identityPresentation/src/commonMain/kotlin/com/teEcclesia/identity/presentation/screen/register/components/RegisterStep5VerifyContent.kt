@@ -25,7 +25,7 @@ import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.preview.PreviewAppModes
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
@@ -66,7 +66,7 @@ fun RegisterStep5VerifyContent(
             color = Theme.colorScheme.onSurfaceVariant
         )
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
         Column(
             modifier = Modifier.fillMaxWidth(),
@@ -90,6 +90,7 @@ fun RegisterStep5VerifyContent(
                 state = state.actionButtonState
             )
         }
+        Spacer(modifier = Modifier.height(8.dp))
         MultiHighlightedClickableText(
             segments = listOf(
                 TextSegment.Normal(stringResource(Res.string.if_the_whatsapp_number_in_another_phone_register_from_that_phone_first)),

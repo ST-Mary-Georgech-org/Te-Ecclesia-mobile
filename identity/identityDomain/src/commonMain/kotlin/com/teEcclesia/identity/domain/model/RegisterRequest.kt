@@ -20,7 +20,7 @@ data class RegisterRequest(
     val floor: String,
     val apartment: String?,
     val specialMark: String,
-    val role: UserRole?,
+    val role: com.teEcclesia.shared.domain.model.UserRole?,
     val confessionPriestId: String?,
     val externalConfessionPriestName: String?,
     val externalConfessionChurch: String?,

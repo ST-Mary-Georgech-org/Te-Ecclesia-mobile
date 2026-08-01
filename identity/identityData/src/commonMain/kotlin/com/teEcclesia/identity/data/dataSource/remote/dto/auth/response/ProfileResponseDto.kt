@@ -4,7 +4,7 @@ import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.UserStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
