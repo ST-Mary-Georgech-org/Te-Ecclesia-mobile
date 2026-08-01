@@ -14,6 +14,7 @@ import com.teEcclesia.designsystem.theme.color.scheme.DarkColorScheme
 import com.teEcclesia.designsystem.theme.color.scheme.LightColorScheme
 import com.teEcclesia.designsystem.theme.typography.LocalTypography
 import androidx.compose.material3.Typography
+import androidx.compose.ui.platform.LocalLocale
 import com.teEcclesia.designsystem.theme.typography.createThemeTypography
 import com.teEcclesia.designsystem.utils.AppLanguage
 
@@ -22,11 +23,11 @@ internal val LocalIsDarkTheme = staticCompositionLocalOf<Boolean?> { null }
 
 @Composable
 fun Theme(
-    language: String = AppLanguage.English.iso,
+    language: String = LocalLocale.current.language,
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = remember(darkTheme) { if (darkTheme) DarkColorScheme else LightColorScheme }
     val typography = createThemeTypography()
 
     val layoutDirection = remember(language) {
@@ -39,7 +40,7 @@ fun Theme(
         LocalColorScheme provides colorScheme,
         LocalTypography provides typography,
         LocalIsDarkTheme provides darkTheme,
-        LocalLayoutDirection provides layoutDirection
+        LocalLayoutDirection provides layoutDirection,
     ) {
         MaterialTheme(
             colorScheme = colorScheme,

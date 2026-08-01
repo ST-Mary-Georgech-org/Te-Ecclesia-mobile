@@ -10,7 +10,7 @@ fun isValidNationalIdRegex(nationalId: String): Boolean {
 }
 
 fun getNationalIdValidationError(nationalId: String): NationalIdValidationError? {
-    if (nationalId.length != 14 || !nationalId.all { it.isDigit() }) return NationalIdValidationError.INVALID_LENGTH
+    if (nationalId.length != 14 || !nationalId.all { it in '0'..'9' }) return NationalIdValidationError.INVALID_LENGTH
 
     val centuryChar = nationalId[0]
     val yearStr = nationalId.substring(1, 3)

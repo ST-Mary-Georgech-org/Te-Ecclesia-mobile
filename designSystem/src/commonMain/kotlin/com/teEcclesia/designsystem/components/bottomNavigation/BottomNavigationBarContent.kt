@@ -2,6 +2,7 @@ package com.teEcclesia.designsystem.components.bottomNavigation
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import teecclesia.designsystem.generated.resources.ic_home
 import teecclesia.designsystem.generated.resources.ic_home_selected
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.teEcclesia.designsystem.modifier.topBorder
 
 @Composable
 fun BottomNavigationBarContent(
@@ -45,7 +47,7 @@ fun BottomNavigationBarContent(
         )
 
         Row(
-            Modifier.fillMaxWidth()
+            Modifier.fillMaxWidth().topBorder(1.dp, Theme.colorScheme.outlineVariant)
         ) {
             items.forEachIndexed { index, item ->
                 BottomNavigationBarItem(

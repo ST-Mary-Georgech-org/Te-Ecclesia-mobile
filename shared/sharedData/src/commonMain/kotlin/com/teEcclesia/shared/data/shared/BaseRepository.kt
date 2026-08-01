@@ -24,6 +24,10 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 
+import com.teEcclesia.shared.data.dataSource.remote.dto.ErrorResponse
+import com.teEcclesia.shared.domain.exception.DuplicatePhoneException
+import com.teEcclesia.shared.domain.exception.ServerErrorException
+
 abstract class BaseRepository(val client: HttpClient) {
 
     suspend inline fun <reified T> tryToExecute(method: HttpClient.() -> HttpResponse): T {
@@ -31,7 +35,8 @@ abstract class BaseRepository(val client: HttpClient) {
             return client.method().body()
         } catch (e: ResponseException) {
             val status = e.response.status
-            val message = e.message ?: "Request failed"
+            val errorResponse = runCatching { e.response.body<ErrorResponse>() }.getOrNull()
+            val serverMessage = errorResponse?.message?.takeIf { it.isNotBlank() }
 
             throw when {
                 status == HttpStatusCode.PreconditionRequired -> {
@@ -52,11 +57,11 @@ abstract class BaseRepository(val client: HttpClient) {
                 status == HttpStatusCode.NotFound -> InvalidCredentialsException()
                 status == HttpStatusCode.Forbidden -> UserIsBlockedException()
                 status == HttpStatusCode.TooManyRequests -> TooManyRequestsException()
-                status == HttpStatusCode.BadRequest -> InvalidRequestException()
                 status == HttpStatusCode.Conflict -> UsernameOrPhoneNumberAlreadyExistsException()
-                status.value in 400..499 -> InvalidRequestException()
-                status.value in 500..599 -> UnknownErrorException(message)
-                else -> UnknownErrorException(message)
+                status == HttpStatusCode.BadRequest -> InvalidRequestException(serverMessage ?: "Invalid request")
+                status.value in 400..499 -> InvalidRequestException(serverMessage ?: "Invalid request")
+                status.value in 500..599 -> ServerErrorException(serverMessage ?: "Server error")
+                else -> UnknownErrorException(serverMessage ?: "Unknown error")
             }
 
         } catch (e: InternetException.NoInternetException) {

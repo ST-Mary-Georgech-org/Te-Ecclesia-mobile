@@ -9,10 +9,12 @@ class InvalidCredentialsException : BaseException(
 )
 class UnAuthorizedException : BaseException("user has no access to application")
 class UsernameOrPhoneNumberAlreadyExistsException : BaseException("Username or Phone number already exists")
+class DuplicatePhoneException(message: String = "This phone number is associated with multiple accounts. Please use your National ID to reset your password.") : BaseException(message)
 class TooManyRequestsException : BaseException("Too many requests")
 class NoNetworkException : BaseException("No Internet Connection")
-class InvalidRequestException : BaseException("Invalid request")
+class InvalidRequestException(message: String = "Invalid request") : BaseException(message)
 class PaymentRequiredException: BaseException("Payment required.")
+class ServerErrorException(message: String = "Server error") : BaseException(message)
 
 open class InternetException(errorMessage: String = "") : BaseException(errorMessage) {
     class WifiDisabledException : InternetException()

@@ -1,11 +1,22 @@
 package com.teEcclesia.designsystem.util.extentions
 
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.number
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.char
 
-fun LocalDate?.format() = this?.let {
-    val day = it.day.toString().padStart(2, '0')
-    val month = it.month.number.toString().padStart(2, '0')
-    val year = it.year.toString().padStart(4, '0')
-    "$day/$month/$year"
+private val timeFormat24 = LocalTime.Format {
+    hour(padding = Padding.ZERO)
+    char(':')
+    minute(padding = Padding.ZERO)
+}
+
+fun LocalTime?.format(): String = this?.format(timeFormat24).orEmpty()
+
+fun LocalDate?.format(): String = this?.format(LocalDate.Formats.ISO).orEmpty()
+
+fun LocalDateTime?.format(): String = this?.let {
+    "${it.date.format()} ${it.time.format()}"
 }.orEmpty()

@@ -1,4 +1,4 @@
-package com.teEcclesia.designsystem.utils
+package com.teEcclesia.designsystem.utils.preview
 
 import androidx.compose.ui.tooling.preview.Preview
 
