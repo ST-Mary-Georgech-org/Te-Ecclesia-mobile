@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -14,14 +13,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.text.MultiHighlightedClickableText
 import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.components.text.TextSegment
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.designsystem.utils.preview.PreviewAppModes
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
@@ -33,9 +34,11 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.verify_your_phone
-import teecclesia.designsystem.generated.resources.phone_number_supporting_text
 import teecclesia.designsystem.generated.resources.verify_whatsapp
 import teecclesia.designsystem.generated.resources.check_verification_status
+import teecclesia.designsystem.generated.resources.click_verify_button_to_send_a_whatsapp_message_to_verify_the_number_after_accepting_your_registration_request_we_will_contact_you
+import teecclesia.designsystem.generated.resources.go_to_login
+import teecclesia.designsystem.generated.resources.if_the_whatsapp_number_in_another_phone_register_from_that_phone_first
 
 @Composable
 fun RegisterStep5VerifyContent(
@@ -57,8 +60,9 @@ fun RegisterStep5VerifyContent(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = stringResource(Res.string.phone_number_supporting_text),
-            style = Theme.typography.bodyMedium,
+            text = stringResource(Res.string.click_verify_button_to_send_a_whatsapp_message_to_verify_the_number_after_accepting_your_registration_request_we_will_contact_you),
+            style = Theme.typography.labelMedium,
+            modifier = Modifier.fillMaxWidth(),
             color = Theme.colorScheme.onSurfaceVariant
         )
 
@@ -86,10 +90,21 @@ fun RegisterStep5VerifyContent(
                 state = state.actionButtonState
             )
         }
+        MultiHighlightedClickableText(
+            segments = listOf(
+                TextSegment.Normal(stringResource(Res.string.if_the_whatsapp_number_in_another_phone_register_from_that_phone_first)),
+                TextSegment.Highlighted(
+                    text = stringResource(Res.string.go_to_login),
+                    onClick = listener::onClickLogin
+                )
+            ),
+            textAlign = TextAlign.Start,
+            textStyle = Theme.typography.labelMedium
+        )
     }
 }
 
-@PreviewLightDark
+@PreviewAppModes
 @Composable
 private fun RegisterStep5VerifyContentPreviewLightDark() {
     var state by remember { mutableStateOf(RegisterScreenState(currentStep = 5)) }

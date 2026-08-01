@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,11 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
@@ -57,7 +54,6 @@ fun RegisterStep4KahenContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -80,7 +76,6 @@ fun RegisterStep4KahenContent(
                     onValueChange = {},
                     labelText = stringResource(Res.string.educational_stages),
                     onClick = {
-                        focusManager.clearFocus()
                         listener.onToggleStagesSheet(true)
                     },
                     modifier = Modifier

@@ -13,4 +13,5 @@ interface LoginInteractionListener {
     fun onLanguageSelected(language: AppLanguage)
     fun onThemeSelected(theme: AppTheme)
     fun onContinueClicked()
+    fun onBackPressed()
 }

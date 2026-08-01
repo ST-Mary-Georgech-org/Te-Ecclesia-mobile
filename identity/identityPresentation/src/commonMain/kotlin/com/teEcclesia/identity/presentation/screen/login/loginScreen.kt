@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButtonState
+import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.identity.domain.util.AppLanguage
@@ -55,6 +56,9 @@ fun LoginScreenContent(
     state: LoginScreenState,
     interactionListener: LoginInteractionListener
 ) {
+    BackHandler {
+        interactionListener.onBackPressed()
+    }
 
     LazyColumn(
         Modifier.fillMaxSize()
@@ -127,6 +131,7 @@ fun LoginScreenPreview() = Theme {
             override fun onLanguageSelected(language: AppLanguage) {}
             override fun onThemeSelected(theme: AppTheme) {}
             override fun onContinueClicked() {}
+            override fun onBackPressed() {}
         }
     )
 }

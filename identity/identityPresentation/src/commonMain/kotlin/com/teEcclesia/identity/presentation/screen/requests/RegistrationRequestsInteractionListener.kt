@@ -11,5 +11,7 @@ interface RegistrationRequestsInteractionListener {
     fun onRefresh()
     fun onApproveUser(userId: String)
     fun onRejectUser(userId: String, reason: String)
+    fun onRequestClicked(userId: String)
     fun onClickBack()
 }
+

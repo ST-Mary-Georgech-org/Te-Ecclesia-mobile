@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -35,6 +36,8 @@ import teecclesia.designsystem.generated.resources.ic_folder
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.supported_formats
 
+import com.teEcclesia.identity.presentation.util.getDisplayFileName
+
 @Composable
 fun FilePickerCard(
     title: String,
@@ -42,8 +45,12 @@ fun FilePickerCard(
     onUploadClick: () -> Unit,
     onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
-    radius: Dp = 32.dp
+    fileTitle: String? = null,
+    radius: Dp = 32.dp,
+    onFileClick: (() -> Unit)? = null
 ) {
+    val displayFileName = getDisplayFileName(fileTitle, fileName)
+
     Column(modifier = modifier.fillMaxWidth()) {
         AnimatedContent(
             targetState = fileName.isNullOrBlank(),
@@ -81,7 +88,8 @@ fun FilePickerCard(
                     Text(
                         text = title,
                         style = Theme.typography.titleMedium,
-                        color = Theme.colorScheme.onSecondary
+                        color = Theme.colorScheme.onSecondary,
+                        textAlign = TextAlign.Center
                     )
                     Text(
                         text = stringResource(Res.string.supported_formats),
@@ -91,11 +99,12 @@ fun FilePickerCard(
                 }
             } else {
                 CustomTextField(
-                    value = fileName.orEmpty(),
+                    value = displayFileName,
                     onValueChange = {},
                     enabled = false,
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .clickableNoRipple { onFileClick?.invoke() },
                     trailingIcon = painterResource(Res.drawable.ic_close),
                     onTrailingIconClick = onClearClick,
                 )

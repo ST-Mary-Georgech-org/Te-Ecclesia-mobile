@@ -72,12 +72,8 @@ fun LoginFormContent(
                     } else {
                         Theme.typography.bodyLarge
                     },
-                    prefix = if (isPhoneInput && !isRtl) {
-                        { Text("+2", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurfaceVariant) }
-                    } else null,
-                    suffix = if (isPhoneInput && isRtl) {
-                        { Text("2+", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurfaceVariant) }
-                    } else null,
+                    prefixText = if (isPhoneInput && !isRtl) { "+2" } else null,
+                    suffixText = if (isPhoneInput && isRtl) { "+2" } else null,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Ascii,

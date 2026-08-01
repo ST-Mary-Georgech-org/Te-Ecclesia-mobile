@@ -1,7 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.login
 
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
+import com.teEcclesia.identity.api.ForgotPasswordRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
@@ -26,7 +25,6 @@ import teecclesia.designsystem.generated.resources.failed_to_login
 import teecclesia.designsystem.generated.resources.invalid_phone_or_national_id_or_code_or_email
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
-import teecclesia.designsystem.generated.resources.not_implemented_yet
 
 class LoginViewModel(
     private val authenticationRepository: AuthenticationRepository,
@@ -64,8 +62,7 @@ class LoginViewModel(
                         password = state.value.password
                     )
                 )
-                val profile = profileRepository.getRegistrationProfile()
-                authenticationRepository.saveUserRole(profile.role)
+                profileRepository.getRegistrationProfile()
             },
             onSuccess = { },
             onError = { error ->
@@ -74,7 +71,7 @@ class LoginViewModel(
                         val token = error.token
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
-                            viewModelScope.launch {
+                            launch {
                                 authenticationRepository.saveRegistrationToken(token, refreshToken)
                             }
                         }
@@ -84,7 +81,7 @@ class LoginViewModel(
                         val token = error.token
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
-                            viewModelScope.launch {
+                            launch {
                                 authenticationRepository.saveRegistrationToken(token, refreshToken)
                             }
                         }
@@ -94,7 +91,7 @@ class LoginViewModel(
                         val token = error.token
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
-                            viewModelScope.launch {
+                            launch {
                                 authenticationRepository.saveRegistrationToken(token, refreshToken)
                             }
                         }
@@ -147,18 +144,15 @@ class LoginViewModel(
     }
 
     override fun onForgotPasswordClicked() {
-        showSnackBar(
-            title = UiText.StringRes(Res.string.not_implemented_yet),
-            isSuccess = true,
-        )
+        navigate(ForgotPasswordRoute(key = state.value.username))
     }
 
     override fun onUsernameChange(newUsername: String) {
-        updateState { copy(username = newUsername, usernameError = null) }
+        updateState { copy(username = newUsername.trim(), usernameError = null) }
     }
 
     override fun onPasswordChange(newPassword: String) {
-        updateState { copy(password = newPassword, passwordError = null) }
+        updateState { copy(password = newPassword.trim(), passwordError = null) }
     }
 
     override fun onTogglePasswordVisibility() {
@@ -184,5 +178,13 @@ class LoginViewModel(
 
     override fun onContinueClicked() {
         updateState { copy(isOnboarding = false) }
+    }
+
+    override fun onBackPressed() {
+        if (state.value.isOnboarding) {
+            popBackStack()
+        } else {
+            updateState { copy(isOnboarding = true) }
+        }
     }
 }
