@@ -74,9 +74,10 @@ class ProfileRepositoryImpl(
         _cachedProfileFlow.value = domainCached
 
         val domainProfile = response.toDomain()
+        val wasRegistrationPending = authorizationService.isRegistrationPending()
         saveUserAuthorizationDetails(domainProfile)
 
-        if (authorizationService.isRegistrationPending() && domainProfile.status == UserStatus.APPROVED) {
+        if (wasRegistrationPending && domainProfile.status == UserStatus.APPROVED) {
             try {
                 authorizationService.upgradeRegistrationToken()
             } catch (_: Exception) {

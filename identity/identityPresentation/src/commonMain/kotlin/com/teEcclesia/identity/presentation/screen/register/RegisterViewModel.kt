@@ -5,6 +5,7 @@ import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
