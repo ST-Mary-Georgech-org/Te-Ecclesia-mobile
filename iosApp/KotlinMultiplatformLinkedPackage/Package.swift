@@ -3,7 +3,7 @@ import PackageDescription
 let package = Package(
   name: "KotlinMultiplatformLinkedPackage",
   platforms: [
-    .iOS("15.0")
+    .iOS("16.0")
   ],
   products: [
     .library(
@@ -16,7 +16,8 @@ let package = Package(
     .package(
       url: "https://github.com/firebase/firebase-ios-sdk.git",
       from: "12.13.0"
-    )
+    ),
+    .package(path: "subpackages/io_github_mirzemehdi_kmpnotifier_push_firebase_2_0_0")
   ],
   targets: [
     .target(
@@ -25,7 +26,8 @@ let package = Package(
         .product(
           name: "FirebaseCore",
           package: "firebase-ios-sdk"
-        )
+        ),
+        .product(name: "io_github_mirzemehdi_kmpnotifier_push_firebase_2_0_0", package: "io_github_mirzemehdi_kmpnotifier_push_firebase_2_0_0")
       ]
     )
   ]
