@@ -10,8 +10,10 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
 import com.teEcclesia.designsystem.components.text.Text
@@ -56,6 +58,7 @@ fun ParentsContactFields(
     filePickerContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
+    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -83,6 +86,8 @@ fun ParentsContactFields(
                     onValueChange = onFatherPhoneChange,
                     labelText = stringResource(Res.string.father_phone),
                     modifier = Modifier.fillMaxWidth(),
+                    prefixText = if (!isRtl) { "+2" } else null,
+                    suffixText = if (isRtl) { "+2" } else null,
                     errorText = fatherPhoneError,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
@@ -94,6 +99,8 @@ fun ParentsContactFields(
                     labelText = stringResource(Res.string.father_whatsapp),
                     modifier = Modifier.fillMaxWidth(),
                     errorText = fatherWhatsappError,
+                    prefixText = if (!isRtl) { "+2" } else null,
+                    suffixText = if (isRtl) { "+2" } else null,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
@@ -124,6 +131,8 @@ fun ParentsContactFields(
                     labelText = stringResource(Res.string.mother_phone),
                     modifier = Modifier.fillMaxWidth(),
                     errorText = motherPhoneError,
+                    prefixText = if (!isRtl) { "+2" } else null,
+                    suffixText = if (isRtl) { "+2" } else null,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
@@ -134,6 +143,8 @@ fun ParentsContactFields(
                     labelText = stringResource(Res.string.mother_whatsapp),
                     modifier = Modifier.fillMaxWidth(),
                     errorText = motherWhatsappError,
+                    prefixText = if (!isRtl) { "+2" } else null,
+                    suffixText = if (isRtl) { "+2" } else null,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                 )
