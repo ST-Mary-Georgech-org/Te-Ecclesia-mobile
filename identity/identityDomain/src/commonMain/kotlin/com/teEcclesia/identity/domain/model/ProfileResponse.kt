@@ -29,7 +29,7 @@ data class ProfileResponse(
     val gender: Gender,
     val status: UserStatus,
     val statusReason: String?,
-    val role: UserRole,
+    val role: com.teEcclesia.shared.domain.model.UserRole,
     val confessionPriest: Priest?,
     val externalConfessionPriestName: String,
     val externalConfessionChurch: String,

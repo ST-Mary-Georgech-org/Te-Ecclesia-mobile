@@ -4,7 +4,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
@@ -102,6 +102,8 @@ data class ReviewAndEditRequestUiState(
 
     val studentEducationalStage: LookupResponse? = null,
     val educationalStages: List<LookupResponse> = emptyList(),
+    val isStageLoading: Boolean = false,
+    val isStageEndReached: Boolean = false,
     val isStageSheetVisible: Boolean = false,
     val stageError: UiText? = null,
     val studentEducationalYear: LookupResponse? = null,
@@ -175,6 +177,8 @@ data class ReviewAndEditRequestUiState(
         if (isRankSheetVisible != other.isRankSheetVisible) return false
         if (isOrdainedInThisChurch != other.isOrdainedInThisChurch) return false
         if (isStageSheetVisible != other.isStageSheetVisible) return false
+        if (isStageLoading != other.isStageLoading) return false
+        if (isStageEndReached != other.isStageEndReached) return false
         if (isYearSheetVisible != other.isYearSheetVisible) return false
         if (isFatherDeceased != other.isFatherDeceased) return false
         if (isMotherDeceased != other.isMotherDeceased) return false
@@ -300,6 +304,8 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isRankSheetVisible.hashCode()
         result = 31 * result + isOrdainedInThisChurch.hashCode()
         result = 31 * result + isStageSheetVisible.hashCode()
+        result = 31 * result + isStageLoading.hashCode()
+        result = 31 * result + isStageEndReached.hashCode()
         result = 31 * result + isYearSheetVisible.hashCode()
         result = 31 * result + isFatherDeceased.hashCode()
         result = 31 * result + isMotherDeceased.hashCode()

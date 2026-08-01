@@ -1,7 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.register.components
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,29 +14,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.PreviewLightDark
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.identity.presentation.shared.components.AddressFieldsSection
-import com.teEcclesia.identity.presentation.shared.components.AreaDropdownField
 import com.teEcclesia.identity.presentation.shared.components.ContactInfoFields
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
@@ -48,23 +42,12 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_eye_closed
 import teecclesia.designsystem.generated.resources.ic_eye_opened
-import teecclesia.designsystem.generated.resources.phone_number
-import teecclesia.designsystem.generated.resources.home_phone
-import teecclesia.designsystem.generated.resources.email_optional
 import teecclesia.designsystem.generated.resources.password
 import teecclesia.designsystem.generated.resources.address_info
-import teecclesia.designsystem.generated.resources.building_no
-import teecclesia.designsystem.generated.resources.street
-import teecclesia.designsystem.generated.resources.branching_from
-import teecclesia.designsystem.generated.resources.area
-import teecclesia.designsystem.generated.resources.floor
-import teecclesia.designsystem.generated.resources.apartment
-import teecclesia.designsystem.generated.resources.special_mark
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.invalid_password_format
 import teecclesia.designsystem.generated.resources.account_and_contact
-import teecclesia.designsystem.generated.resources.you_should_have_whatsapp_on_this_phone
 
 @Composable
 fun RegisterStep2Content(

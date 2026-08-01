@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,15 +16,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
 import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
@@ -33,17 +30,13 @@ import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionL
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
-import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.partner
-import teecclesia.designsystem.generated.resources.search_partner
 import teecclesia.designsystem.generated.resources.children
-import teecclesia.designsystem.generated.resources.search_child
 import teecclesia.designsystem.generated.resources.upload_identity_card
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
-import teecclesia.designsystem.generated.resources.ic_plus
 
 @Composable
 fun RegisterStep4ParentContent(

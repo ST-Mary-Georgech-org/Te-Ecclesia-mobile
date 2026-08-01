@@ -1,7 +1,7 @@
 package com.teEcclesia.identity.presentation.screen.profile
 
 import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.util.AppLanguage
 
 data class ProfileScreenState(

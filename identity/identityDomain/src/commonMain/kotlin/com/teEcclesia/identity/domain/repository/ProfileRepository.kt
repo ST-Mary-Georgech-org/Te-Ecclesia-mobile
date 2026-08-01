@@ -3,7 +3,7 @@ package com.teEcclesia.identity.domain.repository
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.CachedProfile
 import com.teEcclesia.shared.domain.utils.PagedData
 import kotlinx.coroutines.flow.StateFlow

@@ -2,7 +2,7 @@ package com.teEcclesia.identity.presentation.screen.requests
 
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.StringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.all_roles

@@ -4,7 +4,7 @@ import com.teEcclesia.identity.data.mapper.normalizeEgyptPhone
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import com.teEcclesia.identity.domain.model.RegisterRequest
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 
 @Serializable
 data class RegisterRequestDto(

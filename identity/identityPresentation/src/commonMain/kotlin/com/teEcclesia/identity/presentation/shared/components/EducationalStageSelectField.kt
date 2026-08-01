@@ -122,7 +122,6 @@ private fun EducationalStageSelectContent(
 
         BottomSheet(
             isVisible = isSheetVisible,
-            skipPartiallyExpanded = isMultiSelect,
             onDismiss = { onToggleSheet(false) }
         ) {
             val stageListState = rememberLazyListState()

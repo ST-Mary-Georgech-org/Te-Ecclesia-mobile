@@ -19,7 +19,7 @@ import com.teEcclesia.identity.data.utils.invalidateAuthTokens
 import com.teEcclesia.identity.domain.model.AuthState
 import com.teEcclesia.identity.domain.model.AuthenticationTokens
 import com.teEcclesia.identity.domain.model.LoginRequest
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.shared.data.shared.BaseRepository

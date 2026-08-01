@@ -34,7 +34,7 @@ import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.presentation.screen.requests.toHistory
 import com.teEcclesia.identity.presentation.screen.requests.toText

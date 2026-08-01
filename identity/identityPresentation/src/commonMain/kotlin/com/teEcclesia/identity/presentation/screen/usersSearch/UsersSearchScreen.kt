@@ -2,7 +2,6 @@ package com.teEcclesia.identity.presentation.screen.usersSearch
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,9 +49,7 @@ import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.ProfileResponse
-import com.teEcclesia.identity.domain.model.UserRole
 import com.teEcclesia.identity.presentation.screen.requests.toText
-import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -60,7 +57,6 @@ import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.all_roles
 import teecclesia.designsystem.generated.resources.all_stages
 import teecclesia.designsystem.generated.resources.all_years
-import teecclesia.designsystem.generated.resources.apply_filter
 import teecclesia.designsystem.generated.resources.close
 import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.educational_years

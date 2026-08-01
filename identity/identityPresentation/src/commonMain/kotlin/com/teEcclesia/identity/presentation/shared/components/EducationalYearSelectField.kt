@@ -116,7 +116,6 @@ private fun EducationalYearSelectContent(
 
         BottomSheet(
             isVisible = isSheetVisible,
-            skipPartiallyExpanded = isMultiSelect,
             onDismiss = { onToggleSheet(false) }
         ) {
             val listState = rememberLazyListState()

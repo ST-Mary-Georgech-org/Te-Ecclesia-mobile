@@ -11,11 +11,14 @@ data class LookupResponseDto(
     @SerialName("name")
     val name: String,
     @SerialName("subItems")
-    val subItems: List<LookupResponseDto>? = null
+    val subItems: List<LookupResponseDto>? = null,
+    @SerialName("isKhademOnly")
+    val isKhademOnly: Boolean = false
 )
 
 fun LookupResponseDto.toDomain(): LookupResponse = LookupResponse(
     id = id,
     name = name,
-    subItems = subItems?.map(LookupResponseDto::toDomain) ?: emptyList()
+    subItems = subItems?.map(LookupResponseDto::toDomain) ?: emptyList(),
+    isKhademOnly = isKhademOnly
 )

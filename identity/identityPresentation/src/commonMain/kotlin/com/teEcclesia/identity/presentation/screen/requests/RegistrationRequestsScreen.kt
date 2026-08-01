@@ -29,7 +29,7 @@ import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.presentation.screen.requests.components.RegistrationRequestCard
 import com.teEcclesia.identity.presentation.screen.requests.components.SortingOptionBottomSheet
 import org.jetbrains.compose.resources.painterResource

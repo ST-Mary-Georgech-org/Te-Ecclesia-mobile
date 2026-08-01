@@ -13,6 +13,8 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 
+import com.teEcclesia.shared.domain.model.UserRole
+
 class LookupRepositoryImpl(
     client: HttpClient
 ) : BaseRepository(client), LookupRepository {
@@ -26,11 +28,12 @@ class LookupRepositoryImpl(
         }.toPagedData { it.toDomain() }
     }
 
-    override suspend fun getEducationalStages(pageQuery: PageQuery): PagedData<LookupResponse> {
+    override suspend fun getEducationalStages(pageQuery: PageQuery, forRole: UserRole?): PagedData<LookupResponse> {
         return tryToExecute<BasePagedData<LookupResponseDto>> {
             get("/api/v1/lookups/educational-stages") {
                 parameter("page", pageQuery.page)
                 parameter("size", pageQuery.size)
+                forRole?.let { parameter("forRole", it.name) }
             }
         }.toPagedData { it.toDomain() }
     }

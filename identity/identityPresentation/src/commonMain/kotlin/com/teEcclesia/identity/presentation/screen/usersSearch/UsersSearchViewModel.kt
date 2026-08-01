@@ -1,18 +1,16 @@
 package com.teEcclesia.identity.presentation.screen.usersSearch
 
-import androidx.lifecycle.viewModelScope
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.identity.domain.model.ProfileResponse
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
-import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import teecclesia.designsystem.generated.resources.failed_to_load_users

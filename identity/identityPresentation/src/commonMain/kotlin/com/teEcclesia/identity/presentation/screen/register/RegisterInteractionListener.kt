@@ -2,7 +2,7 @@ package com.teEcclesia.identity.presentation.screen.register
 
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.lookups.domain.model.LookupResponse
 
