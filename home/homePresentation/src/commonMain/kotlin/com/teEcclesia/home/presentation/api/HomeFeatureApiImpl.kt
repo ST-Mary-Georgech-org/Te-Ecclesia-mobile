@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.home.api.HomeFeatureApi
 import com.teEcclesia.home.api.HomeRoute
@@ -38,7 +39,7 @@ fun HomeScreen() {
             Text(
                 "text",
                 Theme.typography.labelMedium,
-                modifier = Modifier.clickable {
+                modifier = Modifier.clickableNoRipple {
 
                 },
                 color = Theme.colorScheme.onBackground

@@ -58,8 +58,8 @@ jobs:
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           CHANGED_FILES="${{ steps.changed-files-git.outputs.changed_files }}"
-          FALLBACK_ALL_MODULES=':teEcclesiaApp :designSystem :identity:identityData :identity:identityDomain :identity:identityPresentation :home:homePresentation :identity:identityApi :home:homeApi :androidApp'
-          IOS_MODULES=':teEcclesiaApp :identity:identityPresentation :home:homePresentation'
+          FALLBACK_ALL_MODULES=':teEcclesiaApp :designSystem :identity:identityData :identity:identityDomain :identity:identityPresentation :home:homePresentation :identity:identityApi :home:homeApi :lookups:lookupsData :lookups:lookupsDomain :notifications:notificationsData :notifications:notificationsDomain :notifications:notificationsApi :notifications:notificationsPresentation :androidApp'
+          IOS_MODULES=':teEcclesiaApp :identity:identityPresentation :home:homePresentation :notifications:notificationsPresentation'
           echo "All modules JSON: $ALL_MODULES_JSON"
 
           if echo "$ALL_MODULES_JSON" | jq -e . >/dev/null 2>&1; then

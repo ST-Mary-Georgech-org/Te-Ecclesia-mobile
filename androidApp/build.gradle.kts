@@ -86,6 +86,7 @@ kotlin {
 
 dependencies {
     implementation(projects.teEcclesiaApp)
+    implementation(projects.designSystem)
     implementation(projects.identity.identityDomain)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
@@ -96,6 +97,8 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.core)
+    implementation(libs.mmkv)
+    implementation(libs.kmpnotifier)
 }
 
 fun Project.loadProperty(

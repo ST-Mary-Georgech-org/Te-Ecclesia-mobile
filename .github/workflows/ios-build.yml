@@ -68,11 +68,15 @@ jobs:
       - name: Build iOS app
         if: needs.detect.outputs.has_ios_changes == 'true'
         run: |
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
           xcodebuild \
             -project iosApp/iosApp.xcodeproj \
             -scheme "iosApp" \
             -configuration Debug \
-            -destination "generic/platform=iOS Simulator" \
+            -destination "platform=iOS Simulator,name=iPhone 17,arch=arm64" \
             build \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO
