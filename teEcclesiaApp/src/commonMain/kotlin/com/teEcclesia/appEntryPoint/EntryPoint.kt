@@ -1,5 +1,6 @@
 package com.teEcclesia.appEntryPoint
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,8 +9,11 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -19,10 +23,7 @@ import com.teEcclesia.designsystem.navigation.effector.Effect
 import com.teEcclesia.designsystem.navigation.effector.EffectHandler
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.home.api.HomeRoute
-import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.SplashRoute
-import com.teEcclesia.identity.api.SignUpRoute
-import com.teEcclesia.identity.api.VerifyPhoneRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.navigation.AppBottomNavigationBar
@@ -31,35 +32,20 @@ import com.teEcclesia.util.buildNavigationSerializerConfig
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 
-import kotlinx.coroutines.launch
-import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.api.PendingApprovalRoute
-import com.teEcclesia.identity.domain.model.AuthState
-import coil3.ImageLoader
-import coil3.compose.setSingletonImageLoaderFactory
-import coil3.network.ktor3.KtorNetworkFetcherFactory
+import com.teEcclesia.identity.api.AttendanceServicesRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
-import com.teEcclesia.identity.domain.model.UserStatus
 
 @Composable
 fun EntryPoint(
     viewModel: MainEntryViewModel = koinViewModel(),
     authorizationService: AuthorizationService = koinInject(),
-    profileRepository: ProfileRepository = koinInject(),
     effector: Effector = koinInject(),
 ) {
-    setSingletonImageLoaderFactory { context ->
-        ImageLoader.Builder(context)
-            .components {
-                add(KtorNetworkFetcherFactory())
-            }
-            .build()
-    }
-
     val state by viewModel.state.collectAsStateWithLifecycle()
     val authState by authorizationService.observeAuthState().collectAsStateWithLifecycle()
+    val accessToken by authorizationService.observeAccessToken().collectAsStateWithLifecycle()
 
-    val navigationSerializerConfig = buildNavigationSerializerConfig()
+    val navigationSerializerConfig = remember { buildNavigationSerializerConfig() }
     val backStack = rememberNavBackStack(navigationSerializerConfig, SplashRoute)
     val currentRoute = backStack.lastOrNull()
 
@@ -88,58 +74,10 @@ fun EntryPoint(
     val showBottomNavigation = currentRoute is HomeRoute
             || currentRoute is ProfileRoute
             || currentRoute is RegistrationRequestsRoute
+            || currentRoute is AttendanceServicesRoute
 
-    LaunchedEffect(authState) {
-        when (authState) {
-            AuthState.AUTHENTICATED -> {
-                launch {
-                    runCatching {
-                        val previousStatus = authorizationService.getUserStatus()
-                        val profile = profileRepository.getRegistrationProfile()
-                        authorizationService.saveUserRole(profile.role)
-                        authorizationService.saveUserStatus(profile.status)
-                        authorizationService.saveCanApproveRequests(profile.khademProfile?.canApproveRequests ?: false)
-
-                        if (profile.status == UserStatus.PENDING_APPROVAL) {
-                            if (currentRoute !is PendingApprovalRoute) {
-                                effector.resetTo(PendingApprovalRoute, true)
-                            }
-                        } else if (previousStatus == UserStatus.PENDING_APPROVAL && profile.status == UserStatus.APPROVED) {
-                            effector.resetTo(HomeRoute, true)
-                        } else if (profile.status == UserStatus.REJECTED || profile.status == UserStatus.SUSPENDED) {
-                            effector.resetTo(LoginRoute, true)
-                        }
-                    }
-                }
-                val isUnauthRoute = currentRoute == LoginRoute
-                        || currentRoute is SignUpRoute
-                        || currentRoute is VerifyPhoneRoute
-                        || currentRoute is SplashRoute
-                if (isUnauthRoute) {
-                    effector.resetTo(HomeRoute, true)
-                }
-            }
-            AuthState.REGISTRATION_PENDING -> {
-                val userStatus = authorizationService.getUserStatus()
-                if (userStatus == UserStatus.PENDING_APPROVAL) {
-                    if (currentRoute !is PendingApprovalRoute) {
-                        effector.resetTo(PendingApprovalRoute, true)
-                    }
-                } else {
-                    val isUnauthRoute = currentRoute == LoginRoute
-                            || currentRoute is SplashRoute
-                    if (isUnauthRoute) {
-                        effector.resetTo(listOf(LoginRoute, SignUpRoute()), true)
-                    }
-                }
-            }
-            AuthState.UNAUTHENTICATED -> {
-                val isAuthRoute = currentRoute is HomeRoute || currentRoute is ProfileRoute
-                if (isAuthRoute || currentRoute is SplashRoute) {
-                    effector.resetTo(LoginRoute, true)
-                }
-            }
-        }
+    LaunchedEffect(authState, accessToken) {
+        viewModel.handleAuthState(authState, currentRoute)
     }
 
     Box(
@@ -158,9 +96,16 @@ fun EntryPoint(
         )
 
         val hasRequestsAccess by authorizationService.observeRequestsAccess().collectAsStateWithLifecycle()
-
+        val hasAttendanceAccess by authorizationService.observeAttendanceAccess().collectAsStateWithLifecycle()
+        val focusManager = LocalFocusManager.current
         Box(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(onTap = {
+                        focusManager.clearFocus()
+                    })
+                }
         ) {
             NavigationRoot(backStack)
 
@@ -168,6 +113,7 @@ fun EntryPoint(
                 showBottomNavigation = showBottomNavigation,
                 activeRoute = currentRoute,
                 hasRequestsAccess = hasRequestsAccess,
+                hasAttendanceAccess = hasAttendanceAccess,
                 interactionListener = viewModel
             )
         }

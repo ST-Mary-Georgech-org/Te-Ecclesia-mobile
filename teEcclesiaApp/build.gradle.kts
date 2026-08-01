@@ -38,6 +38,9 @@ kotlin {
                 implementation(projects.lookups.lookupsDomain)
                 implementation(projects.notifications.notificationsData)
                 implementation(projects.notifications.notificationsDomain)
+                implementation(projects.notifications.notificationsApi)
+                implementation(projects.notifications.notificationsPresentation)
+                implementation(libs.kmpnotifier)
             }
         }
         commonTest {

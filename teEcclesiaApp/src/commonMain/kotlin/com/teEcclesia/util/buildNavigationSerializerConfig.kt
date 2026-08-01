@@ -9,6 +9,15 @@ import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.VerifyPhoneRoute
+import com.teEcclesia.identity.api.AddUserRoute
+import com.teEcclesia.identity.api.CreateNewPasswordRoute
+import com.teEcclesia.identity.api.ForgotPasswordRoute
+import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
+import com.teEcclesia.identity.api.UsersSearchRoute
+import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
+import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
+import com.teEcclesia.notifications.api.NotificationsRoute
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -21,7 +30,16 @@ fun buildNavigationSerializerConfig(): SavedStateConfiguration = SavedStateConfi
             subclass(VerifyPhoneRoute::class, VerifyPhoneRoute.serializer())
             subclass(ProfileRoute::class, ProfileRoute.serializer())
             subclass(HomeRoute::class, HomeRoute.serializer())
+            subclass(NotificationsRoute::class, NotificationsRoute.serializer())
             subclass(RegistrationRequestsRoute::class, RegistrationRequestsRoute.serializer())
+            subclass(PendingApprovalRoute::class, PendingApprovalRoute.serializer())
+            subclass(ReviewAndEditRequestRoute::class, ReviewAndEditRequestRoute.serializer())
+            subclass(AddUserRoute::class, AddUserRoute.serializer())
+            subclass(UsersSearchRoute::class, UsersSearchRoute.serializer())
+            subclass(ForgotPasswordRoute::class, ForgotPasswordRoute.serializer())
+            subclass(VerifyPhoneResetPasswordRoute::class, VerifyPhoneResetPasswordRoute.serializer())
+            subclass(VerifyEmailResetPasswordRoute::class, VerifyEmailResetPasswordRoute.serializer())
+            subclass(CreateNewPasswordRoute::class, CreateNewPasswordRoute.serializer())
         }
     }
 }
