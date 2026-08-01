@@ -11,6 +11,7 @@ kotlin {
             implementation(projects.notifications.notificationsDomain)
             implementation(projects.shared.sharedDomain)
             implementation(projects.shared.sharedData)
+            implementation(libs.kmpnotifier)
         }
     }
 }

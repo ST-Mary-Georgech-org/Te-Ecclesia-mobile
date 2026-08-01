@@ -5,7 +5,9 @@
     <string name="create_account">إنشاء حساب</string>
     <string name="resend">إعادة إرسال</string>
     <string name="profile">الملف الشخصي</string>
+    <string name="edit_profile">تعديل البروفايل</string>
     <string name="home">الرئيسية</string>
+    <string name="notifications">الإشعارات</string>
     <string name="ok">موافق</string>
     <string name="cancel">إلغاء</string>
     <string name="continue_text">استمر</string>
@@ -17,26 +19,19 @@
     <string name="select_language">اختر اللغة</string>
     <string name="select_theme">اختر المظهر</string>
     <string name="hello_welcome_back">مرحبًا بعودتك!</string>
-    <string name="phone_number_supporting_text">يمكنك كتابة رقم الهاتف/الهوية الوطنية/الرمز/البريد الإلكتروني الموثق</string>
+    <string name="phone_number_supporting_text">يمكنك كتابة رقم الهاتف/الرقم القومي/رقم العضوية/البريد الإلكتروني الموثق</string>
     <string name="register">تسجيل</string>
 
-    <string name="enter_your_username_and_password">أدخل اسم المستخدم وكلمة المرور</string>
     <string name="dont_have_an_account">ليس لديك حساب؟</string>
-    <string name="enter_your_username">أدخل اسم المستخدم</string>
-    <string name="enter_your_phone">أدخل رَقَم الهاتف</string>
     <string name="password">كلمة المرور</string>
     <string name="forget_your_password">نسيت كلمة المرور؟</string>
     <string name="already_have_an_account">لديك حساب بالفعل؟</string>
-    <string name="enter_your_name">أدخل اسمك</string>
     <string name="verify_your_phone">تحقق من رقم هاتفك</string>
     <string name="didnt_receive_code">لم تصلك الرسالة؟</string>
 
     <string name="invalid_otp_please_try_again">رمز التحقق غير صالح، يرجى المحاولة مرة أخرى.</string>
     <string name="otp_must_be_4_digits">يجب أن يتكون رمز التحقق من 4 أرقام</string>
-    <string name="please_enter_your_full_name">يرجى إدخال اسمك الكامل</string>
-    <string name="invalid_phone_number">رقم الهاتف غير صالح</string>
-    <string name="invalid_password">كلمة المرور غير صالحة</string>
-    <string name="invalid_phone_or_national_id_or_code_or_email">رقم الهاتف/الهوية الوطنية/الرمز/البريد الإلكتروني غير صالح</string>
+    <string name="invalid_phone_or_national_id_or_code_or_email">رقم الهاتف/الرقم القومي/رقم العضوية/البريد الإلكتروني غير صالح</string>
     <string name="error_occurred">حدث خطأ ما</string>
     <string name="unknown_error">خطأ غير معروف</string>
     <string name="phone_number">رقم الهاتف</string>
@@ -64,7 +59,6 @@
     <string name="next">التالي</string>
     <string name="field_required">هذا الحقل مطلوب</string>
     <string name="invalid_arabic_name">حروف عربية فقط، 3 حروف على الأقل، بدون مسافات</string>
-    <string name="invalid_national_id_format">الرقم القومي يجب أن يتكون من 14 رقماً</string>
     <string name="invalid_national_id_length">الرقم القومي يجب أن يتكون من 14 رقماً</string>
     <string name="invalid_national_id_century">رمز القرن في الرقم القومي غير صحيح (يجب أن يبدأ بـ 2 أو 3)</string>
     <string name="invalid_national_id_date">تاريخ الميلاد بالرقم القومي غير صحيح</string>
@@ -73,15 +67,17 @@
     <string name="invalid_home_phone_format">يجب أن يتكون رقم الهاتف الأرضي من 8 أرقام</string>
     <string name="invalid_year_format">يجب أن تتكون السنة من 4 أرقام</string>
     <string name="invalid_email_format">البريد الإلكتروني غير صالح</string>
+    <string name="invalid_code_format">يجب أن يتكون الكود من حرف إنجليزي و 8 أرقام إنجليزية (مثال: A12345678)</string>
     <string name="invalid_password_format">8 أحرف أو أكثر مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز, مثال: Aa@123456</string>
 
     <string name="address_info">بيانات العنوان</string>
+    <string name="account_contact_info">الحساب والتواصل</string>
     <string name="building_no">رقم المبنى</string>
     <string name="street">الشارع</string>
-    <string name="branching_from">متفرع من</string>
+    <string name="branching_from">متفرع من (اختياري)</string>
     <string name="area">المنطقة</string>
     <string name="floor">الطابق</string>
-    <string name="apartment">الشقة</string>
+    <string name="apartment"> (اختياري)الشقة</string>
     <string name="special_mark">علامة مميزة</string>
     <string name="home_phone">الهاتف الأرضي</string>
     <string name="email_optional">البريد الإلكتروني (اختياري)</string>
@@ -92,13 +88,12 @@
     <string name="role_parent">ولي أمر</string>
     <string name="role_priest">كاهن</string>
 
-    <string name="student_info">بيانات الطالب</string>
     <string name="servant_info">بيانات الخادم</string>
-    <string name="parent_info">بيانات ولي الأمر</string>
     <string name="ordination_info">بيانات السيامة</string>
     <string name="ordained">مرسوم؟</string>
     <string name="yes">نعم</string>
     <string name="no">لا</string>
+    <string name="a_long_time_ago">منذ زمن بعيد</string>
     <string name="history">تاريخ</string>
     <string name="history_long">تاريخ قديم</string>
     <string name="rank">الرتبة</string>
@@ -106,7 +101,6 @@
     <string name="ordination_year">سنة السيامة</string>
     <string name="bishop_name">اسم الأسقف</string>
     <string name="ordination_place">مكان السيامة</string>
-    <string name="shamamsa_status">دراسة الشمامسة</string>
     <string name="deacons_school_details">تفاصيل مدرسة الشمامسة</string>
     <string name="have_you_attended_a_deacon_school_before">هل حضرت مدرسة الشمامسة من قبل؟</string>
     <string name="educational_stage">المرحلة الدراسية</string>
@@ -136,6 +130,8 @@
     <string name="search_child">البحث عن الابن</string>
     <string name="upload_ordination_certificate">تحميل شهادة السيامة (اختياري)</string>
     <string name="upload_identity_card">تحميل بطاقة الرقم القومي (اختياري)</string>
+    <string name="file_ordination_certificate">شهادة السيامة</string>
+    <string name="file_identity_card">بطاقة الرقم القومي</string>
 
     <string name="verify_whatsapp">التحقق عبر الواتساب</string>
     <string name="check_verification_status">التحقق من الحالة</string>
@@ -166,6 +162,8 @@
     <string name="error_invalid_request">بيانات الطلب غير صالحة</string>
     <string name="error_phone_not_verified">رقم الهاتف غير مفعّل بعد</string>
     <string name="error_email_not_verified">البريد الإلكتروني غير مفعّل بعد</string>
+    <string name="error_duplicate_phone_forgot_password">رقم الهاتف هذا مرتبط بأكثر من حساب. يرجى استخدام الرقم القومي لإعادة تعيين كلمة المرور.</string>
+    <string name="server_error">حدث خطأ في السيرفر. يرجى المحاولة لاحقاً.</string>
     <string name="supported_formats">مدعوم: PDF, PNG, JPG (الحد الأقصى 10 ميغابايت)</string>
 
     <!-- Registration Requests -->
@@ -182,4 +180,101 @@
     <string name="name_desc">الاسم (ي-أ)</string>
     <string name="role_admin">أدمن</string>
     <string name="not_implemented_yet">لم يتم تنفيذ هذه الميزة بعد</string>
+
+    <!-- Review and Edit Request -->
+    <string name="review_and_edit_request">مراجعة وتعديل الطلب</string>
+    <string name="step_1_of_2">الخطوة 1 من 2</string>
+    <string name="step_2_of_2">الخطوة 2 من 2</string>
+    <string name="step_1">الخطوة 1</string>
+    <string name="step_2">الخطوة 2</string>
+    <string name="approve_request">قبول الطلب</string>
+    <string name="reject_request">رفض الطلب</string>
+    <string name="rejection_reason">سبب الرفض</string>
+    <string name="rejection_reason_hint">اكتب سبب الرفض هنا...</string>
+    <string name="save_changes">حفظ التغييرات</string>
+    <string name="next_step">التالي</string>
+    <string name="previous_step">السابق</string>
+    <string name="failed_to_load_request">فشل تحميل تفاصيل الطلب</string>
+    <string name="failed_to_approve_request">فشل قبول الطلب</string>
+    <string name="failed_to_reject_request">فشل رفض الطلب</string>
+    <string name="code">الرمز</string>
+    <string name="should_have_whatsapp">يجب أن يكون الهاتف مسجل في واتساب</string>
+    <string name="replace">استبدال</string>
+    <string name="role">الصفة</string>
+    <string name="notes">ملاحظات</string>
+    <string name="reason">السبب</string>
+    <string name="submitted_at">تم التقديم في</string>
+    <string name="ordination_certificate_optional">شهادة الرسمة (اختياري)</string>
+    <string name="identity_card_certificate_optional">بطاقة الرقم القومي / الشهادة (اختياري)</string>
+    <string name="service_info">بيانات الخدمة</string>
+    <string name="permissions">الصلاحيات</string>
+    <string name="can_approve_new_requests">هل يمكنه الموافقة على الطلبات الجديدة؟</string>
+    <string name="responsible_stages_optional">المراحل المسئول عنها (اختياري)</string>
+    <string name="responsible_years_optional">السنوات المسئول عنها (اختياري)</string>
+    <string name="add_your_child">أضف ابنك</string>
+    <string name="partner_optional">الشريك (اختياري)</string>
+    <string name="partner_search_hint">رقم الهاتف / الرقم القومي / الكود / البريد الإلكتروني للشريك</string>
+    <string name="child_search_hint">رقم الهاتف / الرقم القومي / الكود / البريد الإلكتروني للابن</string>
+    <string name="educational_years">السنوات الدراسية</string>
+    <string name="add_new_user">إضافة مخدوم جديد</string>
+    <string name="user_created_successfully">تمت إضافة المستخدم بنجاح</string>
+    <string name="search_users">البحث في الأعضاء</string>
+    <string name="search_users_hint">ابحث بالاسم، الهوية، الهاتف، البريد...</string>
+    <string name="filter_users">تصفية الأعضاء</string>
+    <string name="no_users_found">لا توجد نتائج مطابقة</string>
+    <string name="reset_filters">إعادة ضبط التصفية</string>
+    <string name="all_stages">جميع المراحل</string>
+    <string name="all_years">جميع السنوات</string>
+    <string name="apply_filter">تطبيق التصفية</string>
+    <string name="failed_to_load_users">فشل تحميل الأعضاء</string>
+    <string name="close">إغلاق</string>
+    <string name="click_verify_button_to_send_a_whatsapp_message_to_verify_the_number_after_accepting_your_registration_request_we_will_contact_you">* اضغط على زر التحقق لإرسال رسالة واتساب للتحقق من الرقم\n\n* بعد قبول طلب التسجيل الخاص بك سنتواصل معك</string>
+    <string name="if_the_whatsapp_number_in_another_phone_register_from_that_phone_first">إذا كان رقم الواتساب على هاتف آخر، قم انشاء حساب من ذلك الهاتف أولاً, </string>
+
+    <!-- Reset Password -->
+    <string name="forgot_password_title">نسيت\nكلمة السر؟</string>
+    <string name="forgot_password_subtitle">لا تقلق، أدخل رقم هاتفك أو الرقم القومي أو بريدك الإلكتروني الموثق للتحقق منه أولاً لإعادة تعيين كلمة السر</string>
+    <string name="phone_or_verified_email">رقم الهاتف أو الرقم القومي أو البريد الموثق</string>
+    <string name="phone_or_verified_email_supporting_text">يمكنك كتابة رقم الهاتف / الرقم القومي / البريد الإلكتروني الموثق</string>
+    <string name="back_to_login_question">العودة لتسجيل الدخول؟</string>
+    <string name="verify_phone_reset_subtitle">اضغط على زر التأكيد لإرسال رسالة واتساب لتأكيد الرقم ثم اضغط التالي لإنشاء كلمة السر الخاصة بك</string>
+    <string name="verify_email_title">تأكيد البريد الإلكتروني</string>
+    <string name="verify_email_reset_subtitle">أدخل الرمز المرسل على بريدك الإلكتروني</string>
+    <string name="verify_code">تأكيد الرمز</string>
+    <string name="create_new_password">إنشاء\nكلمة سر جديدة</string>
+    <string name="enter_code_sent_on_your_email">أدخل الرمز المرسل على بريدك الإلكتروني</string>
+    <string name="verify_button">تأكيد</string>
+    <string name="password_reset_successfully">تم إعادة تعيين كلمة السر بنجاح</string>
+    <string name="failed_to_send_otp">فشل إرسال رمز التحقق</string>
+    <string name="failed_to_verify_code">فشل تأكيد الرمز</string>
+    <string name="failed_to_reset_password">فشل إعادة تعيين كلمة السر</string>
+
+    <!-- Attendance Keys -->
+    <string name="attendance_registration">تسجيل الحضور</string>
+    <string name="services">الخدمات</string>
+    <string name="add_service">إضافة خدمة جديدة</string>
+    <string name="edit_service">تعديل الخدمة</string>
+    <string name="delete_service">حذف الخدمة</string>
+    <string name="confirm_delete_service">هل أنت متأكد من رغبتك في حذف هذه الخدمة؟</string>
+    <string name="service_name">اسم الخدمة</string>
+    <string name="events">الأحداث والسيشنات</string>
+    <string name="add_event">إضافة حدث</string>
+    <string name="edit_event">تعديل الحدث</string>
+    <string name="delete_event">حذف الحدث</string>
+    <string name="confirm_delete_event">هل أنت متأكد من رغبتك في حذف هذا الحدث؟</string>
+    <string name="event_name_optional">اسم الحدث (اختياري)</string>
+    <string name="event_date">تاريخ الحدث (YYYY-MM-DD)</string>
+    <string name="start_time">وقت البداية (HH:mm)</string>
+    <string name="end_time">وقت النهاية (HH:mm)</string>
+    <string name="allowed_period">فترة تسجيل مسموحة</string>
+    <string name="add_person">إضافة شخص</string>
+    <string name="enter_user_code">أدخل كود الشخص</string>
+    <string name="user_code">كود الشخص</string>
+    <string name="confirm_remove_attendee">هل أنت متأكد من رغبتك في إزالة هذا الشخص من الحدث؟</string>
+    <string name="registered_at">تاريخ وقت التسجيل</string>
+    <string name="registered_people">الأشخاص المسجلون</string>
+    <string name="search_code">بحث بالكود</string>
+    <string name="delete">حذف</string>
+    <string name="confirm">تأكيد</string>
+    <string name="go_to_login">الذهاب لتسجيل الدخول</string>
 </resources>

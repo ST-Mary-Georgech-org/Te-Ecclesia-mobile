@@ -18,14 +18,17 @@ data class CompleteProfileRequestDto(
     @SerialName("kahenProfile")
     val kahenProfile: KahenProfileRequestDto? = null,
     @SerialName("parentProfile")
-    val parentProfile: ParentProfileRequestDto? = null
+    val parentProfile: ParentProfileRequestDto? = null,
+    @SerialName("deviceToken")
+    val deviceToken: String? = null
 )
 
-fun CompleteProfileRequest.toDto() = CompleteProfileRequestDto(
+fun CompleteProfileRequest.toDto(deviceToken: String? = null) = CompleteProfileRequestDto(
     role = role,
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
     khademProfile = khademProfile?.toDto(),
     kahenProfile = kahenProfile?.toDto(),
-    parentProfile = parentProfile?.toDto()
+    parentProfile = parentProfile?.toDto(),
+    deviceToken = deviceToken
 )

@@ -31,6 +31,27 @@ internal var Settings.canApproveRequests: Boolean
     get() = getBoolean(CAN_APPROVE_REQUESTS, false)
     set(value) = putBoolean(CAN_APPROVE_REQUESTS, value)
 
+internal var Settings.khademStageId: Long
+    get() = getLong(KHADEM_STAGE_ID, -1L)
+    set(value) = putLong(KHADEM_STAGE_ID, value)
+
+internal var Settings.khademYearId: Long
+    get() = getLong(KHADEM_YEAR_ID, -1L)
+    set(value) = putLong(KHADEM_YEAR_ID, value)
+
+internal var Settings.responsibleStageIds: String
+    get() = getString(RESPONSIBLE_STAGE_IDS, "")
+    set(value) = putString(RESPONSIBLE_STAGE_IDS, value)
+
+internal var Settings.responsibleYearIds: String
+    get() = getString(RESPONSIBLE_YEAR_IDS, "")
+    set(value) = putString(RESPONSIBLE_YEAR_IDS, value)
+
+internal var Settings.cachedProfileJson: String
+    get() = getString(CACHED_PROFILE_JSON, "")
+    set(value) = putString(CACHED_PROFILE_JSON, value)
+
+
 const val ACCESS_TOKEN = "access_token"
 const val REFRESH_TOKEN = "refresh_token"
 const val USER_STATUS = "user_status"
@@ -38,3 +59,8 @@ const val APP_LANGUAGE = "app_language"
 const val APP_THEME = "app_theme"
 const val USER_ROLE = "user_role"
 const val CAN_APPROVE_REQUESTS = "can_approve_requests"
+const val KHADEM_STAGE_ID = "khadem_stage_id"
+const val KHADEM_YEAR_ID = "khadem_year_id"
+const val RESPONSIBLE_STAGE_IDS = "responsible_stage_ids"
+const val RESPONSIBLE_YEAR_IDS = "responsible_year_ids"
+const val CACHED_PROFILE_JSON = "cached_profile_json"

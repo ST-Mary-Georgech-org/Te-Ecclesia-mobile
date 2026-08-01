@@ -9,6 +9,7 @@ import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toDomain
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
 import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.identity.data.utils.invalidateAuthTokens
+import com.teEcclesia.identity.data.utils.getContentTypeAndFilename
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.InitiateWhatsAppVerificationResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
@@ -37,6 +38,9 @@ import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
+
 class RegisterRepositoryImpl(
     client: HttpClient,
     private val authenticationRepository: AuthenticationRepository
@@ -47,7 +51,8 @@ class RegisterRepositoryImpl(
         imageBytes: ByteArray?,
         certificateImageBytes: ByteArray?
     ): TokenResponse {
-        val requestJson = Json.encodeToString(request.toDto())
+        val deviceToken = runCatching { KMPNotifier.firebasePushNotifier.getToken() }.getOrNull()
+        val requestJson = Json.encodeToString(request.toDto(deviceToken))
         
         val response = tryToExecute<TokenResponseDto> {
             post(REGISTER) {
@@ -58,15 +63,17 @@ class RegisterRepositoryImpl(
                                 append(HttpHeaders.ContentType, "application/json")
                             })
                             if (imageBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(imageBytes, "image")
                                 append("image", imageBytes, Headers.build {
-                                    append(HttpHeaders.ContentType, "image/jpeg")
-                                    append(HttpHeaders.ContentDisposition, "filename=\"image.jpg\"")
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
                             }
                             if (certificateImageBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(certificateImageBytes, "certificate")
                                 append("certificateImage", certificateImageBytes, Headers.build {
-                                    append(HttpHeaders.ContentType, "image/jpeg")
-                                    append(HttpHeaders.ContentDisposition, "filename=\"certificate.jpg\"")
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
                             }
                         }
@@ -80,9 +87,11 @@ class RegisterRepositoryImpl(
 
     override suspend fun completeProfile(
         request: CompleteProfileRequest,
-        certificateImageBytes: ByteArray?
+        ordinationCertificateBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?
     ): RegisterResponse {
-        val requestJson = Json.encodeToString(request.toDto())
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val requestJson = Json.encodeToString(request.toDto(deviceToken))
         
         val response = tryToExecute<RegisterResponseDto> {
             post(COMPLETE_PROFILE) {
@@ -92,10 +101,18 @@ class RegisterRepositoryImpl(
                             append("request", requestJson, Headers.build {
                                 append(HttpHeaders.ContentType, "application/json")
                             })
-                            if (certificateImageBytes != null) {
-                                append("certificateImage", certificateImageBytes, Headers.build {
-                                    append(HttpHeaders.ContentType, "image/jpeg")
-                                    append(HttpHeaders.ContentDisposition, "filename=\"certificate.jpg\"")
+                            if (ordinationCertificateBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(ordinationCertificateBytes, "certificate")
+                                append("certificateImage", ordinationCertificateBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
+                            if (identityDocumentBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
+                                append("identityDocument", identityDocumentBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
                             }
                         }
@@ -107,7 +124,8 @@ class RegisterRepositoryImpl(
         return response.toDomain()
     }
 
-    override suspend fun verifyEmail(email: String, otp: String, deviceToken: String?) {
+    override suspend fun verifyEmail(email: String, otp: String) {
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
         val response = tryToExecute<AuthenticationResponse> {
             post(VERIFY_EMAIL) {
                 setBody(VerifyEmailRequestDto(email = email, otp = otp, deviceToken = deviceToken))

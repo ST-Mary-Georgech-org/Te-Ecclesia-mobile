@@ -51,6 +51,7 @@ sealed class AppButtonType {
     object Primary : AppButtonType()
     object Secondary : AppButtonType()
     object Tertiary : AppButtonType()
+    object Error : AppButtonType()
 }
 
 @Composable
@@ -64,12 +65,13 @@ fun AppButton(
     disableTertiaryBackgroundColor: Color = Theme.colorScheme.onSurface.copy(alpha = 0.1f),
     disablePrimaryBackgroundColor: Color = Theme.colorScheme.onSurface.copy(alpha = 0.1f),
     disableSecondaryBackgroundColor: Color = Theme.colorScheme.onSurface.copy(alpha = 0.1f),
-    enableTertiaryBackgroundColor: Color = Theme.colorScheme.tertiary,
+    enableTertiaryBackgroundColor: Color = Theme.colorScheme.tertiaryContainer,
     enablePrimaryBackgroundColor: Color = Theme.colorScheme.primary,
-    enableSecondaryBackgroundColor: Color = Theme.colorScheme.secondary,
+    enableSecondaryBackgroundColor: Color = Theme.colorScheme.secondaryContainer,
+    enableErrorBackgroundColor: Color = Theme.colorScheme.error,
     loadingIcon: @Composable () -> Unit = {
         CircularProgressIndicator(
-            color = Theme.colorScheme.onPrimary,
+            color = getContentColor(AppButtonState.Loading, type),
             strokeWidth = 2.dp,
             modifier = Modifier.size(20.dp)
         )
@@ -90,7 +92,8 @@ fun AppButton(
         disableSecondaryBackgroundColor = disableSecondaryBackgroundColor,
         enableTertiaryBackgroundColor = enableTertiaryBackgroundColor,
         enablePrimaryBackgroundColor = enablePrimaryBackgroundColor,
-        enableSecondaryBackgroundColor = enableSecondaryBackgroundColor
+        enableSecondaryBackgroundColor = enableSecondaryBackgroundColor,
+        enableErrorBackgroundColor = enableErrorBackgroundColor
     )
     val buttonContentColor = getContentColor(state, type)
 
@@ -98,7 +101,7 @@ fun AppButton(
         modifier = modifier.height(IntrinsicSize.Min),
         shape = RoundedCornerShape(16.dp),
         contentColor = buttonContentColor,
-        onClick = { if (enabled) onClick() },
+        onClick = { if (enabled && state == AppButtonState.Enabled) onClick() },
         enabled = enabled,
         interactionSource = interactionSource,
     ) {
@@ -172,18 +175,21 @@ private fun getBackgroundColor(
     enableTertiaryBackgroundColor: Color = Theme.colorScheme.tertiary,
     enablePrimaryBackgroundColor: Color = Theme.colorScheme.primary,
     enableSecondaryBackgroundColor: Color = Theme.colorScheme.secondary,
+    enableErrorBackgroundColor: Color = Theme.colorScheme.error,
 ): Color {
     return if (isDisabled) {
         when (type) {
             AppButtonType.Tertiary -> disableTertiaryBackgroundColor
             AppButtonType.Primary -> disablePrimaryBackgroundColor
             AppButtonType.Secondary -> disableSecondaryBackgroundColor
+            AppButtonType.Error -> Theme.colorScheme.error.copy(alpha = 0.38f)
         }
     } else {
         when (type) {
             AppButtonType.Primary -> enablePrimaryBackgroundColor
             AppButtonType.Secondary -> enableSecondaryBackgroundColor
             AppButtonType.Tertiary -> enableTertiaryBackgroundColor
+            AppButtonType.Error -> enableErrorBackgroundColor
         }
     }
 }
@@ -195,11 +201,12 @@ private fun getContentColor(
     type: AppButtonType,
 ): Color {
     return when {
-        state == AppButtonState.Disabled -> Theme.colorScheme.onSurface.copy(alpha = 0.1f)
+        state == AppButtonState.Disabled -> Theme.colorScheme.onSurface.copy(alpha = 0.38f)
         else -> when (type) {
             AppButtonType.Primary -> Theme.colorScheme.onPrimary
-            AppButtonType.Secondary -> Theme.colorScheme.onSecondary
-            AppButtonType.Tertiary -> Theme.colorScheme.onTertiary
+            AppButtonType.Secondary -> Theme.colorScheme.onSecondaryContainer
+            AppButtonType.Tertiary -> Theme.colorScheme.onTertiaryContainer
+            AppButtonType.Error -> Theme.colorScheme.onError
         }
     }
 }
@@ -213,7 +220,7 @@ private fun getAppContentPadding(
     val horizontalPadding = animateDpAsState(if (isLarge) 24.dp else 16.dp)
     if (isLoading) {
         return when (type) {
-            AppButtonType.Primary, AppButtonType.Secondary -> PaddingValues(
+            AppButtonType.Primary, AppButtonType.Secondary, AppButtonType.Error -> PaddingValues(
                 horizontal = horizontalPadding.value,
                 vertical = animateDpAsState(if (isLarge) 12.dp else 8.dp).value
             )
@@ -227,7 +234,7 @@ private fun getAppContentPadding(
         }
     } else {
         return when (type) {
-            AppButtonType.Primary, AppButtonType.Secondary -> PaddingValues(
+            AppButtonType.Primary, AppButtonType.Secondary, AppButtonType.Error -> PaddingValues(
                 horizontal = horizontalPadding.value,
                 vertical = animateDpAsState(if (isLarge) 15.dp else 10.dp).value
             )

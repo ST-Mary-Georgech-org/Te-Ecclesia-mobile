@@ -13,6 +13,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,6 +29,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.coroutines.CoroutineContext
 
 abstract class BaseViewModel<STATE>(
     initialState: STATE
@@ -40,6 +42,16 @@ abstract class BaseViewModel<STATE>(
     protected val snackBarManager: SnackBarManager by inject()
     private val resultStore: ResultStore by inject()
     protected val dispatchers: DispatcherProvider by inject()
+
+    protected fun launch(
+        context: CoroutineContext = dispatchers.io,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
+        block: suspend CoroutineScope.() -> Unit
+    ) = viewModelScope.launch(
+        context = context,
+        start = start,
+        block = block
+    )
 
     protected fun navigate(
         route: NavKey,

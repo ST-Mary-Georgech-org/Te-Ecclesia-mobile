@@ -27,6 +27,8 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
+import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
+import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
@@ -46,7 +48,8 @@ import teecclesia.designsystem.generated.resources.ic_plus
 @Composable
 fun RegisterStep4ParentContent(
     state: RegisterScreenState,
-    listener: RegisterInteractionListener
+    listener: RegisterInteractionListener,
+    onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -62,24 +65,15 @@ fun RegisterStep4ParentContent(
                 color = Theme.colorScheme.onBackground
             )
 
-            if (state.selectedPartner == null) {
-                CustomTextField(
-                    value = state.partnerQuery,
-                    onValueChange = listener::onPartnerQueryChange,
-                    labelText = stringResource(Res.string.search_partner),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    trailingIcon = painterResource(Res.drawable.ic_plus),
-                    onTrailingIconClick = listener::onSearchPartner,
-                )
-            } else {
-                UserChip(
-                    user = state.selectedPartner,
-                    onRemove = listener::onRemovePartner
-                )
-            }
+            PartnerSelectionFields(
+                selectedPartner = state.selectedPartner,
+                partnerQuery = state.partnerQuery,
+                onPartnerQueryChange = listener::onPartnerQueryChange,
+                onSearchPartner = listener::onSearchPartner,
+                onRemovePartner = listener::onRemovePartner
+            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(Res.string.children),
@@ -87,27 +81,13 @@ fun RegisterStep4ParentContent(
                 color = Theme.colorScheme.onBackground
             )
 
-            CustomTextField(
-                value = state.childQuery,
-                onValueChange = listener::onChildQueryChange,
-                labelText = stringResource(Res.string.search_child),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                trailingIcon = painterResource(Res.drawable.ic_plus),
-                onTrailingIconClick = listener::onSearchChild,
+            ChildrenSelectionFields(
+                childQuery = state.childQuery,
+                onChildQueryChange = listener::onChildQueryChange,
+                onSearchChild = listener::onSearchChild,
+                selectedChildren = state.selectedChildren,
+                onRemoveChild = listener::onRemoveChild
             )
-
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                state.selectedChildren.forEach { child ->
-                    UserChip(
-                        user = child,
-                        onRemove = { listener.onRemoveChild(child) }
-                    )
-                }
-            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -115,7 +95,8 @@ fun RegisterStep4ParentContent(
                 title = stringResource(Res.string.upload_identity_card),
                 fileName = state.identityCertificateFileName,
                 onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearClick = { listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null) }
+                onClearClick = { listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null) },
+                onFileClick = onFileClickIdentityCertificate
             )
         }
 

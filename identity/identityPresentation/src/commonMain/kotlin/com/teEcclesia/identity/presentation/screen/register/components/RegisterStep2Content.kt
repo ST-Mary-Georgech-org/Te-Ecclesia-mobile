@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,12 +26,12 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
-import com.teEcclesia.designsystem.components.menu.DropdownMenu
-import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
+import com.teEcclesia.identity.presentation.shared.components.AddressFieldsSection
+import com.teEcclesia.identity.presentation.shared.components.AreaDropdownField
+import com.teEcclesia.identity.presentation.shared.components.ContactInfoFields
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
@@ -86,55 +85,16 @@ fun RegisterStep2Content(
                 color = Theme.colorScheme.onBackground
             )
 
-            val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-
-            CustomTextField(
-                value = state.phone,
-                onValueChange = listener::onPhoneChange,
-                labelText = stringResource(Res.string.phone_number),
-                modifier = Modifier.fillMaxWidth(),
-                errorText = state.phoneError?.asString(),
-                supportingText = stringResource(Res.string.you_should_have_whatsapp_on_this_phone),
-                textStyle = Theme.typography.bodyLarge.copy(
-                    textDirection = TextDirection.Ltr
-                ),
-                prefix = if (!isRtl) {
-                    { Text("+2", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                } else null,
-                suffix = if (isRtl) {
-                    { Text("2+", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                } else null,
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next)
-            )
-
-            CustomTextField(
-                value = state.homePhone,
-                onValueChange = listener::onHomePhoneChange,
-                labelText = stringResource(Res.string.home_phone),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                errorText = state.homePhoneError?.asString(),
-                textStyle = Theme.typography.bodyLarge.copy(
-                    textDirection = TextDirection.Ltr
-                ),
-                prefix = if (!isRtl) {
-                    { Text("02", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                } else null,
-                suffix = if (isRtl) {
-                    { Text("02", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                } else null,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next)
-            )
-
-            CustomTextField(
-                value = state.email,
-                onValueChange = listener::onEmailChange,
-                labelText = stringResource(Res.string.email_optional),
-                modifier = Modifier.fillMaxWidth(),
-                errorText = state.emailError?.asString(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next)
+            ContactInfoFields(
+                phone = state.phone,
+                onPhoneChange = listener::onPhoneChange,
+                phoneError = state.phoneError?.asString(),
+                homePhone = state.homePhone,
+                onHomePhoneChange = listener::onHomePhoneChange,
+                homePhoneError = state.homePhoneError?.asString(),
+                email = state.email,
+                onEmailChange = listener::onEmailChange,
+                emailError = state.emailError?.asString()
             )
 
             CustomTextField(
@@ -151,7 +111,7 @@ fun RegisterStep2Content(
                 onTrailingIconClick = listener::onTogglePasswordVisibility
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = stringResource(Res.string.address_info),
@@ -159,95 +119,30 @@ fun RegisterStep2Content(
                 color = Theme.colorScheme.onBackground
             )
 
-            CustomTextField(
-                value = state.buildingNo,
-                onValueChange = listener::onBuildingNoChange,
-                labelText = stringResource(Res.string.building_no),
-                modifier = Modifier.fillMaxWidth(),
-                errorText = state.buildingNoError?.asString(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                singleLine = true
-            )
-
-            CustomTextField(
-                value = state.street,
-                onValueChange = listener::onStreetChange,
-                labelText = stringResource(Res.string.street),
-                modifier = Modifier.fillMaxWidth(),
-                errorText = state.streetError?.asString(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                singleLine = true
-            )
-
-            CustomTextField(
-                value = state.streetBranch,
-                onValueChange = listener::onStreetBranchChange,
-                labelText = stringResource(Res.string.branching_from),
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                singleLine = true
-            )
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                CustomTextField(
-                    value = state.selectedArea ?: "",
-                    onValueChange = listener::onAreaChange,
-                    labelText = stringResource(Res.string.area),
-                    modifier = Modifier.fillMaxWidth(),
-                    errorText = state.areaError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Next),
-                )
-
-                DropdownMenu(
-                    expanded = state.isAreaSheetVisible && state.areas.isNotEmpty(),
-                    onDismissRequest = { listener.onToggleAreaSheet(false) },
-                    properties = PopupProperties(focusable = false),
-                    modifier = Modifier.fillMaxWidth(0.9f)
-                ) {
-                    state.areas.forEach { area ->
-                        DropdownMenuItem(
-                            text = { Text(area, style = Theme.typography.bodyMedium, color = Theme.colorScheme.onSurface) },
-                            onClick = {
-                                listener.onSelectArea(area)
-                            }
-                        )
-                    }
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CustomTextField(
-                    value = state.floor,
-                    onValueChange = listener::onFloorChange,
-                    labelText = stringResource(Res.string.floor),
-                    modifier = Modifier.weight(1f),
-                    errorText = state.floorError?.asString(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                    singleLine = true
-                )
-
-                CustomTextField(
-                    value = state.apartment,
-                    onValueChange = listener::onApartmentChange,
-                    labelText = stringResource(Res.string.apartment),
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next),
-                    singleLine = true
-                )
-            }
-
-            CustomTextField(
-                value = state.specialMark,
-                onValueChange = listener::onSpecialMarkChange,
-                labelText = stringResource(Res.string.special_mark),
-                modifier = Modifier.fillMaxWidth(),
-                errorText = state.specialMarkError?.asString(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
-                singleLine = true
+            AddressFieldsSection(
+                buildingNo = state.buildingNo,
+                onBuildingNoChange = listener::onBuildingNoChange,
+                buildingNoError = state.buildingNoError?.asString(),
+                street = state.street,
+                onStreetChange = listener::onStreetChange,
+                streetError = state.streetError?.asString(),
+                streetBranch = state.streetBranch,
+                onStreetBranchChange = listener::onStreetBranchChange,
+                area = state.selectedArea ?: "",
+                onAreaChange = listener::onAreaChange,
+                areas = state.areas,
+                isAreaSheetVisible = state.isAreaSheetVisible,
+                onToggleAreaSheet = listener::onToggleAreaSheet,
+                onSelectArea = listener::onSelectArea,
+                areaError = state.areaError?.asString(),
+                floor = state.floor,
+                onFloorChange = listener::onFloorChange,
+                floorError = state.floorError?.asString(),
+                apartment = state.apartment,
+                onApartmentChange = listener::onApartmentChange,
+                specialMark = state.specialMark,
+                onSpecialMarkChange = listener::onSpecialMarkChange,
+                specialMarkError = state.specialMarkError?.asString()
             )
         }
 

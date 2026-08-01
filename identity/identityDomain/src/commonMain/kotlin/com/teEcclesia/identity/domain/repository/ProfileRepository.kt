@@ -1,11 +1,18 @@
 package com.teEcclesia.identity.domain.repository
 
+import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.ProfileResponse
+import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.UserRole
+import com.teEcclesia.identity.domain.model.CachedProfile
 import com.teEcclesia.shared.domain.utils.PagedData
+import kotlinx.coroutines.flow.StateFlow
 
 interface ProfileRepository {
     suspend fun getRegistrationProfile(): ProfileResponse
+    fun getCachedProfile(): CachedProfile?
+    fun observeCachedProfile(): StateFlow<CachedProfile?>
+    suspend fun getUserProfile(userId: String): ProfileResponse
     suspend fun getRegistrationRequests(
         role: UserRole?, 
         search: String?, 
@@ -14,6 +21,22 @@ interface ProfileRepository {
         sortBy: String, 
         sortOrder: String
     ): PagedData<ProfileResponse>
-    suspend fun approveUser(userId: String)
+    suspend fun approveUser(userId: String, request: ApproveUserRequest? = null)
     suspend fun rejectUser(userId: String, reason: String)
+    suspend fun createMakhdoomDirectly(
+        request: RegisterRequest,
+        imageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?
+    ): ProfileResponse
+    suspend fun getApprovedUsers(
+        search: String?,
+        stageId: Long?,
+        yearId: Long?,
+        role: UserRole?,
+        page: Int,
+        size: Int = 20,
+        sortBy: String = "createdAt",
+        sortOrder: String = "DESC"
+    ): PagedData<ProfileResponse>
 }
+

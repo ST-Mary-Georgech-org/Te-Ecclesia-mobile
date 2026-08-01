@@ -8,6 +8,7 @@ import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.designsystem.navigation.effector.EffectorImpl
 import com.teEcclesia.designsystem.navigation.getDispatcherProvider
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.bind
 import org.koin.dsl.module
@@ -17,7 +18,7 @@ val appModule = module {
     single(named(APP_VERSION)) { AppEnvironment.versionName }
     single { SnackBarManager() }
     single { getDispatcherProvider() }
-    singleOf(::MainEntryViewModel)
+    viewModelOf(::MainEntryViewModel)
     singleOf(::EffectorImpl) bind Effector::class
     singleOf(::ResultStore)
 }

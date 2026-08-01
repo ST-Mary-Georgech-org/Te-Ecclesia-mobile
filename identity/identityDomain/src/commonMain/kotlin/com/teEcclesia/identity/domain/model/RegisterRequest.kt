@@ -10,8 +10,8 @@ data class RegisterRequest(
     val phone: String,
     val homePhone: String,
     val email: String?,
-    val password: String,
-    val imageUrl: String?,
+    val password: String? = null,
+    val imageUrl: String? = null,
     val job: String?,
     val buildingNo: String,
     val street: String,
@@ -25,7 +25,9 @@ data class RegisterRequest(
     val externalConfessionPriestName: String?,
     val externalConfessionChurch: String?,
     val externalConfessionPhone: String?,
-    val ordinationProfile: OrdinationProfileRequest?,
-    val makhdoomProfile: MakhdoomProfileRequest?,
-    val parentProfile: ParentProfileRequest?
+    val ordinationProfile: OrdinationProfileRequest? = null,
+    val makhdoomProfile: MakhdoomProfileRequest? = null,
+    val parentProfile: ParentProfileRequest? = null,
+    val khademProfile: KhademProfileRequest? = null,
+    val kahenProfile: KahenProfileRequest? = null
 )

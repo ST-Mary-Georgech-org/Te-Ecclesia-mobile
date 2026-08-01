@@ -27,13 +27,17 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
@@ -43,12 +47,15 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
+import com.teEcclesia.designsystem.modifier.thenIf
 import com.teEcclesia.designsystem.modifier.thenIfNotNull
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_eye_closed
+
+private val EMOJI_REGEX = Regex("""[\u2600-\u27BF]|[\uD83C-\uDBFF][\uDC00-\uDFFF]|\p{So}|\p{Sk}""")
 
 
 @Composable
@@ -74,15 +81,44 @@ fun CustomTextField(
     singleLine: Boolean = true,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,
     minLines: Int = 1,
+    allowEmojis: Boolean = false,
     onClick: (() -> Unit)? = null,
     showTrailingDivider: Boolean = false,
-    prefix: @Composable (() -> Unit)? = null,
-    suffix: @Composable (() -> Unit)? = null,
+    prefixText: String? = null,
+    suffixText: String? = null,
     maxChars: Int = if (singleLine) 150 else 1000,
     shape: Shape = RoundedCornerShape(16.dp),
 ) {
     val colors = Theme.colorScheme
     val typography = Theme.typography
+    val focusManager = LocalFocusManager.current
+
+    val currentKeyboardActions by rememberUpdatedState(keyboardActions)
+
+    val effectiveKeyboardActions = remember(focusManager) {
+        KeyboardActions(
+            onDone = {
+                focusManager.clearFocus()
+                currentKeyboardActions.onDone?.invoke(this)
+            },
+            onSearch = {
+                focusManager.clearFocus()
+                currentKeyboardActions.onSearch?.invoke(this)
+            },
+            onNext = {
+                focusManager.moveFocus(FocusDirection.Next)
+                currentKeyboardActions.onNext?.invoke(this)
+            },
+            onGo = {
+                focusManager.clearFocus()
+                currentKeyboardActions.onGo?.invoke(this)
+            },
+            onSend = {
+                focusManager.clearFocus()
+                currentKeyboardActions.onSend?.invoke(this)
+            }
+        )
+    }
 
     val interaction = remember { MutableInteractionSource() }
     val showError = !errorText.isNullOrBlank()
@@ -90,18 +126,115 @@ fun CustomTextField(
     val currentDirection = LocalLayoutDirection.current
     val isRtl = currentDirection == LayoutDirection.Rtl
 
-    val resolvedTrailingIconColor = trailingIconColor ?: animateColorAsState(
+    val animatedErrorColor by animateColorAsState(
         targetValue = if (showError) colors.error else colors.onSurfaceVariant,
-        animationSpec = tween(durationMillis = 150)
-    ).value
+        animationSpec = tween(durationMillis = 150),
+        label = "TrailingIconColorAnimation"
+    )
+    val resolvedTrailingIconColor = trailingIconColor ?: animatedErrorColor
 
-    Column(modifier.thenIfNotNull(onClick) {
-        clickableNoRipple(onClick = it)
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = textColor,
+        unfocusedTextColor = textColor,
+        disabledTextColor = colors.onSurfaceVariant,
+        errorTextColor = textColor,
+        focusedBorderColor = colors.outline,
+        unfocusedBorderColor = colors.outlineVariant,
+        disabledBorderColor = colors.outlineVariant,
+        errorBorderColor = colors.error,
+        focusedLabelColor = colors.outline,
+        unfocusedLabelColor = colors.onSurfaceVariant,
+        disabledLabelColor = colors.onSurfaceVariant,
+        errorLabelColor = colors.error,
+        cursorColor = colors.outline,
+        errorCursorColor = colors.error,
+        focusedContainerColor = backgroundColor,
+        unfocusedContainerColor = backgroundColor,
+        disabledContainerColor = backgroundColor,
+        errorContainerColor = backgroundColor,
+    )
+
+    val rememberedPrefix = remember(prefixText, textStyle, textColor) {
+        prefixText?.let { text ->
+            @Composable {
+                Text(
+                    text = text,
+                    style = textStyle,
+                    color = textColor,
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+
+    val rememberedSuffix = remember(suffixText, textStyle, textColor) {
+        suffixText?.let { text ->
+            @Composable {
+                Text(
+                    text = text,
+                    style = textStyle,
+                    color = textColor,
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+
+    val rememberedLabel = remember(labelText, typography) {
+        @Composable {
+            if (labelText.isNotEmpty()) {
+                Text(
+                    text = labelText,
+                    style = typography.bodySmall,
+                    color = colors.primary,
+                    textAlign = TextAlign.Start
+                )
+            }
+        }
+    }
+
+    val rememberedLeadingIcon = remember(leadingIcon) {
+        leadingIcon?.let { painter ->
+            @Composable {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(Modifier.width(12.dp))
+                    Icon(
+                        painter = painter,
+                        contentDescription = null,
+                        tint = colors.onSurfaceVariant,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .then(
+                                if (isRtl) Modifier.scale(scaleX = -1f, scaleY = 1f)
+                                else Modifier
+                            )
+                    )
+
+                    Box(
+                        Modifier
+                            .padding(horizontal = 12.dp)
+                            .width(1.dp)
+                            .height(30.dp)
+                            .background(colors.outlineVariant)
+                    )
+                }
+            }
+        }
+    }
+
+    Column(modifier.thenIfNotNull(onClick) { action ->
+        clickableNoRipple {
+            focusManager.clearFocus()
+            action()
+        }
     }) {
         OutlinedTextField(
             value = value,
             onValueChange = {
-                if (it.length <= maxChars) {
+                val hasEmoji = !allowEmojis && EMOJI_REGEX.containsMatchIn(it)
+                if (it.length <= maxChars && !hasEmoji) {
                     onValueChange(it)
                 }
             },
@@ -112,53 +245,17 @@ fun CustomTextField(
             readOnly = readOnly,
             interactionSource = interaction,
             keyboardOptions = keyboardOptions,
-            keyboardActions = keyboardActions,
+            keyboardActions = effectiveKeyboardActions,
             visualTransformation = visualTransformation,
             isError = showError,
             textStyle = textStyle.copy(
                 color = textColor,
                 textAlign = TextAlign.Start
             ),
-            prefix = prefix,
-            suffix = suffix,
-            label = {
-                if (labelText.isNotEmpty()) {
-                    Text(
-                        text = labelText,
-                        style = typography.bodySmall,
-                        color = colors.primary,
-                        textAlign = TextAlign.Start
-                    )
-                }
-            },
-            leadingIcon = leadingIcon?.let { painter ->
-                {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Spacer(Modifier.width(12.dp))
-                        Icon(
-                            painter = painter,
-                            contentDescription = null,
-                            tint = colors.onSurfaceVariant,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .scale(
-                                    scaleX = if (isRtl) -1f else 1f,
-                                    scaleY = 1f
-                                )
-                        )
-
-                        Box(
-                            Modifier
-                                .padding(horizontal = 12.dp)
-                                .width(1.dp)
-                                .height(30.dp)
-                                .background(colors.outlineVariant)
-                        )
-                    }
-                }
-            },
+            prefix = rememberedPrefix,
+            suffix = rememberedSuffix,
+            label = rememberedLabel,
+            leadingIcon = rememberedLeadingIcon,
             trailingIcon = trailingIcon?.let { painter ->
                 {
                     Row(
@@ -186,72 +283,42 @@ fun CustomTextField(
                                     scaleX = if (isRtl) -1f else 1f,
                                     scaleY = 1f
                                 )
-                                .clickableNoRipple(onClick = onTrailingIconClick ?: onClick ?: {})
+                                .thenIf(onTrailingIconClick != null || onClick != null) {
+                                    clickableNoRipple {
+                                        onTrailingIconClick?.invoke() ?: onClick?.let {
+                                            focusManager.clearFocus()
+                                            it()
+                                        }
+                                    }
+                                }
                         )
                         Spacer(Modifier.width(8.dp))
                     }
                 }
             },
             shape = shape,
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = textColor,
-                unfocusedTextColor = textColor,
-                disabledTextColor = colors.onSurfaceVariant,
-                errorTextColor = textColor,
-                focusedBorderColor = colors.outline,
-                unfocusedBorderColor = colors.outlineVariant,
-                disabledBorderColor = colors.outlineVariant,
-                errorBorderColor = colors.error,
-                focusedLabelColor = colors.outline,
-                unfocusedLabelColor = colors.onSurfaceVariant,
-                disabledLabelColor = colors.onSurfaceVariant,
-                errorLabelColor = colors.error,
-                cursorColor = colors.outline,
-                errorCursorColor = colors.error,
-                focusedContainerColor = backgroundColor,
-                unfocusedContainerColor = backgroundColor,
-                disabledContainerColor = backgroundColor,
-                errorContainerColor = backgroundColor,
-            ),
+            colors = textFieldColors,
             modifier = Modifier.fillMaxWidth()
         )
-        // Animated spacer
-        AnimatedVisibility(
-            visible = !errorText.isNullOrBlank() || !supportingText.isNullOrBlank(),
-            enter = expandVertically(),
-            exit = shrinkVertically()
-        ) {
-            Spacer(modifier = Modifier.height(8.dp))
-        }
 
-        // Error text
+        val activeFooterText = if (showError) errorText else supportingText
+        val activeFooterColor = if (showError) colors.error else colors.onSurfaceVariant
+
         AnimatedVisibility(
-            visible = !errorText.isNullOrBlank(),
+            visible = !activeFooterText.isNullOrBlank(),
             enter = fadeIn() + expandVertically(),
             exit = fadeOut() + shrinkVertically()
         ) {
-            Text(
-                text = errorText ?: "",
-                color = Theme.colorScheme.error,
-                modifier = Modifier.padding(start = 16.dp),
-                style = Theme.typography.bodySmall,
-                textAlign = TextAlign.Start
-            )
-        }
-
-        // Helper text
-        AnimatedVisibility(
-            visible = !supportingText.isNullOrBlank() && errorText.isNullOrBlank(),
-            enter = fadeIn() + expandVertically(),
-            exit = fadeOut() + shrinkVertically()
-        ) {
-            Text(
-                text = supportingText ?: "",
-                color = Theme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(start = 16.dp),
-                style = Theme.typography.bodySmall,
-                textAlign = TextAlign.Start
-            )
+            Column {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = activeFooterText ?: "",
+                    color = activeFooterColor,
+                    modifier = Modifier.padding(start = 16.dp),
+                    style = typography.bodySmall,
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
 }
@@ -280,4 +347,3 @@ fun CustomTextFieldPreview() = Preview {
         )
     }
 }
-

@@ -92,6 +92,8 @@ fun RegisterScreenContent(
         onOptionSelected = onFileOptionPicked
     )
 
+    val fileOpener = com.teEcclesia.identity.presentation.util.rememberFileOpener()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -161,10 +163,34 @@ fun RegisterScreenContent(
                         2 -> RegisterStep2Content(state = state, listener = listener)
                         3 -> RegisterStep3Content(state = state, listener = listener)
                         4 -> when (state.selectedRole) {
-                            UserRole.MAKHDOOM -> RegisterStep4StudentContent(state = state, listener = listener)
+                            UserRole.MAKHDOOM -> RegisterStep4StudentContent(
+                                state = state,
+                                listener = listener,
+                                onFileClickOrdinationCertificate = {
+                                    fileOpener.openFile(
+                                        bytes = state.ordinationCertificateBytes,
+                                        fileName = state.ordinationCertificateFileName
+                                    )
+                                },
+                                onFileClickIdentityCertificate = {
+                                    fileOpener.openFile(
+                                        bytes = state.identityCertificateBytes,
+                                        fileName = state.identityCertificateFileName
+                                    )
+                                }
+                            )
                             UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
                             UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
-                            UserRole.PARENT -> RegisterStep4ParentContent(state = state, listener = listener)
+                            UserRole.PARENT -> RegisterStep4ParentContent(
+                                state = state,
+                                listener = listener,
+                                onFileClickIdentityCertificate = {
+                                    fileOpener.openFile(
+                                        bytes = state.identityCertificateBytes,
+                                        fileName = state.identityCertificateFileName
+                                    )
+                                }
+                            )
                             else -> RegisterStep4ServantContent(state = state, listener = listener)
                         }
                         5 -> RegisterStep5VerifyContent(state = state, listener = listener)

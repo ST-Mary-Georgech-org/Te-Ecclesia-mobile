@@ -26,7 +26,7 @@ fun MultiHighlightedClickableText(
     segments: List<TextSegment>,
     modifier: Modifier = Modifier,
     textStyle: TextStyle = Theme.typography.labelSmall,
-    normalColor: Color = Theme.colorScheme.onSurface,
+    normalColor: Color = Theme.colorScheme.onSurfaceVariant,
     highlightColor: Color = Theme.colorScheme.primary,
     underlineHighlight: Boolean = false,
     textAlign: TextAlign = TextAlign.Center,

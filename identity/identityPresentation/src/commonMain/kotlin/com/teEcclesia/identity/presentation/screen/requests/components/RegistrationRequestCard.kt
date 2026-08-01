@@ -29,6 +29,7 @@ import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.util.extentions.format
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.ProfileResponse
@@ -104,7 +105,7 @@ fun RegistrationRequestCard(
                 )
 
                 Text(
-                    text = requestDateTime.toString().replace("T", "  "),
+                    text = requestDateTime.format(),
                     style = Theme.typography.bodySmall,
                     color = Theme.colorScheme.onSecondaryContainer,
                     modifier = Modifier.padding(top = 2.dp)
@@ -113,7 +114,6 @@ fun RegistrationRequestCard(
                 CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         SuggestionChip(
-                            onClick = {},
                             label = {
                                 Text(
                                     text = stringResource(role.toText()),
@@ -124,7 +124,6 @@ fun RegistrationRequestCard(
                         )
                         stage?.let {
                             SuggestionChip(
-                                onClick = {},
                                 label = {
                                     Text(
                                         text = stage.name,
@@ -137,7 +136,6 @@ fun RegistrationRequestCard(
 
                         year?.let {
                             SuggestionChip(
-                                onClick = {},
                                 label = {
                                     Text(
                                         text = year.name,
@@ -151,7 +149,6 @@ fun RegistrationRequestCard(
                         shamamsaStudyStatus?.let {
                             if (shamamsaStudyStatus != ShamamsaStudyStatus.NO) {
                                 SuggestionChip(
-                                    onClick = {},
                                     label = {
                                         Text(
                                             text = stringResource(shamamsaStudyStatus.toHistory()),
@@ -215,7 +212,8 @@ private fun RegistrationRequestCardPreview() = Theme {
         kahenProfile = null,
         parentProfile = null,
         ordinationProfile = null,
-        makhdoomProfile = null
+        makhdoomProfile = null,
+        createdAt = LocalDateTime(2024, 6, 1, 12, 0)
     )
 
     Preview(darkTheme = Theme.isDarkTheme) {

@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,11 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
@@ -42,6 +39,7 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
+import com.teEcclesia.identity.presentation.shared.components.EducationalStageFields
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
@@ -61,7 +59,6 @@ fun RegisterStep4ServantContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -76,140 +73,20 @@ fun RegisterStep4ServantContent(
                 color = Theme.colorScheme.onBackground
             )
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                CustomTextField(
-                    value = state.servantEducationalStage?.name ?: "",
-                    onValueChange = {},
-                    labelText = stringResource(Res.string.educational_stage),
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        focusManager.clearFocus()
-                        listener.onToggleStageSheet(true)
-                    },
-                    readOnly = true,
-                    enabled = false,
-                    errorText = state.stageError?.asString(),
-                    trailingIcon = painterResource(Res.drawable.ic_chevron_down)
-                )
-
-                BottomSheet(
-                    isVisible = state.isStageSheetVisible,
-                    onDismiss = { listener.onToggleStageSheet(false) }
-                ) {
-                    val stageListState = rememberLazyListState()
-
-                    Text(
-                        text = stringResource(Res.string.educational_stage),
-                        style = Theme.typography.headlineSmall,
-                        color = Theme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
-
-                    LazyColumn(
-                        state = stageListState,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f, fill = false),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        items(
-                            items = state.educationalStages,
-                            key = { stage -> stage.id }
-                        ) { stage ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickableNoRipple {
-                                        listener.onSelectEducationalStage(stage)
-                                        listener.onToggleStageSheet(false)
-                                    }
-                                    .padding(vertical = 12.dp, horizontal = 16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = stage.name,
-                                    style = Theme.typography.bodyLarge,
-                                    color = Theme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                    }
-
-                    PaginationTrigger(
-                        list = state.educationalStages,
-                        listState = stageListState,
-                        remainingItemsToLoadNextPage = 5,
-                        loadNextItems = listener::onLoadNextEducationalStages
-                    )
-                }
-            }
-
-            val hasYears =
-                !state.servantEducationalStage?.subItems.isNullOrEmpty() || state.servantEducationalYear != null
-
-            AnimatedVisibility(
-                visible = hasYears,
-                enter = fadeIn() + expandVertically(),
-                exit = fadeOut() + shrinkVertically()
-            ) {
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    CustomTextField(
-                        value = state.servantEducationalYear?.name ?: "",
-                        onValueChange = {},
-                        labelText = stringResource(Res.string.educational_year),
-                        modifier = Modifier.fillMaxWidth(),
-                        onClick = {
-                            focusManager.clearFocus()
-                            listener.onToggleYearSheet(true)
-                        },
-                        readOnly = true,
-                        enabled = false,
-                        errorText = state.yearError?.asString(),
-                        trailingIcon = painterResource(Res.drawable.ic_chevron_down)
-                    )
-
-                    BottomSheet(
-                        isVisible = state.isYearSheetVisible,
-                        onDismiss = { listener.onToggleYearSheet(false) }
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.educational_year),
-                            style = Theme.typography.headlineSmall,
-                            color = Theme.colorScheme.onSurface,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f, fill = false),
-                            verticalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            items(
-                                items = state.servantEducationalStage?.subItems ?: emptyList(),
-                                key = { year -> year.id }
-                            ) { year ->
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickableNoRipple {
-                                            listener.onSelectEducationalYear(year)
-                                            listener.onToggleYearSheet(false)
-                                        }
-                                        .padding(vertical = 12.dp, horizontal = 16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = year.name,
-                                        style = Theme.typography.bodyLarge,
-                                        color = Theme.colorScheme.onSurface
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            EducationalStageFields(
+                selectedStage = state.servantEducationalStage,
+                onToggleStageSheet = listener::onToggleStageSheet,
+                isStageSheetVisible = state.isStageSheetVisible,
+                educationalStages = state.educationalStages,
+                onSelectEducationalStage = listener::onSelectEducationalStage,
+                onLoadNextEducationalStages = listener::onLoadNextEducationalStages,
+                stageError = state.stageError?.asString(),
+                selectedYear = state.servantEducationalYear,
+                onToggleYearSheet = listener::onToggleYearSheet,
+                isYearSheetVisible = state.isYearSheetVisible,
+                onSelectEducationalYear = listener::onSelectEducationalYear,
+                yearError = state.yearError?.asString()
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))

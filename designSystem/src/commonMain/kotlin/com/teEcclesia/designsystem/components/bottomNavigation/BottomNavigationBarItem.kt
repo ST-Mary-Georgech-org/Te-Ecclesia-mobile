@@ -2,8 +2,6 @@ package com.teEcclesia.designsystem.components.bottomNavigation
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,13 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 
 @Composable
@@ -34,7 +32,6 @@ fun BottomNavigationBarItem(
     val animatedIconTint by animateColorAsState(
         targetValue = if (isSelected) Theme.colorScheme.primary else Theme.colorScheme.onSurfaceVariant,
     )
-    val interactionSource = remember { MutableInteractionSource() }
 
     Column(
         verticalArrangement = Arrangement.Center,
@@ -43,10 +40,8 @@ fun BottomNavigationBarItem(
             .height(76.dp)
             .then(
                 if (isSelected) Modifier
-                else Modifier.clickable(
+                else Modifier.clickableNoRipple(
                     onClick = onClick,
-                    indication = null,
-                    interactionSource = interactionSource
                 )
             )
     ) {

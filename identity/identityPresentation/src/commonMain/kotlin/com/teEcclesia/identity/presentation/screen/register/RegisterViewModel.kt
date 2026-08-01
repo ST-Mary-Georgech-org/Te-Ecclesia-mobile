@@ -1,11 +1,11 @@
 package com.teEcclesia.identity.presentation.screen.register
 
-import androidx.lifecycle.viewModelScope
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
@@ -32,7 +32,10 @@ import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
+import com.teEcclesia.shared.domain.utils.validation.isValidApartmentInput
+import com.teEcclesia.shared.domain.utils.validation.isValidBuildingNoInput
 import com.teEcclesia.shared.domain.utils.validation.isValidEmailInput
+import com.teEcclesia.shared.domain.utils.validation.isValidFloorInput
 import com.teEcclesia.shared.domain.utils.validation.isValidFinalEmail
 import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
 import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
@@ -61,7 +64,6 @@ import teecclesia.designsystem.generated.resources.field_required
 import teecclesia.designsystem.generated.resources.invalid_arabic_name
 import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
-import teecclesia.designsystem.generated.resources.invalid_national_id_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
 
@@ -237,6 +239,8 @@ class RegisterViewModel(
                             ordinationYear = ordination?.ordinationYear?.toString() ?: "",
                             bishopName = ordination?.bishopName ?: "",
                             ordinationPlace = ordination?.ordinationPlace ?: "",
+                            ordinationCertificateFileName = ordination?.certificateImageUrl,
+                            identityCertificateFileName = makhdoom?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
 
                             kahenEducationalStages = profile.kahenProfile?.educationalStages
                                 ?: emptyList(),
@@ -256,7 +260,7 @@ class RegisterViewModel(
     }
 
     override fun onLoadNextPriests() {
-        viewModelScope.launch {
+        launch {
             if (!state.value.isPriestEndReached && !state.value.isPriestLoading) {
                 priestsPaginator.loadNextItems()
             }
@@ -264,7 +268,7 @@ class RegisterViewModel(
     }
 
     override fun onLoadNextRanks() {
-        viewModelScope.launch {
+        launch {
             if (!state.value.isRankEndReached && !state.value.isRankLoading) {
                 ranksPaginator.loadNextItems()
             }
@@ -272,7 +276,7 @@ class RegisterViewModel(
     }
 
     override fun onLoadNextEducationalStages() {
-        viewModelScope.launch {
+        launch {
             if (!state.value.isStageEndReached && !state.value.isStageLoading) {
                 stagesPaginator.loadNextItems()
             }
@@ -506,7 +510,7 @@ class RegisterViewModel(
         val streetErr =
             if (s.street.isNotBlank()) null else UiText.StringRes(Res.string.field_required)
         val areaErr =
-            if (s.selectedArea != null) null else UiText.StringRes(Res.string.field_required)
+            if (!s.selectedArea.isNullOrBlank()) null else UiText.StringRes(Res.string.field_required)
         val floorErr =
             if (s.floor.isNotBlank()) null else UiText.StringRes(Res.string.field_required)
         val markErr =
@@ -625,7 +629,7 @@ class RegisterViewModel(
     }
 
     override fun onBuildingNoChange(value: String) {
-        if (value.isEmpty() || value.length <= 5 || value.all { it.isDigit() }) {
+        if (isValidBuildingNoInput(value)) {
             updateState { copy(buildingNo = value, buildingNoError = null) }
         }
     }
@@ -682,13 +686,13 @@ class RegisterViewModel(
     }
 
     override fun onFloorChange(value: String) {
-        if (value.isEmpty() || value.length <= 2 || value.all { it.isDigit() }) {
+        if (isValidFloorInput(value)) {
             updateState { copy(floor = value, floorError = null) }
         }
     }
 
     override fun onApartmentChange(value: String) {
-        if (value.isEmpty() || value.length <= 3 || value.all { it.isDigit() }) {
+        if (isValidApartmentInput(value)) {
             updateState { copy(apartment = value) }
         }
     }
@@ -855,13 +859,14 @@ class RegisterViewModel(
             block = {
                 registerRepository.completeProfile(
                     request = request,
-                    certificateImageBytes = s.ordinationCertificateBytes
-                        ?: s.identityCertificateBytes
+                    ordinationCertificateBytes = s.ordinationCertificateBytes,
+                    identityDocumentBytes = s.identityCertificateBytes
                 )
             },
             onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
-            onSuccess = {
-                initiateWhatsAppStep5()
+            onSuccess = { res ->
+                whatsappToken = res.token
+                updateState { copy(whatsAppDeepLink = res.whatsappDeepLink, currentStep = 5) }
             },
             onError = { throwable ->
                 showSnackBar(
@@ -1083,7 +1088,7 @@ class RegisterViewModel(
 
     fun onFileOptionPicked(option: FilePickOption) {
         val target = state.value.activeUploadTarget ?: return
-        viewModelScope.launch {
+        launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
                 FilePickOption.GALLERY -> FileKit.openFilePicker(

@@ -21,10 +21,16 @@ import teecclesia.designsystem.generated.resources.error_phone_not_verified
 import teecclesia.designsystem.generated.resources.error_too_many_requests
 import teecclesia.designsystem.generated.resources.error_unauthorized
 import teecclesia.designsystem.generated.resources.error_user_not_verified
+import com.teEcclesia.shared.domain.exception.DuplicatePhoneException
+import com.teEcclesia.shared.domain.exception.ServerErrorException
+import teecclesia.designsystem.generated.resources.error_duplicate_phone_forgot_password
+import teecclesia.designsystem.generated.resources.server_error
 import teecclesia.designsystem.generated.resources.unknown_error
 
 fun getLocalizedErrorMessage(throwable: Throwable?): UiText {
     return when (throwable) {
+        is DuplicatePhoneException -> UiText.StringRes(Res.string.error_duplicate_phone_forgot_password)
+        is ServerErrorException -> UiText.StringRes(Res.string.server_error)
         is UsernameOrPhoneNumberAlreadyExistsException -> UiText.StringRes(Res.string.error_account_already_exists)
         is PhoneNotVerifiedException -> UiText.StringRes(Res.string.error_phone_not_verified)
         is EmailNotVerifiedException -> UiText.StringRes(Res.string.error_email_not_verified)

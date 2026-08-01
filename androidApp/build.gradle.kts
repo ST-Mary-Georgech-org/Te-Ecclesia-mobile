@@ -32,14 +32,14 @@ android {
     }
 
     signingConfigs {
-        if (project.hasProperty("KEYSTORE_STORE_FILE") || System.getenv("KEYSTORE_STORE_FILE") != null) {
+        if (localProperties.containsKey("KEYSTORE_STORE_FILE") || project.hasProperty("KEYSTORE_STORE_FILE") || System.getenv("KEYSTORE_STORE_FILE") != null) {
             create("release") {
                 val keystorePath = project.loadProperty(
                     path = "local.properties",
                     propertyName = "KEYSTORE_STORE_FILE",
                 )
 
-                storeFile = file(keystorePath)
+                storeFile = rootProject.file(keystorePath)
                 storePassword = project.loadProperty("local.properties", "KEYSTORE_STORE_PASSWORD")
                 keyAlias = project.loadProperty("local.properties", "KEYSTORE_KEY_ALIAS")
                 keyPassword = project.loadProperty("local.properties", "KEYSTORE_KEY_PASSWORD")
@@ -65,6 +65,11 @@ android {
                 signingConfig = signingConfigs.getByName("release")
             }
 
+            ndk {
+                debugSymbolLevel = "FULL"
+                abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
+            }
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -81,6 +86,7 @@ kotlin {
 
 dependencies {
     implementation(projects.teEcclesiaApp)
+    implementation(projects.designSystem)
     implementation(projects.identity.identityDomain)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
@@ -91,6 +97,8 @@ dependencies {
 
     implementation(libs.koin.android)
     implementation(libs.koin.core)
+    implementation(libs.mmkv)
+    implementation(libs.kmpnotifier)
 }
 
 fun Project.loadProperty(

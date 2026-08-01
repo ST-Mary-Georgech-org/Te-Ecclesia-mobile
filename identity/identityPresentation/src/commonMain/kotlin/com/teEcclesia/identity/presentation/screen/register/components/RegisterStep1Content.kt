@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +26,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,11 +34,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
+import com.teEcclesia.identity.presentation.shared.components.ConfessionPriestField
+import com.teEcclesia.identity.presentation.shared.components.FourNamesFields
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
@@ -84,7 +82,6 @@ fun RegisterStep1Content(
     state: RegisterScreenState,
     listener: RegisterInteractionListener
 ) {
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -115,55 +112,20 @@ fun RegisterStep1Content(
                 color = Theme.colorScheme.onSurfaceVariant
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CustomTextField(
-                    value = state.firstName,
-                    onValueChange = listener::onFirstNameChange,
-                    labelText = stringResource(Res.string.first_name),
-                    modifier = Modifier.weight(1f),
-                    errorText = state.firstNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-
-                CustomTextField(
-                    value = state.secondName,
-                    onValueChange = listener::onSecondNameChange,
-                    labelText = stringResource(Res.string.second_name),
-                    modifier = Modifier.weight(1f),
-                    errorText = state.secondNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                CustomTextField(
-                    value = state.thirdName,
-                    onValueChange = listener::onThirdNameChange,
-                    labelText = stringResource(Res.string.third_name),
-                    modifier = Modifier.weight(1f),
-                    errorText = state.thirdNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-
-                CustomTextField(
-                    value = state.lastName,
-                    onValueChange = listener::onLastNameChange,
-                    labelText = stringResource(Res.string.last_name),
-                    modifier = Modifier.weight(1f),
-                    errorText = state.lastNameError?.asString(),
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                )
-            }
+            FourNamesFields(
+                firstName = state.firstName,
+                onFirstNameChange = listener::onFirstNameChange,
+                firstNameError = state.firstNameError?.asString(),
+                secondName = state.secondName,
+                onSecondNameChange = listener::onSecondNameChange,
+                secondNameError = state.secondNameError?.asString(),
+                thirdName = state.thirdName,
+                onThirdNameChange = listener::onThirdNameChange,
+                thirdNameError = state.thirdNameError?.asString(),
+                lastName = state.lastName,
+                onLastNameChange = listener::onLastNameChange,
+                lastNameError = state.lastNameError?.asString()
+            )
 
             CustomTextField(
                 value = state.displayName,
@@ -198,160 +160,26 @@ fun RegisterStep1Content(
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done)
             )
 
-            Box(modifier = Modifier.fillMaxWidth()) {
-                val priestText = when {
-                    state.isFromAnotherChurch -> stringResource(Res.string.from_another_church)
-                    state.selectedConfessionPriest != null -> state.selectedConfessionPriest.name
-                    else -> ""
-                }
-
-                val interactionSource = remember { MutableInteractionSource() }
-
-                LaunchedEffect(interactionSource) {
-                    interactionSource.interactions.collect { interaction ->
-                        if (interaction is PressInteraction.Release) {
-                            listener.onTogglePriestSheet(true)
-                        }
-                    }
-                }
-
-                CustomTextField(
-                    value = priestText,
-                    onValueChange = {},
-                    labelText = stringResource(Res.string.confession_priest),
-                    modifier = Modifier.fillMaxWidth(),
-                    readOnly = true,
-                    enabled = false,
-                    errorText = state.confessionPriestError?.asString(),
-                    trailingIcon = painterResource(Res.drawable.ic_chevron_down),
-                    onClick = {
-                        focusManager.clearFocus()
-                        listener.onTogglePriestSheet(true)
-                    }
-                )
-
-                BottomSheet(
-                isVisible = state.isPriestSheetVisible,
-                onDismiss = { listener.onTogglePriestSheet(false) }
-            ) {
-                val priestListState = rememberLazyListState()
-
-                Text(
-                    text = stringResource(Res.string.confession_priest),
-                    style = Theme.typography.headlineSmall,
-                    color = Theme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                LazyColumn(
-                    state = priestListState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(
-                        items = state.confessionPriests,
-                        key = { priest -> priest.id }
-                    ) { priest ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickableNoRipple {
-                                    listener.onSelectConfessionPriest(priest)
-                                    listener.onTogglePriestSheet(false)
-                                }
-                                .padding(vertical = 12.dp, horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = priest.name,
-                                style = Theme.typography.bodyLarge,
-                                color = Theme.colorScheme.onSurface
-                            )
-                        }
-                    }
-
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickableNoRipple {
-                                    listener.onSelectFromAnotherChurch()
-                                    listener.onTogglePriestSheet(false)
-                                }
-                                .padding(vertical = 12.dp, horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.from_another_church),
-                                style = Theme.typography.bodyLarge,
-                                color = Theme.colorScheme.primary
-                            )
-                        }
-                    }
-                }
-
-                PaginationTrigger(
-                    list = state.confessionPriests,
-                    listState = priestListState,
-                    remainingItemsToLoadNextPage = 5,
-                    loadNextItems = listener::onLoadNextPriests
-                )
-            }
-        }
-
-        AnimatedVisibility(
-            visible = state.isFromAnotherChurch,
-            enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    CustomTextField(
-                        value = state.externalPriestName,
-                        onValueChange = listener::onExternalPriestNameChange,
-                        labelText = stringResource(Res.string.confession_priest_name),
-                        modifier = Modifier.fillMaxWidth(),
-                        errorText = state.externalPriestNameError?.asString(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                    )
-
-                    CustomTextField(
-                        value = state.externalPriestChurch,
-                        onValueChange = listener::onExternalPriestChurchChange,
-                        labelText = stringResource(Res.string.confession_priest_church),
-                        modifier = Modifier.fillMaxWidth(),
-                        errorText = state.externalPriestChurchError?.asString(),
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
-                    )
-
-                    val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
-
-                    CustomTextField(
-                        value = state.externalPriestPhone,
-                        onValueChange = listener::onExternalPriestPhoneChange,
-                        labelText = stringResource(Res.string.confession_priest_phone),
-                        modifier = Modifier.fillMaxWidth(),
-                        errorText = state.externalPriestPhoneError?.asString(),
-                        singleLine = true,
-                        textStyle = Theme.typography.bodyLarge.copy(
-                            textDirection = TextDirection.Ltr
-                        ),
-                        prefix = if (!isRtl) {
-                            { Text("+2", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                        } else null,
-                        suffix = if (isRtl) {
-                            { Text("2+", style = Theme.typography.bodyLarge, color = Theme.colorScheme.onSurface) }
-                        } else null,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done)
-                    )
-                }
-            }
+            ConfessionPriestField(
+                selectedPriestName = state.selectedConfessionPriest?.name ?: "",
+                isFromAnotherChurch = state.isFromAnotherChurch,
+                isPriestSheetVisible = state.isPriestSheetVisible,
+                confessionPriests = state.confessionPriests,
+                confessionPriestError = state.confessionPriestError?.asString(),
+                externalPriestName = state.externalPriestName,
+                externalPriestNameError = state.externalPriestNameError?.asString(),
+                externalPriestChurch = state.externalPriestChurch,
+                externalPriestChurchError = state.externalPriestChurchError?.asString(),
+                externalPriestPhone = state.externalPriestPhone,
+                externalPriestPhoneError = state.externalPriestPhoneError?.asString(),
+                onTogglePriestSheet = listener::onTogglePriestSheet,
+                onSelectConfessionPriest = listener::onSelectConfessionPriest,
+                onSelectFromAnotherChurch = listener::onSelectFromAnotherChurch,
+                onLoadNextPriests = listener::onLoadNextPriests,
+                onExternalPriestNameChange = listener::onExternalPriestNameChange,
+                onExternalPriestChurchChange = listener::onExternalPriestChurchChange,
+                onExternalPriestPhoneChange = listener::onExternalPriestPhoneChange
+            )
         }
 
         Spacer(modifier = Modifier.height(32.dp))

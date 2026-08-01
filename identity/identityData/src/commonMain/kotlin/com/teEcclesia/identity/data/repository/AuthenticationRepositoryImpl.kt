@@ -3,7 +3,11 @@ package com.teEcclesia.identity.data.repository
 import com.russhwolf.settings.Settings
 import com.teEcclesia.identity.data.dataSource.local.setting.accessToken
 import com.teEcclesia.identity.data.dataSource.local.setting.canApproveRequests
+import com.teEcclesia.identity.data.dataSource.local.setting.khademStageId
+import com.teEcclesia.identity.data.dataSource.local.setting.khademYearId
 import com.teEcclesia.identity.data.dataSource.local.setting.refreshToken
+import com.teEcclesia.identity.data.dataSource.local.setting.responsibleStageIds
+import com.teEcclesia.identity.data.dataSource.local.setting.responsibleYearIds
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
@@ -21,6 +25,8 @@ import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.exception.UnAuthorizedException
 import com.teEcclesia.shared.domain.exception.UserIsBlockedException
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -29,6 +35,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.cancellation.CancellationException
 
 class AuthenticationRepositoryImpl(
     client: HttpClient,
@@ -40,6 +47,8 @@ class AuthenticationRepositoryImpl(
         MutableStateFlow(getInitialAuthState())
     private val observableRequestsAccess: MutableStateFlow<Boolean> =
         MutableStateFlow(calculateRequestsAccess())
+    private val observableAttendanceAccess: MutableStateFlow<Boolean> =
+        MutableStateFlow(calculateAttendanceAccess())
 
     private fun calculateRequestsAccess(): Boolean {
         val roleStr = settings.userRole
@@ -49,8 +58,16 @@ class AuthenticationRepositoryImpl(
         return role == UserRole.ADMIN || (role == UserRole.KHADEM && canApprove)
     }
 
+    private fun calculateAttendanceAccess(): Boolean {
+        val roleStr = settings.userRole
+        val role =
+            if (roleStr.isBlank()) null else runCatching { UserRole.valueOf(roleStr) }.getOrNull()
+        return role == UserRole.ADMIN || role == UserRole.KHADEM
+    }
+
     private fun updateRequestsAccess() {
         observableRequestsAccess.value = calculateRequestsAccess()
+        observableAttendanceAccess.value = calculateAttendanceAccess()
     }
 
     private fun getInitialToken(): String = settings.accessToken
@@ -70,9 +87,10 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun login(request: LoginRequest) {
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
         val response = tryToExecute<AuthenticationResponse> {
             post(LOGIN_ENDPOINT) {
-                setBody(request.toDto())
+                setBody(request.toDto(deviceToken))
             }
         }
 
@@ -81,10 +99,11 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
         withContext(NonCancellable) {
             tryToExecute<Unit> {
                 post(LOGOUT_ENDPOINT) {
-                    setBody(RefreshRequestDto(settings.refreshToken))
+                    setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
                 }
             }
             clearAuthState()
@@ -94,9 +113,10 @@ class AuthenticationRepositoryImpl(
     override suspend fun refreshAccessToken(): String {
         return withContext(NonCancellable) {
             try {
+                val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
                 val response = tryToExecute<AuthenticationResponse> {
                     post(REFRESH_ENDPOINT) {
-                        setBody(RefreshRequestDto(settings.refreshToken))
+                        setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
                     }
                 }
                 saveTokens(response.toDomain())
@@ -118,13 +138,25 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun refreshRegistrationToken(): String {
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
         val response = tryToExecute<AuthenticationResponse> {
             post(REFRESH_REGISTRATION_ENDPOINT) {
-                setBody(RefreshRequestDto(settings.refreshToken))
+                setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
             }
         }
         saveRegistrationToken(response.accessToken, response.refreshToken)
         return settings.accessToken
+    }
+
+    override suspend fun upgradeRegistrationToken(): String {
+        return withContext(NonCancellable) {
+            val response = tryToExecute<AuthenticationResponse> {
+                post(UPGRADE_REGISTRATION_TOKEN_ENDPOINT)
+            }
+            saveTokens(response.toDomain())
+            client.invalidateAuthTokens()
+            settings.accessToken
+        }
     }
 
     override suspend fun getAccessToken(): String = settings.accessToken
@@ -145,14 +177,20 @@ class AuthenticationRepositoryImpl(
         settings.userRole = ""
         settings.userStatus = ""
         settings.canApproveRequests = false
+        settings.khademStageId = -1L
+        settings.khademYearId = -1L
+        settings.responsibleStageIds = ""
+        settings.responsibleYearIds = ""
         emitToken("")
         observableAuthState.emit(AuthState.UNAUTHENTICATED)
         updateRequestsAccess()
     }
 
     override suspend fun saveUserRole(role: UserRole) {
-        settings.userRole = role.name
-        updateRequestsAccess()
+        if (settings.userRole != role.name) {
+            settings.userRole = role.name
+            updateRequestsAccess()
+        }
     }
 
     override suspend fun getUserRole(): UserRole? {
@@ -166,18 +204,56 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun saveUserStatus(status: UserStatus) {
-        settings.userStatus = status.name
+        if (settings.userStatus != status.name) {
+            settings.userStatus = status.name
+        }
     }
 
-    override suspend fun getUserStatus(): UserStatus? {
+    override fun getUserStatus(): UserStatus? {
         val statusStr = settings.userStatus
         if (statusStr.isBlank()) return null
         return runCatching { UserStatus.valueOf(statusStr) }.getOrNull()
     }
 
     override suspend fun saveCanApproveRequests(canApprove: Boolean) {
-        settings.canApproveRequests = canApprove
-        updateRequestsAccess()
+        if (settings.canApproveRequests != canApprove) {
+            settings.canApproveRequests = canApprove
+            updateRequestsAccess()
+        }
+    }
+
+    override fun getKhademStageId(): Long? {
+        val id = settings.khademStageId
+        return if (id == -1L) null else id
+    }
+
+    override fun getKhademYearId(): Long? {
+        val id = settings.khademYearId
+        return if (id == -1L) null else id
+    }
+
+    override fun getResponsibleStageIds(): List<Long> {
+        val str = settings.responsibleStageIds
+        if (str.isBlank()) return emptyList()
+        return str.split(",").mapNotNull { it.trim().toLongOrNull() }
+    }
+
+    override fun getResponsibleYearIds(): List<Long> {
+        val str = settings.responsibleYearIds
+        if (str.isBlank()) return emptyList()
+        return str.split(",").mapNotNull { it.trim().toLongOrNull() }
+    }
+
+    override fun saveKhademAuthorizationDetails(
+        stageId: Long?,
+        yearId: Long?,
+        responsibleStageIds: List<Long>,
+        responsibleYearIds: List<Long>
+    ) {
+        settings.khademStageId = stageId ?: -1L
+        settings.khademYearId = yearId ?: -1L
+        settings.responsibleStageIds = responsibleStageIds.joinToString(",")
+        settings.responsibleYearIds = responsibleYearIds.joinToString(",")
     }
 
     override suspend fun getCanApproveRequests(): Boolean {
@@ -191,6 +267,7 @@ class AuthenticationRepositoryImpl(
         client.invalidateAuthTokens()
         emitToken(token)
         observableAuthState.emit(AuthState.REGISTRATION_PENDING)
+        syncDeviceTokenIfAvailable()
     }
 
     override suspend fun isRegistrationPending(): Boolean {
@@ -203,15 +280,19 @@ class AuthenticationRepositoryImpl(
     override suspend fun updateDeviceToken(deviceToken: String) {
         val refreshToken = settings.refreshToken
         if (refreshToken.isNotBlank()) {
-            tryToExecute<Unit> {
-                patch(DEVICE_TOKEN_ENDPOINT) {
-                    setBody(
-                        UpdateDeviceTokenRequestDto(
-                            refreshToken = refreshToken,
-                            deviceToken = deviceToken
+            try {
+                tryToExecute<Unit> {
+                    patch(DEVICE_TOKEN_ENDPOINT) {
+                        setBody(
+                            UpdateDeviceTokenRequestDto(
+                                refreshToken = refreshToken,
+                                deviceToken = deviceToken
+                            )
                         )
-                    )
+                    }
                 }
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
             }
         }
     }
@@ -221,6 +302,8 @@ class AuthenticationRepositoryImpl(
     override fun observeAuthState(): StateFlow<AuthState> = observableAuthState
 
     override fun observeRequestsAccess(): StateFlow<Boolean> = observableRequestsAccess
+
+    override fun observeAttendanceAccess(): StateFlow<Boolean> = observableAttendanceAccess
 
     override suspend fun saveAuthTokens(authTokens: AuthenticationTokens) {
         saveTokens(authTokens)
@@ -233,6 +316,16 @@ class AuthenticationRepositoryImpl(
             observableAuthState.emit(
                 if (authTokens.accessToken.isNotBlank()) AuthState.AUTHENTICATED else AuthState.UNAUTHENTICATED
             )
+        }
+        if (authTokens.accessToken.isNotBlank() && authTokens.refreshToken.isNotBlank()) {
+            syncDeviceTokenIfAvailable()
+        }
+    }
+
+    private suspend fun syncDeviceTokenIfAvailable() {
+        val deviceToken = runCatching { KMPNotifier.firebasePushNotifier.getToken() }.getOrNull()
+        if (!deviceToken.isNullOrBlank()) {
+            updateDeviceToken(deviceToken)
         }
     }
 
@@ -249,6 +342,7 @@ class AuthenticationRepositoryImpl(
         const val LOGIN_ENDPOINT = "api/v1/identity/auth/login"
         const val REFRESH_ENDPOINT = "api/v1/identity/auth/refresh"
         const val REFRESH_REGISTRATION_ENDPOINT = "api/v1/identity/auth/refresh-registration"
+        const val UPGRADE_REGISTRATION_TOKEN_ENDPOINT = "api/v1/identity/auth/upgrade-registration-token"
         const val LOGOUT_ENDPOINT = "api/v1/identity/auth/logout"
         const val DEVICE_TOKEN_ENDPOINT = "api/v1/identity/auth/device-token"
     }

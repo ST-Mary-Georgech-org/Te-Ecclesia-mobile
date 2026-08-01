@@ -47,6 +47,7 @@ class KmpFeatureDataConventionPlugin : Plugin<Project> {
                         dependencies {
                             implementation(libs.findLibrary("koin-android").get())
                             implementation(libs.findLibrary("ktor-client-okhttp").get())
+                            implementation(libs.findLibrary("mmkv").get())
                         }
                     }
                     if (name == "iosMain") {

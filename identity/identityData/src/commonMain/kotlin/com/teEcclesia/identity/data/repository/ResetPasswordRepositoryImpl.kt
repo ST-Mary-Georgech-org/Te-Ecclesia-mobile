@@ -13,6 +13,9 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
+
 class ResetPasswordRepositoryImpl(
     client: HttpClient
 ) : BaseRepository(client), ResetPasswordRepository {
@@ -26,7 +29,8 @@ class ResetPasswordRepositoryImpl(
         return response.toDomain()
     }
 
-    override suspend fun verifyOTPCode(key: String, otp: String, method: VerificationMethod, deviceToken: String?) {
+    override suspend fun verifyOTPCode(key: String, otp: String, method: VerificationMethod) {
+        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
         tryToExecute<Unit> {
             post(RESET_PASSWORD_VERIFY_OTP) {
                 setBody(VerifyOtpRequestDto(key = key, otp = otp, method = method, deviceToken = deviceToken))

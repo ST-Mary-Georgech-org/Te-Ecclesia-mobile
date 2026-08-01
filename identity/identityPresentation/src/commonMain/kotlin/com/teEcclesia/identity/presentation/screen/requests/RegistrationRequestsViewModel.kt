@@ -3,7 +3,9 @@ package com.teEcclesia.identity.presentation.screen.requests
 import androidx.lifecycle.viewModelScope
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.identity.domain.model.UserRole
+
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
@@ -81,7 +83,7 @@ class RegistrationRequestsViewModel(
     }
 
     private fun loadRequests() {
-        viewModelScope.launch {
+        launch {
             updateState { it.copy(page = 0, requests = emptyList()) }
             requestsPaginator.reset()
             requestsPaginator.loadNextItems()
@@ -91,7 +93,7 @@ class RegistrationRequestsViewModel(
     override fun onSearchQueryChanged(query: String) {
         updateState { it.copy(searchQuery = query) }
         searchJob?.cancel()
-        searchJob = viewModelScope.launch {
+        searchJob = launch {
             delay(500.milliseconds)
             loadRequests()
         }
@@ -113,7 +115,7 @@ class RegistrationRequestsViewModel(
 
     override fun onLoadMore() {
         if (!state.value.isLastPage && !state.value.isPagingLoading && !state.value.isLoading) {
-            viewModelScope.launch {
+            launch {
                 requestsPaginator.loadNextItems()
             }
         }
@@ -158,7 +160,12 @@ class RegistrationRequestsViewModel(
         )
     }
 
+    override fun onRequestClicked(userId: String) {
+        navigate(ReviewAndEditRequestRoute(userId))
+    }
+
     override fun onClickBack() {
         popBackStack()
     }
 }
+

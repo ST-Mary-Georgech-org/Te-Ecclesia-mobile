@@ -1,5 +1,6 @@
 package com.teEcclesia
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -7,6 +8,9 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.mmk.kmpnotifier.KMPNotifier
+import com.mmk.kmpnotifier.extensions.onCreateOrOnNewIntent
+import com.mmk.kmpnotifier.permission.permissionUtil
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.init
@@ -23,17 +27,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         localizer.applyLocaleToContext()
+        KMPNotifier.onCreateOrOnNewIntent(intent)
+        val permissionUtil by permissionUtil()
+        permissionUtil.askNotificationPermission()
 
         setContent {
             App()
         }
     }
 
-    override fun onWindowFocusChanged(hasFocus: Boolean) {
-        super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) {
-            window.decorView.requestFocus()
-        }
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        KMPNotifier.onCreateOrOnNewIntent(intent)
     }
 }
 

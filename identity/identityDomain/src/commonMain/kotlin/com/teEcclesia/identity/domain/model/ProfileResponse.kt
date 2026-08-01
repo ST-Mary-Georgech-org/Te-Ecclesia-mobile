@@ -1,7 +1,10 @@
 package com.teEcclesia.identity.domain.model
 
+import kotlinx.datetime.LocalDateTime
+
 data class ProfileResponse(
     val id: String,
+    val code: String = "",
     val firstName: String,
     val secondName: String,
     val thirdName: String,
@@ -36,6 +39,6 @@ data class ProfileResponse(
     val parentProfile: ParentProfileResponse?,
     val ordinationProfile: OrdinationProfileResponse?,
     val makhdoomProfile: MakhdoomProfileResponse?,
-    val createdAt: String? = null,
+    val createdAt: LocalDateTime,
     val actionTakenAt: String? = null
 )

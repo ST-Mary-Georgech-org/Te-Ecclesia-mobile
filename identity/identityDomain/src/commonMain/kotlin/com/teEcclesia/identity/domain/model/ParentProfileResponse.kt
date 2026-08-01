@@ -1,6 +1,7 @@
 package com.teEcclesia.identity.domain.model
 
 data class ParentProfileResponse(
-    val partner: UserSummaryResponse?,
-    val children: List<UserSummaryResponse>
+    val partner: UserSummary?,
+    val children: List<UserSummary>,
+    val nationalIdImageUrl: String? = null
 )

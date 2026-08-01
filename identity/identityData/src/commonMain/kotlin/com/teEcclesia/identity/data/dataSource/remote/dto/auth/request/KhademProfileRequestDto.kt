@@ -9,10 +9,19 @@ data class KhademProfileRequestDto(
     @SerialName("educationalStageId")
     val educationalStageId: Long,
     @SerialName("educationalYearId")
-    val educationalYearId: Long? = null
+    val educationalYearId: Long? = null,
+    @SerialName("canApproveRequests")
+    val canApproveRequests: Boolean = false,
+    @SerialName("responsibleStageIds")
+    val responsibleStageIds: List<Long> = emptyList(),
+    @SerialName("responsibleYearIds")
+    val responsibleYearIds: List<Long> = emptyList()
 )
 
 fun KhademProfileRequest.toDto() = KhademProfileRequestDto(
     educationalStageId = educationalStageId,
-    educationalYearId = educationalYearId
+    educationalYearId = educationalYearId,
+    canApproveRequests = canApproveRequests,
+    responsibleStageIds = responsibleStageIds,
+    responsibleYearIds = responsibleYearIds
 )

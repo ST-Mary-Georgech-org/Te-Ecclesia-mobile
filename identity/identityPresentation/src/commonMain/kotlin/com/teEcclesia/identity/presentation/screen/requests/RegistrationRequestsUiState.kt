@@ -17,7 +17,7 @@ import teecclesia.designsystem.generated.resources.history
 import teecclesia.designsystem.generated.resources.history_long
 
 data class RegistrationRequestsUiState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val isError: Boolean = false,
     val isPagingLoading: Boolean = false,

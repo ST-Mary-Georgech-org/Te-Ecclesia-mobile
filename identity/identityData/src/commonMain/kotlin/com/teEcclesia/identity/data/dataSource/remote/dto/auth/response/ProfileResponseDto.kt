@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.data.dataSource.remote.dto.auth.response
 
+import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.UserStatus
@@ -9,11 +10,14 @@ import kotlinx.serialization.Serializable
 
 import com.teEcclesia.identity.data.dto.PriestDto
 import com.teEcclesia.identity.data.dto.toDomain
+import com.teEcclesia.shared.domain.utils.getNow
 
 @Serializable
 data class ProfileResponseDto(
     @SerialName("id")
     val id: String,
+    @SerialName("code")
+    val code: String? = null,
     @SerialName("firstName")
     val firstName: String,
     @SerialName("secondName")
@@ -90,6 +94,7 @@ data class ProfileResponseDto(
 
 fun ProfileResponseDto.toDomain() = ProfileResponse(
     id = id,
+    code = code.orEmpty(),
     firstName = firstName,
     secondName = secondName,
     thirdName = thirdName,
@@ -124,6 +129,6 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     parentProfile = parentProfile?.toDomain(),
     ordinationProfile = ordinationProfile?.toDomain(),
     makhdoomProfile = makhdoomProfile?.toDomain(),
-    createdAt = createdAt,
+    createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow(),
     actionTakenAt = actionTakenAt
 )
