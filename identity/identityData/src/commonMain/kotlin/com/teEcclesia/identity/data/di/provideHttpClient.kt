@@ -136,7 +136,6 @@ internal fun provideHttpClient(
         }
         install(HttpRequestRetry) {
             maxRetries = 2
-            retryOnServerErrors(maxRetries = 2)
             retryOnException(maxRetries = 2, retryOnTimeout = true)
             exponentialDelay()
         }
@@ -152,7 +151,6 @@ internal fun provideCoilClient(): HttpClient {
         }
         install(HttpRequestRetry) {
             maxRetries = 2
-            retryOnServerErrors(maxRetries = 2)
             retryOnException(maxRetries = 2, retryOnTimeout = true)
             exponentialDelay()
         }

@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -86,7 +87,7 @@ fun VerifyEmailResetPasswordContent(
                 otpLength = 4,
                 errorText = state.otpError?.asString(),
                 onOtpModified = interactionListener::onOtpChange,
-                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp)
+                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp).testTag("OtpInput")
             )
         }
 
@@ -99,7 +100,7 @@ fun VerifyEmailResetPasswordContent(
                 AppButton(
                     type = AppButtonType.Primary,
                     onClick = interactionListener::onVerifyCodeClicked,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("VerifyCodeButton"),
                     text = stringResource(Res.string.verify_code),
                     state = state.actionButtonState
                 )

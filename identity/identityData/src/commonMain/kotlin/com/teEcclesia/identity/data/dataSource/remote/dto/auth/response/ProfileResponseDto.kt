@@ -10,6 +10,7 @@ import kotlinx.serialization.Serializable
 
 import com.teEcclesia.identity.data.dto.PriestDto
 import com.teEcclesia.identity.data.dto.toDomain
+import com.teEcclesia.identity.domain.model.CachedProfile
 import com.teEcclesia.shared.domain.utils.getNow
 
 @Serializable
@@ -131,4 +132,12 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     makhdoomProfile = makhdoomProfile?.toDomain(),
     createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow(),
     actionTakenAt = actionTakenAt
+)
+
+fun ProfileResponseDto.toCachedProfile() = CachedProfile(
+    role = role,
+    fullName = fullName,
+    displayName = displayName,
+    code = code.orEmpty(),
+    imageUrl = imageUrl
 )

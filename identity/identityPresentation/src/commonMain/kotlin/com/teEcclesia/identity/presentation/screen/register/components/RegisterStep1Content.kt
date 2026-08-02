@@ -109,6 +109,7 @@ fun RegisterStep1Content(
                 modifier = Modifier.fillMaxWidth(),
                 errorText = state.displayNameError?.asString(),
                 singleLine = true,
+                allowEmojis = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 

@@ -156,7 +156,7 @@ private fun RegistrationRequestsContent(
                     }
                 } else {
                     items(state.requests, key = { it.id }) { request ->
-                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Box(modifier = Modifier.padding(horizontal = 16.dp).animateItem()) {
                             RegistrationRequestCard(
                                 onClick = { listener.onRequestClicked(request.id) },
                                 imageUrl = request.imageUrl,

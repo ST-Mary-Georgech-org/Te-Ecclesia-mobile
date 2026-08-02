@@ -609,7 +609,7 @@ class ReviewAndEditRequestViewModel(
                 },
                 onSuccess = {
                     updateState { it.copy(isSubmitting = false) }
-                    popBackStack()
+                    popBackStack("handledUserId" to userId)
                 },
                 onError = { throwable ->
                     updateState { it.copy(isSubmitting = false) }
@@ -636,7 +636,7 @@ class ReviewAndEditRequestViewModel(
                         message = UiText.StringRes(Res.string.user_created_successfully),
                         isSuccess = true
                     )
-                    popBackStack()
+                    popBackStack("handledUserId" to userId.orEmpty())
                 },
                 onError = { throwable ->
                     updateState { it.copy(isSubmitting = false) }
@@ -661,7 +661,7 @@ class ReviewAndEditRequestViewModel(
             block = { profileRepository.rejectUser(uid, reason.trim()) },
             onSuccess = {
                 updateState { it.copy(isSubmitting = false) }
-                popBackStack()
+                popBackStack("handledUserId" to uid)
             },
             onError = { throwable ->
                 updateState { it.copy(isSubmitting = false) }

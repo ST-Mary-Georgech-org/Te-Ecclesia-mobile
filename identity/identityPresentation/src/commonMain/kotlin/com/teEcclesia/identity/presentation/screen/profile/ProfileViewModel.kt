@@ -32,7 +32,7 @@ class ProfileViewModel(
 
     private fun observeCachedProfile() {
         tryToCollect(
-            block = { profileRepository.observeCachedProfile() },
+            block = { settingsRepository.observeCachedProfile() },
             onEach = { cached ->
                 if (cached != null) {
                     updateState {

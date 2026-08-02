@@ -29,6 +29,7 @@ android {
 
         val baseUrl = localProperties.getProperty("BASE_URL", "")
         buildConfigField("String", "BASE_URL", "\"${baseUrl}\"")
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -75,6 +76,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+        getByName("debug") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
     }
 }
 
@@ -92,6 +101,10 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+
+    // Compose UI Testing
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.0")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
 
     implementation(libs.filekit.compose)
 

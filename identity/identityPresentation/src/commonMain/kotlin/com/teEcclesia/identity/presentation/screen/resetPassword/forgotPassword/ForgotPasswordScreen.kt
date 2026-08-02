@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextDirection
@@ -125,7 +126,7 @@ fun ForgotPasswordContent(
                         value = state.identifier,
                         onValueChange = interactionListener::onIdentifierChange,
                         labelText = stringResource(Res.string.phone_or_verified_email),
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth().testTag("IdentifierInput"),
                         errorText = state.identifierError?.asString(),
                         supportingText = stringResource(Res.string.phone_or_verified_email_supporting_text),
                         textStyle = if (isPhoneInput) {
@@ -163,7 +164,7 @@ fun ForgotPasswordContent(
                 AppButton(
                     type = AppButtonType.Primary,
                     onClick = interactionListener::onNextClicked,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("NextButton"),
                     text = stringResource(Res.string.next),
                     state = state.actionButtonState
                 )

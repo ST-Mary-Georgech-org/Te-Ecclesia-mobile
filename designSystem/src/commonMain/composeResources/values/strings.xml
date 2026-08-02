@@ -249,6 +249,8 @@
     <string name="failed_to_verify_code">Failed to verify code</string>
     <string name="failed_to_reset_password">Failed to reset password</string>
 
+    <string name="verification_pending">Verification pending</string>
+
     <!-- Attendance Keys -->
     <string name="attendance_registration">Attendance Registration</string>
     <string name="services">Services</string>

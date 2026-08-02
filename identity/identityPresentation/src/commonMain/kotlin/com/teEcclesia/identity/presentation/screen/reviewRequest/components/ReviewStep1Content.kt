@@ -111,6 +111,7 @@ fun ReviewStep1Content(
                 errorText = state.displayNameError?.asString(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                allowEmojis = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 

@@ -28,50 +28,21 @@ import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.service.AuthorizationService
 
-import com.russhwolf.settings.Settings
-import com.teEcclesia.identity.data.dataSource.local.setting.cachedProfileJson
-import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.CachedProfileDto
-import com.teEcclesia.identity.domain.model.CachedProfile
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.teEcclesia.identity.domain.repository.SettingsRepository
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toCachedProfile
 
 class ProfileRepositoryImpl(
     client: HttpClient,
-    private val settings: Settings,
+    private val settingsRepository: SettingsRepository,
     private val authorizationService: AuthorizationService
 ) : BaseRepository(client), ProfileRepository {
-
-    private val _cachedProfileFlow = MutableStateFlow(readCachedProfileFromSettings())
-
-    private fun readCachedProfileFromSettings(): CachedProfile? {
-        val cachedJson = settings.cachedProfileJson
-        if (cachedJson.isBlank()) return null
-        return try {
-            Json.decodeFromString<CachedProfileDto>(cachedJson).toDomain()
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    override fun observeCachedProfile(): StateFlow<CachedProfile?> = _cachedProfileFlow.asStateFlow()
-
-    override fun getCachedProfile(): CachedProfile? = _cachedProfileFlow.value
 
     override suspend fun getRegistrationProfile(): ProfileResponse {
         val response = tryToExecute<ProfileResponseDto> {
             get(GET_ME_ENDPOINT)
         }
-        val cachedDto = CachedProfileDto(
-            role = response.role,
-            fullName = response.fullName,
-            displayName = response.displayName,
-            code = response.code.orEmpty(),
-            imageUrl = response.imageUrl
-        )
-        val domainCached = cachedDto.toDomain()
-        settings.cachedProfileJson = Json.encodeToString(cachedDto)
-        _cachedProfileFlow.value = domainCached
+        val domainCached = response.toCachedProfile()
+        settingsRepository.saveCachedProfile(domainCached)
 
         val domainProfile = response.toDomain()
         val wasRegistrationPending = authorizationService.isRegistrationPending()

@@ -249,6 +249,8 @@
     <string name="failed_to_verify_code">فشل تأكيد الرمز</string>
     <string name="failed_to_reset_password">فشل إعادة تعيين كلمة السر</string>
 
+    <string name="verification_pending">لم يتم التحقق بعد</string>
+
     <!-- Attendance Keys -->
     <string name="attendance_registration">تسجيل الحضور</string>
     <string name="services">الخدمات</string>

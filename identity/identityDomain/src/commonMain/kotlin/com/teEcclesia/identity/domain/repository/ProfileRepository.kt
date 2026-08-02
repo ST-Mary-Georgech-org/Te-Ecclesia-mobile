@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface ProfileRepository {
     suspend fun getRegistrationProfile(): ProfileResponse
-    fun getCachedProfile(): CachedProfile?
-    fun observeCachedProfile(): StateFlow<CachedProfile?>
     suspend fun getUserProfile(userId: String): ProfileResponse
     suspend fun getRegistrationRequests(
         role: UserRole?, 

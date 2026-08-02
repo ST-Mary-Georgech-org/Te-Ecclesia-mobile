@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -89,7 +90,7 @@ fun CreateNewPasswordContent(
                 value = state.password,
                 onValueChange = interactionListener::onPasswordChange,
                 labelText = stringResource(Res.string.password),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp).testTag("PasswordInput"),
                 singleLine = true,
                 errorText = state.passwordError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -111,7 +112,7 @@ fun CreateNewPasswordContent(
                 AppButton(
                     type = AppButtonType.Primary,
                     onClick = interactionListener::onLoginClicked,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("LoginButton"),
                     text = stringResource(Res.string.login),
                     state = state.actionButtonState
                 )
