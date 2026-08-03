@@ -626,9 +626,21 @@ class ReviewAndEditRequestViewModel(
                     )
                     
                     if (isFromSearch) {
-                        profileRepository.updateUser(userId, request)
+                        profileRepository.updateUser(
+                            userId = userId,
+                            request = request,
+                            imageBytes = s.imageBytes,
+                            identityDocumentBytes = s.identityCertificateBytes,
+                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                        )
                     } else {
-                        profileRepository.approveUser(userId, request)
+                        profileRepository.approveUser(
+                            userId = userId,
+                            request = request,
+                            imageBytes = s.imageBytes,
+                            identityDocumentBytes = s.identityCertificateBytes,
+                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                        )
                     }
                 },
                 onSuccess = {
