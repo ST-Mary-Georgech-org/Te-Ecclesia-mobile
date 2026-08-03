@@ -64,28 +64,33 @@ class MainEntryViewModel(
 
             when (authState) {
                 AuthState.AUTHENTICATED -> {
-
-                    if (isUnauthRoute) {
-                        resetTo(ProfileRoute, true)
-                    }
-
                     if (isStateChanged || isUnauthRoute) {
                         tryToCall(
                             block = {
-                                val previousStatus = authorizationService.getUserStatus()
-                                val profile = profileRepository.getRegistrationProfile()
-                                Pair(previousStatus, profile)
+                                profileRepository.getRegistrationProfile()
                             },
-                            onSuccess = { (previousStatus, profile) ->
-                                if (profile.status == UserStatus.PENDING_APPROVAL) {
-                                    if (currentRoute !is PendingApprovalRoute) {
-                                        resetTo(PendingApprovalRoute, true)
+                            onSuccess = { profile ->
+                                authorizationService.saveUserStatus(profile.status)
+                                when (profile.status) {
+                                    UserStatus.PENDING_APPROVAL -> {
+                                        if (currentRoute !is PendingApprovalRoute) {
+                                            resetTo(PendingApprovalRoute, true)
+                                        }
                                     }
-                                } else if (previousStatus == UserStatus.PENDING_APPROVAL && profile.status == UserStatus.APPROVED) {
-                                    resetTo(ProfileRoute, true)
-                                } else if (profile.status == UserStatus.REJECTED || profile.status == UserStatus.BANNED) {
-                                    authorizationService.clearAuthTokens()
-                                    resetTo(LoginRoute, true)
+                                    UserStatus.APPROVED -> {
+                                        if (isUnauthRoute || currentRoute is PendingApprovalRoute) {
+                                            resetTo(ProfileRoute, true)
+                                        }
+                                    }
+                                    UserStatus.REJECTED, UserStatus.BANNED -> {
+                                        authorizationService.clearAuthTokens()
+                                        resetTo(LoginRoute, true)
+                                    }
+                                    else -> {
+                                        if (isUnauthRoute) {
+                                            resetTo(ProfileRoute, true)
+                                        }
+                                    }
                                 }
                             },
                             onError = {
