@@ -27,6 +27,10 @@ let package = Package(
           name: "FirebaseCore",
           package: "firebase-ios-sdk"
         ),
+        .product(
+          name: "FirebaseCrashlytics",
+          package: "firebase-ios-sdk"
+        ),
         .product(name: "io_github_mirzemehdi_kmpnotifier_push_firebase_2_0_0", package: "io_github_mirzemehdi_kmpnotifier_push_firebase_2_0_0")
       ]
     )

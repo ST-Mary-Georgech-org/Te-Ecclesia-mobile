@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestUiState
@@ -48,7 +49,8 @@ fun ReviewStep2ParentContent(
                     partnerQuery = state.partnerQuery,
                     onPartnerQueryChange = listener::onPartnerQueryChange,
                     onSearchPartner = listener::onSearchPartner,
-                    onRemovePartner = listener::onRemovePartner
+                    onRemovePartner = listener::onRemovePartner,
+                    errorText = state.partnerError?.asString()
                 )
 
                 Text(
@@ -62,7 +64,8 @@ fun ReviewStep2ParentContent(
                     onChildQueryChange = listener::onChildQueryChange,
                     onSearchChild = listener::onSearchChild,
                     selectedChildren = state.selectedChildren,
-                    onRemoveChild = listener::onRemoveChild
+                    onRemoveChild = listener::onRemoveChild,
+                    errorText = state.childError?.asString()
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))

@@ -149,8 +149,10 @@ data class ReviewAndEditRequestUiState(
 
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
+    val partnerError: UiText? = null,
     val childQuery: String = "",
     val selectedChildren: List<UserSummary> = emptyList(),
+    val childError: UiText? = null,
 
     val kahenEducationalStages: List<LookupResponse> = emptyList(),
     val isStagesSheetVisible: Boolean = false,
@@ -169,8 +171,6 @@ data class ReviewAndEditRequestUiState(
     val canGoNext: Boolean
         get() = currentStep < totalSteps
 
-
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -180,9 +180,13 @@ data class ReviewAndEditRequestUiState(
         if (currentStep != other.currentStep) return false
         if (totalSteps != other.totalSteps) return false
         if (isLoading != other.isLoading) return false
+        if (isRefreshing != other.isRefreshing) return false
+        if (isReadOnlyMode != other.isReadOnlyMode) return false
         if (isSubmitting != other.isSubmitting) return false
         if (isRejectDialogVisible != other.isRejectDialogVisible) return false
         if (isFromAnotherChurch != other.isFromAnotherChurch) return false
+        if (isPasswordVisible != other.isPasswordVisible) return false
+        if (isUpdateMode != other.isUpdateMode) return false
         if (isAreaSheetVisible != other.isAreaSheetVisible) return false
         if (isAreaLoading != other.isAreaLoading) return false
         if (isPriestSheetVisible != other.isPriestSheetVisible) return false
@@ -194,15 +198,16 @@ data class ReviewAndEditRequestUiState(
         if (isOrdained != other.isOrdained) return false
         if (isRankSheetVisible != other.isRankSheetVisible) return false
         if (isOrdainedInThisChurch != other.isOrdainedInThisChurch) return false
-        if (isStageSheetVisible != other.isStageSheetVisible) return false
         if (isStageLoading != other.isStageLoading) return false
         if (isStageEndReached != other.isStageEndReached) return false
+        if (isStageSheetVisible != other.isStageSheetVisible) return false
         if (isYearSheetVisible != other.isYearSheetVisible) return false
         if (isFatherDeceased != other.isFatherDeceased) return false
         if (isMotherDeceased != other.isMotherDeceased) return false
         if (isServantStageSheetVisible != other.isServantStageSheetVisible) return false
         if (isServantYearSheetVisible != other.isServantYearSheetVisible) return false
         if (canApproveNewRequests != other.canApproveNewRequests) return false
+        if (canEditUser != other.canEditUser) return false
         if (isResponsibleStageSheetVisible != other.isResponsibleStageSheetVisible) return false
         if (isResponsibleYearSheetVisible != other.isResponsibleYearSheetVisible) return false
         if (isStagesSheetVisible != other.isStagesSheetVisible) return false
@@ -225,6 +230,7 @@ data class ReviewAndEditRequestUiState(
         if (phone != other.phone) return false
         if (homePhone != other.homePhone) return false
         if (email != other.email) return false
+        if (password != other.password) return false
         if (buildingNo != other.buildingNo) return false
         if (street != other.street) return false
         if (streetBranch != other.streetBranch) return false
@@ -246,6 +252,7 @@ data class ReviewAndEditRequestUiState(
         if (phoneError != other.phoneError) return false
         if (homePhoneError != other.homePhoneError) return false
         if (emailError != other.emailError) return false
+        if (passwordError != other.passwordError) return false
         if (buildingNoError != other.buildingNoError) return false
         if (streetError != other.streetError) return false
         if (areaError != other.areaError) return false
@@ -287,10 +294,14 @@ data class ReviewAndEditRequestUiState(
         if (servantEducationalYear != other.servantEducationalYear) return false
         if (responsibleStages != other.responsibleStages) return false
         if (responsibleYears != other.responsibleYears) return false
+        if (allAvailableYearsForPermissions != other.allAvailableYearsForPermissions) return false
+        if (servantAvailableYears != other.servantAvailableYears) return false
         if (partnerQuery != other.partnerQuery) return false
         if (selectedPartner != other.selectedPartner) return false
+        if (partnerError != other.partnerError) return false
         if (childQuery != other.childQuery) return false
         if (selectedChildren != other.selectedChildren) return false
+        if (childError != other.childError) return false
         if (kahenEducationalStages != other.kahenEducationalStages) return false
         if (stagesError != other.stagesError) return false
         if (notes != other.notes) return false
@@ -307,9 +318,13 @@ data class ReviewAndEditRequestUiState(
         var result = currentStep
         result = 31 * result + totalSteps
         result = 31 * result + isLoading.hashCode()
+        result = 31 * result + isRefreshing.hashCode()
+        result = 31 * result + isReadOnlyMode.hashCode()
         result = 31 * result + isSubmitting.hashCode()
         result = 31 * result + isRejectDialogVisible.hashCode()
         result = 31 * result + isFromAnotherChurch.hashCode()
+        result = 31 * result + isPasswordVisible.hashCode()
+        result = 31 * result + isUpdateMode.hashCode()
         result = 31 * result + isAreaSheetVisible.hashCode()
         result = 31 * result + isAreaLoading.hashCode()
         result = 31 * result + isPriestSheetVisible.hashCode()
@@ -321,15 +336,16 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isOrdained.hashCode()
         result = 31 * result + isRankSheetVisible.hashCode()
         result = 31 * result + isOrdainedInThisChurch.hashCode()
-        result = 31 * result + isStageSheetVisible.hashCode()
         result = 31 * result + isStageLoading.hashCode()
         result = 31 * result + isStageEndReached.hashCode()
+        result = 31 * result + isStageSheetVisible.hashCode()
         result = 31 * result + isYearSheetVisible.hashCode()
         result = 31 * result + isFatherDeceased.hashCode()
         result = 31 * result + isMotherDeceased.hashCode()
         result = 31 * result + isServantStageSheetVisible.hashCode()
         result = 31 * result + isServantYearSheetVisible.hashCode()
         result = 31 * result + canApproveNewRequests.hashCode()
+        result = 31 * result + canEditUser.hashCode()
         result = 31 * result + isResponsibleStageSheetVisible.hashCode()
         result = 31 * result + isResponsibleYearSheetVisible.hashCode()
         result = 31 * result + isStagesSheetVisible.hashCode()
@@ -352,6 +368,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + phone.hashCode()
         result = 31 * result + homePhone.hashCode()
         result = 31 * result + email.hashCode()
+        result = 31 * result + password.hashCode()
         result = 31 * result + buildingNo.hashCode()
         result = 31 * result + street.hashCode()
         result = 31 * result + streetBranch.hashCode()
@@ -373,6 +390,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + (phoneError?.hashCode() ?: 0)
         result = 31 * result + (homePhoneError?.hashCode() ?: 0)
         result = 31 * result + (emailError?.hashCode() ?: 0)
+        result = 31 * result + (passwordError?.hashCode() ?: 0)
         result = 31 * result + (buildingNoError?.hashCode() ?: 0)
         result = 31 * result + (streetError?.hashCode() ?: 0)
         result = 31 * result + (areaError?.hashCode() ?: 0)
@@ -414,10 +432,14 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + (servantEducationalYear?.hashCode() ?: 0)
         result = 31 * result + responsibleStages.hashCode()
         result = 31 * result + responsibleYears.hashCode()
+        result = 31 * result + allAvailableYearsForPermissions.hashCode()
+        result = 31 * result + servantAvailableYears.hashCode()
         result = 31 * result + partnerQuery.hashCode()
         result = 31 * result + (selectedPartner?.hashCode() ?: 0)
+        result = 31 * result + (partnerError?.hashCode() ?: 0)
         result = 31 * result + childQuery.hashCode()
         result = 31 * result + selectedChildren.hashCode()
+        result = 31 * result + (childError?.hashCode() ?: 0)
         result = 31 * result + kahenEducationalStages.hashCode()
         result = 31 * result + (stagesError?.hashCode() ?: 0)
         result = 31 * result + notes.hashCode()
@@ -428,6 +450,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + canGoNext.hashCode()
         return result
     }
+
 }
 
 fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {

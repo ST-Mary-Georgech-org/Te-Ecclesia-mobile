@@ -31,6 +31,7 @@ kotlin {
                 implementation(libs.compose.ui.backhandler)
 
                 implementation(libs.koin.core)
+                implementation(projects.logging)
             }
         }
 
@@ -38,6 +39,7 @@ kotlin {
             dependencies {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.poolingcontainer)
+                implementation(libs.firebase.crashlytics)
             }
         }
     }

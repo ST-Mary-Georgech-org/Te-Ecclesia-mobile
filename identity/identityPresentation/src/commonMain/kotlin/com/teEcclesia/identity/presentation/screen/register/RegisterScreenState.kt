@@ -131,12 +131,15 @@ data class RegisterScreenState(
     val motherWhatsappError: UiText? = null,
     val identityCertificateBytes: ByteArray? = null,
     val identityCertificateFileName: String? = null,
+    val identityCertificateError: UiText? = null,
 
     // Parent Info
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
+    val partnerError: UiText? = null,
     val childQuery: String = "",
     val selectedChildren: List<UserSummary> = emptyList(),
+    val childError: UiText? = null,
 
     // Upload Bottom Sheet state
     val isUploadBottomSheetVisible: Boolean = false,
@@ -154,6 +157,7 @@ data class RegisterScreenState(
         if (currentStep != other.currentStep) return false
         if (isLoading != other.isLoading) return false
         if (isRefreshing != other.isRefreshing) return false
+        if (isMale != other.isMale) return false
         if (isPriestLoading != other.isPriestLoading) return false
         if (isPriestEndReached != other.isPriestEndReached) return false
         if (isFromAnotherChurch != other.isFromAnotherChurch) return false
@@ -189,7 +193,6 @@ data class RegisterScreenState(
         if (displayNameError != other.displayNameError) return false
         if (nationalId != other.nationalId) return false
         if (nationalIdError != other.nationalIdError) return false
-        if (isMale != other.isMale) return false
         if (job != other.job) return false
         if (confessionPriests != other.confessionPriests) return false
         if (selectedConfessionPriest != other.selectedConfessionPriest) return false
@@ -251,10 +254,13 @@ data class RegisterScreenState(
         if (motherWhatsappError != other.motherWhatsappError) return false
         if (!identityCertificateBytes.contentEquals(other.identityCertificateBytes)) return false
         if (identityCertificateFileName != other.identityCertificateFileName) return false
+        if (identityCertificateError != other.identityCertificateError) return false
         if (partnerQuery != other.partnerQuery) return false
         if (selectedPartner != other.selectedPartner) return false
+        if (partnerError != other.partnerError) return false
         if (childQuery != other.childQuery) return false
         if (selectedChildren != other.selectedChildren) return false
+        if (childError != other.childError) return false
         if (activeUploadTarget != other.activeUploadTarget) return false
         if (whatsAppDeepLink != other.whatsAppDeepLink) return false
 
@@ -265,6 +271,7 @@ data class RegisterScreenState(
         var result = currentStep
         result = 31 * result + isLoading.hashCode()
         result = 31 * result + isRefreshing.hashCode()
+        result = 31 * result + (isMale?.hashCode() ?: 0)
         result = 31 * result + isPriestLoading.hashCode()
         result = 31 * result + isPriestEndReached.hashCode()
         result = 31 * result + isFromAnotherChurch.hashCode()
@@ -300,7 +307,6 @@ data class RegisterScreenState(
         result = 31 * result + (displayNameError?.hashCode() ?: 0)
         result = 31 * result + nationalId.hashCode()
         result = 31 * result + (nationalIdError?.hashCode() ?: 0)
-        result = 31 * result + (isMale?.hashCode() ?: 0)
         result = 31 * result + job.hashCode()
         result = 31 * result + confessionPriests.hashCode()
         result = 31 * result + (selectedConfessionPriest?.hashCode() ?: 0)
@@ -362,14 +368,18 @@ data class RegisterScreenState(
         result = 31 * result + (motherWhatsappError?.hashCode() ?: 0)
         result = 31 * result + (identityCertificateBytes?.contentHashCode() ?: 0)
         result = 31 * result + (identityCertificateFileName?.hashCode() ?: 0)
+        result = 31 * result + (identityCertificateError?.hashCode() ?: 0)
         result = 31 * result + partnerQuery.hashCode()
         result = 31 * result + (selectedPartner?.hashCode() ?: 0)
+        result = 31 * result + (partnerError?.hashCode() ?: 0)
         result = 31 * result + childQuery.hashCode()
         result = 31 * result + selectedChildren.hashCode()
+        result = 31 * result + (childError?.hashCode() ?: 0)
         result = 31 * result + (activeUploadTarget?.hashCode() ?: 0)
         result = 31 * result + (whatsAppDeepLink?.hashCode() ?: 0)
         return result
     }
+
 }
 
 enum class UploadTarget {

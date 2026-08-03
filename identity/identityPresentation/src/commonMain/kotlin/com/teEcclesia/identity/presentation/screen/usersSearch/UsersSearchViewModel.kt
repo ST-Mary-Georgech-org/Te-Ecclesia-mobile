@@ -100,7 +100,8 @@ class UsersSearchViewModel(
         tryToCall(
             block = {
                 val role = authorizationService.getUserRole()
-                if (role == UserRole.KHADEM) {
+                val canApprove = authorizationService.canApproveRequests()
+                if (role == UserRole.KHADEM && !canApprove) {
                     val khademStageId = authorizationService.getKhademStageId()
                     val khademYearId = authorizationService.getKhademYearId()
                     val respStageIds = authorizationService.getResponsibleStageIds()
@@ -171,7 +172,7 @@ class UsersSearchViewModel(
                 }
             },
             onSuccess = {
-                loadUsers(reset = true)
+                loadUsers()
             },
             onError = { throwable ->
                 showSnackBar(
@@ -179,18 +180,14 @@ class UsersSearchViewModel(
                     message = getLocalizedErrorMessage(throwable),
                     isSuccess = false
                 )
-                loadUsers(reset = true)
+                loadUsers()
             }
         )
     }
 
-    private fun loadUsers(reset: Boolean = false) {
+    private fun loadUsers() {
         launch {
-            if (reset) {
-                usersPaginator.reset()
-            } else {
-                usersPaginator.loadNextItems()
-            }
+            usersPaginator.reset()
         }
     }
 
@@ -202,25 +199,25 @@ class UsersSearchViewModel(
 
     override fun onSearchQueryChanged(query: String) {
         updateState { it.copy(searchQuery = query) }
-        loadUsers(reset = true)
+        loadUsers()
     }
 
     override fun onRoleFilterSelected(role: UserRole?) {
         updateState { it.copy(selectedRole = role) }
-        loadUsers(reset = true)
+        loadUsers()
     }
 
     override fun onStageFilterSelected(stage: LookupResponse?) {
         if (state.value.isStageFilterLocked) return
         val years = stage?.subItems ?: emptyList()
         updateState { it.copy(selectedStage = stage, selectedYear = null, years = years) }
-        loadUsers(reset = true)
+        loadUsers()
     }
 
     override fun onYearFilterSelected(year: LookupResponse?) {
         if (state.value.isYearFilterLocked) return
         updateState { it.copy(selectedYear = year) }
-        loadUsers(reset = true)
+        loadUsers()
     }
 
     override fun onToggleFilterSheet(visible: Boolean) {
@@ -236,7 +233,7 @@ class UsersSearchViewModel(
                 years = if (current.isStageFilterLocked) current.years else emptyList()
             )
         }
-        loadUsers(reset = true)
+        loadUsers()
     }
 
     override fun onUserClicked(user: ProfileResponse) {

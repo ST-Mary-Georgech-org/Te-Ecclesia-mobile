@@ -10,5 +10,7 @@
     <true/>
     <key>LSSupportsOpeningDocumentsInPlace</key>
     <true/>
+    <key>FirebaseCrashlyticsCollectionEnabled</key>
+    <false/>
 </dict>
 </plist>

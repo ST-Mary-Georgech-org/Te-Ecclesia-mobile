@@ -20,6 +20,7 @@ import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
@@ -63,7 +64,8 @@ fun RegisterStep4ParentContent(
                 partnerQuery = state.partnerQuery,
                 onPartnerQueryChange = listener::onPartnerQueryChange,
                 onSearchPartner = listener::onSearchPartner,
-                onRemovePartner = listener::onRemovePartner
+                onRemovePartner = listener::onRemovePartner,
+                errorText = state.partnerError?.asString()
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -79,7 +81,8 @@ fun RegisterStep4ParentContent(
                 onChildQueryChange = listener::onChildQueryChange,
                 onSearchChild = listener::onSearchChild,
                 selectedChildren = state.selectedChildren,
-                onRemoveChild = listener::onRemoveChild
+                onRemoveChild = listener::onRemoveChild,
+                errorText = state.childError?.asString()
             )
 
             Spacer(modifier = Modifier.height(16.dp))

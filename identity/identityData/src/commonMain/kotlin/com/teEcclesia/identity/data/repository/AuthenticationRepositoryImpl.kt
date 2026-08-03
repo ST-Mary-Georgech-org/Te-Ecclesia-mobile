@@ -140,6 +140,7 @@ class AuthenticationRepositoryImpl(
     private suspend fun clearAuthState() {
         client.invalidateAuthTokens()
         clearAuthTokens()
+        KMPNotifier.firebasePushNotifier.deleteMyToken()
     }
 
     override suspend fun refreshRegistrationToken(): String {

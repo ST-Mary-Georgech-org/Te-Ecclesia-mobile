@@ -41,6 +41,7 @@ kotlin {
                 implementation(projects.notifications.notificationsApi)
                 implementation(projects.notifications.notificationsPresentation)
                 implementation(libs.kmpnotifier)
+                implementation(projects.logging)
             }
         }
         commonTest {

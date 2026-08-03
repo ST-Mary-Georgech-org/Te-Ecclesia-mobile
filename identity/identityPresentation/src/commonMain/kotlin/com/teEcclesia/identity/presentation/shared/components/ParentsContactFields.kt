@@ -52,6 +52,7 @@ fun ParentsContactFields(
     onMotherWhatsappChange: (String) -> Unit,
     motherWhatsappError: String?,
     identityCertificateFileName: String? = null,
+    identityCertificateError: String? = null,
     onUploadIdentityCertificate: () -> Unit = {},
     onClearIdentityCertificate: () -> Unit = {},
     onFileClickIdentityCertificate: (() -> Unit)? = null,
@@ -161,7 +162,8 @@ fun ParentsContactFields(
                 fileName = identityCertificateFileName,
                 onUploadClick = onUploadIdentityCertificate,
                 onClearClick = onClearIdentityCertificate,
-                onFileClick = onFileClickIdentityCertificate
+                onFileClick = onFileClickIdentityCertificate,
+                errorText = identityCertificateError
             )
         }
     }
