@@ -168,7 +168,7 @@ fun ReviewStep2Content(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            if (!state.isUpdateMode || state.canEditUser) {
+            if (state.canEditUser) {
                 AppButton(
                     text = stringResource(
                         if (state.isUpdateMode) Res.string.save_changes
@@ -192,7 +192,7 @@ fun ReviewStep2Content(
                     type = AppButtonType.Secondary,
                     modifier = Modifier.weight(1f)
                 )
-                if (state.userId.isNotBlank() && !state.isReadOnlyMode) {
+                if (state.userId.isNotBlank() && !state.isUpdateMode && state.canEditUser) {
                     AppButton(
                         text = stringResource(Res.string.reject),
                         onClick = { listener.onRejectRequest(state.notes) },

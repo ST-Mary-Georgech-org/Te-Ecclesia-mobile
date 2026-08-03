@@ -96,6 +96,7 @@ class ReviewAndEditRequestViewModel(
     )
 
     private var callerRole: UserRole? = null
+    private var callerCanApproveRequests: Boolean = false
     private var callerResponsibleStageIds: List<Long> = emptyList()
     private var callerResponsibleYearIds: List<Long> = emptyList()
     private var rawEducationalStages: List<LookupResponse> = emptyList()
@@ -158,22 +159,26 @@ class ReviewAndEditRequestViewModel(
         val fullStudentStage = current.educationalStages.find { it.id == current.studentEducationalStage?.id } ?: current.studentEducationalStage
         
         var canEdit = false
-        if (current.isUpdateMode) {
-            if (callerRole == UserRole.ADMIN) {
-                canEdit = true
-            } else if (callerRole == UserRole.KHADEM) {
-                if (current.userProfile?.role == UserRole.MAKHDOOM) {
-                    val targetStageId = current.studentEducationalStage?.id
-                    val targetYearId = current.studentEducationalYear?.id
-                    if (targetStageId != null && callerResponsibleStageIds.contains(targetStageId)) {
-                        canEdit = true
-                    } else if (targetYearId != null && callerResponsibleYearIds.contains(targetYearId)) {
-                        canEdit = true
-                    }
-                }
-            }
-        } else {
+        if (current.userId.isBlank()) {
             canEdit = true
+        } else if (callerRole == UserRole.ADMIN) {
+            canEdit = true
+        } else if (callerRole == UserRole.KHADEM) {
+            val targetRole = current.selectedRole
+            if (targetRole == UserRole.MAKHDOOM) {
+                val targetStageId = current.studentEducationalStage?.id
+                val targetYearId = current.studentEducationalYear?.id
+                val isRespForStageOrYear = (targetStageId != null && callerResponsibleStageIds.contains(targetStageId)) ||
+                        (targetYearId != null && callerResponsibleYearIds.contains(targetYearId))
+
+                if (current.isUpdateMode) {
+                    canEdit = isRespForStageOrYear
+                } else {
+                    canEdit = callerCanApproveRequests && isRespForStageOrYear
+                }
+            } else {
+                canEdit = false
+            }
         }
 
         return current.copy(
@@ -218,6 +223,7 @@ class ReviewAndEditRequestViewModel(
     private fun loadCallerProfile() {
         launch {
             callerRole = authorizationService.getUserRole()
+            callerCanApproveRequests = authorizationService.canApproveRequests()
             callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
             callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
             filterAndApplyEducationalStages()

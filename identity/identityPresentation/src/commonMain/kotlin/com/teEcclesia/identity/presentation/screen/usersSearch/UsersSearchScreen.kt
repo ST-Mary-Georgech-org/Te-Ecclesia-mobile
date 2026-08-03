@@ -298,10 +298,8 @@ private fun UserCard(
     user: ProfileResponse,
     onClick: () -> Unit
 ) {
-    val stageName = user.makhdoomProfile?.educationalStage?.name
-        ?: user.khademProfile?.educationalStage?.name
-    val yearName = user.makhdoomProfile?.educationalYear?.name
-        ?: user.khademProfile?.educationalYear?.name
+    val stageName = user.educationalStageName
+    val yearName = user.educationalYearName
 
     Box(
         modifier = Modifier
