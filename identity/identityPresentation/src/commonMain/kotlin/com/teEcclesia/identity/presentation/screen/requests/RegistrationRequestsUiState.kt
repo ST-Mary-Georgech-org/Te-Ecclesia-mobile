@@ -27,7 +27,6 @@ data class RegistrationRequestsUiState(
     val sortOrder: String = "DESC",
     val requests: List<ProfileResponse> = emptyList(),
     val isLastPage: Boolean = false,
-    val page: Int = 0,
     val isSortingSheetVisible: Boolean = false,
     val roles: List<UserRole?> = listOf(null, UserRole.KHADEM, UserRole.MAKHDOOM, UserRole.PARENT, UserRole.KAHEN)
 )

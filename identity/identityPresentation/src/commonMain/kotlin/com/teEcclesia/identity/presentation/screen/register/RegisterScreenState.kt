@@ -12,6 +12,7 @@ data class RegisterScreenState(
     val currentStep: Int = 1,
     val actionButtonState: AppButtonState = AppButtonState.Enabled,
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     
     // Step 1: Personal Info
     val imageBytes: ByteArray? = null,
@@ -152,6 +153,7 @@ data class RegisterScreenState(
 
         if (currentStep != other.currentStep) return false
         if (isLoading != other.isLoading) return false
+        if (isRefreshing != other.isRefreshing) return false
         if (isPriestLoading != other.isPriestLoading) return false
         if (isPriestEndReached != other.isPriestEndReached) return false
         if (isFromAnotherChurch != other.isFromAnotherChurch) return false
@@ -262,6 +264,7 @@ data class RegisterScreenState(
     override fun hashCode(): Int {
         var result = currentStep
         result = 31 * result + isLoading.hashCode()
+        result = 31 * result + isRefreshing.hashCode()
         result = 31 * result + isPriestLoading.hashCode()
         result = 31 * result + isPriestEndReached.hashCode()
         result = 31 * result + isFromAnotherChurch.hashCode()

@@ -41,8 +41,7 @@ class RegistrationRequestsViewModel(
                     isPagingLoading = false,
                     isRefreshing = false,
                     requests = requests + items.data,
-                    isLastPage = items.isLastPage,
-                    page = if (!items.isLastPage) current.page + 1 else current.page
+                    isLastPage = items.isLastPage
                 )
             }
         },
@@ -56,6 +55,9 @@ class RegistrationRequestsViewModel(
                     current
                 }
             }
+        },
+        onReset = {
+            updateState { it.copy(requests = emptyList(), isLastPage = false) }
         },
         onError = { throwable ->
             updateState { current ->
@@ -94,9 +96,7 @@ class RegistrationRequestsViewModel(
 
     private fun loadRequests() {
         launch {
-            updateState { it.copy(page = 0, requests = emptyList()) }
             requestsPaginator.reset()
-            requestsPaginator.loadNextItems()
         }
     }
 

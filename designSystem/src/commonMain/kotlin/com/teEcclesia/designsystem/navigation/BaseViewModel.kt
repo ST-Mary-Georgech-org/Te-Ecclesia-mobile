@@ -181,6 +181,7 @@ abstract class BaseViewModel<STATE>(
         loadPage: suspend (pageNumber: Int) -> PagedData<Items>,
         onSuccess: (items: PagedData<Items>) -> Unit,
         onLoadUpdated: (Boolean) -> Unit,
+        onReset: () -> Unit,
         onError: (Throwable?) -> Unit = {},
         endReached: (items: PagedData<Items>) -> Boolean = { page -> page.isLastPage }
     ): Paginator<Int, PagedData<Items>> {
@@ -193,7 +194,8 @@ abstract class BaseViewModel<STATE>(
                 onError(throwable)
             },
             onSuccess = { items, _ -> onSuccess(items) },
-            endReached = { _, result -> endReached(result) }
+            endReached = { _, result -> endReached(result) },
+            onReset = onReset
         )
     }
 }

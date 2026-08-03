@@ -89,4 +89,6 @@ interface RegisterInteractionListener {
     fun onLoadNextPriests()
     fun onLoadNextRanks()
     fun onLoadNextEducationalStages()
+
+    fun onRefresh() {}
 }

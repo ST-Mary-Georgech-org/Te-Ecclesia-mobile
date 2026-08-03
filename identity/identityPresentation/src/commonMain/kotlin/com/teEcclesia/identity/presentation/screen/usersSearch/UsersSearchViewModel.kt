@@ -38,7 +38,7 @@ class UsersSearchViewModel(
         onSuccess = { items ->
             updateState { current ->
                 current.copy(
-                    users = if (current.page == 0) items.data else current.users + items.data,
+                    users = current.users + items.data,
                     hasMorePages = !items.isLastPage,
                     totalUsersCount = items.totalItems,
                     isLoading = false,
@@ -50,6 +50,9 @@ class UsersSearchViewModel(
             if (!state.value.isRefreshing) {
                 updateState { it.copy(isLoading = loading) }
             }
+        },
+        onReset = {
+            updateState { it.copy(users = emptyList(), hasMorePages = true) }
         },
         onError = { throwable ->
             updateState { it.copy(isLoading = false, isRefreshing = false) }
@@ -75,6 +78,9 @@ class UsersSearchViewModel(
             }
         },
         onLoadUpdated = { _ -> },
+        onReset = {
+            updateState { it.copy(stages = emptyList()) }
+        },
         onError = { throwable ->
             throwable?.let { t ->
                 showSnackBar(
@@ -91,88 +97,100 @@ class UsersSearchViewModel(
     }
 
     private fun initializeFiltersAndLoadUsers() {
-        launch {
-            val role = authorizationService.getUserRole()
-            if (role == UserRole.KHADEM) {
-                val khademStageId = authorizationService.getKhademStageId()
-                val khademYearId = authorizationService.getKhademYearId()
-                val respStageIds = authorizationService.getResponsibleStageIds()
-                val respYearIds = authorizationService.getResponsibleYearIds()
+        tryToCall(
+            block = {
+                val role = authorizationService.getUserRole()
+                if (role == UserRole.KHADEM) {
+                    val khademStageId = authorizationService.getKhademStageId()
+                    val khademYearId = authorizationService.getKhademYearId()
+                    val respStageIds = authorizationService.getResponsibleStageIds()
+                    val respYearIds = authorizationService.getResponsibleYearIds()
 
-                val allStages = lookupRepository.getEducationalStages(PageQuery(page = 0, size = 100)).data
+                    val allStages = lookupRepository.getEducationalStages(PageQuery(page = 0, size = 100)).data
 
-                val allowedStages = allStages.mapNotNull { stage ->
-                    val isDirectStage = (stage.id == khademStageId) || respStageIds.contains(stage.id)
-                    if (isDirectStage) {
-                        if (stage.id == khademStageId && !respStageIds.contains(stage.id) && khademYearId != null) {
-                            val allowedYears = stage.subItems.filter { it.id == khademYearId || respYearIds.contains(it.id) }
-                            stage.copy(subItems = allowedYears)
+                    val allowedStages = allStages.mapNotNull { stage ->
+                        val isDirectStage = (stage.id == khademStageId) || respStageIds.contains(stage.id)
+                        if (isDirectStage) {
+                            if (stage.id == khademStageId && !respStageIds.contains(stage.id) && khademYearId != null) {
+                                val allowedYears = stage.subItems.filter { it.id == khademYearId || respYearIds.contains(it.id) }
+                                stage.copy(subItems = allowedYears)
+                            } else {
+                                stage
+                            }
                         } else {
-                            stage
+                            val allowedYears = stage.subItems.filter { respYearIds.contains(it.id) }
+                            if (allowedYears.isNotEmpty()) {
+                                stage.copy(subItems = allowedYears)
+                            } else null
                         }
-                    } else {
-                        val allowedYears = stage.subItems.filter { respYearIds.contains(it.id) }
-                        if (allowedYears.isNotEmpty()) {
-                            stage.copy(subItems = allowedYears)
-                        } else null
                     }
-                }
 
-                if (allowedStages.size == 1) {
-                    val singleStage = allowedStages.first()
-                    val availableYears = singleStage.subItems
-                    if (availableYears.size == 1) {
-                        val singleYear = availableYears.first()
-                        updateState {
-                            it.copy(
-                                selectedStage = singleStage,
-                                selectedYear = singleYear,
-                                stages = allowedStages,
-                                years = availableYears,
-                                isStageFilterLocked = true,
-                                isYearFilterLocked = true
-                            )
+                    if (allowedStages.size == 1) {
+                        val singleStage = allowedStages.first()
+                        val availableYears = singleStage.subItems
+                        if (availableYears.size == 1) {
+                            val singleYear = availableYears.first()
+                            updateState {
+                                it.copy(
+                                    selectedStage = singleStage,
+                                    selectedYear = singleYear,
+                                    stages = allowedStages,
+                                    years = availableYears,
+                                    isStageFilterLocked = true,
+                                    isYearFilterLocked = true
+                                )
+                            }
+                        } else {
+                            updateState {
+                                it.copy(
+                                    selectedStage = singleStage,
+                                    selectedYear = null,
+                                    stages = allowedStages,
+                                    years = availableYears,
+                                    isStageFilterLocked = true,
+                                    isYearFilterLocked = false
+                                )
+                            }
                         }
-                    } else {
+                    } else if (allowedStages.isNotEmpty()) {
                         updateState {
                             it.copy(
-                                selectedStage = singleStage,
+                                selectedStage = null,
                                 selectedYear = null,
                                 stages = allowedStages,
-                                years = availableYears,
-                                isStageFilterLocked = true,
+                                years = emptyList(),
+                                isStageFilterLocked = false,
                                 isYearFilterLocked = false
                             )
                         }
-                    }
-                } else if (allowedStages.isNotEmpty()) {
-                    updateState {
-                        it.copy(
-                            selectedStage = null,
-                            selectedYear = null,
-                            stages = allowedStages,
-                            years = emptyList(),
-                            isStageFilterLocked = false,
-                            isYearFilterLocked = false
-                        )
+                    } else {
+                        loadStages()
                     }
                 } else {
                     loadStages()
                 }
-            } else {
-                loadStages()
+            },
+            onSuccess = {
+                loadUsers(reset = true)
+            },
+            onError = { throwable ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+                loadUsers(reset = true)
             }
-            loadUsers(reset = true)
-        }
+        )
     }
 
     private fun loadUsers(reset: Boolean = false) {
         launch {
             if (reset) {
-                updateState { it.copy(users = emptyList(), page = 0, hasMorePages = true) }
                 usersPaginator.reset()
+            } else {
+                usersPaginator.loadNextItems()
             }
-            usersPaginator.loadNextItems()
         }
     }
 
@@ -228,7 +246,6 @@ class UsersSearchViewModel(
     override fun onLoadMore() {
         if (state.value.hasMorePages && !state.value.isLoading) {
             launch {
-                updateState { it.copy(page = it.page + 1) }
                 usersPaginator.loadNextItems()
             }
         }
@@ -236,7 +253,10 @@ class UsersSearchViewModel(
 
     override fun onRefresh() {
         updateState { it.copy(isRefreshing = true) }
-        loadUsers(reset = true)
+        launch {
+            stagesPaginator.reset()
+        }
+        initializeFiltersAndLoadUsers()
     }
 
     override fun onClickBack() {

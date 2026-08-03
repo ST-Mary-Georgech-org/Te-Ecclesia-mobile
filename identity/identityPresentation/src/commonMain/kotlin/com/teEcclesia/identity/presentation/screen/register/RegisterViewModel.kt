@@ -91,6 +91,9 @@ class RegisterViewModel(
         onLoadUpdated = { loading ->
             updateState { copy(isPriestLoading = loading) }
         },
+        onReset = {
+            updateState { copy(confessionPriests = emptyList(), isPriestEndReached = false) }
+        },
         onError = { throwable ->
             showSnackBar(
                 title = UiText.StringRes(Res.string.failed_to_load_priests),
@@ -114,6 +117,9 @@ class RegisterViewModel(
         },
         onLoadUpdated = { loading ->
             updateState { copy(isRankLoading = loading) }
+        },
+        onReset = {
+            updateState { copy(ranks = emptyList(), isRankEndReached = false) }
         },
         onError = { throwable ->
             showSnackBar(
@@ -141,6 +147,9 @@ class RegisterViewModel(
         },
         onLoadUpdated = { loading ->
             updateState { copy(isStageLoading = loading) }
+        },
+        onReset = {
+            updateState { copy(educationalStages = emptyList(), isStageEndReached = false) }
         },
         onError = { throwable ->
             showSnackBar(
@@ -256,7 +265,7 @@ class RegisterViewModel(
             onSuccess = {},
             onError = { /* Ignore error on pending profile fetch */ },
             onEnd = {
-                updateState { copy(isLoading = false) }
+                updateState { copy(isLoading = false, isRefreshing = false) }
                 onLoadNextEducationalStages()
             }
         )
@@ -717,17 +726,16 @@ class RegisterViewModel(
             updateState {
                 copy(
                     selectedRole = role,
-                    educationalStages = emptyList(),
                     studentEducationalStage = null,
                     studentEducationalYear = null,
                     servantEducationalStage = null,
                     servantEducationalYear = null,
-                    kahenEducationalStages = emptyList(),
-                    isStageEndReached = false
+                    kahenEducationalStages = emptyList()
                 )
             }
-            stagesPaginator.reset()
-            onLoadNextEducationalStages()
+            launch {
+                stagesPaginator.reset()
+            }
         }
     }
 
@@ -1190,5 +1198,19 @@ class RegisterViewModel(
                 onEnd = { updateState { copy(actionButtonState = AppButtonState.Enabled) } }
             )
         }
+    }
+
+    override fun onRefresh() {
+        updateState {
+            RegisterScreenState(
+                isRefreshing = true
+            )
+        }
+        launch {
+            priestsPaginator.reset()
+            ranksPaginator.reset()
+            stagesPaginator.reset()
+        }
+        checkAndLoadPendingRegistration()
     }
 }

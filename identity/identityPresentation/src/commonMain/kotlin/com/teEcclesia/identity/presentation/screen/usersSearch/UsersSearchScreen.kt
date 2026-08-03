@@ -170,15 +170,22 @@ private fun UsersSearchContent(
                     CircularProgressIndicator(color = Theme.colorScheme.primary)
                 }
             } else if (state.users.isEmpty()) {
-                Box(
+                LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        text = stringResource(Res.string.no_users_found),
-                        style = Theme.typography.bodyLarge,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
+                    item {
+                        Box(
+                            modifier = Modifier.fillParentMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.no_users_found),
+                                style = Theme.typography.bodyLarge,
+                                color = Theme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
                 }
             } else {
                 LazyColumn(
