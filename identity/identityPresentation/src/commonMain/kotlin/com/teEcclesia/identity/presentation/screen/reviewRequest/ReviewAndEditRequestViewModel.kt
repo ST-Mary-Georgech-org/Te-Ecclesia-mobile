@@ -29,6 +29,7 @@ import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
 import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
 import com.teEcclesia.shared.domain.utils.validation.validateArabicName
 import com.teEcclesia.shared.domain.utils.validation.validatePhone
+import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitCameraType
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -54,9 +55,6 @@ import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
-import com.teEcclesia.identity.domain.model.MakhdoomProfileRequest
-import com.teEcclesia.identity.domain.model.OrdinationProfileRequest
-import com.teEcclesia.identity.domain.model.RegisterRequest
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.user_created_successfully
 
@@ -66,11 +64,12 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class ReviewAndEditRequestViewModel(
     private val userId: String? = null,
+    private val isFromSearch: Boolean = false,
     private val profileRepository: ProfileRepository,
     private val registerRepository: RegisterRepository,
     private val lookupRepository: LookupRepository,
     private val authorizationService: AuthorizationService
-) : BaseViewModel<ReviewAndEditRequestUiState>(ReviewAndEditRequestUiState(userId = userId ?: "")),
+) : BaseViewModel<ReviewAndEditRequestUiState>(ReviewAndEditRequestUiState(userId = userId ?: "", isReadOnlyMode = isFromSearch)),
     ReviewAndEditRequestInteractionListener {
 
     private val priestsPaginator = createPaginator(
@@ -97,6 +96,7 @@ class ReviewAndEditRequestViewModel(
     )
 
     private var callerRole: UserRole? = null
+    private var callerCanApproveRequests: Boolean = false
     private var callerResponsibleStageIds: List<Long> = emptyList()
     private var callerResponsibleYearIds: List<Long> = emptyList()
     private var rawEducationalStages: List<LookupResponse> = emptyList()
@@ -146,6 +146,50 @@ class ReviewAndEditRequestViewModel(
         }
     )
 
+    private fun updateDerivedProperties(current: ReviewAndEditRequestUiState): ReviewAndEditRequestUiState {
+        val allAvailableYears = current.educationalStages.flatMap { stage ->
+            stage.subItems.map { year ->
+                year.copy(name = "${stage.name}, ${year.name}")
+            }
+        }.distinctBy { it.id }
+
+        val fullServantStage = current.educationalStages.find { it.id == current.servantEducationalStage?.id } ?: current.servantEducationalStage
+        val servantAvailableYears = fullServantStage?.subItems ?: emptyList()
+
+        val fullStudentStage = current.educationalStages.find { it.id == current.studentEducationalStage?.id } ?: current.studentEducationalStage
+        
+        var canEdit = false
+        if (current.userId.isBlank()) {
+            canEdit = true
+        } else if (callerRole == UserRole.ADMIN) {
+            canEdit = true
+        } else if (callerRole == UserRole.KHADEM) {
+            val targetRole = current.selectedRole
+            if (targetRole == UserRole.MAKHDOOM) {
+                val targetStageId = current.studentEducationalStage?.id
+                val targetYearId = current.studentEducationalYear?.id
+                val isRespForStageOrYear = (targetStageId != null && callerResponsibleStageIds.contains(targetStageId)) ||
+                        (targetYearId != null && callerResponsibleYearIds.contains(targetYearId))
+
+                if (current.isUpdateMode) {
+                    canEdit = isRespForStageOrYear
+                } else {
+                    canEdit = callerCanApproveRequests && isRespForStageOrYear
+                }
+            } else {
+                canEdit = false
+            }
+        }
+
+        return current.copy(
+            allAvailableYearsForPermissions = allAvailableYears,
+            servantAvailableYears = servantAvailableYears,
+            studentEducationalStage = fullStudentStage,
+            servantEducationalStage = fullServantStage,
+            canEditUser = canEdit
+        )
+    }
+
     private fun filterAndApplyEducationalStages() {
         val targetRole = state.value.selectedRole
         val stagesForApplicant = if (targetRole == UserRole.MAKHDOOM) {
@@ -172,22 +216,30 @@ class ReviewAndEditRequestViewModel(
         }
 
         updateState { current ->
-            current.copy(educationalStages = filtered)
+            updateDerivedProperties(current.copy(educationalStages = filtered))
         }
     }
 
     private fun loadCallerProfile() {
         launch {
             callerRole = authorizationService.getUserRole()
+            callerCanApproveRequests = authorizationService.canApproveRequests()
             callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
             callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
             filterAndApplyEducationalStages()
-            delay(400.milliseconds)
-            updateState { it.copy(isLoading = false) }
+            delay(250.milliseconds)
+            updateState { 
+                it.copy(
+                    isLoading = false,
+                    isRoleEditable = if (it.isUpdateMode) (callerRole == UserRole.ADMIN) else it.isRoleEditable
+                ) 
+            }
         }
     }
 
     init {
+        updateState { it.copy(isUpdateMode = isFromSearch && userId.isNotBlank()) }
+        
         if (!userId.isNullOrBlank()) {
             loadRequestDetails()
         } else {
@@ -208,13 +260,14 @@ class ReviewAndEditRequestViewModel(
 
     private fun loadRequestDetails() {
         val uid = userId ?: return
-        updateState { it.copy(isLoading = true) }
+        updateState { it.copy(isLoading = !it.isRefreshing) }
         tryToCall(
             block = { profileRepository.getUserProfile(uid) },
             onSuccess = { profile ->
                 updateState {
                     it.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         userProfile = profile,
                         code = profile.code,
                         imageUrl = profile.imageUrl,
@@ -243,11 +296,12 @@ class ReviewAndEditRequestViewModel(
                         selectedRole = profile.role,
                         submittedAt = profile.createdAt.toString().replace("T", " ").take(16),
 
-                        servantEducationalStages = listOfNotNull(profile.khademProfile?.educationalStage),
-                        servantEducationalYears = listOfNotNull(profile.khademProfile?.educationalYear),
+                        servantEducationalStage = profile.khademProfile?.educationalStage,
+                        servantEducationalYear = profile.khademProfile?.educationalYear,
                         canApproveNewRequests = profile.khademProfile?.canApproveRequests ?: false,
                         responsibleStages = profile.khademProfile?.responsibleStages ?: emptyList(),
                         responsibleYears = profile.khademProfile?.responsibleYears ?: emptyList(),
+                        isStageEndReached = false,
 
                         selectedPartner = profile.parentProfile?.partner?.let { p ->
                             UserSummary(id = p.id, name = p.name, imageUrl = p.imageUrl, code = p.code ?: "")
@@ -276,11 +330,11 @@ class ReviewAndEditRequestViewModel(
                         ordinationPlace = profile.ordinationProfile?.ordinationPlace ?: "",
                         ordinationCertificateFileName = profile.ordinationProfile?.certificateImageUrl,
                         identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
-                    )
+                    ).let { state -> updateDerivedProperties(state) }
                 }
             },
             onError = { throwable ->
-                updateState { it.copy(isLoading = false) }
+                updateState { it.copy(isLoading = false, isRefreshing = false) }
                 showSnackBar(
                     title = UiText.StringRes(Res.string.failed_to_load_request),
                     message = getLocalizedErrorMessage(throwable),
@@ -292,6 +346,7 @@ class ReviewAndEditRequestViewModel(
 
     private fun loadConfessionPriests() {
         launch {
+            updateState { it.copy(confessionPriests = emptyList()) }
             priestsPaginator.reset()
             priestsPaginator.loadNextItems()
         }
@@ -299,6 +354,8 @@ class ReviewAndEditRequestViewModel(
 
     private fun loadEducationalStages() {
         launch {
+            rawEducationalStages = emptyList()
+            updateState { it.copy(educationalStages = emptyList()) }
             stagesPaginator.reset()
             stagesPaginator.loadNextItems()
         }
@@ -306,6 +363,7 @@ class ReviewAndEditRequestViewModel(
 
     private fun loadRanks() {
         launch {
+            updateState { it.copy(ranks = emptyList()) }
             ranksPaginator.reset()
             ranksPaginator.loadNextItems()
         }
@@ -365,6 +423,7 @@ class ReviewAndEditRequestViewModel(
         val phoneErr = if (validatePhone(s.phone)) null else UiText.StringRes(Res.string.invalid_phone_format)
         val homePhoneErr = if (s.homePhone.isBlank() || s.homePhone.length == 8) null else UiText.StringRes(Res.string.invalid_home_phone_format)
         val emailErr = if (s.email.isBlank() || isValidFinalEmail(s.email)) null else UiText.StringRes(Res.string.invalid_email_format)
+        val passErr = if (s.isUpdateMode && s.password.isNotBlank()) getPasswordValidationError(s.password)?.toUiText() else null
 
         val buildingErr = if (s.buildingNo.isNotBlank()) null else UiText.StringRes(Res.string.field_required)
         val streetErr = if (s.street.isNotBlank()) null else UiText.StringRes(Res.string.field_required)
@@ -387,6 +446,7 @@ class ReviewAndEditRequestViewModel(
             phoneErr,
             homePhoneErr,
             emailErr,
+            passErr,
             buildingErr,
             streetErr,
             areaErr,
@@ -410,6 +470,7 @@ class ReviewAndEditRequestViewModel(
                 phoneError = phoneErr,
                 homePhoneError = homePhoneErr,
                 emailError = emailErr,
+                passwordError = passErr,
                 buildingNoError = buildingErr,
                 streetError = streetErr,
                 areaError = areaErr,
@@ -425,8 +486,8 @@ class ReviewAndEditRequestViewModel(
         val s = state.value
         return when (s.selectedRole) {
             UserRole.KHADEM -> {
-                val stageErr = if (s.servantEducationalStages.isEmpty()) UiText.StringRes(Res.string.field_required) else null
-                val yearErr = if (s.servantEducationalYears.isEmpty()) UiText.StringRes(Res.string.field_required) else null
+                val stageErr = if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
+                val yearErr = if (s.servantEducationalStage?.subItems?.isNotEmpty() == true && s.servantEducationalYear == null) UiText.StringRes(Res.string.field_required) else null
                 val hasError = listOfNotNull(stageErr, yearErr).isNotEmpty()
                 updateState {
                     it.copy(
@@ -519,12 +580,10 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onPreviousStep() {
-        updateState { current ->
-            if (current.currentStep > 1) {
-                current.copy(currentStep = current.currentStep - 1)
-            } else {
-                current
-            }
+        if (state.value.currentStep > 1) {
+            updateState { current -> current.copy(currentStep = current.currentStep - 1) }
+        } else {
+            onClickBack()
         }
     }
 
@@ -537,7 +596,7 @@ class ReviewAndEditRequestViewModel(
             }
         }
     }
-
+    
     override fun onApproveRequest() {
         val isStep1Valid = validateStep1()
         val isStep2Valid = validateStep2()
@@ -549,67 +608,27 @@ class ReviewAndEditRequestViewModel(
         }
         updateState { it.copy(isSubmitting = true) }
 
+        val registerRequest = state.value.toRegisterRequest()
         val s = state.value
-        val registerRequest = RegisterRequest(
-            firstName = s.firstName.trim(),
-            secondName = s.secondName.trim(),
-            thirdName = s.thirdName.trim(),
-            lastName = s.lastName.trim(),
-            displayName = s.displayName.trim(),
-            nationalId = s.nationalId.trim(),
-            phone = s.phone.trim(),
-            homePhone = s.homePhone.trim(),
-            email = s.email.ifBlank { null },
-            password = null,
-            imageUrl = s.imageUrl?.ifBlank { null },
-            job = s.job,
-            buildingNo = s.buildingNo.trim(),
-            street = s.street.trim(),
-            streetBranch = s.streetBranch.ifBlank { null },
-            area = s.area.trim(),
-            floor = s.floor.trim(),
-            apartment = s.apartment.ifBlank { null },
-            specialMark = s.specialMark.trim(),
-            role = s.selectedRole,
-            confessionPriestId = if (!s.isFromAnotherChurch) s.selectedConfessionPriest?.id else null,
-            externalConfessionPriestName = if (s.isFromAnotherChurch) s.confessionPriestName.ifBlank { null } else null,
-            externalConfessionChurch = if (s.isFromAnotherChurch) s.confessionPriestChurch.ifBlank { null } else null,
-            externalConfessionPhone = if (s.isFromAnotherChurch) s.confessionPriestPhone.ifBlank { null } else null,
-            ordinationProfile = if (s.isOrdained) OrdinationProfileRequest(
-                rankId = s.selectedRank?.id ?: 1L,
-                isOrdinationInAnotherChurch = !s.isOrdainedInThisChurch,
-                ordinationYear = s.ordinationYear.toIntOrNull(),
-                bishopName = s.bishopName.ifBlank { null },
-                ordinationPlace = s.ordinationPlace.ifBlank { null }
-            ) else null,
-            makhdoomProfile = MakhdoomProfileRequest(
-                shamamsaStudyStatus = s.shamamsaStatus,
-                educationalStageId = s.studentEducationalStage?.id ?: 1L,
-                educationalYearId = s.studentEducationalYear?.id,
-                isFatherDeceased = s.isFatherDeceased,
-                fatherPhone = s.fatherPhone.ifBlank { null },
-                fatherWhatsapp = s.fatherWhatsapp.ifBlank { null },
-                isMotherDeceased = s.isMotherDeceased,
-                motherPhone = s.motherPhone.ifBlank { null },
-                motherWhatsapp = s.motherWhatsapp.ifBlank { null }
-            )
-        )
 
         if (!userId.isNullOrBlank()) {
             tryToCall(
                 block = {
                     val customCode = s.code.ifBlank { null }
-                    profileRepository.approveUser(
-                        userId = userId,
-                        request = ApproveUserRequest(
-                            customCode = customCode,
-                            updateProfileData = registerRequest
-                        )
+                    val request = ApproveUserRequest(
+                        customCode = customCode,
+                        updateProfileData = registerRequest
                     )
+                    
+                    if (isFromSearch) {
+                        profileRepository.updateUser(userId, request)
+                    } else {
+                        profileRepository.approveUser(userId, request)
+                    }
                 },
                 onSuccess = {
                     updateState { it.copy(isSubmitting = false) }
-                    popBackStack()
+                    popBackStack("handledUserId" to userId)
                 },
                 onError = { throwable ->
                     updateState { it.copy(isSubmitting = false) }
@@ -636,7 +655,7 @@ class ReviewAndEditRequestViewModel(
                         message = UiText.StringRes(Res.string.user_created_successfully),
                         isSuccess = true
                     )
-                    popBackStack()
+                    popBackStack("handledUserId" to userId.orEmpty())
                 },
                 onError = { throwable ->
                     updateState { it.copy(isSubmitting = false) }
@@ -661,7 +680,7 @@ class ReviewAndEditRequestViewModel(
             block = { profileRepository.rejectUser(uid, reason.trim()) },
             onSuccess = {
                 updateState { it.copy(isSubmitting = false) }
-                popBackStack()
+                popBackStack("handledUserId" to uid)
             },
             onError = { throwable ->
                 updateState { it.copy(isSubmitting = false) }
@@ -679,8 +698,21 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onRefresh() {
-        loadRequestDetails()
-        loadConfessionPriests()
+        updateState { it.copy(isRefreshing = true) }
+        if (!userId.isNullOrBlank()) {
+            loadRequestDetails()
+            loadConfessionPriests()
+            loadEducationalStages()
+            loadRanks()
+        } else {
+            loadConfessionPriests()
+            loadEducationalStages()
+            loadRanks()
+            launch {
+                delay(300.milliseconds)
+                updateState { it.copy(isRefreshing = false) }
+            }
+        }
     }
 
     override fun onClickUpload(target: UploadTarget) {
@@ -801,10 +833,19 @@ class ReviewAndEditRequestViewModel(
         }
     }
 
-    override fun onEmailChanged(value: String) {
-        if (value.isEmpty() || isValidEmailInput(value)) {
-            updateState { it.copy(email = value, emailError = null) }
+    override fun onEmailChanged(email: String) {
+        if (email.isEmpty() || isValidEmailInput(email)) {
+            updateState { it.copy(email = email, emailError = null) }
         }
+    }
+
+    override fun onPasswordChanged(password: String) {
+        val error = getPasswordValidationError(password)
+        updateState { it.copy(password = password, passwordError = error?.toUiText()) }
+    }
+
+    override fun onTogglePasswordVisibility() {
+        updateState { it.copy(isPasswordVisible = !it.isPasswordVisible) }
     }
 
     override fun onBuildingNoChanged(value: String) {
@@ -906,10 +947,6 @@ class ReviewAndEditRequestViewModel(
                 it.copy(
                     selectedRole = role,
                     educationalStages = emptyList(),
-                    studentEducationalStage = null,
-                    studentEducationalYear = null,
-                    servantEducationalStages = emptyList(),
-                    kahenEducationalStages = emptyList(),
                     isStageEndReached = false
                 )
             }
@@ -1006,9 +1043,9 @@ class ReviewAndEditRequestViewModel(
 
     override fun onToggleServantStageSelection(stage: LookupResponse) {
         updateState { current ->
-            val list = current.servantEducationalStages
-            val updated = if (list.any { it.id == stage.id }) list.filterNot { it.id == stage.id } else list + stage
-            current.copy(servantEducationalStages = updated, stageError = null)
+            val currentStage = current.servantEducationalStage
+            val updated = if (currentStage?.id == stage.id) null else stage
+            updateDerivedProperties(current.copy(servantEducationalStage = updated, stageError = null))
         }
     }
 
@@ -1018,9 +1055,9 @@ class ReviewAndEditRequestViewModel(
 
     override fun onToggleServantYearSelection(year: LookupResponse) {
         updateState { current ->
-            val list = current.servantEducationalYears
-            val updated = if (list.any { it.id == year.id }) list.filterNot { it.id == year.id } else list + year
-            current.copy(servantEducationalYears = updated, yearError = null)
+            val currentYear = current.servantEducationalYear
+            val updated = if (currentYear?.id == year.id) null else year
+            current.copy(servantEducationalYear = updated, yearError = null)
         }
     }
 

@@ -6,5 +6,5 @@ data class VerifyPhoneResetPasswordUiState(
     val phone: String = "",
     val token: String = "",
     val link: String = "",
-    val actionButtonState: AppButtonState = AppButtonState.Enabled
+    val nextButtonState: AppButtonState = AppButtonState.Enabled
 )

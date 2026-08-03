@@ -72,7 +72,7 @@ class LoginViewModel(
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
                             launch {
-                                authenticationRepository.saveRegistrationToken(token, refreshToken)
+                                authenticationRepository.saveRegistrationToken(token, refreshToken, syncDeviceToken = false)
                             }
                         }
                         navigate(SignUpRoute())
@@ -82,7 +82,7 @@ class LoginViewModel(
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
                             launch {
-                                authenticationRepository.saveRegistrationToken(token, refreshToken)
+                                authenticationRepository.saveRegistrationToken(token, refreshToken, syncDeviceToken = false)
                             }
                         }
                         navigate(SignUpRoute())
@@ -92,7 +92,7 @@ class LoginViewModel(
                         val refreshToken = error.refreshToken ?: ""
                         if (!token.isNullOrBlank()) {
                             launch {
-                                authenticationRepository.saveRegistrationToken(token, refreshToken)
+                                authenticationRepository.saveRegistrationToken(token, refreshToken, syncDeviceToken = false)
                             }
                         }
                         resetTo(PendingApprovalRoute)

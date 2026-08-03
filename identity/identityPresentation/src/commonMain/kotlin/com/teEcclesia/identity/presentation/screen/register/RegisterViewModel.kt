@@ -585,7 +585,8 @@ class RegisterViewModel(
                     )
                     authenticationRepository.saveRegistrationToken(
                         tokenResponse.token,
-                        tokenResponse.refreshToken ?: ""
+                        tokenResponse.refreshToken ?: "",
+                        syncDeviceToken = false
                     )
                 },
                 onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },

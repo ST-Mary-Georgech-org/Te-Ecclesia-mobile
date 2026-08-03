@@ -10,6 +10,7 @@ import com.teEcclesia.identity.data.dataSource.local.setting.responsibleStageIds
 import com.teEcclesia.identity.data.dataSource.local.setting.responsibleYearIds
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
+import com.teEcclesia.identity.data.dataSource.local.setting.cachedProfileJson
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -37,9 +38,12 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
 
+import com.teEcclesia.identity.domain.repository.SettingsRepository
+
 class AuthenticationRepositoryImpl(
     client: HttpClient,
     private val settings: Settings,
+    private val settingsRepository: SettingsRepository,
 ) : BaseRepository(client), AuthenticationRepository {
 
     private val observableToken: MutableStateFlow<String> = MutableStateFlow(getInitialToken())
@@ -94,7 +98,8 @@ class AuthenticationRepositoryImpl(
             }
         }
 
-        saveAuthTokens(response.toDomain())
+        settingsRepository.clearCachedProfile()
+        saveTokens(response.toDomain(), syncDeviceToken = false)
         client.invalidateAuthTokens()
     }
 
@@ -119,7 +124,7 @@ class AuthenticationRepositoryImpl(
                         setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
                     }
                 }
-                saveTokens(response.toDomain())
+                saveTokens(response.toDomain(), syncDeviceToken = false)
                 client.invalidateAuthTokens()
                 settings.accessToken
             } catch (e: UnAuthorizedException) {
@@ -144,8 +149,8 @@ class AuthenticationRepositoryImpl(
                 setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
             }
         }
-        saveRegistrationToken(response.accessToken, response.refreshToken)
-        return settings.accessToken
+        saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
+        return response.accessToken
     }
 
     override suspend fun upgradeRegistrationToken(): String {
@@ -153,7 +158,7 @@ class AuthenticationRepositoryImpl(
             val response = tryToExecute<AuthenticationResponse> {
                 post(UPGRADE_REGISTRATION_TOKEN_ENDPOINT)
             }
-            saveTokens(response.toDomain())
+            saveTokens(response.toDomain(), syncDeviceToken = true)
             client.invalidateAuthTokens()
             settings.accessToken
         }
@@ -181,6 +186,7 @@ class AuthenticationRepositoryImpl(
         settings.khademYearId = -1L
         settings.responsibleStageIds = ""
         settings.responsibleYearIds = ""
+        settingsRepository.clearCachedProfile()
         emitToken("")
         observableAuthState.emit(AuthState.UNAUTHENTICATED)
         updateRequestsAccess()
@@ -260,14 +266,20 @@ class AuthenticationRepositoryImpl(
         return settings.canApproveRequests
     }
 
-    override suspend fun saveRegistrationToken(token: String, refreshToken: String) {
+    override suspend fun saveRegistrationToken(token: String, refreshToken: String, syncDeviceToken: Boolean) {
         settings.accessToken = token
-        settings.refreshToken = refreshToken
+        if (refreshToken.isNotBlank()) {
+            settings.refreshToken = refreshToken
+        }
         settings.userStatus = UserStatus.PROFILE_INCOMPLETE.name
         client.invalidateAuthTokens()
         emitToken(token)
-        observableAuthState.emit(AuthState.REGISTRATION_PENDING)
-        syncDeviceTokenIfAvailable()
+        observableAuthState.emit(
+            if (token.isNotBlank()) AuthState.REGISTRATION_PENDING else AuthState.UNAUTHENTICATED
+        )
+        if (syncDeviceToken && token.isNotBlank() && refreshToken.isNotBlank()) {
+            syncDeviceTokenIfAvailable()
+        }
     }
 
     override suspend fun isRegistrationPending(): Boolean {
@@ -305,11 +317,11 @@ class AuthenticationRepositoryImpl(
 
     override fun observeAttendanceAccess(): StateFlow<Boolean> = observableAttendanceAccess
 
-    override suspend fun saveAuthTokens(authTokens: AuthenticationTokens) {
-        saveTokens(authTokens)
+    override suspend fun saveAuthTokens(authTokens: AuthenticationTokens, syncDeviceToken: Boolean) {
+        saveTokens(authTokens, syncDeviceToken = syncDeviceToken)
     }
 
-    private suspend fun saveTokens(authTokens: AuthenticationTokens, shouldEmit: Boolean = true) {
+    private suspend fun saveTokens(authTokens: AuthenticationTokens, shouldEmit: Boolean = true, syncDeviceToken: Boolean = true) {
         saveTokensToSettings(authTokens)
         if (shouldEmit) {
             emitToken(authTokens.accessToken)
@@ -317,7 +329,7 @@ class AuthenticationRepositoryImpl(
                 if (authTokens.accessToken.isNotBlank()) AuthState.AUTHENTICATED else AuthState.UNAUTHENTICATED
             )
         }
-        if (authTokens.accessToken.isNotBlank() && authTokens.refreshToken.isNotBlank()) {
+        if (syncDeviceToken && authTokens.accessToken.isNotBlank() && authTokens.refreshToken.isNotBlank()) {
             syncDeviceTokenIfAvailable()
         }
     }

@@ -27,19 +27,15 @@ import androidx.navigation3.runtime.NavKey
 import com.teEcclesia.appEntryPoint.MainEntryInteractionListener
 import com.teEcclesia.designsystem.components.bottomNavigation.BottomNavigationBar
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.AttendanceServicesRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.attendance_registration
-import teecclesia.designsystem.generated.resources.home
+import teecclesia.designsystem.generated.resources.attendance
 import teecclesia.designsystem.generated.resources.ic_document
 import teecclesia.designsystem.generated.resources.ic_folder
-import teecclesia.designsystem.generated.resources.ic_home
-import teecclesia.designsystem.generated.resources.ic_home_selected
 import teecclesia.designsystem.generated.resources.ic_profile
 import teecclesia.designsystem.generated.resources.profile
 import teecclesia.designsystem.generated.resources.requests
@@ -91,7 +87,7 @@ fun BoxScope.AppBottomNavigationBar(
                         bottomNavigationItem(
                             selectedIcon = painterResource(Res.drawable.ic_document),
                             notSelectedIcon = painterResource(Res.drawable.ic_document),
-                            title = stringResource(Res.string.attendance_registration),
+                            title = stringResource(Res.string.attendance),
                             entry = {
                                 interactionListener.resetToRoute(AttendanceServicesRoute)
                             }

@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.reviewRequest.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -36,7 +37,6 @@ fun ReviewStep2ServantContent(
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier
 ) {
-    val allAvailableYears = state.educationalStages.flatMap { it.subItems }.distinctBy { it.id }
 
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -51,7 +51,7 @@ fun ReviewStep2ServantContent(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 EducationalStageSelectField(
-                    selectedStages = state.servantEducationalStages,
+                    selectedStage = state.servantEducationalStage,
                     educationalStages = state.educationalStages,
                     isSheetVisible = state.isServantStageSheetVisible,
                     onToggleSheet = listener::onToggleServantStageSheet,
@@ -60,14 +60,20 @@ fun ReviewStep2ServantContent(
                     onLoadNextStages = listener::onLoadNextEducationalStages
                 )
 
-                EducationalYearSelectField(
-                    selectedYears = state.servantEducationalYears,
-                    availableYears = allAvailableYears,
-                    isSheetVisible = state.isServantYearSheetVisible,
-                    onToggleSheet = listener::onToggleServantYearSheet,
-                    onSelectYear = listener::onToggleServantYearSelection,
-                    label = stringResource(Res.string.educational_years)
-                )
+                AnimatedVisibility(
+                    visible = state.servantAvailableYears.isNotEmpty(),
+                    enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandVertically(),
+                    exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkVertically()
+                ) {
+                    EducationalYearSelectField(
+                        selectedYear = state.servantEducationalYear,
+                        availableYears = state.servantAvailableYears,
+                        isSheetVisible = state.isServantYearSheetVisible,
+                        onToggleSheet = listener::onToggleServantYearSheet,
+                        onSelectYear = listener::onToggleServantYearSelection,
+                        label = stringResource(Res.string.educational_years)
+                    )
+                }
             }
         }
 
@@ -114,7 +120,7 @@ fun ReviewStep2ServantContent(
 
                 EducationalYearSelectField(
                     selectedYears = state.responsibleYears,
-                    availableYears = allAvailableYears,
+                    availableYears = state.allAvailableYearsForPermissions,
                     isSheetVisible = state.isResponsibleYearSheetVisible,
                     onToggleSheet = listener::onToggleResponsibleYearSheet,
                     onSelectYear = listener::onToggleResponsibleYearSelection,

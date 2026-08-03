@@ -28,6 +28,9 @@ data object RegistrationRequestsRoute : NavKey
 data class ReviewAndEditRequestRoute(val userId: String) : NavKey
 
 @Serializable
+data class EditUserRoute(val userId: String) : NavKey
+
+@Serializable
 data object AddUserRoute : NavKey
 
 @Serializable
@@ -45,3 +48,18 @@ data class VerifyEmailResetPasswordRoute(val email: String) : NavKey
 @Serializable
 data class CreateNewPasswordRoute(val key: String, val otp: String, val isPhone: Boolean) : NavKey
 
+@Serializable
+data object AttendanceServicesRoute : NavKey
+
+@Serializable
+data class AttendanceRegisterRoute(
+    val eventId: Long,
+    val serviceName: String,
+    val eventName: String
+) : NavKey
+
+@Serializable
+data class AttendanceEventsRoute(
+    val serviceId: Long,
+    val serviceName: String
+) : NavKey

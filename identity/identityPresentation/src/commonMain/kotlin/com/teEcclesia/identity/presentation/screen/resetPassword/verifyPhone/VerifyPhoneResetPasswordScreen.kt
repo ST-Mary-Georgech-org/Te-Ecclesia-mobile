@@ -15,10 +15,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -98,17 +100,17 @@ fun VerifyPhoneResetPasswordContent(
                 AppButton(
                     type = AppButtonType.Primary,
                     onClick = interactionListener::onVerifyClicked,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("VerifyButton"),
                     text = stringResource(Res.string.verify_button),
-                    state = state.actionButtonState
+                    state = AppButtonState.Enabled
                 )
 
                 AppButton(
                     type = AppButtonType.Primary,
                     onClick = interactionListener::onNextClicked,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("NextButton"),
                     text = stringResource(Res.string.next),
-                    state = state.actionButtonState
+                    state = state.nextButtonState
                 )
             }
         }

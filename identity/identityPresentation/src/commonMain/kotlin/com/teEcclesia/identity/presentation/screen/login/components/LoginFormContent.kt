@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -64,7 +65,7 @@ fun LoginFormContent(
                     value = state.username,
                     onValueChange = interactionListener::onUsernameChange,
                     labelText = stringResource(Res.string.phone_number),
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().testTag("PhoneInput"),
                     errorText = state.usernameError?.asString(),
                     supportingText = stringResource(Res.string.phone_number_supporting_text),
                     textStyle = if (isPhoneInput) {
@@ -86,7 +87,7 @@ fun LoginFormContent(
                 value = state.password,
                 onValueChange = interactionListener::onPasswordChange,
                 labelText = stringResource(Res.string.password),
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("PasswordInput"),
                 singleLine = true,
                 errorText = state.passwordError?.asString(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -120,7 +121,7 @@ fun LoginFormContent(
             AppButton(
                 type = AppButtonType.Primary,
                 onClick = interactionListener::onLoginClicked,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().testTag("LoginButton"),
                 text = stringResource(Res.string.login),
                 state = state.actionButtonState
             )

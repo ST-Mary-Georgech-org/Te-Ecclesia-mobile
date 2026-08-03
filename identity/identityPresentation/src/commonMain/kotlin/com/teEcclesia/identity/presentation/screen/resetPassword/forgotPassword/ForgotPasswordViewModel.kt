@@ -33,15 +33,16 @@ class ForgotPasswordViewModel(
         val isPhone = validatePhone(input)
         val isEmail = isValidFinalEmail(input)
         val isNationalId = input.matches(Regex("""\d{14}""")) || isValidEgyptianNationalId(input)
+        val isCode = input.matches(Regex("^[A-Za-z0-9-]{4,20}$"))
 
-        if (!isPhone && !isEmail && !isNationalId) {
+        if (!isPhone && !isEmail && !isNationalId && !isCode) {
             updateState {
                 copy(identifierError = UiText.StringRes(Res.string.invalid_phone_or_national_id_or_code_or_email))
             }
             return
         }
 
-        val method = if (isPhone || isNationalId) VerificationMethod.PHONE else VerificationMethod.EMAIL
+        val method = if (isPhone || isNationalId || isCode) VerificationMethod.PHONE else VerificationMethod.EMAIL
 
         tryToCall(
             onStart = {
@@ -51,7 +52,7 @@ class ForgotPasswordViewModel(
                 resetPasswordRepository.requestOTP(key = input, method = method)
             },
             onSuccess = { response ->
-                if (isPhone || isNationalId) {
+                if (isPhone || isNationalId || isCode) {
                     navigate(
                         VerifyPhoneResetPasswordRoute(
                             phone = input,

@@ -69,6 +69,7 @@
     <string name="invalid_email_format">Invalid email format</string>
     <string name="invalid_code_format">Code must be 1 English letter followed by 8 digits (e.g. A12345678)</string>
     <string name="invalid_password_format">8 or more characters with a mix of uppercase and lowercase letters, numbers, and symbols, EX: Aa@123456</string>
+    <string name="optional_password_hint">Password is optional. Leave blank to keep current password.</string>
 
     <string name="address_info">Address Details</string>
     <string name="account_contact_info">Account &amp; Contact</string>
@@ -249,8 +250,10 @@
     <string name="failed_to_verify_code">Failed to verify code</string>
     <string name="failed_to_reset_password">Failed to reset password</string>
 
+    <string name="verification_pending">Verification pending</string>
+
     <!-- Attendance Keys -->
-    <string name="attendance_registration">Attendance Registration</string>
+    <string name="attendance">Attendance</string>
     <string name="services">Services</string>
     <string name="add_service">Add Service</string>
     <string name="edit_service">Edit Service</string>

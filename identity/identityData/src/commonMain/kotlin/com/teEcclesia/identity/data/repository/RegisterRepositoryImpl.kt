@@ -132,7 +132,7 @@ class RegisterRepositoryImpl(
             }
         }
         
-        authenticationRepository.saveAuthTokens(response.toDomain())
+        authenticationRepository.saveAuthTokens(response.toDomain(), syncDeviceToken = false)
         client.invalidateAuthTokens()
     }
 

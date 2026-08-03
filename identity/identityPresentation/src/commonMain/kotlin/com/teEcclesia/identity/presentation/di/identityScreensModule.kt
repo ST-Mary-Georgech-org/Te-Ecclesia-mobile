@@ -53,6 +53,7 @@ val identityScreensModule = module {
     viewModel { parameters ->
         ReviewAndEditRequestViewModel(
             userId = parameters.getOrNull<String>(),
+            isFromSearch = parameters.getOrNull<Boolean>() ?: false,
             profileRepository = get(),
             registerRepository = get(),
             lookupRepository = get(),

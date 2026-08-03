@@ -9,6 +9,7 @@ import com.teEcclesia.identity.domain.repository.ProfileRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
+import io.ktor.client.request.patch
 import io.ktor.client.request.setBody
 import io.ktor.client.request.parameter
 import com.teEcclesia.shared.domain.model.UserRole
@@ -28,50 +29,21 @@ import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.service.AuthorizationService
 
-import com.russhwolf.settings.Settings
-import com.teEcclesia.identity.data.dataSource.local.setting.cachedProfileJson
-import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.CachedProfileDto
-import com.teEcclesia.identity.domain.model.CachedProfile
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import com.teEcclesia.identity.domain.repository.SettingsRepository
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toCachedProfile
 
 class ProfileRepositoryImpl(
     client: HttpClient,
-    private val settings: Settings,
+    private val settingsRepository: SettingsRepository,
     private val authorizationService: AuthorizationService
 ) : BaseRepository(client), ProfileRepository {
-
-    private val _cachedProfileFlow = MutableStateFlow(readCachedProfileFromSettings())
-
-    private fun readCachedProfileFromSettings(): CachedProfile? {
-        val cachedJson = settings.cachedProfileJson
-        if (cachedJson.isBlank()) return null
-        return try {
-            Json.decodeFromString<CachedProfileDto>(cachedJson).toDomain()
-        } catch (_: Exception) {
-            null
-        }
-    }
-
-    override fun observeCachedProfile(): StateFlow<CachedProfile?> = _cachedProfileFlow.asStateFlow()
-
-    override fun getCachedProfile(): CachedProfile? = _cachedProfileFlow.value
 
     override suspend fun getRegistrationProfile(): ProfileResponse {
         val response = tryToExecute<ProfileResponseDto> {
             get(GET_ME_ENDPOINT)
         }
-        val cachedDto = CachedProfileDto(
-            role = response.role,
-            fullName = response.fullName,
-            displayName = response.displayName,
-            code = response.code.orEmpty(),
-            imageUrl = response.imageUrl
-        )
-        val domainCached = cachedDto.toDomain()
-        settings.cachedProfileJson = Json.encodeToString(cachedDto)
-        _cachedProfileFlow.value = domainCached
+        val domainCached = response.toCachedProfile()
+        settingsRepository.saveCachedProfile(domainCached)
 
         val domainProfile = response.toDomain()
         val wasRegistrationPending = authorizationService.isRegistrationPending()
@@ -90,12 +62,13 @@ class ProfileRepositoryImpl(
     private suspend fun saveUserAuthorizationDetails(profile: ProfileResponse) {
         saveUserRole(profile.role)
         saveUserStatus(profile.status)
-        saveCanApproveRequests(profile.khademProfile?.canApproveRequests ?: false)
+        val isKhadem = profile.role == UserRole.KHADEM
+        saveCanApproveRequests(if (isKhadem) profile.khademProfile?.canApproveRequests ?: false else false)
         authorizationService.saveKhademAuthorizationDetails(
-            stageId = profile.khademProfile?.educationalStage?.id,
-            yearId = profile.khademProfile?.educationalYear?.id,
-            responsibleStageIds = profile.khademProfile?.responsibleStages?.map { it.id } ?: emptyList(),
-            responsibleYearIds = profile.khademProfile?.responsibleYears?.map { it.id } ?: emptyList()
+            stageId = if (isKhadem) profile.khademProfile?.educationalStage?.id else null,
+            yearId = if (isKhadem) profile.khademProfile?.educationalYear?.id else null,
+            responsibleStageIds = if (isKhadem) profile.khademProfile?.responsibleStages?.map { it.id } ?: emptyList() else emptyList(),
+            responsibleYearIds = if (isKhadem) profile.khademProfile?.responsibleYears?.map { it.id } ?: emptyList() else emptyList()
         )
     }
 
@@ -138,10 +111,94 @@ class ProfileRepositoryImpl(
         return response.toPagedData { it.toDomain() }
     }
 
-    override suspend fun approveUser(userId: String, request: ApproveUserRequest?) {
+    override suspend fun approveUser(
+        userId: String, 
+        request: ApproveUserRequest?,
+        imageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?,
+        ordinationCertificateBytes: ByteArray?
+    ) {
+        val requestJson = request?.let { Json.encodeToString(it.toDto()) }
         tryToExecute<Unit> {
             post("api/v1/users/$userId/approve") {
-                request?.let { setBody(it.toDto()) }
+                if (requestJson != null || imageBytes != null || identityDocumentBytes != null || ordinationCertificateBytes != null) {
+                    setBody(
+                        MultiPartFormDataContent(
+                            formData {
+                                if (requestJson != null) {
+                                    append("request", requestJson, Headers.build {
+                                        append(HttpHeaders.ContentType, "application/json")
+                                    })
+                                }
+                                if (imageBytes != null) {
+                                    val (contentType, filename) = getContentTypeAndFilename(imageBytes, "image")
+                                    append("image", imageBytes, Headers.build {
+                                        append(HttpHeaders.ContentType, contentType)
+                                        append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                    })
+                                }
+                                if (identityDocumentBytes != null) {
+                                    val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
+                                    append("identityDocument", identityDocumentBytes, Headers.build {
+                                        append(HttpHeaders.ContentType, contentType)
+                                        append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                    })
+                                }
+                                if (ordinationCertificateBytes != null) {
+                                    val (contentType, filename) = getContentTypeAndFilename(ordinationCertificateBytes, "ordinationCertificate")
+                                    append("ordinationCertificate", ordinationCertificateBytes, Headers.build {
+                                        append(HttpHeaders.ContentType, contentType)
+                                        append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                    })
+                                }
+                            }
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    override suspend fun updateUser(
+        userId: String, 
+        request: ApproveUserRequest,
+        imageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?,
+        ordinationCertificateBytes: ByteArray?
+    ) {
+        val requestJson = Json.encodeToString(request.toDto())
+        tryToExecute<Unit> {
+            patch("api/v1/users/$userId") {
+                setBody(
+                    MultiPartFormDataContent(
+                        formData {
+                            append("request", requestJson, Headers.build {
+                                append(HttpHeaders.ContentType, "application/json")
+                            })
+                            if (imageBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(imageBytes, "image")
+                                append("image", imageBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
+                            if (identityDocumentBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
+                                append("identityDocument", identityDocumentBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
+                            if (ordinationCertificateBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(ordinationCertificateBytes, "ordinationCertificate")
+                                append("ordinationCertificate", ordinationCertificateBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
+                        }
+                    )
+                )
             }
         }
     }

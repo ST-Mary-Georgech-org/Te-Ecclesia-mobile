@@ -2,7 +2,7 @@ package com.teEcclesia.identity.presentation.screen.usersSearch
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
+import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.repository.ProfileRepository
@@ -94,36 +94,70 @@ class UsersSearchViewModel(
         launch {
             val role = authorizationService.getUserRole()
             if (role == UserRole.KHADEM) {
-                val stageId = authorizationService.getKhademStageId()
-                val yearId = authorizationService.getKhademYearId()
-                if (stageId != null) {
-                    val allStages = lookupRepository.getEducationalStages(PageQuery(page = 0, size = 100)).data
-                    val stage = allStages.find { it.id == stageId }
-                    if (stage != null) {
-                        val year = if (yearId != null) stage.subItems.find { it.id == yearId } else null
-                        if (year != null) {
-                            updateState {
-                                it.copy(
-                                    selectedStage = stage,
-                                    selectedYear = year,
-                                    stages = listOf(stage),
-                                    years = listOf(year),
-                                    isStageFilterLocked = true,
-                                    isYearFilterLocked = true
-                                )
-                            }
+                val khademStageId = authorizationService.getKhademStageId()
+                val khademYearId = authorizationService.getKhademYearId()
+                val respStageIds = authorizationService.getResponsibleStageIds()
+                val respYearIds = authorizationService.getResponsibleYearIds()
+
+                val allStages = lookupRepository.getEducationalStages(PageQuery(page = 0, size = 100)).data
+
+                val allowedStages = allStages.mapNotNull { stage ->
+                    val isDirectStage = (stage.id == khademStageId) || respStageIds.contains(stage.id)
+                    if (isDirectStage) {
+                        if (stage.id == khademStageId && !respStageIds.contains(stage.id) && khademYearId != null) {
+                            val allowedYears = stage.subItems.filter { it.id == khademYearId || respYearIds.contains(it.id) }
+                            stage.copy(subItems = allowedYears)
                         } else {
-                            updateState {
-                                it.copy(
-                                    selectedStage = stage,
-                                    stages = listOf(stage),
-                                    years = stage.subItems,
-                                    isStageFilterLocked = true,
-                                    isYearFilterLocked = false
-                                )
-                            }
+                            stage
+                        }
+                    } else {
+                        val allowedYears = stage.subItems.filter { respYearIds.contains(it.id) }
+                        if (allowedYears.isNotEmpty()) {
+                            stage.copy(subItems = allowedYears)
+                        } else null
+                    }
+                }
+
+                if (allowedStages.size == 1) {
+                    val singleStage = allowedStages.first()
+                    val availableYears = singleStage.subItems
+                    if (availableYears.size == 1) {
+                        val singleYear = availableYears.first()
+                        updateState {
+                            it.copy(
+                                selectedStage = singleStage,
+                                selectedYear = singleYear,
+                                stages = allowedStages,
+                                years = availableYears,
+                                isStageFilterLocked = true,
+                                isYearFilterLocked = true
+                            )
+                        }
+                    } else {
+                        updateState {
+                            it.copy(
+                                selectedStage = singleStage,
+                                selectedYear = null,
+                                stages = allowedStages,
+                                years = availableYears,
+                                isStageFilterLocked = true,
+                                isYearFilterLocked = false
+                            )
                         }
                     }
+                } else if (allowedStages.isNotEmpty()) {
+                    updateState {
+                        it.copy(
+                            selectedStage = null,
+                            selectedYear = null,
+                            stages = allowedStages,
+                            years = emptyList(),
+                            isStageFilterLocked = false,
+                            isYearFilterLocked = false
+                        )
+                    }
+                } else {
+                    loadStages()
                 }
             } else {
                 loadStages()
@@ -135,7 +169,7 @@ class UsersSearchViewModel(
     private fun loadUsers(reset: Boolean = false) {
         launch {
             if (reset) {
-                updateState { it.copy(page = 0, users = emptyList(), hasMorePages = true) }
+                updateState { it.copy(users = emptyList(), page = 0, hasMorePages = true) }
                 usersPaginator.reset()
             }
             usersPaginator.loadNextItems()
@@ -188,7 +222,7 @@ class UsersSearchViewModel(
     }
 
     override fun onUserClicked(user: ProfileResponse) {
-        navigate(ReviewAndEditRequestRoute(userId = user.id))
+        navigate(EditUserRoute(userId = user.id))
     }
 
     override fun onLoadMore() {

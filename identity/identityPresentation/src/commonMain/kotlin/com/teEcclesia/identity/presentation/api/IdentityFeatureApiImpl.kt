@@ -15,6 +15,7 @@ import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
+import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
@@ -46,8 +47,9 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
             entry<PendingApprovalRoute> { PendingApprovalScreen() }
             entry<ProfileRoute> { ProfileScreen() }
             entry<RegistrationRequestsRoute> { RegistrationRequestsScreen() }
-            entry<ReviewAndEditRequestRoute> { route -> ReviewAndEditRequestScreen(userId = route.userId) }
-            entry<AddUserRoute> { ReviewAndEditRequestScreen() }
+            entry<ReviewAndEditRequestRoute> { route -> ReviewAndEditRequestScreen(userId = route.userId, isFromSearch = false) }
+            entry<EditUserRoute> { route -> ReviewAndEditRequestScreen(userId = route.userId, isFromSearch = true) }
+            entry<AddUserRoute> { ReviewAndEditRequestScreen(userId = null, isFromSearch = false) }
             entry<UsersSearchRoute> { UsersSearchScreen() }
             entry<ForgotPasswordRoute> { route -> ForgotPasswordScreen(initialKey = route.key) }
             entry<VerifyPhoneResetPasswordRoute> { route ->

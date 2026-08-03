@@ -16,8 +16,8 @@ interface AuthenticationRepository {
     suspend fun upgradeRegistrationToken(): String
     suspend fun getAccessToken(): String
     suspend fun getAuthTokens(): AuthenticationTokens?
-    suspend fun saveAuthTokens(authTokens: AuthenticationTokens)
-    suspend fun saveRegistrationToken(token: String, refreshToken: String = "")
+    suspend fun saveAuthTokens(authTokens: AuthenticationTokens, syncDeviceToken: Boolean = true)
+    suspend fun saveRegistrationToken(token: String, refreshToken: String = "", syncDeviceToken: Boolean = true)
     suspend fun isRegistrationPending(): Boolean
     suspend fun clearAuthTokens()
     suspend fun saveUserRole(role: UserRole)

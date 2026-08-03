@@ -9,6 +9,8 @@ import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
 import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_verify_code
+import teecclesia.designsystem.generated.resources.verification_pending
+import com.teEcclesia.shared.domain.exception.UserIsBlockedException
 
 class VerifyPhoneResetPasswordViewModel(
     phone: String,
@@ -29,7 +31,7 @@ class VerifyPhoneResetPasswordViewModel(
     override fun onNextClicked() {
         tryToCall(
             onStart = {
-                updateState { copy(actionButtonState = AppButtonState.Loading) }
+                updateState { copy(nextButtonState = AppButtonState.Loading) }
             },
             block = {
                 resetPasswordRepository.verifyOTPCode(
@@ -48,14 +50,19 @@ class VerifyPhoneResetPasswordViewModel(
                 )
             },
             onError = { error ->
+                val errorMessage = if (error is UserIsBlockedException) {
+                    UiText.StringRes(Res.string.verification_pending)
+                } else {
+                    getLocalizedErrorMessage(error)
+                }
                 showSnackBar(
                     title = UiText.StringRes(Res.string.failed_to_verify_code),
-                    message = getLocalizedErrorMessage(error),
+                    message = errorMessage,
                     isSuccess = false
                 )
             },
             onEnd = {
-                updateState { copy(actionButtonState = AppButtonState.Enabled) }
+                updateState { copy(nextButtonState = AppButtonState.Enabled) }
             }
         )
     }

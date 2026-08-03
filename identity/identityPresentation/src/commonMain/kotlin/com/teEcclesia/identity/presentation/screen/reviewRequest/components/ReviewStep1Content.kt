@@ -23,6 +23,8 @@ import com.teEcclesia.identity.presentation.shared.components.ConfessionPriestFi
 import com.teEcclesia.identity.presentation.shared.components.ContactInfoFields
 import com.teEcclesia.identity.presentation.shared.components.FourNamesFields
 import com.teEcclesia.designsystem.utils.asString
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.AvatarPicker
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
@@ -46,6 +48,11 @@ import teecclesia.designsystem.generated.resources.national_id
 import teecclesia.designsystem.generated.resources.national_id_hint
 import teecclesia.designsystem.generated.resources.next_step
 import teecclesia.designsystem.generated.resources.personal_info
+import teecclesia.designsystem.generated.resources.last_name
+import teecclesia.designsystem.generated.resources.optional_password_hint
+import teecclesia.designsystem.generated.resources.password
+import teecclesia.designsystem.generated.resources.ic_eye_closed
+import teecclesia.designsystem.generated.resources.ic_eye_opened
 import teecclesia.designsystem.generated.resources.should_have_whatsapp
 
 @Composable
@@ -111,6 +118,7 @@ fun ReviewStep1Content(
                 errorText = state.displayNameError?.asString(),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
+                allowEmojis = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
             )
 
@@ -181,6 +189,29 @@ fun ReviewStep1Content(
                 emailError = state.emailError?.asString(),
                 supportingTextPhone = stringResource(Res.string.should_have_whatsapp)
             )
+            
+            if (state.isUpdateMode) {
+                CustomTextField(
+                    value = state.password,
+                    onValueChange = listener::onPasswordChanged,
+                    labelText = stringResource(Res.string.password),
+                    supportingText = stringResource(Res.string.optional_password_hint),
+                    errorText = state.passwordError?.asString(),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done),
+                    visualTransformation = if (state.isPasswordVisible) {
+                        VisualTransformation.None
+                    } else {
+                        PasswordVisualTransformation()
+                    },
+                    trailingIcon = when (state.isPasswordVisible) {
+                        true -> painterResource(Res.drawable.ic_eye_closed)
+                        false -> painterResource(Res.drawable.ic_eye_opened)
+                    },
+                    onTrailingIconClick = listener::onTogglePasswordVisibility
+                )
+            }
         }
 
         ReviewSectionCard(

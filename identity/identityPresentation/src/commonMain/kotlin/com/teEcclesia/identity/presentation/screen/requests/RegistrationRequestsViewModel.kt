@@ -78,6 +78,18 @@ class RegistrationRequestsViewModel(
 
     init {
         loadRequests()
+        listenForHandledUsers()
+    }
+
+    private fun listenForHandledUsers() {
+        launch {
+            getResult<String>("handledUserId", consume = true).collect { handledUserId ->
+                if (handledUserId != null && handledUserId.isNotBlank()) {
+                    val updatedRequests = state.value.requests.filter { it.id != handledUserId }
+                    updateState { it.copy(requests = updatedRequests) }
+                }
+            }
+        }
     }
 
     private fun loadRequests() {
