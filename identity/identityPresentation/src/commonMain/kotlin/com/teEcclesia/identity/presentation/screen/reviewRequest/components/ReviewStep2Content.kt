@@ -43,6 +43,7 @@ import teecclesia.designsystem.generated.resources.previous_step
 import teecclesia.designsystem.generated.resources.reason
 import teecclesia.designsystem.generated.resources.reject
 import teecclesia.designsystem.generated.resources.role
+import teecclesia.designsystem.generated.resources.save_changes
 import teecclesia.designsystem.generated.resources.submitted_at
 
 @Composable
@@ -167,15 +168,19 @@ fun ReviewStep2Content(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            AppButton(
-                text = stringResource(
-                    if (state.userId.isNotBlank()) Res.string.accept else Res.string.add_new_user
-                ),
-                onClick = { listener.onApproveRequest() },
-                type = AppButtonType.Tertiary,
-                state = if (state.isSubmitting) AppButtonState.Loading else AppButtonState.Enabled,
-                modifier = Modifier.fillMaxWidth()
-            )
+            if (!state.isUpdateMode || state.canEditUser) {
+                AppButton(
+                    text = stringResource(
+                        if (state.isUpdateMode) Res.string.save_changes
+                        else if (state.userId.isNotBlank()) Res.string.accept 
+                        else Res.string.add_new_user
+                    ),
+                    onClick = { listener.onApproveRequest() },
+                    type = AppButtonType.Tertiary,
+                    state = if (state.isSubmitting) AppButtonState.Loading else AppButtonState.Enabled,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -187,7 +192,7 @@ fun ReviewStep2Content(
                     type = AppButtonType.Secondary,
                     modifier = Modifier.weight(1f)
                 )
-                if (state.userId.isNotBlank()) {
+                if (state.userId.isNotBlank() && !state.isReadOnlyMode) {
                     AppButton(
                         text = stringResource(Res.string.reject),
                         onClick = { listener.onRejectRequest(state.notes) },

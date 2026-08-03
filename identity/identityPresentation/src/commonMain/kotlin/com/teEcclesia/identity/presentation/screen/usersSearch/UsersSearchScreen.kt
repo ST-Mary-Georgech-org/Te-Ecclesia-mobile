@@ -1,5 +1,10 @@
 package com.teEcclesia.identity.presentation.screen.usersSearch
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -43,6 +48,7 @@ import com.teEcclesia.designsystem.components.chips.SuggestionChip
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -99,7 +105,11 @@ private fun UsersSearchContent(
         listener = listener
     )
 
-    Column(
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = listener::onRefresh
+    ) {
+        Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Theme.colorScheme.background)
@@ -141,14 +151,18 @@ private fun UsersSearchContent(
                 .padding(horizontal = 16.dp)
         )
 
-        if (state.hasActiveFilters) {
+        AnimatedVisibility(
+            visible = state.hasActiveFilters,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
             ActiveFilterChipsRow(state = state, listener = listener)
         }
 
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (state.isLoading && state.users.isEmpty()) {
+            if (state.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -203,6 +217,7 @@ private fun UsersSearchContent(
             loadNextItems = listener::onLoadMore
         )
     }
+}
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -506,42 +521,51 @@ private fun FilterBottomSheet(
                 }
             }
 
-            if (state.selectedStage != null && state.years.isNotEmpty()) {
-                Text(
-                    text = stringResource(Res.string.educational_years),
-                    style = Theme.typography.titleMedium,
-                    color = Theme.colorScheme.onSurface
-                )
-
-                FlowRow(
+            AnimatedVisibility(
+                visible = state.selectedStage != null && state.years.isNotEmpty(),
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    if (!state.isYearFilterLocked) {
-                        FilterChip(
-                            selected = state.selectedYear == null,
-                            onClick = { listener.onYearFilterSelected(null) },
-                            label = {
-                                Text(
-                                    text = stringResource(Res.string.all_years),
-                                    style = Theme.typography.bodyMedium,
-                                    color = if (state.selectedYear == null) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        )
-                    }
-                    state.years.forEach { year ->
-                        FilterChip(
-                            selected = state.selectedYear?.id == year.id,
-                            onClick = { listener.onYearFilterSelected(year) },
-                            label = {
-                                Text(
-                                    text = year.name,
-                                    style = Theme.typography.bodyMedium,
-                                    color = if (state.selectedYear?.id == year.id) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        )
+                    Text(
+                        text = stringResource(Res.string.educational_years),
+                        style = Theme.typography.titleMedium,
+                        color = Theme.colorScheme.onSurface
+                    )
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        if (!state.isYearFilterLocked) {
+                            FilterChip(
+                                selected = state.selectedYear == null,
+                                onClick = { listener.onYearFilterSelected(null) },
+                                label = {
+                                    Text(
+                                        text = stringResource(Res.string.all_years),
+                                        style = Theme.typography.bodyMedium,
+                                        color = if (state.selectedYear == null) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            )
+                        }
+                        state.years.forEach { year ->
+                            FilterChip(
+                                selected = state.selectedYear?.id == year.id,
+                                onClick = { listener.onYearFilterSelected(year) },
+                                label = {
+                                    Text(
+                                        text = year.name,
+                                        style = Theme.typography.bodyMedium,
+                                        color = if (state.selectedYear?.id == year.id) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }

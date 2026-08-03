@@ -36,6 +36,7 @@ import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.button.AppSegmentedControl
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.identity.domain.util.AppLanguage
@@ -70,7 +71,8 @@ fun ProfileScreen(
         onClickEditProfile = viewModel::onClickEditProfile,
         onClickSearchUsers = viewModel::onClickSearchUsers,
         onClickAddUser = viewModel::onClickAddUser,
-        onClickLogout = viewModel::onClickLogout
+        onClickLogout = viewModel::onClickLogout,
+        onRefresh = viewModel::onRefresh
     )
 }
 
@@ -84,12 +86,18 @@ private fun ProfileContent(
     onClickSearchUsers: () -> Unit,
     onClickAddUser: () -> Unit,
     onClickLogout: () -> Unit,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Theme.colorScheme.background)
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = onRefresh,
+        modifier = modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Theme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding()
             .verticalScroll(rememberScrollState())
@@ -250,6 +258,7 @@ private fun ProfileContent(
 
         Spacer(modifier = Modifier.height(80.dp))
     }
+    }
 }
 
 @Composable
@@ -305,6 +314,7 @@ private fun ProfileContentPreview() = Theme {
         onClickEditProfile = {},
         onClickSearchUsers = {},
         onClickAddUser = {},
-        onClickLogout = {}
+        onClickLogout = {},
+        onRefresh = {}
     )
 }

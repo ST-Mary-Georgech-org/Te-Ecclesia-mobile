@@ -69,6 +69,7 @@
     <string name="invalid_email_format">البريد الإلكتروني غير صالح</string>
     <string name="invalid_code_format">يجب أن يتكون الكود من حرف إنجليزي و 8 أرقام إنجليزية (مثال: A12345678)</string>
     <string name="invalid_password_format">8 أحرف أو أكثر مع مزيج من الأحرف الكبيرة والصغيرة والأرقام والرموز, مثال: Aa@123456</string>
+    <string name="optional_password_hint">كلمة المرور اختيارية. اتركها فارغة للاحتفاظ بكلمة المرور الحالية.</string>
 
     <string name="address_info">بيانات العنوان</string>
     <string name="account_contact_info">الحساب والتواصل</string>
@@ -252,7 +253,7 @@
     <string name="verification_pending">لم يتم التحقق بعد</string>
 
     <!-- Attendance Keys -->
-    <string name="attendance_registration">تسجيل الحضور</string>
+    <string name="attendance">الحضور</string>
     <string name="services">الخدمات</string>
     <string name="add_service">إضافة خدمة جديدة</string>
     <string name="edit_service">تعديل الخدمة</string>

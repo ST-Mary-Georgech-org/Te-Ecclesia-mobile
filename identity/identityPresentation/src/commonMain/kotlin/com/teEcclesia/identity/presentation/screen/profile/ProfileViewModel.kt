@@ -67,15 +67,34 @@ class ProfileViewModel(
             block = {
                 val canSearch = authorizationService.canSearchUsers()
                 val canAdd = authorizationService.canAddStudent()
+                Pair(canSearch, canAdd)
+            },
+            onSuccess = { (canSearch, canAdd) ->
                 updateState {
                     copy(
                         canAddUser = canAdd,
                         canSearchUsers = canSearch
                     )
                 }
-                profileRepository.getRegistrationProfile()
             },
-            onSuccess = { },
+            onError = { }
+        )
+
+        tryToCall(
+            block = {
+                profileRepository.getRegistrationProfile()
+                val canSearch = authorizationService.canSearchUsers()
+                val canAdd = authorizationService.canAddStudent()
+                Pair(canSearch, canAdd)
+            },
+            onSuccess = { (canSearch, canAdd) ->
+                updateState {
+                    copy(
+                        canAddUser = canAdd,
+                        canSearchUsers = canSearch
+                    )
+                }
+            },
             onError = { }
         )
     }
@@ -127,5 +146,29 @@ class ProfileViewModel(
             onEnd = { updateState { copy(actionButtonState = AppButtonState.Enabled) } }
         )
         resetTo(LoginRoute)
+    }
+
+    fun onRefresh() {
+        if (!state.value.isRefreshing) {
+            updateState { copy(isRefreshing = true) }
+            tryToCall(
+                block = {
+                    profileRepository.getRegistrationProfile()
+                    val canSearch = authorizationService.canSearchUsers()
+                    val canAdd = authorizationService.canAddStudent()
+                    Pair(canSearch, canAdd)
+                },
+                onSuccess = { (canSearch, canAdd) ->
+                    updateState {
+                        copy(
+                            canAddUser = canAdd,
+                            canSearchUsers = canSearch
+                        )
+                    }
+                },
+                onError = { },
+                onEnd = { updateState { copy(isRefreshing = false) } }
+            )
+        }
     }
 }

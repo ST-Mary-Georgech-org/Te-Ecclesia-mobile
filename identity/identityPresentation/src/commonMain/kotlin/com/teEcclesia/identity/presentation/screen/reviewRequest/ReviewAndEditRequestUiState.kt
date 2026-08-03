@@ -8,12 +8,20 @@ import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
+import com.teEcclesia.identity.domain.model.RegisterRequest
+import com.teEcclesia.identity.domain.model.OrdinationProfileRequest
+import com.teEcclesia.identity.domain.model.MakhdoomProfileRequest
+import com.teEcclesia.identity.domain.model.KhademProfileRequest
+import com.teEcclesia.identity.domain.model.ParentProfileRequest
+import com.teEcclesia.identity.domain.model.KahenProfileRequest
 
 data class ReviewAndEditRequestUiState(
     val userId: String = "",
     val currentStep: Int = 1,
     val totalSteps: Int = 2,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
+    val isReadOnlyMode: Boolean = false,
     val isSubmitting: Boolean = false,
     val userProfile: ProfileResponse? = null,
     val isRejectDialogVisible: Boolean = false,
@@ -38,6 +46,9 @@ data class ReviewAndEditRequestUiState(
     val phone: String = "",
     val homePhone: String = "",
     val email: String = "",
+    val password: String = "",
+    val isPasswordVisible: Boolean = false,
+    val isUpdateMode: Boolean = false,
 
     val buildingNo: String = "",
     val street: String = "",
@@ -61,6 +72,7 @@ data class ReviewAndEditRequestUiState(
     val phoneError: UiText? = null,
     val homePhoneError: UiText? = null,
     val emailError: UiText? = null,
+    val passwordError: UiText? = null,
     val buildingNoError: UiText? = null,
     val streetError: UiText? = null,
     val areaError: UiText? = null,
@@ -121,15 +133,19 @@ data class ReviewAndEditRequestUiState(
     val motherWhatsapp: String = "",
     val motherWhatsappError: UiText? = null,
 
-    val servantEducationalStages: List<LookupResponse> = emptyList(),
-    val servantEducationalYears: List<LookupResponse> = emptyList(),
+    val servantEducationalStage: LookupResponse? = null,
+    val servantEducationalYear: LookupResponse? = null,
+
     val isServantStageSheetVisible: Boolean = false,
     val isServantYearSheetVisible: Boolean = false,
     val canApproveNewRequests: Boolean = false,
+    val canEditUser: Boolean = false,
     val responsibleStages: List<LookupResponse> = emptyList(),
     val responsibleYears: List<LookupResponse> = emptyList(),
     val isResponsibleStageSheetVisible: Boolean = false,
     val isResponsibleYearSheetVisible: Boolean = false,
+    val allAvailableYearsForPermissions: List<LookupResponse> = emptyList(),
+    val servantAvailableYears: List<LookupResponse> = emptyList(),
 
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
@@ -152,6 +168,8 @@ data class ReviewAndEditRequestUiState(
 
     val canGoNext: Boolean
         get() = currentStep < totalSteps
+
+
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -265,8 +283,8 @@ data class ReviewAndEditRequestUiState(
         if (motherPhoneError != other.motherPhoneError) return false
         if (motherWhatsapp != other.motherWhatsapp) return false
         if (motherWhatsappError != other.motherWhatsappError) return false
-        if (servantEducationalStages != other.servantEducationalStages) return false
-        if (servantEducationalYears != other.servantEducationalYears) return false
+        if (servantEducationalStage != other.servantEducationalStage) return false
+        if (servantEducationalYear != other.servantEducationalYear) return false
         if (responsibleStages != other.responsibleStages) return false
         if (responsibleYears != other.responsibleYears) return false
         if (partnerQuery != other.partnerQuery) return false
@@ -392,8 +410,8 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + (motherPhoneError?.hashCode() ?: 0)
         result = 31 * result + motherWhatsapp.hashCode()
         result = 31 * result + (motherWhatsappError?.hashCode() ?: 0)
-        result = 31 * result + servantEducationalStages.hashCode()
-        result = 31 * result + servantEducationalYears.hashCode()
+        result = 31 * result + (servantEducationalStage?.hashCode() ?: 0)
+        result = 31 * result + (servantEducationalYear?.hashCode() ?: 0)
         result = 31 * result + responsibleStages.hashCode()
         result = 31 * result + responsibleYears.hashCode()
         result = 31 * result + partnerQuery.hashCode()
@@ -409,5 +427,136 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + canGoPrevious.hashCode()
         result = 31 * result + canGoNext.hashCode()
         return result
+    }
+}
+
+fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
+    return RegisterRequest(
+        firstName = firstName.trim(),
+        secondName = secondName.trim(),
+        thirdName = thirdName.trim(),
+        lastName = lastName.trim(),
+        displayName = displayName.trim(),
+        nationalId = nationalId.trim(),
+        phone = phone.trim(),
+        homePhone = homePhone.trim(),
+        email = email.trim().ifBlank { null },
+        password = password.ifBlank { null },
+        imageUrl = imageUrl,
+        job = job,
+        buildingNo = buildingNo.trim(),
+        street = street.trim(),
+        streetBranch = streetBranch.ifBlank { null },
+        area = area.trim(),
+        floor = floor.trim(),
+        apartment = apartment.ifBlank { null },
+        specialMark = specialMark.trim(),
+        role = selectedRole,
+        confessionPriestId = if (!isFromAnotherChurch) selectedConfessionPriest?.id else null,
+        externalConfessionPriestName = if (isFromAnotherChurch) confessionPriestName.ifBlank { null } else null,
+        externalConfessionChurch = if (isFromAnotherChurch) confessionPriestChurch.ifBlank { null } else null,
+        externalConfessionPhone = if (isFromAnotherChurch) confessionPriestPhone.ifBlank { null } else null,
+        ordinationProfile = toOrdinationProfileRequest(),
+        makhdoomProfile = toMakhdoomProfileRequest(),
+        khademProfile = toKhademProfileRequest(),
+        parentProfile = toParentProfileRequest(),
+        kahenProfile = toKahenProfileRequest()
+    )
+}
+
+private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): OrdinationProfileRequest? {
+    return if (isOrdained) {
+        OrdinationProfileRequest(
+            rankId = selectedRank?.id ?: 1L,
+            isOrdinationInAnotherChurch = !isOrdainedInThisChurch,
+            ordinationYear = ordinationYear.toIntOrNull(),
+            bishopName = bishopName.ifBlank { null },
+            ordinationPlace = ordinationPlace.ifBlank { null }
+        )
+    } else userProfile?.ordinationProfile?.let { old ->
+        OrdinationProfileRequest(
+            rankId = old.rank.id,
+            isOrdinationInAnotherChurch = old.isOrdinationInAnotherChurch,
+            ordinationYear = old.ordinationYear,
+            bishopName = old.bishopName.ifBlank { null },
+            ordinationPlace = old.ordinationPlace.ifBlank { null },
+            certificateImageUrl = old.certificateImageUrl
+        )
+    }
+}
+
+private fun ReviewAndEditRequestUiState.toMakhdoomProfileRequest(): MakhdoomProfileRequest? {
+    return if (selectedRole == UserRole.MAKHDOOM) {
+        MakhdoomProfileRequest(
+            shamamsaStudyStatus = shamamsaStatus,
+            educationalStageId = studentEducationalStage?.id ?: 1L,
+            educationalYearId = studentEducationalYear?.id,
+            isFatherDeceased = isFatherDeceased,
+            fatherPhone = fatherPhone.ifBlank { null },
+            fatherWhatsapp = fatherWhatsapp.ifBlank { null },
+            isMotherDeceased = isMotherDeceased,
+            motherPhone = motherPhone.ifBlank { null },
+            motherWhatsapp = motherWhatsapp.ifBlank { null }
+        )
+    } else userProfile?.makhdoomProfile?.let { old ->
+        MakhdoomProfileRequest(
+            shamamsaStudyStatus = old.shamamsaStudyStatus,
+            educationalStageId = old.educationalStage.id,
+            educationalYearId = old.educationalYear?.id,
+            fatherPhone = old.fatherPhone.ifBlank { null },
+            fatherWhatsapp = old.fatherWhatsapp.ifBlank { null },
+            motherPhone = old.motherPhone.ifBlank { null },
+            motherWhatsapp = old.motherWhatsapp.ifBlank { null },
+            isFatherDeceased = old.isFatherDeceased,
+            isMotherDeceased = old.isMotherDeceased,
+            identityDocumentImageUrl = old.identityDocumentImageUrl
+        )
+    }
+}
+
+private fun ReviewAndEditRequestUiState.toKhademProfileRequest(): KhademProfileRequest? {
+    return if (selectedRole == UserRole.KHADEM) {
+        KhademProfileRequest(
+            educationalStageId = servantEducationalStage?.id ?: 1L,
+            educationalYearId = servantEducationalYear?.id,
+            canApproveRequests = canApproveNewRequests,
+            responsibleStageIds = responsibleStages.map { it.id },
+            responsibleYearIds = responsibleYears.map { it.id }
+        )
+    } else userProfile?.khademProfile?.let { old ->
+        KhademProfileRequest(
+            educationalStageId = old.educationalStage.id,
+            educationalYearId = old.educationalYear?.id,
+            canApproveRequests = old.canApproveRequests,
+            responsibleStageIds = old.responsibleStages.map { it.id },
+            responsibleYearIds = old.responsibleYears.map { it.id }
+        )
+    }
+}
+
+private fun ReviewAndEditRequestUiState.toParentProfileRequest(): ParentProfileRequest? {
+    return if (selectedRole == UserRole.PARENT) {
+        ParentProfileRequest(
+            partnerCode = selectedPartner?.code,
+            childrenCodes = selectedChildren.mapNotNull { it.code }
+        )
+    } else userProfile?.parentProfile?.let { old ->
+        ParentProfileRequest(
+            partnerCode = old.partner?.code,
+            childrenCodes = old.children.mapNotNull { it.code },
+            nationalIdImageUrl = old.nationalIdImageUrl
+        )
+    }
+}
+
+private fun ReviewAndEditRequestUiState.toKahenProfileRequest(): KahenProfileRequest? {
+    return if (selectedRole == UserRole.KAHEN) {
+        KahenProfileRequest(
+            educationalStageIds = kahenEducationalStages.map { it.id }
+        )
+    } else userProfile?.kahenProfile?.let { old ->
+        KahenProfileRequest(
+            educationalStageIds = old.educationalStages.map { it.id }
+        )
     }
 }

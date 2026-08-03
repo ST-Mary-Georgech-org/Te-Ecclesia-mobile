@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -54,7 +55,8 @@ import teecclesia.designsystem.generated.resources.step_2_of_2
 @Composable
 fun ReviewAndEditRequestScreen(
     userId: String? = null,
-    viewModel: ReviewAndEditRequestViewModel = koinViewModel(parameters = { parametersOf(userId) })
+    isFromSearch: Boolean = false,
+    viewModel: ReviewAndEditRequestViewModel = koinViewModel(parameters = { parametersOf(userId, isFromSearch) })
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -84,60 +86,65 @@ private fun ReviewAndEditRequestContent(
 
     val fileOpener = com.teEcclesia.identity.presentation.util.rememberFileOpener()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Theme.colorScheme.background)
-            .statusBarsPadding()
-            .navigationBarsPadding()
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = listener::onRefresh,
+        modifier = Modifier.fillMaxSize()
     ) {
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = Theme.colorScheme.primary)
-            }
-        } else {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_back),
-                    contentDescription = "Back",
-                    tint = Theme.colorScheme.onBackground,
-                    modifier = Modifier
-                        .clickableNoRipple(onClick = listener::onPreviousStep)
-                        .padding(end = 16.dp)
-                )
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = if (state.userId.isNotBlank()) stringResource(Res.string.review_and_edit_request) else stringResource(Res.string.add_new_user),
-                        style = Theme.typography.headlineMedium,
-                        color = Theme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = if (state.currentStep == 1) stringResource(Res.string.step_1_of_2) else stringResource(Res.string.step_2_of_2),
-                        style = Theme.typography.bodySmall,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Theme.colorScheme.background)
+                .statusBarsPadding()
+                .navigationBarsPadding()
+        ) {
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Theme.colorScheme.primary)
                 }
-            }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_back),
+                        contentDescription = "Back",
+                        tint = Theme.colorScheme.onBackground,
+                        modifier = Modifier
+                            .clickableNoRipple(onClick = listener::onPreviousStep)
+                            .padding(end = 16.dp)
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = if (state.userId.isNotBlank()) stringResource(Res.string.review_and_edit_request) else stringResource(Res.string.add_new_user),
+                            style = Theme.typography.headlineMedium,
+                            color = Theme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = if (state.currentStep == 1) stringResource(Res.string.step_1_of_2) else stringResource(Res.string.step_2_of_2),
+                            style = Theme.typography.bodySmall,
+                            color = Theme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
 
-            LinearProgressIndicator(
-                progress = { if (state.currentStep == 1) 0.5f else 1f },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp)
-                    .padding(horizontal = 16.dp),
-                color = Theme.colorScheme.primary,
-                trackColor = Theme.colorScheme.surfaceContainerHighest
-            )
+                LinearProgressIndicator(
+                    progress = { if (state.currentStep == 1) 0.5f else 1f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(4.dp)
+                        .padding(horizontal = 16.dp),
+                    color = Theme.colorScheme.primary,
+                    trackColor = Theme.colorScheme.surfaceContainerHighest
+                )
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
             Box(
                 modifier = Modifier
@@ -168,6 +175,7 @@ private fun ReviewAndEditRequestContent(
                             }
                         )
                     }
+                }
                 }
             }
         }
@@ -209,7 +217,9 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onConfessionPriestPhoneChanged(value: String) {}
         override fun onPhoneChanged(value: String) {}
         override fun onHomePhoneChanged(value: String) {}
-        override fun onEmailChanged(value: String) {}
+        override fun onEmailChanged(email: String) {}
+        override fun onPasswordChanged(password: String) {}
+        override fun onTogglePasswordVisibility() {}
         override fun onBuildingNoChanged(value: String) {}
         override fun onStreetChanged(value: String) {}
         override fun onStreetBranchChanged(value: String) {}

@@ -2,7 +2,7 @@ package com.teEcclesia.identity.presentation.screen.usersSearch
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
+import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.repository.ProfileRepository
@@ -135,7 +135,7 @@ class UsersSearchViewModel(
     private fun loadUsers(reset: Boolean = false) {
         launch {
             if (reset) {
-                updateState { it.copy(page = 0, users = emptyList(), hasMorePages = true) }
+                updateState { it.copy(users = emptyList(), page = 0, hasMorePages = true) }
                 usersPaginator.reset()
             }
             usersPaginator.loadNextItems()
@@ -188,7 +188,7 @@ class UsersSearchViewModel(
     }
 
     override fun onUserClicked(user: ProfileResponse) {
-        navigate(ReviewAndEditRequestRoute(userId = user.id))
+        navigate(EditUserRoute(userId = user.id))
     }
 
     override fun onLoadMore() {

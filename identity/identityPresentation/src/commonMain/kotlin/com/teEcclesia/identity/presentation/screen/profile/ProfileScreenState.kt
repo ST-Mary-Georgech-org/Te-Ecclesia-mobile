@@ -14,4 +14,5 @@ data class ProfileScreenState(
     val userCode: String = "",
     val imageUrl: String? = null,
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
+    val isRefreshing: Boolean = false
 )
