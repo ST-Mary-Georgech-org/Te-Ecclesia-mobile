@@ -17,6 +17,7 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_plus
 import teecclesia.designsystem.generated.resources.search_child
+import teecclesia.designsystem.generated.resources.search_child_support_text
 
 @Composable
 fun ChildrenSelectionFields(
@@ -25,6 +26,7 @@ fun ChildrenSelectionFields(
     onSearchChild: () -> Unit,
     selectedChildren: List<UserSummary>,
     onRemoveChild: (UserSummary) -> Unit,
+    errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -35,6 +37,8 @@ fun ChildrenSelectionFields(
             value = childQuery,
             onValueChange = onChildQueryChange,
             labelText = stringResource(Res.string.search_child),
+            supportingText = stringResource(Res.string.search_child_support_text),
+            errorText = errorText,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
             trailingIcon = painterResource(Res.drawable.ic_plus),

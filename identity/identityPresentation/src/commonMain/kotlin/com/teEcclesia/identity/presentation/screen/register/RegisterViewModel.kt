@@ -49,6 +49,8 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
+import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.failed_to_complete_profile
 import teecclesia.designsystem.generated.resources.failed_to_load_areas
 import teecclesia.designsystem.generated.resources.failed_to_load_priests
@@ -813,9 +815,14 @@ class RegisterViewModel(
                     } else null
                 } else null
 
+                val identityCertificateErr = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
+                    UiText.StringRes(Res.string.field_required)
+                } else null
+
                 val hasError = listOfNotNull(
                     rankErr, stageErr, yearErr, ordinationYearErr,
-                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr
+                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr,
+                    identityCertificateErr
                 ).isNotEmpty()
                 updateState {
                     copy(
@@ -826,14 +833,30 @@ class RegisterViewModel(
                         fatherPhoneError = fatherPhoneErr,
                         fatherWhatsappError = fatherWhatsappErr,
                         motherPhoneError = motherPhoneErr,
-                        motherWhatsappError = motherWhatsappErr
+                        motherWhatsappError = motherWhatsappErr,
+                        identityCertificateError = identityCertificateErr
                     )
                 }
                 if (hasError) return
             }
 
             UserRole.PARENT -> {
-                // Parent profile validation
+                if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                        isSuccess = false
+                    )
+                    return
+                }
+                if (s.childQuery.isNotBlank()) {
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                        isSuccess = false
+                    )
+                    return
+                }
             }
 
             UserRole.KAHEN -> {
@@ -1050,7 +1073,7 @@ class RegisterViewModel(
     }
 
     override fun onPartnerQueryChange(query: String) {
-        updateState { copy(partnerQuery = query) }
+        updateState { copy(partnerQuery = query, partnerError = null) }
     }
 
     override fun onSearchPartner() {
@@ -1075,7 +1098,7 @@ class RegisterViewModel(
     }
 
     override fun onChildQueryChange(query: String) {
-        updateState { copy(childQuery = query) }
+        updateState { copy(childQuery = query, childError = null) }
     }
 
     override fun onSearchChild() {
@@ -1150,7 +1173,8 @@ class RegisterViewModel(
             UploadTarget.IDENTITY_CERTIFICATE -> updateState {
                 copy(
                     identityCertificateBytes = bytes,
-                    identityCertificateFileName = fileName
+                    identityCertificateFileName = fileName,
+                    identityCertificateError = null
                 )
             }
         }

@@ -108,7 +108,7 @@
     <string name="educational_stages">Educational Stages</string>
     <string name="priest_info">Priest Info</string>
     <string name="account_under_review">Account Under Review</string>
-    <string name="pending_approval_description">Your registration details have been received successfully and are currently under review by church administration. Your account will be activated upon approval.</string>
+    <string name="pending_approval_description">Your registration details have been received successfully and are currently under review by the administrator. Your account will be activated upon approval.</string>
     <string name="back_to_login">Back to Login</string>
     <string name="edit_registration">Edit Request Details</string>
     <string name="logout">Log Out</string>
@@ -127,8 +127,12 @@
 
     <string name="partner">Partner</string>
     <string name="search_partner">Search Partner</string>
+    <string name="search_partner_support_text">Search by partner's code or national ID, then press (+)</string>
     <string name="children">Children</string>
     <string name="search_child">Search Child</string>
+    <string name="search_child_support_text">Search by child's code or national ID, then press (+)</string>
+    <string name="error_forgot_to_click_plus_partner">You typed text in partner search, please click (+) to add partner first</string>
+    <string name="error_forgot_to_click_plus_child">You typed text in child search, please click (+) to add child first</string>
     <string name="upload_ordination_certificate">Upload Ordination Certificate (Optional)</string>
     <string name="upload_identity_card">Upload National ID Card (Optional)</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>

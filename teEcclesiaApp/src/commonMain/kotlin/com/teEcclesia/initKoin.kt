@@ -7,6 +7,7 @@ import com.teEcclesia.di.appModule
 import com.teEcclesia.di.featureModule
 import com.teEcclesia.di.networkModule
 import com.teEcclesia.util.NotificationClickState
+import com.teEcclesia.logging.di.loggingModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
@@ -21,7 +22,7 @@ fun initKoin(config: KoinAppDeclaration? = null) {
         config?.invoke(this)
 
         modules(
-            modules = appModule + apiModule + featureModule + networkModule
+            modules = appModule + apiModule + featureModule + networkModule + loggingModule
         )
     }
 }

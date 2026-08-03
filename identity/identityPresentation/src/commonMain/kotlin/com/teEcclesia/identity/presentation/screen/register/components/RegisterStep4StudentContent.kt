@@ -145,6 +145,7 @@ fun RegisterStep4StudentContent(
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
                 identityCertificateFileName = state.identityCertificateFileName,
+                identityCertificateError = state.identityCertificateError?.asString(),
                 onUploadIdentityCertificate = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
                 onClearIdentityCertificate = {
                     listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)

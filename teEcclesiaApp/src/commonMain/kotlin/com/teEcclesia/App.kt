@@ -19,19 +19,23 @@ import com.mmk.kmpnotifier.push.firebase.addPushListener
 import com.teEcclesia.appEntryPoint.EntryPoint
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
+import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
+import com.teEcclesia.notifications.api.NotificationsRoute
+import com.teEcclesia.notifications.domain.model.NotificationType
 import com.teEcclesia.util.NotificationClickState
 import com.teEcclesia.util.SetSystemBarsAppearance
 import com.teEcclesia.util.toStringMap
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import kotlin.coroutines.cancellation.CancellationException
-
 
 @Preview
 @Composable
@@ -79,11 +83,14 @@ fun App(
             }
         })
 
-        NotificationClickState.consumePendingPayload()
+        NotificationClickState.consumePendingPayload()?.let { data ->
+            handleNotificationClick(data, coroutineScope, exceptionHandler, effector)
+        }
 
         coroutineScope.launch {
-            NotificationClickState.clickFlow.collect {
+            NotificationClickState.clickFlow.collect { data ->
                 NotificationClickState.consumePendingPayload()
+                handleNotificationClick(data, coroutineScope, exceptionHandler, effector)
             }
         }
     }
@@ -110,3 +117,29 @@ fun App(
     )
 }
 
+private fun handleNotificationClick(
+    data: PayloadData,
+    coroutineScope: CoroutineScope,
+    exceptionHandler: CoroutineExceptionHandler,
+    effector: Effector
+) {
+    val typeStr = data["type"] as? String
+    val type = NotificationType.fromStringOrDefault(typeStr)
+    coroutineScope.launch(exceptionHandler) {
+        when (type) {
+            NotificationType.ALERT,
+            NotificationType.SYSTEM -> effector.navigate(NotificationsRoute, forceNavigate = true)
+            NotificationType.REVIEW -> {
+                val id = data["id"] as? String
+                if (id != null) {
+                    effector.resetTo(
+                        listOf(
+                            RegistrationRequestsRoute,
+                            ReviewAndEditRequestRoute(id)
+                        ), forceNavigate = true
+                    )
+                }
+            }
+        }
+    }
+}

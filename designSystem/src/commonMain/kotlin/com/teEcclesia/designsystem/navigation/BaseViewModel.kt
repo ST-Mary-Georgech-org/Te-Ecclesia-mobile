@@ -119,6 +119,7 @@ abstract class BaseViewModel<STATE>(
     ): Job {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable !is CancellationException) {
+                
                 onError(throwable)
             }
         }
@@ -130,6 +131,7 @@ abstract class BaseViewModel<STATE>(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Throwable) {
+                
                 onError(e)
             } finally {
                 onEnd()
@@ -148,6 +150,7 @@ abstract class BaseViewModel<STATE>(
     ): Job {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             if (exception !is CancellationException) {
+                
                 onError(exception)
             }
         }
@@ -159,6 +162,7 @@ abstract class BaseViewModel<STATE>(
                 .onCompletion { throwable ->
                     if (throwable != null) {
                         if (throwable !is CancellationException) {
+                            
                             onError(throwable)
                         }
                     } else {
@@ -167,6 +171,7 @@ abstract class BaseViewModel<STATE>(
                 }
                 .catch { throwable ->
                     if (throwable !is CancellationException) {
+                        
                         onError(throwable)
                     } else {
                         throw throwable

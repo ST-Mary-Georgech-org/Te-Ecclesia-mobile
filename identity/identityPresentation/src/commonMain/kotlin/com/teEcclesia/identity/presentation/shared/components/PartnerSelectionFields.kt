@@ -14,6 +14,7 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_plus
 import teecclesia.designsystem.generated.resources.search_partner
+import teecclesia.designsystem.generated.resources.search_partner_support_text
 
 @Composable
 fun PartnerSelectionFields(
@@ -22,6 +23,7 @@ fun PartnerSelectionFields(
     onPartnerQueryChange: (String) -> Unit,
     onSearchPartner: () -> Unit,
     onRemovePartner: () -> Unit,
+    errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
     if (selectedPartner == null) {
@@ -29,6 +31,8 @@ fun PartnerSelectionFields(
             value = partnerQuery,
             onValueChange = onPartnerQueryChange,
             labelText = stringResource(Res.string.search_partner),
+            supportingText = stringResource(Res.string.search_partner_support_text),
+            errorText = errorText,
             modifier = modifier.fillMaxWidth(),
             singleLine = true,
             trailingIcon = painterResource(Res.drawable.ic_plus),

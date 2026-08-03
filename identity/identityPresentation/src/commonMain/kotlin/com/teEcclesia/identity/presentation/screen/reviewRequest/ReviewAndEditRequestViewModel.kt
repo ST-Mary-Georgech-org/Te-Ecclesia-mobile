@@ -39,6 +39,8 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
+import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
 import teecclesia.designsystem.generated.resources.failed_to_load_areas
 import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
@@ -239,7 +241,6 @@ class ReviewAndEditRequestViewModel(
             callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
             callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
             filterAndApplyEducationalStages()
-            delay(250.milliseconds)
             updateState { 
                 it.copy(
                     isLoading = false,
@@ -344,6 +345,7 @@ class ReviewAndEditRequestViewModel(
                         identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
                     ).let { state -> updateDerivedProperties(state) }
                 }
+                loadEducationalStages()
             },
             onError = { throwable ->
                 updateState { it.copy(isLoading = false, isRefreshing = false) }
@@ -561,6 +563,22 @@ class ReviewAndEditRequestViewModel(
             }
 
             UserRole.PARENT -> {
+                if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                        isSuccess = false
+                    )
+                    return false
+                }
+                if (s.childQuery.isNotBlank()) {
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                        isSuccess = false
+                    )
+                    return false
+                }
                 true
             }
 
@@ -726,7 +744,6 @@ class ReviewAndEditRequestViewModel(
             loadEducationalStages()
             loadRanks()
             launch {
-                delay(300.milliseconds)
                 updateState { it.copy(isRefreshing = false) }
             }
         }
@@ -1109,7 +1126,7 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onPartnerQueryChange(query: String) {
-        updateState { it.copy(partnerQuery = query) }
+        updateState { it.copy(partnerQuery = query, partnerError = null) }
     }
 
     override fun onSearchPartner() {
@@ -1135,7 +1152,7 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onChildQueryChange(query: String) {
-        updateState { it.copy(childQuery = query) }
+        updateState { it.copy(childQuery = query, childError = null) }
     }
 
     override fun onSearchChild() {

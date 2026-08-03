@@ -38,6 +38,10 @@ import teecclesia.designsystem.generated.resources.supported_formats
 
 import com.teEcclesia.identity.presentation.util.getDisplayFileName
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+
 @Composable
 fun FilePickerCard(
     title: String,
@@ -47,7 +51,8 @@ fun FilePickerCard(
     modifier: Modifier = Modifier,
     fileTitle: String? = null,
     radius: Dp = 32.dp,
-    onFileClick: (() -> Unit)? = null
+    onFileClick: (() -> Unit)? = null,
+    errorText: String? = null
 ) {
     val displayFileName = getDisplayFileName(fileTitle, fileName)
 
@@ -66,7 +71,7 @@ fun FilePickerCard(
                         .fillMaxWidth()
                         .dashedBorder(
                             width = 1.dp,
-                            color = Theme.colorScheme.outline,
+                            color = if (!errorText.isNullOrBlank()) Theme.colorScheme.error else Theme.colorScheme.outline,
                             shape = RoundedCornerShape(radius),
                             dashLength = 8.dp,
                             gapLength = 4.dp
@@ -107,6 +112,24 @@ fun FilePickerCard(
                         .clickableNoRipple { onFileClick?.invoke() },
                     trailingIcon = painterResource(Res.drawable.ic_close),
                     onTrailingIconClick = onClearClick,
+                    errorText = errorText
+                )
+            }
+        }
+
+        AnimatedVisibility(
+            visible = fileName.isNullOrBlank() && !errorText.isNullOrBlank(),
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Column {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = errorText ?: "",
+                    color = Theme.colorScheme.error,
+                    modifier = Modifier.padding(start = 16.dp),
+                    style = Theme.typography.bodySmall,
+                    textAlign = TextAlign.Start
                 )
             }
         }

@@ -133,19 +133,21 @@ fun ReviewStep2Content(
             }
         }
 
-        ReviewSectionCard(
-            title = stringResource(Res.string.notes),
-            icon = painterResource(Res.drawable.ic_document)
-        ) {
-            CustomTextField(
-                value = state.notes,
-                onValueChange = listener::onNotesChanged,
-                labelText = stringResource(Res.string.reason),
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = false,
-                minLines = 3,
-                errorText = state.notesError?.asString()
-            )
+        if (!state.isUpdateMode && state.userId.isNotBlank()) {
+            ReviewSectionCard(
+                title = stringResource(Res.string.notes),
+                icon = painterResource(Res.drawable.ic_document)
+            ) {
+                CustomTextField(
+                    value = state.notes,
+                    onValueChange = listener::onNotesChanged,
+                    labelText = stringResource(Res.string.reason),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = false,
+                    minLines = 3,
+                    errorText = state.notesError?.asString()
+                )
+            }
         }
 
         if (state.submittedAt.isNotBlank()) {

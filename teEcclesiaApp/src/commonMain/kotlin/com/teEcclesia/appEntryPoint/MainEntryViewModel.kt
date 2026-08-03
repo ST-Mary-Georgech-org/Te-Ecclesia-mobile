@@ -63,7 +63,11 @@ class MainEntryViewModel(
                     || currentRoute is SplashRoute
 
             when (authState) {
+
                 AuthState.AUTHENTICATED -> {
+                    val previousStatus = authorizationService.getUserStatus()
+                    navigateByState(previousStatus, currentRoute, isUnauthRoute)
+
                     if (isStateChanged || isUnauthRoute) {
                         tryToCall(
                             block = {
@@ -71,27 +75,7 @@ class MainEntryViewModel(
                             },
                             onSuccess = { profile ->
                                 authorizationService.saveUserStatus(profile.status)
-                                when (profile.status) {
-                                    UserStatus.PENDING_APPROVAL -> {
-                                        if (currentRoute !is PendingApprovalRoute) {
-                                            resetTo(PendingApprovalRoute, true)
-                                        }
-                                    }
-                                    UserStatus.APPROVED -> {
-                                        if (isUnauthRoute || currentRoute is PendingApprovalRoute) {
-                                            resetTo(ProfileRoute, true)
-                                        }
-                                    }
-                                    UserStatus.REJECTED, UserStatus.BANNED -> {
-                                        authorizationService.clearAuthTokens()
-                                        resetTo(LoginRoute, true)
-                                    }
-                                    else -> {
-                                        if (isUnauthRoute) {
-                                            resetTo(ProfileRoute, true)
-                                        }
-                                    }
-                                }
+                                navigateByState(profile.status, currentRoute, isUnauthRoute)
                             },
                             onError = {
                                 // Failures silently handled without UI thread locks
@@ -119,6 +103,37 @@ class MainEntryViewModel(
                     if (currentRoute is SplashRoute || !isUnauthRoute) {
                         resetTo(LoginRoute, true)
                     }
+                }
+            }
+        }
+    }
+
+    private suspend fun navigateByState(
+        status: UserStatus?,
+        currentRoute: NavKey?,
+        isUnauthRoute: Boolean
+    ) {
+        when (status) {
+            UserStatus.PENDING_APPROVAL -> {
+                if (currentRoute !is PendingApprovalRoute) {
+                    resetTo(PendingApprovalRoute, true)
+                }
+            }
+
+            UserStatus.APPROVED -> {
+                if (isUnauthRoute || currentRoute is PendingApprovalRoute) {
+                    resetTo(ProfileRoute, true)
+                }
+            }
+
+            UserStatus.REJECTED, UserStatus.BANNED, null -> {
+                authorizationService.clearAuthTokens()
+                resetTo(LoginRoute, true)
+            }
+
+            else -> {
+                if (isUnauthRoute) {
+                    resetTo(ProfileRoute, true)
                 }
             }
         }

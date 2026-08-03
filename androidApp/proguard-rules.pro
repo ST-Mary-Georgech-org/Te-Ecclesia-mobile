@@ -1,7 +1,7 @@
 # Proguard rules for androidApp
 
-# 1. Keep generic signatures, annotations and metadata (required by Kotlin and kotlinx.serialization)
--keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod
+# 1. Keep generic signatures, annotations, metadata and stack trace attributes (required for Crashlytics)
+-keepattributes *Annotation*, Signature, InnerClasses, EnclosingMethod, SourceFile, LineNumberTable
 
 # Keep Kotlin Metadata
 -keep class kotlin.Metadata { *; }

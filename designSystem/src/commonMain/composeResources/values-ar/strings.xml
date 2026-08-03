@@ -108,7 +108,7 @@
     <string name="educational_stages">المراحل الدراسية</string>
     <string name="priest_info">بيانات الكاهن</string>
     <string name="account_under_review">طلب التسجيل قيد المراجعة</string>
-    <string name="pending_approval_description">تم استلام بيانات التسجيل بنجاح، وطلبك حالياً قيد المراجعة من قبل الخدام والآباء الكهنة. سيتم تفعيل حسابك فور الموافقة عليه.</string>
+    <string name="pending_approval_description">تم استلام بيانات التسجيل بنجاح، وطلبك حالياً قيد المراجعة من قبل المسؤول. سيتم تفعيل حسابك فور الموافقة عليه.</string>
     <string name="back_to_login">تسجيل الدخول</string>
     <string name="edit_registration">تعديل بيانات الطلب</string>
     <string name="logout">تسجيل الخروج</string>
@@ -127,8 +127,12 @@
 
     <string name="partner">الشريك</string>
     <string name="search_partner">البحث عن الشريك</string>
+    <string name="search_partner_support_text">ابحث باستخدام الكود الخاص بالشريك أو الرقم القومي، ثم اضغط على (+)</string>
     <string name="children">الأبناء</string>
     <string name="search_child">البحث عن الابن</string>
+    <string name="search_child_support_text">ابحث باستخدام الكود الخاص بالابن أو الرقم القومي، ثم اضغط على (+)</string>
+    <string name="error_forgot_to_click_plus_partner">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الشريك أولاً</string>
+    <string name="error_forgot_to_click_plus_child">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الابن أولاً</string>
     <string name="upload_ordination_certificate">تحميل شهادة السيامة (اختياري)</string>
     <string name="upload_identity_card">تحميل بطاقة الرقم القومي (اختياري)</string>
     <string name="file_ordination_certificate">شهادة السيامة</string>
