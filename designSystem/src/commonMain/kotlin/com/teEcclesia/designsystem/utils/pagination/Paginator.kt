@@ -9,7 +9,8 @@ class Paginator<Key, Items>(
     private val getNextKey: suspend (currentKey: Key, result: Items) -> Key,
     private val onError: suspend (Throwable?) -> Unit,
     private val onSuccess: suspend (result: Items, newKey: Key) -> Unit,
-    private val endReached: (currentKey: Key, result: Items) -> Boolean
+    private val endReached: (currentKey: Key, result: Items) -> Boolean,
+    private val onReset: () -> Unit = {}
 ) {
 
     private var currentKey = initialKey
@@ -42,10 +43,12 @@ class Paginator<Key, Items>(
         }
     }
 
-    fun reset() {
+    suspend fun reset() {
         currentKey = initialKey
         isEndReached = false
         isErrorState = false
         isMakingRequest = false
+        onReset()
+        loadNextItems()
     }
 }

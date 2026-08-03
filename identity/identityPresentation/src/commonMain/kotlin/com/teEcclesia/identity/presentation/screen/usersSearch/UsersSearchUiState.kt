@@ -18,7 +18,6 @@ data class UsersSearchUiState(
     val isFilterSheetVisible: Boolean = false,
     val isStageFilterLocked: Boolean = false,
     val isYearFilterLocked: Boolean = false,
-    val page: Int = 0,
     val hasMorePages: Boolean = true,
     val totalUsersCount: Long = 0L
 ) {

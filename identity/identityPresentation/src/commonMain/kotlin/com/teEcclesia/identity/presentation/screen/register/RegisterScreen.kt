@@ -36,6 +36,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -94,106 +95,113 @@ fun RegisterScreenContent(
 
     val fileOpener = com.teEcclesia.identity.presentation.util.rememberFileOpener()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Theme.colorScheme.background)
-            .statusBarsPadding()
-            .navigationBarsPadding()
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = listener::onRefresh
     ) {
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .fillMaxSize()
+                .background(Theme.colorScheme.background)
+                .statusBarsPadding()
+                .navigationBarsPadding()
         ) {
-            Icon(
-                painter = painterResource(Res.drawable.ic_arrow_back),
-                contentDescription = "Back",
-                tint = Theme.colorScheme.onBackground,
+            Row(
                 modifier = Modifier
-                    .clickableNoRipple(onClick = listener::onClickPreviousStep)
-                    .padding(end = 16.dp)
-            )
-            Text(
-                text = stringResource(Res.string.registration),
-                style = Theme.typography.headlineMedium,
-                color = Theme.colorScheme.onBackground
-            )
-        }
-
-        val animatedProgress by animateFloatAsState(
-            targetValue = state.currentStep / 5f,
-            animationSpec = tween(
-                durationMillis = 300,
-                easing = FastOutSlowInEasing
-            ),
-            label = "ProgressAnimation"
-        )
-
-        LinearProgressIndicator(
-            progress = { animatedProgress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .height(4.dp)
-        )
-
-        if (state.isLoading && state.actionButtonState != AppButtonState.Loading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                CircularProgressIndicator(color = Theme.colorScheme.primary)
+                Icon(
+                    painter = painterResource(Res.drawable.ic_arrow_back),
+                    contentDescription = "Back",
+                    tint = Theme.colorScheme.onBackground,
+                    modifier = Modifier
+                        .clickableNoRipple(onClick = listener::onClickPreviousStep)
+                        .padding(end = 16.dp)
+                )
+                Text(
+                    text = stringResource(Res.string.registration),
+                    style = Theme.typography.headlineMedium,
+                    color = Theme.colorScheme.onBackground
+                )
             }
-        } else {
-            Column(
+
+            val animatedProgress by animateFloatAsState(
+                targetValue = state.currentStep / 5f,
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                ),
+                label = "ProgressAnimation"
+            )
+
+            LinearProgressIndicator(
+                progress = { animatedProgress },
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-            ) {
-                AnimatedContent(
-                    targetState = state.currentStep,
-                    transitionSpec = { fadeIn() togetherWith fadeOut() },
-                    label = "RegisterStepTransition"
-                ) { targetStep ->
-                    when (targetStep) {
-                        1 -> RegisterStep1Content(state = state, listener = listener)
-                        2 -> RegisterStep2Content(state = state, listener = listener)
-                        3 -> RegisterStep3Content(state = state, listener = listener)
-                        4 -> when (state.selectedRole) {
-                            UserRole.MAKHDOOM -> RegisterStep4StudentContent(
-                                state = state,
-                                listener = listener,
-                                onFileClickOrdinationCertificate = {
-                                    fileOpener.openFile(
-                                        bytes = state.ordinationCertificateBytes,
-                                        fileName = state.ordinationCertificateFileName
-                                    )
-                                },
-                                onFileClickIdentityCertificate = {
-                                    fileOpener.openFile(
-                                        bytes = state.identityCertificateBytes,
-                                        fileName = state.identityCertificateFileName
-                                    )
-                                }
-                            )
-                            UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
-                            UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
-                            UserRole.PARENT -> RegisterStep4ParentContent(
-                                state = state,
-                                listener = listener,
-                                onFileClickIdentityCertificate = {
-                                    fileOpener.openFile(
-                                        bytes = state.identityCertificateBytes,
-                                        fileName = state.identityCertificateFileName
-                                    )
-                                }
-                            )
-                            else -> RegisterStep4ServantContent(state = state, listener = listener)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(4.dp)
+            )
+
+            if (state.isLoading && state.actionButtonState != AppButtonState.Loading && !state.isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = Theme.colorScheme.primary)
+                }
+            } else {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp, vertical = 16.dp)
+                ) {
+                    AnimatedContent(
+                        targetState = state.currentStep,
+                        transitionSpec = { fadeIn() togetherWith fadeOut() },
+                        label = "RegisterStepTransition"
+                    ) { targetStep ->
+                        when (targetStep) {
+                            1 -> RegisterStep1Content(state = state, listener = listener)
+                            2 -> RegisterStep2Content(state = state, listener = listener)
+                            3 -> RegisterStep3Content(state = state, listener = listener)
+                            4 -> when (state.selectedRole) {
+                                UserRole.MAKHDOOM -> RegisterStep4StudentContent(
+                                    state = state,
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = {
+                                        fileOpener.openFile(
+                                            bytes = state.ordinationCertificateBytes,
+                                            fileName = state.ordinationCertificateFileName
+                                        )
+                                    },
+                                    onFileClickIdentityCertificate = {
+                                        fileOpener.openFile(
+                                            bytes = state.identityCertificateBytes,
+                                            fileName = state.identityCertificateFileName
+                                        )
+                                    }
+                                )
+                                UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
+                                UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
+                                UserRole.PARENT -> RegisterStep4ParentContent(
+                                    state = state,
+                                    listener = listener,
+                                    onFileClickIdentityCertificate = {
+                                        fileOpener.openFile(
+                                            bytes = state.identityCertificateBytes,
+                                            fileName = state.identityCertificateFileName
+                                        )
+                                    }
+                                )
+                                else -> RegisterStep4ServantContent(state = state, listener = listener)
+                            }
+                            5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                         }
-                        5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                     }
                 }
             }
@@ -274,6 +282,7 @@ private fun RegisterScreenPreview() {
             override fun onLoadNextPriests() {}
             override fun onLoadNextRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRefresh() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

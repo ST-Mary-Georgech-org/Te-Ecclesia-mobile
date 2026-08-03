@@ -86,6 +86,9 @@ class ReviewAndEditRequestViewModel(
         onLoadUpdated = { loading ->
             updateState { it.copy(isPriestLoading = loading) }
         },
+        onReset = {
+            updateState { it.copy(confessionPriests = emptyList()) }
+        },
         onError = { throwable ->
             showSnackBar(
                 title = UiText.StringRes(Res.string.failed_to_load_priests),
@@ -116,6 +119,10 @@ class ReviewAndEditRequestViewModel(
         onLoadUpdated = { loading ->
             updateState { it.copy(isStageLoading = loading) }
         },
+        onReset = {
+            rawEducationalStages = emptyList()
+            updateState { it.copy(educationalStages = emptyList()) }
+        },
         onError = { throwable ->
             showSnackBar(
                 title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
@@ -137,6 +144,9 @@ class ReviewAndEditRequestViewModel(
             }
         },
         onLoadUpdated = { _ -> },
+        onReset = {
+            updateState { it.copy(ranks = emptyList()) }
+        },
         onError = { throwable ->
             showSnackBar(
                 title = UiText.StringRes(Res.string.failed_to_load_ranks),
@@ -160,24 +170,26 @@ class ReviewAndEditRequestViewModel(
         
         var canEdit = false
         if (current.userId.isBlank()) {
-            canEdit = true
+            if (callerRole == UserRole.ADMIN) {
+                canEdit = true
+            } else if (callerRole == UserRole.KHADEM) {
+                canEdit = callerResponsibleStageIds.isNotEmpty() || callerResponsibleYearIds.isNotEmpty()
+            }
         } else if (callerRole == UserRole.ADMIN) {
             canEdit = true
         } else if (callerRole == UserRole.KHADEM) {
-            val targetRole = current.selectedRole
-            if (targetRole == UserRole.MAKHDOOM) {
-                val targetStageId = current.studentEducationalStage?.id
-                val targetYearId = current.studentEducationalYear?.id
-                val isRespForStageOrYear = (targetStageId != null && callerResponsibleStageIds.contains(targetStageId)) ||
-                        (targetYearId != null && callerResponsibleYearIds.contains(targetYearId))
-
-                if (current.isUpdateMode) {
+            if (current.isUpdateMode) {
+                if (current.selectedRole == UserRole.MAKHDOOM) {
+                    val targetStageId = current.studentEducationalStage?.id
+                    val targetYearId = current.studentEducationalYear?.id
+                    val isRespForStageOrYear = (targetStageId != null && callerResponsibleStageIds.contains(targetStageId)) ||
+                            (targetYearId != null && callerResponsibleYearIds.contains(targetYearId))
                     canEdit = isRespForStageOrYear
                 } else {
-                    canEdit = callerCanApproveRequests && isRespForStageOrYear
+                    canEdit = false
                 }
             } else {
-                canEdit = false
+                canEdit = callerCanApproveRequests
             }
         }
 
@@ -315,10 +327,10 @@ class ReviewAndEditRequestViewModel(
                         studentEducationalStage = profile.makhdoomProfile?.educationalStage,
                         studentEducationalYear = profile.makhdoomProfile?.educationalYear,
                         shamamsaStatus = profile.makhdoomProfile?.shamamsaStudyStatus ?: ShamamsaStudyStatus.NO,
-                        fatherPhone = profile.makhdoomProfile?.fatherPhone ?: "",
-                        fatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp ?: "",
-                        motherPhone = profile.makhdoomProfile?.motherPhone ?: "",
-                        motherWhatsapp = profile.makhdoomProfile?.motherWhatsapp ?: "",
+                        fatherPhone = profile.makhdoomProfile?.fatherPhone?.removePrefix("+2") ?: "",
+                        fatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.removePrefix("+2") ?: "",
+                        motherPhone = profile.makhdoomProfile?.motherPhone?.removePrefix("+2") ?: "",
+                        motherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.removePrefix("+2") ?: "",
                         isFatherDeceased = profile.makhdoomProfile?.isFatherDeceased ?: false,
                         isMotherDeceased = profile.makhdoomProfile?.isMotherDeceased ?: false,
 
@@ -346,26 +358,19 @@ class ReviewAndEditRequestViewModel(
 
     private fun loadConfessionPriests() {
         launch {
-            updateState { it.copy(confessionPriests = emptyList()) }
             priestsPaginator.reset()
-            priestsPaginator.loadNextItems()
         }
     }
 
     private fun loadEducationalStages() {
         launch {
-            rawEducationalStages = emptyList()
-            updateState { it.copy(educationalStages = emptyList()) }
             stagesPaginator.reset()
-            stagesPaginator.loadNextItems()
         }
     }
 
     private fun loadRanks() {
         launch {
-            updateState { it.copy(ranks = emptyList()) }
             ranksPaginator.reset()
-            ranksPaginator.loadNextItems()
         }
     }
 
@@ -942,16 +947,14 @@ class ReviewAndEditRequestViewModel(
 
     override fun onRoleSelected(role: UserRole) {
         if (state.value.selectedRole != role) {
-            rawEducationalStages = emptyList()
             updateState {
                 it.copy(
-                    selectedRole = role,
-                    educationalStages = emptyList(),
-                    isStageEndReached = false
+                    selectedRole = role
                 )
             }
-            stagesPaginator.reset()
-            onLoadNextEducationalStages()
+            launch {
+                stagesPaginator.reset()
+            }
         }
     }
 

@@ -29,6 +29,9 @@ class NotificationsViewModel(
         onLoadUpdated = { isLoadingMore ->
             updateState { copy(isLoadingMore = isLoadingMore) }
         },
+        onReset = {
+            updateState { copy(notifications = emptyList()) }
+        },
         onError = { handleError(it) }
     )
 
@@ -40,7 +43,6 @@ class NotificationsViewModel(
         launch {
             updateState { copy(isLoading = true, isRefreshing = true) }
             notificationsPaginator.reset()
-            notificationsPaginator.loadNextItems()
             updateState { copy(isLoading = false, isRefreshing = false) }
         }
 
