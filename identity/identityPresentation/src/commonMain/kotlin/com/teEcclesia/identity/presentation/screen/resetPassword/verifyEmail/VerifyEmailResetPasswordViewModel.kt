@@ -10,7 +10,7 @@ import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_send_otp
 import teecclesia.designsystem.generated.resources.failed_to_verify_code
-import teecclesia.designsystem.generated.resources.otp_must_be_4_digits
+import teecclesia.designsystem.generated.resources.otp_must_be_5_digits
 
 class VerifyEmailResetPasswordViewModel(
     email: String,
@@ -25,8 +25,8 @@ class VerifyEmailResetPasswordViewModel(
 
     override fun onVerifyCodeClicked() {
         val otp = state.value.otpCode
-        if (otp.length != 4) {
-            updateState { copy(otpError = UiText.StringRes(Res.string.otp_must_be_4_digits)) }
+        if (otp.length != 5) {
+            updateState { copy(otpError = UiText.StringRes(Res.string.otp_must_be_5_digits)) }
             return
         }
 

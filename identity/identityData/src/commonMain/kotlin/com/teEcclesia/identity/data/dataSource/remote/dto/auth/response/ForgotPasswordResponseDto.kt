@@ -5,8 +5,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ForgotPasswordResponseDto(
-    val link: String,
-    val token: String
+    val link: String? = null,
+    val token: String? = null
 )
 
 fun ForgotPasswordResponseDto.toDomain() = ForgotPasswordResponse(

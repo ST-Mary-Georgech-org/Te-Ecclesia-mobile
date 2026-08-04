@@ -84,7 +84,7 @@ fun VerifyEmailResetPasswordContent(
         item {
             OtpInputField(
                 otpText = state.otpCode,
-                otpLength = 4,
+                otpLength = 5,
                 errorText = state.otpError?.asString(),
                 onOtpModified = interactionListener::onOtpChange,
                 modifier = Modifier.fillMaxWidth().padding(bottom = 32.dp).testTag("OtpInput")

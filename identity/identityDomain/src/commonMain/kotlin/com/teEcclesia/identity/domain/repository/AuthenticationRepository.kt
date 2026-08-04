@@ -21,11 +21,11 @@ interface AuthenticationRepository {
     suspend fun isRegistrationPending(): Boolean
     suspend fun clearAuthTokens()
     suspend fun saveUserRole(role: UserRole)
-    suspend fun getUserRole(): UserRole?
+    fun getUserRole(): UserRole?
     suspend fun saveUserStatus(status: UserStatus)
     fun getUserStatus(): UserStatus?
-    suspend fun saveCanApproveRequests(canApprove: Boolean)
-    suspend fun getCanApproveRequests(): Boolean
+    fun saveCanApproveRequests(canApprove: Boolean)
+    fun getCanApproveRequests(): Boolean
     fun getKhademStageId(): Long?
     fun getKhademYearId(): Long?
     fun getResponsibleStageIds(): List<Long>

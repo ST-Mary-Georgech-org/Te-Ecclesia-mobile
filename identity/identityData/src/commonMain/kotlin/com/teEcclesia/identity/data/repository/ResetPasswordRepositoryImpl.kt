@@ -20,13 +20,13 @@ class ResetPasswordRepositoryImpl(
     client: HttpClient
 ) : BaseRepository(client), ResetPasswordRepository {
 
-    override suspend fun requestOTP(key: String, method: VerificationMethod): ForgotPasswordResponse {
-        val response = tryToExecute<ForgotPasswordResponseDto> {
+    override suspend fun requestOTP(key: String, method: VerificationMethod): ForgotPasswordResponse? {
+        val response = tryToExecute<ForgotPasswordResponseDto?> {
             post(RESET_PASSWORD_REQUEST_OTP) {
                 setBody(ForgotPasswordRequestDto(key = key, method = method))
             }
         }
-        return response.toDomain()
+        return response?.toDomain()
     }
 
     override suspend fun verifyOTPCode(key: String, otp: String, method: VerificationMethod) {
@@ -46,13 +46,13 @@ class ResetPasswordRepositoryImpl(
         }
     }
 
-    override suspend fun reSendOtp(key: String, method: VerificationMethod): ForgotPasswordResponse? {
+    override suspend fun reSendOtp(key: String, method: VerificationMethod): ForgotPasswordResponse {
         val response = tryToExecute<ForgotPasswordResponseDto> {
             post(RESET_PASSWORD_RESEND_OTP) {
                 setBody(ForgotPasswordRequestDto(key = key, method = method))
             }
         }
-        return response?.toDomain()
+        return response.toDomain()
     }
 
     companion object {

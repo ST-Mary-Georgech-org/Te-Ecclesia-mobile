@@ -13,6 +13,7 @@ data class ProfileScreenState(
     val displayName: String = "",
     val userCode: String = "",
     val imageUrl: String? = null,
+    val whatsAppLink: String? = null,
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     val isRefreshing: Boolean = false
 )

@@ -186,15 +186,11 @@ class UsersSearchViewModel(
     }
 
     private fun loadUsers() {
-        launch {
-            usersPaginator.reset()
-        }
+        usersPaginator.reset()
     }
 
     private fun loadStages() {
-        launch {
-            stagesPaginator.loadNextItems()
-        }
+        stagesPaginator.loadNextItems()
     }
 
     override fun onSearchQueryChanged(query: String) {
@@ -242,17 +238,13 @@ class UsersSearchViewModel(
 
     override fun onLoadMore() {
         if (state.value.hasMorePages && !state.value.isLoading) {
-            launch {
-                usersPaginator.loadNextItems()
-            }
+            usersPaginator.loadNextItems()
         }
     }
 
     override fun onRefresh() {
         updateState { it.copy(isRefreshing = true) }
-        launch {
-            stagesPaginator.reset()
-        }
+        stagesPaginator.reset()
         initializeFiltersAndLoadUsers()
     }
 

@@ -16,6 +16,7 @@ import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.notifications.api.NotificationsRoute
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.not_implemented_yet
+import teecclesia.designsystem.generated.resources.couldnt_refresh_profile
 
 class ProfileViewModel(
     private val authenticationRepository: AuthenticationRepository,
@@ -41,7 +42,8 @@ class ProfileViewModel(
                             fullName = cached.fullName,
                             displayName = cached.displayName,
                             userCode = cached.code,
-                            imageUrl = cached.imageUrl
+                            imageUrl = cached.imageUrl,
+                            whatsAppLink =  cached.whatsAppLink
                         )
                     }
                 }
@@ -62,23 +64,15 @@ class ProfileViewModel(
         updateState {
             copy(currentLanguage = activeLanguage)
         }
-
-        tryToCall(
-            block = {
-                val canSearch = authorizationService.canSearchUsers()
-                val canAdd = authorizationService.canAddStudent()
-                Pair(canSearch, canAdd)
-            },
-            onSuccess = { (canSearch, canAdd) ->
-                updateState {
-                    copy(
-                        canAddUser = canAdd,
-                        canSearchUsers = canSearch
-                    )
-                }
-            },
-            onError = { }
-        )
+        val canSearch = authorizationService.canSearchUsers()
+        val canAdd = authorizationService.canAddStudent()
+        updateState {
+            copy(
+                canAddUser = canAdd,
+                canSearchUsers = canSearch,
+                whatsAppLink = whatsAppLink
+            )
+        }
 
         tryToCall(
             block = {
@@ -166,7 +160,12 @@ class ProfileViewModel(
                         )
                     }
                 },
-                onError = { },
+                onError = {
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.couldnt_refresh_profile),
+                        isSuccess = false
+                    )
+                },
                 onEnd = { updateState { copy(isRefreshing = false) } }
             )
         }

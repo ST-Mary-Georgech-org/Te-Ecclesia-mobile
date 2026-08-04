@@ -30,7 +30,7 @@
     <string name="didnt_receive_code">لم تصلك الرسالة؟</string>
 
     <string name="invalid_otp_please_try_again">رمز التحقق غير صالح، يرجى المحاولة مرة أخرى.</string>
-    <string name="otp_must_be_4_digits">يجب أن يتكون رمز التحقق من 4 أرقام</string>
+    <string name="otp_must_be_5_digits">يجب أن يتكون رمز التحقق من 5 أرقام</string>
     <string name="invalid_phone_or_national_id_or_code_or_email">رقم الهاتف/الرقم القومي/رقم العضوية/البريد الإلكتروني غير صالح</string>
     <string name="error_occurred">حدث خطأ ما</string>
     <string name="unknown_error">خطأ غير معروف</string>
@@ -284,4 +284,6 @@
     <string name="delete">حذف</string>
     <string name="confirm">تأكيد</string>
     <string name="go_to_login">الذهاب لتسجيل الدخول</string>
+    <string name="join_whatsapp_group">انضم لجروب الواتساب</string>
+    <string name="couldnt_refresh_profile">تعذر تحديث بيانات الملف الشخصي</string>
 </resources>

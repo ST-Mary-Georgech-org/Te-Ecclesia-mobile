@@ -26,7 +26,6 @@ import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
-import com.teEcclesia.notifications.api.NotificationsRoute
 import com.teEcclesia.notifications.domain.model.NotificationType
 import com.teEcclesia.util.NotificationClickState
 import com.teEcclesia.util.SetSystemBarsAppearance
@@ -123,15 +122,16 @@ private fun handleNotificationClick(
     exceptionHandler: CoroutineExceptionHandler,
     effector: Effector
 ) {
-    val typeStr = data["type"] as? String
+    val typeStr = data["type"] as? String ?: return
     val type = NotificationType.fromStringOrDefault(typeStr)
-    coroutineScope.launch(exceptionHandler) {
-        when (type) {
-            NotificationType.ALERT,
-            NotificationType.SYSTEM -> effector.navigate(NotificationsRoute, forceNavigate = true)
-            NotificationType.REVIEW -> {
-                val id = data["id"] as? String
-                if (id != null) {
+    when (type) {
+        NotificationType.ALERT,
+        NotificationType.SYSTEM -> { }
+
+        NotificationType.REVIEW -> {
+            val id = data["id"] as? String
+            if (id != null) {
+                coroutineScope.launch(exceptionHandler) {
                     effector.resetTo(
                         listOf(
                             RegistrationRequestsRoute,

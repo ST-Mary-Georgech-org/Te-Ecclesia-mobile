@@ -61,8 +61,6 @@ import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.user_created_successfully
 
 import com.teEcclesia.identity.domain.service.AuthorizationService
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
 
 class ReviewAndEditRequestViewModel(
     private val userId: String? = null,
@@ -235,19 +233,17 @@ class ReviewAndEditRequestViewModel(
     }
 
     private fun loadCallerProfile() {
-        launch {
             callerRole = authorizationService.getUserRole()
             callerCanApproveRequests = authorizationService.canApproveRequests()
             callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
             callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
             filterAndApplyEducationalStages()
-            updateState { 
+            updateState {
                 it.copy(
                     isLoading = false,
                     isRoleEditable = if (it.isUpdateMode) (callerRole == UserRole.ADMIN) else it.isRoleEditable
                 ) 
             }
-        }
     }
 
     init {
@@ -359,27 +355,19 @@ class ReviewAndEditRequestViewModel(
     }
 
     private fun loadConfessionPriests() {
-        launch {
-            priestsPaginator.reset()
-        }
+        priestsPaginator.reset()
     }
 
     private fun loadEducationalStages() {
-        launch {
-            stagesPaginator.reset()
-        }
+        stagesPaginator.reset()
     }
 
     private fun loadRanks() {
-        launch {
-            ranksPaginator.reset()
-        }
+        ranksPaginator.reset()
     }
 
     override fun onLoadNextPriests() {
-        launch {
-            priestsPaginator.loadNextItems()
-        }
+        priestsPaginator.loadNextItems()
     }
 
     fun validateStep1(): Boolean {
@@ -506,13 +494,13 @@ class ReviewAndEditRequestViewModel(
             }
 
             UserRole.MAKHDOOM -> {
-                val rankErr = if (s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
+                val rankErr = if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
                 val stageErr = if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr = if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
                     UiText.StringRes(Res.string.field_required)
                 } else null
 
-                val ordinationYearErr = if (s.isOrdained) {
+                val ordinationYearErr = if (s.isMale != false && s.isOrdained) {
                     if (s.ordinationYear.isBlank()) {
                         UiText.StringRes(Res.string.field_required)
                     } else if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
@@ -743,9 +731,7 @@ class ReviewAndEditRequestViewModel(
             loadConfessionPriests()
             loadEducationalStages()
             loadRanks()
-            launch {
-                updateState { it.copy(isRefreshing = false) }
-            }
+            updateState { it.copy(isRefreshing = false) }
         }
     }
 
@@ -808,24 +794,28 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onFirstNameChanged(value: String) {
+        val value = value.trim()
         if (value.isEmpty() || validateArabicName(value)) {
             updateState { it.copy(firstName = value, firstNameError = null) }
         }
     }
 
     override fun onSecondNameChanged(value: String) {
+        val value = value.trim()
         if (value.isEmpty() || validateArabicName(value)) {
             updateState { it.copy(secondName = value, secondNameError = null) }
         }
     }
 
     override fun onThirdNameChanged(value: String) {
+        val value = value.trim()
         if (value.isEmpty() || validateArabicName(value)) {
             updateState { it.copy(thirdName = value, thirdNameError = null) }
         }
     }
 
     override fun onLastNameChanged(value: String) {
+        val value = value.trim()
         if (value.isEmpty() || validateArabicName(value)) {
             updateState { it.copy(lastName = value, lastNameError = null) }
         }
@@ -981,9 +971,7 @@ class ReviewAndEditRequestViewModel(
                     selectedRole = role
                 )
             }
-            launch {
-                stagesPaginator.reset()
-            }
+            stagesPaginator.reset()
         }
     }
 
@@ -1199,15 +1187,11 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onLoadNextEducationalStages() {
-        launch {
-            stagesPaginator.loadNextItems()
-        }
+        stagesPaginator.loadNextItems()
     }
 
     override fun onLoadNextRanks() {
-        launch {
-            ranksPaginator.loadNextItems()
-        }
+        ranksPaginator.loadNextItems()
     }
 
     override fun onNotesChanged(value: String) {

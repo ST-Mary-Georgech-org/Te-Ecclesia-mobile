@@ -73,7 +73,6 @@ android {
 
             ndk {
                 debugSymbolLevel = "FULL"
-                abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
             }
 
             proguardFiles(

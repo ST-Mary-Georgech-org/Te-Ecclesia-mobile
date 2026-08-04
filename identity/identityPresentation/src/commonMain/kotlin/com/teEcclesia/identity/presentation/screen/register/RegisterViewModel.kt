@@ -274,26 +274,20 @@ class RegisterViewModel(
     }
 
     override fun onLoadNextPriests() {
-        launch {
-            if (!state.value.isPriestEndReached && !state.value.isPriestLoading) {
-                priestsPaginator.loadNextItems()
-            }
+        if (!state.value.isPriestEndReached && !state.value.isPriestLoading) {
+            priestsPaginator.loadNextItems()
         }
     }
 
     override fun onLoadNextRanks() {
-        launch {
-            if (!state.value.isRankEndReached && !state.value.isRankLoading) {
-                ranksPaginator.loadNextItems()
-            }
+        if (!state.value.isRankEndReached && !state.value.isRankLoading) {
+            ranksPaginator.loadNextItems()
         }
     }
 
     override fun onLoadNextEducationalStages() {
-        launch {
-            if (!state.value.isStageEndReached && !state.value.isStageLoading) {
-                stagesPaginator.loadNextItems()
-            }
+        if (!state.value.isStageEndReached && !state.value.isStageLoading) {
+            stagesPaginator.loadNextItems()
         }
     }
 
@@ -735,9 +729,7 @@ class RegisterViewModel(
                     kahenEducationalStages = emptyList()
                 )
             }
-            launch {
-                stagesPaginator.reset()
-            }
+            stagesPaginator.reset()
         }
     }
 
@@ -767,7 +759,7 @@ class RegisterViewModel(
 
             UserRole.MAKHDOOM -> {
                 val rankErr =
-                    if (s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
+                    if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
                 val stageErr =
                     if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr =
@@ -775,7 +767,7 @@ class RegisterViewModel(
                         UiText.StringRes(Res.string.field_required)
                     } else null
 
-                val ordinationYearErr = if (s.isOrdained) {
+                val ordinationYearErr = if (s.isMale != false && s.isOrdained) {
                     if (s.ordinationYear.isBlank()) {
                         UiText.StringRes(Res.string.field_required)
                     } else if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
@@ -881,7 +873,7 @@ class RegisterViewModel(
             kahenProfile = if (role == UserRole.KAHEN) KahenProfileRequest(
                 educationalStageIds = s.kahenEducationalStages.map { it.id }
             ) else null,
-            ordinationProfile = if (role != UserRole.KAHEN && role != UserRole.PARENT && s.isOrdained) OrdinationProfileRequest(
+            ordinationProfile = if (s.isMale != false && role != UserRole.KAHEN && role != UserRole.PARENT && s.isOrdained) OrdinationProfileRequest(
                 rankId = s.selectedRank?.id ?: 1L,
                 isOrdinationInAnotherChurch = !s.isOrdainedInThisChurch,
                 ordinationYear = s.ordinationYear.toIntOrNull(),
@@ -909,7 +901,7 @@ class RegisterViewModel(
             block = {
                 registerRepository.completeProfile(
                     request = request,
-                    ordinationCertificateBytes = s.ordinationCertificateBytes,
+                    ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null,
                     identityDocumentBytes = s.identityCertificateBytes
                 )
             },
@@ -1230,11 +1222,9 @@ class RegisterViewModel(
                 isRefreshing = true
             )
         }
-        launch {
-            priestsPaginator.reset()
-            ranksPaginator.reset()
-            stagesPaginator.reset()
-        }
+        priestsPaginator.reset()
+        ranksPaginator.reset()
+        stagesPaginator.reset()
         checkAndLoadPendingRegistration()
     }
 }

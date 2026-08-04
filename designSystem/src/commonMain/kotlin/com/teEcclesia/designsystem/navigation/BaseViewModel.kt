@@ -46,12 +46,25 @@ abstract class BaseViewModel<STATE>(
     protected fun launch(
         context: CoroutineContext = dispatchers.io,
         start: CoroutineStart = CoroutineStart.DEFAULT,
+        onException: ((Throwable) -> Unit)? = null,
         block: suspend CoroutineScope.() -> Unit
-    ) = viewModelScope.launch(
-        context = context,
-        start = start,
-        block = block
-    )
+    ): Job {
+        val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
+            if (throwable !is CancellationException) {
+                onException?.invoke(throwable)
+            }
+        }
+
+        return viewModelScope.launch(context + exceptionHandler, start) {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Throwable) {
+                onException?.invoke(e)
+            }
+        }
+    }
 
     protected fun navigate(
         route: NavKey,
@@ -119,7 +132,6 @@ abstract class BaseViewModel<STATE>(
     ): Job {
         val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
             if (throwable !is CancellationException) {
-                
                 onError(throwable)
             }
         }
@@ -150,7 +162,6 @@ abstract class BaseViewModel<STATE>(
     ): Job {
         val exceptionHandler = CoroutineExceptionHandler { _, exception ->
             if (exception !is CancellationException) {
-                
                 onError(exception)
             }
         }
@@ -191,6 +202,7 @@ abstract class BaseViewModel<STATE>(
         endReached: (items: PagedData<Items>) -> Boolean = { page -> page.isLastPage }
     ): Paginator<Int, PagedData<Items>> {
         return Paginator(
+            scope = viewModelScope,
             initialKey = initialKey,
             onLoadUpdated = onLoadUpdated,
             onRequest = { pageNumber -> loadPage(pageNumber) },
