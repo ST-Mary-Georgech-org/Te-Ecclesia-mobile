@@ -42,6 +42,12 @@ class AppDelegate: NSObject, UIApplicationDelegate {
             )
             Crashlytics.crashlytics().record(error: nsError)
         }
+        IosCrashLoggerBridge.shared.customKeyDelegate = { (key: String, value: String) in
+            Crashlytics.crashlytics().setCustomValue(value, forKey: key)
+        }
+        IosCrashLoggerBridge.shared.logDelegate = { (message: String) in
+            Crashlytics.crashlytics().log(message)
+        }
         #endif
 
         MainViewControllerKt.onApplicationStart()

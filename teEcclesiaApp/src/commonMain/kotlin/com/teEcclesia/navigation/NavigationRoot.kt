@@ -42,7 +42,11 @@ fun NavigationRoot(
             .fillMaxSize()
             .background(Theme.colorScheme.background),
         backStack = backStack,
-        onBack = { backStack.removeLastOrNull() },
+        onBack = {
+            if (backStack.size > 1) {
+                backStack.removeLastOrNull()
+            }
+        },
         sceneStrategy = DialogSceneStrategy(),
         entryDecorators = listOf(
             rememberSaveableStateHolderNavEntryDecorator(),
