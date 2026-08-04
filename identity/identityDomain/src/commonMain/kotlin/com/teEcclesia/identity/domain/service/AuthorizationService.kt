@@ -37,7 +37,7 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
         return authenticationRepository.isRegistrationPending()
     }
 
-    suspend fun getUserRole(): UserRole? = authenticationRepository.getUserRole()
+    fun getUserRole(): UserRole? = authenticationRepository.getUserRole()
 
     suspend fun saveUserRole(role: UserRole) = authenticationRepository.saveUserRole(role)
 
@@ -45,19 +45,19 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
 
     suspend fun saveUserStatus(status: UserStatus) = authenticationRepository.saveUserStatus(status)
 
-    suspend fun canApproveRequests(): Boolean = authenticationRepository.getCanApproveRequests()
+    fun canApproveRequests(): Boolean = authenticationRepository.getCanApproveRequests()
     
-    suspend fun saveCanApproveRequests(canApprove: Boolean) = authenticationRepository.saveCanApproveRequests(canApprove)
+    fun saveCanApproveRequests(canApprove: Boolean) = authenticationRepository.saveCanApproveRequests(canApprove)
 
-    suspend fun getKhademStageId(): Long? = authenticationRepository.getKhademStageId()
+    fun getKhademStageId(): Long? = authenticationRepository.getKhademStageId()
 
-    suspend fun getKhademYearId(): Long? = authenticationRepository.getKhademYearId()
+    fun getKhademYearId(): Long? = authenticationRepository.getKhademYearId()
 
-    suspend fun getResponsibleStageIds(): List<Long> = authenticationRepository.getResponsibleStageIds()
+    fun getResponsibleStageIds(): List<Long> = authenticationRepository.getResponsibleStageIds()
 
-    suspend fun getResponsibleYearIds(): List<Long> = authenticationRepository.getResponsibleYearIds()
+    fun getResponsibleYearIds(): List<Long> = authenticationRepository.getResponsibleYearIds()
 
-    suspend fun saveKhademAuthorizationDetails(
+    fun saveKhademAuthorizationDetails(
         stageId: Long?,
         yearId: Long?,
         responsibleStageIds: List<Long>,
@@ -66,7 +66,7 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
         authenticationRepository.saveKhademAuthorizationDetails(stageId, yearId, responsibleStageIds, responsibleYearIds)
     }
 
-    suspend fun canSearchUsers(): Boolean {
+    fun canSearchUsers(): Boolean {
         val role = getUserRole()
         if (role == UserRole.ADMIN) return true
         if (role == UserRole.KHADEM) {
@@ -75,7 +75,7 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
         return false
     }
 
-    suspend fun canAddStudent(): Boolean {
+    fun canAddStudent(): Boolean {
         val role = getUserRole()
         if (role == UserRole.ADMIN) return true
         if (role == UserRole.KHADEM) {
@@ -84,12 +84,12 @@ class AuthorizationService(private val authenticationRepository: AuthenticationR
         return false
     }
 
-    suspend fun hasRegistrationRequestsAccess(): Boolean {
+    fun hasRegistrationRequestsAccess(): Boolean {
         val role = getUserRole()
         return role == UserRole.ADMIN || (role == UserRole.KHADEM && canApproveRequests())
     }
 
-    suspend fun hasAttendanceAccess(): Boolean {
+    fun hasAttendanceAccess(): Boolean {
         val role = getUserRole()
         return role == UserRole.ADMIN || role == UserRole.KHADEM
     }

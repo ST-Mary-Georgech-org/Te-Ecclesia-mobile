@@ -16,7 +16,9 @@ data class CachedProfileDto(
     @SerialName("code")
     val code: String,
     @SerialName("image_url")
-    val imageUrl: String? = null
+    val imageUrl: String? = null,
+    @SerialName("whatsapp_link")
+    val whatsAppLink: String? = null
 )
 
 fun CachedProfileDto.toDomain(): CachedProfile = CachedProfile(
@@ -24,7 +26,8 @@ fun CachedProfileDto.toDomain(): CachedProfile = CachedProfile(
     fullName = fullName,
     displayName = displayName,
     code = code,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    whatsAppLink = whatsAppLink
 )
 
 fun CachedProfile.toDto(): CachedProfileDto = CachedProfileDto(
@@ -32,5 +35,6 @@ fun CachedProfile.toDto(): CachedProfileDto = CachedProfileDto(
     fullName = fullName,
     displayName = displayName,
     code = code,
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    whatsAppLink = whatsAppLink
 )

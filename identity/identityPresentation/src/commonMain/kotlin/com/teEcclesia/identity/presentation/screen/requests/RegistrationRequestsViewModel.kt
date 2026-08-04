@@ -86,7 +86,7 @@ class RegistrationRequestsViewModel(
     private fun listenForHandledUsers() {
         launch {
             getResult<String>("handledUserId", consume = true).collect { handledUserId ->
-                if (handledUserId != null && handledUserId.isNotBlank()) {
+                if (!handledUserId.isNullOrBlank()) {
                     val updatedRequests = state.value.requests.filter { it.id != handledUserId }
                     updateState { it.copy(requests = updatedRequests) }
                 }
@@ -95,9 +95,7 @@ class RegistrationRequestsViewModel(
     }
 
     private fun loadRequests() {
-        launch {
-            requestsPaginator.reset()
-        }
+        requestsPaginator.reset()
     }
 
     override fun onSearchQueryChanged(query: String) {
@@ -125,9 +123,7 @@ class RegistrationRequestsViewModel(
 
     override fun onLoadMore() {
         if (!state.value.isLastPage && !state.value.isPagingLoading && !state.value.isLoading) {
-            launch {
-                requestsPaginator.loadNextItems()
-            }
+            requestsPaginator.loadNextItems()
         }
     }
 

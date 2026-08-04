@@ -30,7 +30,7 @@
     <string name="didnt_receive_code">Didn&apos;t receive code?</string>
 
     <string name="invalid_otp_please_try_again">Invalid OTP. Please try again.</string>
-    <string name="otp_must_be_4_digits">OTP must be 4 digits</string>
+    <string name="otp_must_be_5_digits">OTP must be 5 digits</string>
     <string name="invalid_phone_or_national_id_or_code_or_email">Invalid phone/national id/code/mail</string>
     <string name="error_occurred">An error occurred</string>
     <string name="unknown_error">Unknown error</string>
@@ -284,4 +284,6 @@
     <string name="delete">Delete</string>
     <string name="confirm">Confirm</string>
     <string name="go_to_login">go to Login</string>
+    <string name="join_whatsapp_group">Join WhatsApp group</string>
+    <string name="couldnt_refresh_profile">Couldn't refresh profile</string>
 </resources>

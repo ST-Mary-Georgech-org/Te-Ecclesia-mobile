@@ -488,6 +488,7 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
 }
 
 private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): OrdinationProfileRequest? {
+    if (isMale == false) return null
     return if (isOrdained) {
         OrdinationProfileRequest(
             rankId = selectedRank?.id ?: 1L,

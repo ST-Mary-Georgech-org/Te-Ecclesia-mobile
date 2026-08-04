@@ -225,12 +225,14 @@ private fun RegistrationRequestCardPreview() = Theme {
             stage = LookupResponse(
                 id = 0L,
                 name = "Primary",
-                subItems = emptyList()
+                subItems = emptyList(),
+                whatsAppLink = null
             ),
             year = LookupResponse(
                 id = 0L,
                 name = "2024",
-                subItems = emptyList()
+                subItems = emptyList(),
+                whatsAppLink = null
             ),
             shamamsaStudyStatus = ShamamsaStudyStatus.YES,
             onClick = {}

@@ -215,9 +215,9 @@ class ProfileRepositoryImpl(
         request: RegisterRequest,
         imageBytes: ByteArray?,
         identityDocumentBytes: ByteArray?
-    ): ProfileResponse {
+    ) {
         val requestJson = Json.encodeToString(request.toDto())
-        val response = tryToExecute<ProfileResponseDto> {
+        tryToExecute<ProfileResponseDto> {
             post("api/v1/users/makhdoom") {
                 setBody(
                     MultiPartFormDataContent(
@@ -244,7 +244,6 @@ class ProfileRepositoryImpl(
                 )
             }
         }
-        return response.toDomain()
     }
 
     override suspend fun getApprovedUsers(

@@ -1,13 +1,10 @@
 package com.teEcclesia.notifications.presentation.screen
 
-import androidx.lifecycle.viewModelScope
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.notifications.domain.model.NotificationResponse
 import com.teEcclesia.notifications.domain.repository.NotificationRepository
 import com.teEcclesia.notifications.presentation.util.toPagedData
 import com.teEcclesia.shared.domain.utils.PageQuery
-import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.unknown_error
@@ -18,7 +15,7 @@ class NotificationsViewModel(
 
     private val pageSize = 20
 
-    private val notificationsPaginator = createPaginator<NotificationResponse>(
+    private val notificationsPaginator = createPaginator(
         initialKey = 0,
         loadPage = { page ->
             notificationRepository.getAllNotifications(PageQuery(page = page, size = pageSize)).toPagedData()
@@ -40,11 +37,9 @@ class NotificationsViewModel(
     }
 
     private fun loadNotifications() {
-        launch {
-            updateState { copy(isLoading = true, isRefreshing = true) }
-            notificationsPaginator.reset()
-            updateState { copy(isLoading = false, isRefreshing = false) }
-        }
+        updateState { copy(isLoading = true, isRefreshing = true) }
+        notificationsPaginator.reset()
+        updateState { copy(isLoading = false, isRefreshing = false) }
 
         tryToCall(
             block = { notificationRepository.markAllAsRead() },
@@ -67,11 +62,9 @@ class NotificationsViewModel(
     }
 
     override fun onLoadMoreNotifications() {
-        launch {
-            updateState { copy(isLoadingMore = true) }
-            notificationsPaginator.loadNextItems()
-            updateState { copy(isLoadingMore = false) }
-        }
+        updateState { copy(isLoadingMore = true) }
+        notificationsPaginator.loadNextItems()
+        updateState { copy(isLoadingMore = false) }
     }
 
     override fun onReload() {

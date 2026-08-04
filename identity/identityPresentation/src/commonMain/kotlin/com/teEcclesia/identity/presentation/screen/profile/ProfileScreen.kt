@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -39,6 +40,7 @@ import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.utils.preview.PreviewThemes
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.login.getName
@@ -56,6 +58,7 @@ import teecclesia.designsystem.generated.resources.profile
 import teecclesia.designsystem.generated.resources.search_users
 import teecclesia.designsystem.generated.resources.select_language
 import teecclesia.designsystem.generated.resources.select_theme
+import teecclesia.designsystem.generated.resources.join_whatsapp_group
 
 @Composable
 fun ProfileScreen(
@@ -89,6 +92,7 @@ private fun ProfileContent(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val uriHandler = LocalUriHandler.current
     PullToRefresh(
         isRefreshing = state.isRefreshing,
         onRefresh = onRefresh,
@@ -216,14 +220,25 @@ private fun ProfileContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
 
-        AppButton(
-            type = AppButtonType.Secondary,
-            onClick = onClickEditProfile,
-            modifier = Modifier.fillMaxWidth(),
-            text = stringResource(Res.string.edit_profile)
-        )
+//        Spacer(modifier = Modifier.height(24.dp))
+
+//        AppButton( //TODO: keep it until make this feature
+//            type = AppButtonType.Secondary,
+//            onClick = onClickEditProfile,
+//            modifier = Modifier.fillMaxWidth(),
+//            text = stringResource(Res.string.edit_profile)
+//        )
+
+            state.whatsAppLink?.let {
+                Spacer(modifier = Modifier.height(12.dp))
+                AppButton(
+                    type = AppButtonType.Primary,
+                    onClick = { uriHandler.openUri(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(Res.string.join_whatsapp_group)
+                )
+            }
 
         if (state.canSearchUsers) {
             Spacer(modifier = Modifier.height(12.dp))
@@ -297,7 +312,7 @@ private fun QrCodeSection(
     }
 }
 
-@PreviewLightDark
+@PreviewThemes
 @Composable
 private fun ProfileContentPreview() = Theme {
     ProfileContent(
@@ -306,7 +321,8 @@ private fun ProfileContentPreview() = Theme {
             fullName = "مينا يسي كامل حنا",
             userCode = "USR-10294",
             canSearchUsers = true,
-            canAddUser = true
+            canAddUser = true,
+            whatsAppLink = "https://chat.whatsapp.com/EXAMPLE"
         ),
         onClickNotifications = {},
         onLanguageSelected = {},

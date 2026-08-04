@@ -75,7 +75,9 @@ class MainEntryViewModel(
                             },
                             onSuccess = { profile ->
                                 authorizationService.saveUserStatus(profile.status)
-                                navigateByState(profile.status, currentRoute, isUnauthRoute)
+                                if (profile.status != previousStatus) {
+                                    navigateByState(profile.status, currentRoute, isUnauthRoute)
+                                }
                             },
                             onError = {
                                 // Failures silently handled without UI thread locks

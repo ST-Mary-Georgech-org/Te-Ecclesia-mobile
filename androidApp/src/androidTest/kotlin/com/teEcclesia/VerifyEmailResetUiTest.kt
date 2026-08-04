@@ -15,13 +15,13 @@ class VerifyEmailResetUiTest {
         composeTestRule.waitForIdle()
         Thread.sleep(3000)
         
-        println("WAITING FOR MANUAL OTP ENTRY... Please type the 4-digit OTP for Email.")
+        println("WAITING FOR MANUAL OTP ENTRY... Please type the 5-digit OTP for Email.")
         try {
             composeTestRule.waitUntil(timeoutMillis = 60000) {
                 try {
                     val textNode = composeTestRule.onNodeWithTag("OtpInput", useUnmergedTree = true).fetchSemanticsNode()
                     val text = textNode.config[SemanticsProperties.EditableText].text
-                    text.length == 4
+                    text.length == 5
                 } catch (e: Exception) {
                     false
                 }

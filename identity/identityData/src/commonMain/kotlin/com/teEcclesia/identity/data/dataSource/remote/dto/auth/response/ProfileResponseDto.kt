@@ -139,5 +139,13 @@ fun ProfileResponseDto.toCachedProfile() = CachedProfile(
     fullName = fullName,
     displayName = displayName,
     code = code.orEmpty(),
-    imageUrl = imageUrl
+    imageUrl = imageUrl,
+    whatsAppLink = when (role) {
+        UserRole.MAKHDOOM -> makhdoomProfile?.educationalYear?.whatsAppLink
+        UserRole.KHADEM -> null
+        UserRole.ADMIN -> null
+        UserRole.PARENT -> parentProfile?.whatsAppLink
+        UserRole.GUEST -> null
+        UserRole.KAHEN -> null
+    }
 )

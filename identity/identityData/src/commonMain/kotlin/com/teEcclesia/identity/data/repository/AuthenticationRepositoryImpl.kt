@@ -200,7 +200,7 @@ class AuthenticationRepositoryImpl(
         }
     }
 
-    override suspend fun getUserRole(): UserRole? {
+    override fun getUserRole(): UserRole? {
         val roleStr = settings.userRole
         if (roleStr.isBlank()) return null
         return try {
@@ -222,7 +222,7 @@ class AuthenticationRepositoryImpl(
         return runCatching { UserStatus.valueOf(statusStr) }.getOrNull()
     }
 
-    override suspend fun saveCanApproveRequests(canApprove: Boolean) {
+    override fun saveCanApproveRequests(canApprove: Boolean) {
         if (settings.canApproveRequests != canApprove) {
             settings.canApproveRequests = canApprove
             updateRequestsAccess()
@@ -263,7 +263,7 @@ class AuthenticationRepositoryImpl(
         settings.responsibleYearIds = responsibleYearIds.joinToString(",")
     }
 
-    override suspend fun getCanApproveRequests(): Boolean {
+    override fun getCanApproveRequests(): Boolean {
         return settings.canApproveRequests
     }
 

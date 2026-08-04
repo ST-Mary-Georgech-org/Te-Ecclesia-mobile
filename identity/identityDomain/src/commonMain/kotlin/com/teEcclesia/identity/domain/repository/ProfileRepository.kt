@@ -36,7 +36,7 @@ interface ProfileRepository {
         request: RegisterRequest,
         imageBytes: ByteArray?,
         identityDocumentBytes: ByteArray?
-    ): ProfileResponse
+    )
     suspend fun getApprovedUsers(
         search: String?,
         stageId: Long?,
