@@ -14,6 +14,7 @@ kotlin {
                 implementation(projects.shared.sharedData)
                 implementation(projects.shared.sharedDomain)
                 implementation(projects.lookups.lookupsData)
+                implementation(projects.logging)
                 implementation(libs.kmpnotifier)
             }
         }

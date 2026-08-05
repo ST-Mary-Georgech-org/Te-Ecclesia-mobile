@@ -55,6 +55,12 @@ android {
         buildConfig = true
     }
 
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -73,6 +79,7 @@ android {
 
             ndk {
                 debugSymbolLevel = "FULL"
+                abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
             }
 
             proguardFiles(
