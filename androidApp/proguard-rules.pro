@@ -25,3 +25,20 @@
 
 # Ignore warnings for unresolved types in third-party libraries (optional but recommended)
 -dontwarn kotlinx.serialization.**
+
+# 4. Keep JNI Native Methods and Native Libraries (MMKV, Skiko, SQLite)
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+
+# Keep MMKV JNI native classes & methods
+-keep class com.tencent.mmkv.** { *; }
+-dontwarn com.tencent.mmkv.**
+
+# Keep Skiko & Compose native rendering
+-keep class org.jetbrains.skiko.** { *; }
+-dontwarn org.jetbrains.skiko.**
+
+# Keep SQLite bundled native classes
+-keep class androidx.sqlite.db.** { *; }
+
