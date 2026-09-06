@@ -34,6 +34,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Grant execute permission
         run: chmod +x gradlew
 
@@ -53,67 +56,109 @@ jobs:
 
       - name: Determine modules
         id: changes
+        env:
+          CHANGED_FILES_STR: ${{ steps.changed-files-git.outputs.changed_files }}
         run: |
-          ALL_MODULES_JSON=$(./gradlew -q exportModuleDeps --no-configuration-cache | grep -Eo '^\{.*\}$' | tail -n 1)
-          echo "All modules JSON: $ALL_MODULES_JSON"
+          RAW_GRADLE_JSON=$(./gradlew -q exportModuleDeps --no-configuration-cache 2>/dev/null | grep -Eo '\{.*\}' | tail -n 1 || true)
+          export RAW_GRADLE_JSON
+          python3 - << 'EOF'
+          import json
+          import os
+          import re
 
-          CHANGED_FILES="${{ steps.changed-files-git.outputs.changed_files }}"
-          FALLBACK_ALL_MODULES=':teEcclesiaApp :designSystem :identity:identityData :identity:identityDomain :identity:identityPresentation :home:homePresentation :identity:identityApi :home:homeApi :lookups:lookupsData :lookups:lookupsDomain :notifications:notificationsData :notifications:notificationsDomain :notifications:notificationsApi :notifications:notificationsPresentation :androidApp'
-          IOS_MODULES=':teEcclesiaApp :identity:identityPresentation :home:homePresentation :notifications:notificationsPresentation'
-          echo "All modules JSON: $ALL_MODULES_JSON"
+          changed_files_raw = os.environ.get("CHANGED_FILES_STR", "")
+          changed_files = [f.strip() for f in changed_files_raw.splitlines() if f.strip()]
 
-          if echo "$ALL_MODULES_JSON" | jq -e . >/dev/null 2>&1; then
-            ALL_MODULES=$(echo "$ALL_MODULES_JSON" | jq -r 'keys[]' | tr '\n' ' ')
-          else
-            echo "Unable to parse exportModuleDeps output; using fallback module list."
-            ALL_MODULES_JSON='{}'
-            ALL_MODULES="$FALLBACK_ALL_MODULES"
-          fi
+          raw_json = os.environ.get("RAW_GRADLE_JSON", "").strip()
+          modules = {}
 
-          FINAL_MODULES=""
+          try:
+              if raw_json:
+                  data = json.loads(raw_json)
+                  modules = data.get("modules", {})
+          except Exception as e:
+              print(f"Warning: Failed to parse Gradle JSON ({e})")
 
-          for file in $CHANGED_FILES; do
-            for module in $ALL_MODULES; do
-              mod_dir=$(echo "$module" | sed 's/^://' | tr ':' '/')
-              if [[ "$file" == "$mod_dir"/* || "$file" == "$mod_dir" ]]; then
-                FINAL_MODULES="$FINAL_MODULES $module"
-                # Add dependent modules
-                if [ "$ALL_MODULES_JSON" != '{}' ]; then
-                  DEPS=$(echo "$ALL_MODULES_JSON" | jq -r --arg module "$module" '.[$module][]?' 2>/dev/null || true)
-                  for dep in $DEPS; do
-                    FINAL_MODULES="$FINAL_MODULES $dep"
-                  done
-                fi
-              fi
-            done
-          done
+          # Dynamic fallback if exportModuleDeps is unavailable: parse settings.gradle(.kts)
+          if not modules:
+              print("Parsing settings.gradle(.kts) dynamically as fallback...")
+              settings_file = "settings.gradle.kts" if os.path.exists("settings.gradle.kts") else "settings.gradle"
+              if os.path.exists(settings_file):
+                  with open(settings_file, "r") as sf:
+                      for match in re.finditer(r'include\s*\(\s*["\'](:[^"\']+)["\']\s*\)', sf.read()):
+                          mod = match.group(1)
+                          mod_dir = mod.lstrip(":").replace(":", "/")
+                          modules[mod] = {
+                              "dir": mod_dir,
+                              "hasAndroid": True,
+                              "hasIos": True,
+                              "dependents": []
+                          }
 
-          FINAL_MODULES=$(echo "$FINAL_MODULES" | tr ' ' '\n' | awk 'NF' | sort -u | tr '\n' ' ')
-          ANDROID_JSON_ARRAY=$(echo "$FINAL_MODULES" | tr ' ' '\n' | awk 'NF' | jq -R -s -c 'split("\n")[:-1]')
-          JSON_ARRAY=$(echo "$FINAL_MODULES" | jq -R 'split(" ") | map(select(length > 0))' | jq -c '.')
-          IOS_FILTERED=$(echo "$FINAL_MODULES" | tr ' ' '\n' | awk 'NF' | grep -F -x -f <(echo "$IOS_MODULES" | tr ' ' '\n') || true)
-          IOS_JSON_ARRAY=$(echo "$IOS_FILTERED" | jq -R -s -c 'split("\n")[:-1]')
+          # 1. Global build configuration changes
+          global_patterns = [
+              r"^gradle/",
+              r"^build-logic/",
+              r"^\.github/",
+              r"^gradle\.properties$",
+              r"^settings\.gradle(\.kts)?$",
+              r"^build\.gradle(\.kts)?$"
+          ]
+          is_global_change = any(any(re.search(pat, f) for pat in global_patterns) for f in changed_files)
 
-          if [ "$(echo "$JSON_ARRAY" | jq 'length')" -gt 0 ]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
-            echo "modules<<EOF" >> $GITHUB_OUTPUT
-            echo "$JSON_ARRAY" >> $GITHUB_OUTPUT
-            echo "EOF" >> $GITHUB_OUTPUT
-          else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
-            echo "modules=[]" >> $GITHUB_OUTPUT
-          fi
-          
-          echo "android_modules<<EOF" >> $GITHUB_OUTPUT
-          echo "$ANDROID_JSON_ARRAY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
-  
-          echo "ios_modules<<EOF" >> $GITHUB_OUTPUT
-          echo "$IOS_JSON_ARRAY" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          # 2. Native iOS project files (Xcode projects, Swift packages, etc.)
+          native_ios_patterns = [
+              r"^iosApp/",
+              r"\.xcodeproj(/|$)",
+              r"\.xcworkspace(/|$)",
+              r"\.pbxproj$",
+              r"\.xcconfig$",
+              r"(^|/)Package\.swift$",
+              r"(^|/)Podfile(\.lock)?$"
+          ]
+          has_native_ios_changes = any(any(re.search(pat, f) for pat in native_ios_patterns) for f in changed_files)
 
-          if [ "$(echo "$IOS_JSON_ARRAY" | jq 'length')" -gt 0 ]; then
-            echo "has_ios_changes=true" >> $GITHUB_OUTPUT
-          else
-            echo "has_ios_changes=false" >> $GITHUB_OUTPUT
-          fi
+          # 3. Resolve affected modules
+          directly_changed = set()
+          affected = set()
+
+          if is_global_change:
+              affected = set(modules.keys())
+          else:
+              for f in changed_files:
+                  for mod, info in modules.items():
+                      mod_dir = info.get("dir", "").rstrip("/")
+                      if mod_dir and (f == mod_dir or f.startswith(mod_dir + "/")):
+                          directly_changed.add(mod)
+                          affected.add(mod)
+                          for dep in info.get("dependents", []):
+                              affected.add(dep)
+
+          # 4. Filter by platform capabilities
+          android_modules = sorted([m for m in affected if modules.get(m, {}).get("hasAndroid", True)])
+          ios_modules = sorted([m for m in affected if modules.get(m, {}).get("hasIos", True)])
+
+          has_ios_changes = has_native_ios_changes or is_global_change or len(ios_modules) > 0
+          has_changes = is_global_change or has_native_ios_changes or len(affected) > 0
+
+          # 5. Output to GITHUB_OUTPUT
+          github_output = os.environ.get("GITHUB_OUTPUT")
+          if github_output:
+              with open(github_output, "a") as out:
+                  out.write(f"has_changes={'true' if has_changes else 'false'}\n")
+                  out.write(f"has_ios_changes={'true' if has_ios_changes else 'false'}\n")
+                  out.write(f"modules<<EOF\n{json.dumps(sorted(list(affected)))}\nEOF\n")
+                  out.write(f"android_modules<<EOF\n{json.dumps(android_modules)}\nEOF\n")
+                  out.write(f"ios_modules<<EOF\n{json.dumps(ios_modules)}\nEOF\n")
+
+          print("=== Detection Summary ===")
+          print(f"Total changed files: {len(changed_files)}")
+          print(f"Is global change: {is_global_change}")
+          print(f"Has native iOS changes: {has_native_ios_changes}")
+          print(f"Has changes: {has_changes}")
+          print(f"Has iOS changes: {has_ios_changes}")
+          print(f"Directly changed modules: {sorted(list(directly_changed))}")
+          print(f"Total affected modules ({len(affected)}): {sorted(list(affected))}")
+          print(f"Android modules ({len(android_modules)}): {android_modules}")
+          print(f"iOS modules ({len(ios_modules)}): {ios_modules}")
+          EOF

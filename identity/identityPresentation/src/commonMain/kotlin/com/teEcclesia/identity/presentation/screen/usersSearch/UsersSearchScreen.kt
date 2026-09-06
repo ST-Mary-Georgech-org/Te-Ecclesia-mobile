@@ -162,7 +162,7 @@ private fun UsersSearchContent(
         Spacer(modifier = Modifier.height(8.dp))
 
         Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            if (state.isLoading) {
+            if (state.isLoading || state.isRefreshing) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -198,7 +198,7 @@ private fun UsersSearchContent(
                         UserCard(user = user, onClick = { listener.onUserClicked(user) })
                     }
 
-                    if (state.isLoading && state.users.isNotEmpty()) {
+                    if (state.isPagingLoading) {
                         item {
                             Box(
                                 modifier = Modifier

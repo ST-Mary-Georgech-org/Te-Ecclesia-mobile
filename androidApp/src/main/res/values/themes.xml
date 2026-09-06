@@ -4,10 +4,7 @@
         <!-- Background color of the splash screen -->
         <item name="windowSplashScreenBackground">@color/splash_background</item>
         <!-- The logo icon -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/logo_vector</item>
-
-        <item name="splashScreenIconSize">200dp</item>
-
+        <item name="windowSplashScreenAnimatedIcon">@drawable/icon_splash</item>
         <!-- Post-splash theme -->
         <item name="postSplashScreenTheme">@android:style/Theme.Material.Light.NoActionBar</item>
     </style>

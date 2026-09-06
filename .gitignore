@@ -35,3 +35,7 @@ debug.log
 /.agents/
 **/bin/
 /androidApp/release
+.swiftpm-locks/
+/.artifacts
+DerivedData/
+**/DerivedData/

@@ -23,19 +23,18 @@ import com.teEcclesia.designsystem.navigation.effector.Effect
 import com.teEcclesia.designsystem.navigation.effector.EffectHandler
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.home.api.HomeRoute
-import com.teEcclesia.identity.api.SplashRoute
+import com.teEcclesia.identity.api.AttendanceServicesRoute
+import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.ProfileRoute
+import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.domain.service.AuthorizationService
-import com.teEcclesia.navigation.AppBottomNavigationBar
 import com.teEcclesia.logging.CrashLogger
+import com.teEcclesia.navigation.AppBottomNavigationBar
 import com.teEcclesia.navigation.NavigationRoot
 import com.teEcclesia.navigation.replaceAll
 import com.teEcclesia.util.buildNavigationSerializerConfig
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-
-import com.teEcclesia.identity.api.AttendanceServicesRoute
-import com.teEcclesia.identity.api.RegistrationRequestsRoute
 
 @Composable
 fun EntryPoint(
@@ -49,7 +48,8 @@ fun EntryPoint(
     val accessToken by authorizationService.observeAccessToken().collectAsStateWithLifecycle()
 
     val navigationSerializerConfig = remember { buildNavigationSerializerConfig() }
-    val backStack = rememberNavBackStack(navigationSerializerConfig, SplashRoute)
+    val backStack = rememberNavBackStack(navigationSerializerConfig,
+        viewModel.getStaticInitialRoute(authState))
     val currentRoute = backStack.lastOrNull()
 
     LaunchedEffect(currentRoute) {

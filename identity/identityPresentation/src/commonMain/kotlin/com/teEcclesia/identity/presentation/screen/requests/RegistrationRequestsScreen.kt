@@ -71,13 +71,7 @@ private fun RegistrationRequestsContent(
             .fillMaxSize()
             .background(Theme.colorScheme.background)
     ) {
-        if (state.isLoading) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center),
-                color = Theme.colorScheme.primary
-            )
-        } else {
-            LazyColumn(
+        LazyColumn(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
@@ -143,7 +137,7 @@ private fun RegistrationRequestsContent(
                     Spacer(modifier = Modifier.height(4.dp))
                 }
 
-                if (state.isLoading && !state.isRefreshing) {
+                if (state.isLoading || state.isRefreshing) {
                     item(key = "loading_state") {
                         Box(
                             modifier = Modifier
@@ -193,14 +187,12 @@ private fun RegistrationRequestsContent(
                 }
             }
 
-            PaginationTrigger(
-                list = state.requests,
-                listState = listState,
-                remainingItemsToLoadNextPage = 5,
-                loadNextItems = listener::onLoadMore
-            )
-        }
-
+        PaginationTrigger(
+            list = state.requests,
+            listState = listState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadMore
+        )
     }
 
     SortingOptionBottomSheet(

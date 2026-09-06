@@ -6,7 +6,6 @@ kotlin {
     android {
         namespace = "com.teEcclesia.identity.presentation"
     }
-
     sourceSets {
         commonMain {
             dependencies {

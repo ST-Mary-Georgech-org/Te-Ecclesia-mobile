@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.plugin.mpp.Framework
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import java.util.Properties
 
 plugins {
@@ -9,12 +11,10 @@ kotlin {
         namespace = "com.teEcclesia.library"
     }
 
-    swiftPMDependencies {
-        swiftPackage(
-            url = url("https://github.com/firebase/firebase-ios-sdk.git"),
-            version = from("12.13.0"),
-            products = listOf(product("FirebaseCore"))
-        )
+    targets.withType<KotlinNativeTarget> {
+        binaries.withType<Framework> {
+            export(projects.logging)
+        }
     }
 
     sourceSets {
@@ -41,7 +41,7 @@ kotlin {
                 implementation(projects.notifications.notificationsApi)
                 implementation(projects.notifications.notificationsPresentation)
                 implementation(libs.kmpnotifier)
-                implementation(projects.logging)
+                api(projects.logging)
             }
         }
         commonTest {

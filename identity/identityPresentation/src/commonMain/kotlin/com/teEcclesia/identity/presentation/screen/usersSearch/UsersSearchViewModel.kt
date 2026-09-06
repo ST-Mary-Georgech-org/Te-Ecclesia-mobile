@@ -42,20 +42,27 @@ class UsersSearchViewModel(
                     hasMorePages = !items.isLastPage,
                     totalUsersCount = items.totalItems,
                     isLoading = false,
+                    isPagingLoading = false,
                     isRefreshing = false
                 )
             }
         },
         onLoadUpdated = { loading ->
             if (!state.value.isRefreshing) {
-                updateState { it.copy(isLoading = loading) }
+                updateState { current ->
+                    if (current.users.isEmpty()) {
+                        current.copy(isLoading = loading)
+                    } else {
+                        current.copy(isPagingLoading = loading)
+                    }
+                }
             }
         },
         onReset = {
-            updateState { it.copy(users = emptyList(), hasMorePages = true) }
+            updateState { it.copy(users = emptyList(), hasMorePages = true, isPagingLoading = false) }
         },
         onError = { throwable ->
-            updateState { it.copy(isLoading = false, isRefreshing = false) }
+            updateState { it.copy(isLoading = false, isPagingLoading = false, isRefreshing = false) }
             throwable?.let { t ->
                 showSnackBar(
                     title = UiText.StringRes(Res.string.failed_to_load_users),
@@ -237,7 +244,7 @@ class UsersSearchViewModel(
     }
 
     override fun onLoadMore() {
-        if (state.value.hasMorePages && !state.value.isLoading) {
+        if (state.value.hasMorePages && !state.value.isLoading && !state.value.isPagingLoading) {
             usersPaginator.loadNextItems()
         }
     }

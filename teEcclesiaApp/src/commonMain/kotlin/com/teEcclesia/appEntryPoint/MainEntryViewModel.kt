@@ -10,7 +10,6 @@ import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.SignUpRoute
-import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.VerifyPhoneRoute
 import com.teEcclesia.identity.domain.model.AuthState
 import com.teEcclesia.identity.domain.model.UserStatus
@@ -60,7 +59,6 @@ class MainEntryViewModel(
             val isUnauthRoute = currentRoute == LoginRoute
                     || currentRoute is SignUpRoute
                     || currentRoute is VerifyPhoneRoute
-                    || currentRoute is SplashRoute
 
             when (authState) {
 
@@ -102,7 +100,7 @@ class MainEntryViewModel(
                 }
 
                 AuthState.UNAUTHENTICATED -> {
-                    if (currentRoute is SplashRoute || !isUnauthRoute) {
+                    if (!isUnauthRoute) {
                         resetTo(LoginRoute, true)
                     }
                 }
@@ -178,5 +176,30 @@ class MainEntryViewModel(
 
     override fun navigateToRoute(route: NavKey, forceNavigate: Boolean) {
         navigate(route, forceNavigate)
+    }
+
+    fun getStaticInitialRoute(authState: AuthState): NavKey {
+        return when (authState) {
+            AuthState.AUTHENTICATED -> {
+                val status = authorizationService.getUserStatus()
+                when (status) {
+                    UserStatus.PENDING_APPROVAL -> PendingApprovalRoute
+                    UserStatus.APPROVED -> ProfileRoute
+                    UserStatus.REJECTED, UserStatus.BANNED, null -> LoginRoute
+                    else -> ProfileRoute
+                }
+            }
+
+            AuthState.REGISTRATION_PENDING -> {
+                val status = authorizationService.getUserStatus()
+                if (status == UserStatus.PENDING_APPROVAL) {
+                    PendingApprovalRoute
+                } else {
+                    SignUpRoute()
+                }
+            }
+
+            AuthState.UNAUTHENTICATED -> LoginRoute
+        }
     }
 }

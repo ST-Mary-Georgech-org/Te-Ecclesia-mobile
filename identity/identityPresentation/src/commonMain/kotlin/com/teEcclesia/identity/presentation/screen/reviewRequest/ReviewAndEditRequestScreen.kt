@@ -33,22 +33,23 @@ import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
+import com.teEcclesia.identity.presentation.util.rememberFileOpener
 import com.teEcclesia.lookups.domain.model.LookupResponse
+import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.add_new_user
 import teecclesia.designsystem.generated.resources.ic_arrow_back
 import teecclesia.designsystem.generated.resources.review_and_edit_request
-import teecclesia.designsystem.generated.resources.add_new_user
 import teecclesia.designsystem.generated.resources.step_1_of_2
 import teecclesia.designsystem.generated.resources.step_2_of_2
 
@@ -83,8 +84,7 @@ private fun ReviewAndEditRequestContent(
     )
 
 
-
-    val fileOpener = com.teEcclesia.identity.presentation.util.rememberFileOpener()
+    val fileOpener = rememberFileOpener()
 
     PullToRefresh(
         isRefreshing = state.isRefreshing,
