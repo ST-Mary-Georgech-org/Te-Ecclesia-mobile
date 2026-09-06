@@ -26,6 +26,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -48,4 +50,13 @@ jobs:
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > androidApp/google-services.json
 
       - name: Build modules
-        run: ./gradlew $(for m in $(echo '${{ needs.detect.outputs.android_modules }}' | jq -r '.[]'); do echo "$m:assemble"; done) --parallel --build-cache -x lint -x assembleRelease
+        run: |
+          MODULES='${{ needs.detect.outputs.android_modules }}'
+          if echo "$MODULES" | jq -e 'index(":androidApp")' >/dev/null 2>&1; then
+            echo "Building :androidApp:assembleDebug (covers all dependent modules)"
+            ./gradlew :androidApp:assembleDebug --parallel --build-cache -x lint
+          else
+            TASKS=$(echo "$MODULES" | jq -r '.[] | "\(.)":assembleDebug' | tr '\n' ' ')
+            echo "Building individual modules: $TASKS"
+            ./gradlew $TASKS --parallel --build-cache -x lint
+          fi
