@@ -4,3 +4,8 @@ fun validateArabicName(name: String): Boolean {
     val arabicRegex = Regex("^[\\u0621-\\u063A\\u0641-\\u064A]+$")
     return arabicRegex.matches(name)
 }
+
+fun validateArabicNameWithSpaces(name: String): Boolean {
+    val arabicRegex = Regex("^[\\u0621-\\u063A\\u0641-\\u064A\\s]+$")
+    return arabicRegex.matches(name)
+}

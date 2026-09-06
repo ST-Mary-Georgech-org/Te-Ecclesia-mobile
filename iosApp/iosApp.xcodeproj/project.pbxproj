@@ -7,42 +7,36 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		88A122989028325A96268ED1 = {
-			isa = PBXBuildFile;
-			productRef = 3D562BEC7F8B07E813F31DCE;
-		};
+		7C57D9093046196200DD0CDA /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = FBFC8D882FBE11A300EF2504 /* FirebaseCore */; };
+		7C57D91830461BEF00DD0CDA /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 7C57D91730461BEF00DD0CDA /* FirebaseCrashlytics */; };
+		7C57D91A30461BF800DD0CDA /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 7C57D91930461BF800DD0CDA /* FirebaseMessaging */; };
+		88A122989028325A96268ED1 /* KotlinMultiplatformLinkedPackage in Frameworks */ = {isa = PBXBuildFile; productRef = 3D562BEC7F8B07E813F31DCE /* KotlinMultiplatformLinkedPackage */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		3D4CBB7144A8AEB3F3C0222E = {
-			isa = PBXFileReference;
-			explicitFileType = wrapper.application;
-			includeInIndex = 0;
-			path = TeEcclesia.app;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
+		3D4CBB7144A8AEB3F3C0222E /* TeEcclesia.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TeEcclesia.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		E26F65DDB185D551C995EB99 = {
+		E26F65DDB185D551C995EB99 /* Exceptions for "iosApp" folder in "iosApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 26B7858D5CAF9B0CF8DE1870;
+			target = 26B7858D5CAF9B0CF8DE1870 /* iosApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		00F6CFC45951676914369A64 = {
+		00F6CFC45951676914369A64 /* Configuration */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Configuration;
 			sourceTree = "<group>";
 		};
-		44A44674505DDB4124DFD3F5 = {
+		44A44674505DDB4124DFD3F5 /* iosApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				E26F65DDB185D551C995EB99,
+				E26F65DDB185D551C995EB99 /* Exceptions for "iosApp" folder in "iosApp" target */,
 			);
 			path = iosApp;
 			sourceTree = "<group>";
@@ -50,30 +44,41 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		C05ECD8F53B8CF824CA4008C = {
+		C05ECD8F53B8CF824CA4008C /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				88A122989028325A96268ED1,
+				7C57D91A30461BF800DD0CDA /* FirebaseMessaging in Frameworks */,
+				7C57D91830461BEF00DD0CDA /* FirebaseCrashlytics in Frameworks */,
+				7C57D9093046196200DD0CDA /* FirebaseCore in Frameworks */,
+				88A122989028325A96268ED1 /* KotlinMultiplatformLinkedPackage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7C57D91630461BEF00DD0CDA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B3A58251C1A375E8958FB147 = {
 			isa = PBXGroup;
 			children = (
-				00F6CFC45951676914369A64,
-				44A44674505DDB4124DFD3F5,
-				FA5A196F5DE7BAB148DCDC59,
+				00F6CFC45951676914369A64 /* Configuration */,
+				44A44674505DDB4124DFD3F5 /* iosApp */,
+				7C57D91630461BEF00DD0CDA /* Frameworks */,
+				FA5A196F5DE7BAB148DCDC59 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		FA5A196F5DE7BAB148DCDC59 = {
+		FA5A196F5DE7BAB148DCDC59 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				3D4CBB7144A8AEB3F3C0222E,
+				3D4CBB7144A8AEB3F3C0222E /* TeEcclesia.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -81,35 +86,37 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		26B7858D5CAF9B0CF8DE1870 = {
+		26B7858D5CAF9B0CF8DE1870 /* iosApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 358FA8F07DB9F98B878D4135;
+			buildConfigurationList = 358FA8F07DB9F98B878D4135 /* Build configuration list for PBXNativeTarget "iosApp" */;
 			buildPhases = (
-				AE6FC729A93A80EF2573BBB7,
-				0B049BCF975CD7DDB5F08642,
-				C05ECD8F53B8CF824CA4008C,
-				0E17F962C3B807C0E3248135,
+				AE6FC729A93A80EF2573BBB7 /* Compile Kotlin Framework */,
+				0B049BCF975CD7DDB5F08642 /* Sources */,
+				C05ECD8F53B8CF824CA4008C /* Frameworks */,
+				0E17F962C3B807C0E3248135 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				44A44674505DDB4124DFD3F5,
+				44A44674505DDB4124DFD3F5 /* iosApp */,
 			);
 			name = iosApp;
 			packageProductDependencies = (
-				FBFC8D882FBE11A300EF2504,
-				3D562BEC7F8B07E813F31DCE,
+				FBFC8D882FBE11A300EF2504 /* FirebaseCore */,
+				3D562BEC7F8B07E813F31DCE /* KotlinMultiplatformLinkedPackage */,
+				7C57D91730461BEF00DD0CDA /* FirebaseCrashlytics */,
+				7C57D91930461BF800DD0CDA /* FirebaseMessaging */,
 			);
 			productName = iosApp;
-			productReference = 3D4CBB7144A8AEB3F3C0222E;
+			productReference = 3D4CBB7144A8AEB3F3C0222E /* TeEcclesia.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		9BA8736DAFDC3F881CE9E748 = {
+		9BA8736DAFDC3F881CE9E748 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
@@ -121,7 +128,7 @@
 					};
 				};
 			};
-			buildConfigurationList = D7C0D2DA89B6C817082C4B8E;
+			buildConfigurationList = D7C0D2DA89B6C817082C4B8E /* Build configuration list for PBXProject "iosApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -131,21 +138,21 @@
 			mainGroup = B3A58251C1A375E8958FB147;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				FBFC8D862FBE0F7800EF2504,
-				77B23D47F1851966B0ADB4CF,
+				FBFC8D862FBE0F7800EF2504 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				77B23D47F1851966B0ADB4CF /* XCLocalSwiftPackageReference "KotlinMultiplatformLinkedPackage" */,
 			);
 			preferredProjectObjectVersion = 77;
-			productRefGroup = FA5A196F5DE7BAB148DCDC59;
+			productRefGroup = FA5A196F5DE7BAB148DCDC59 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				26B7858D5CAF9B0CF8DE1870,
+				26B7858D5CAF9B0CF8DE1870 /* iosApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		0E17F962C3B807C0E3248135 = {
+		0E17F962C3B807C0E3248135 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -155,7 +162,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AE6FC729A93A80EF2573BBB7 = {
+		AE6FC729A93A80EF2573BBB7 /* Compile Kotlin Framework */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
@@ -172,12 +179,12 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\n./gradlew :teEcclesiaApp:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "if [ \"YES\" = \"$OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED\" ]; then\n  echo \"Skipping Gradle build task invocation due to OVERRIDE_KOTLIN_BUILD_IDE_SUPPORTED environment variable set to \\\"YES\\\"\"\n  exit 0\nfi\ncd \"$SRCROOT/..\"\nunset ANDROID_PREFS_ROOT\n./gradlew :teEcclesiaApp:embedAndSignAppleFrameworkForXcode\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		0B049BCF975CD7DDB5F08642 = {
+		0B049BCF975CD7DDB5F08642 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -187,7 +194,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		1066AAE91641A38CE1953493 = {
+		1066AAE91641A38CE1953493 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -215,9 +222,9 @@
 			};
 			name = Release;
 		};
-		505EF2F14B2F7E1A8AA8B854 = {
+		505EF2F14B2F7E1A8AA8B854 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 00F6CFC45951676914369A64;
+			baseConfigurationReferenceAnchor = 00F6CFC45951676914369A64 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -280,7 +287,7 @@
 			};
 			name = Debug;
 		};
-		E16EFA87516C7A3A6754D93C = {
+		E16EFA87516C7A3A6754D93C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = arm64;
@@ -308,9 +315,9 @@
 			};
 			name = Debug;
 		};
-		F880A78A962F462D61569E48 = {
+		F880A78A962F462D61569E48 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = 00F6CFC45951676914369A64;
+			baseConfigurationReferenceAnchor = 00F6CFC45951676914369A64 /* Configuration */;
 			baseConfigurationReferenceRelativePath = Config.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -369,20 +376,20 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		358FA8F07DB9F98B878D4135 = {
+		358FA8F07DB9F98B878D4135 /* Build configuration list for PBXNativeTarget "iosApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				E16EFA87516C7A3A6754D93C,
-				1066AAE91641A38CE1953493,
+				E16EFA87516C7A3A6754D93C /* Debug */,
+				1066AAE91641A38CE1953493 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D7C0D2DA89B6C817082C4B8E = {
+		D7C0D2DA89B6C817082C4B8E /* Build configuration list for PBXProject "iosApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				505EF2F14B2F7E1A8AA8B854,
-				F880A78A962F462D61569E48,
+				505EF2F14B2F7E1A8AA8B854 /* Debug */,
+				F880A78A962F462D61569E48 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -390,14 +397,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		77B23D47F1851966B0ADB4CF = {
+		77B23D47F1851966B0ADB4CF /* XCLocalSwiftPackageReference "KotlinMultiplatformLinkedPackage" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = KotlinMultiplatformLinkedPackage;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FBFC8D862FBE0F7800EF2504 = {
+		FBFC8D862FBE0F7800EF2504 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
 			requirement = {
@@ -408,16 +415,26 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		3D562BEC7F8B07E813F31DCE = {
+		3D562BEC7F8B07E813F31DCE /* KotlinMultiplatformLinkedPackage */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = KotlinMultiplatformLinkedPackage;
 		};
-		FBFC8D882FBE11A300EF2504 = {
+		7C57D91730461BEF00DD0CDA /* FirebaseCrashlytics */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FBFC8D862FBE0F7800EF2504;
+			package = FBFC8D862FBE0F7800EF2504 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
+		7C57D91930461BF800DD0CDA /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBFC8D862FBE0F7800EF2504 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		FBFC8D882FBE11A300EF2504 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FBFC8D862FBE0F7800EF2504 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
-	rootObject = 9BA8736DAFDC3F881CE9E748;
+	rootObject = 9BA8736DAFDC3F881CE9E748 /* Project object */;
 }
