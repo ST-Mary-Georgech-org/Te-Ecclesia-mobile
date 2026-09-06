@@ -23,7 +23,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: 17
-          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -46,4 +48,4 @@ jobs:
         run: echo "${{ secrets.GOOGLE_SERVICES_BASE64 }}" | base64 -d > androidApp/google-services.json
 
       - name: Build modules
-        run: ./gradlew $(for m in $(echo '${{ needs.detect.outputs.android_modules }}' | jq -r '.[]'); do echo "$m:assemble"; done) --parallel --build-cache --no-daemon -x lint -x assembleRelease
+        run: ./gradlew $(for m in $(echo '${{ needs.detect.outputs.android_modules }}' | jq -r '.[]'); do echo "$m:assemble"; done) --parallel --build-cache -x lint -x assembleRelease
