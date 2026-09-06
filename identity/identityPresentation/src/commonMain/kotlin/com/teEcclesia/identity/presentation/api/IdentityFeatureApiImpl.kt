@@ -17,7 +17,6 @@ import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.api.SignUpRoute
-import com.teEcclesia.identity.api.SplashRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
 import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
@@ -34,14 +33,12 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.forgotPassword.
 import com.teEcclesia.identity.presentation.screen.resetPassword.verifyEmail.VerifyEmailResetPasswordScreen
 import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.VerifyPhoneResetPasswordScreen
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestScreen
-import com.teEcclesia.identity.presentation.screen.splash.SplashScreen
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchScreen
 
 class IdentityFeatureApiImpl : IdentityFeatureApi {
 
     override fun invoke(): (NavKey) -> NavEntry<NavKey> {
         return entryProvider {
-            entry<SplashRoute> { SplashScreen() }
             entry<LoginRoute> { LoginScreen() }
             entry<SignUpRoute> { route -> RegisterScreen(isEditMode = route.isEditMode) }
             entry<PendingApprovalRoute> { PendingApprovalScreen() }

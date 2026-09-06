@@ -14,6 +14,7 @@ data class UsersSearchUiState(
     val roles: List<UserRole> = listOf(UserRole.MAKHDOOM, UserRole.KHADEM, UserRole.PARENT, UserRole.KAHEN),
     val users: List<ProfileResponse> = emptyList(),
     val isLoading: Boolean = false,
+    val isPagingLoading: Boolean = false,
     val isRefreshing: Boolean = false,
     val isFilterSheetVisible: Boolean = false,
     val isStageFilterLocked: Boolean = false,

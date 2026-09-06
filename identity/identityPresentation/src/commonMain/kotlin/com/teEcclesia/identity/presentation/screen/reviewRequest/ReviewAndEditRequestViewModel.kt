@@ -5,10 +5,10 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
-import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
+import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
@@ -16,8 +16,10 @@ import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
+import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import com.teEcclesia.shared.domain.utils.validation.isValidApartmentInput
 import com.teEcclesia.shared.domain.utils.validation.isValidBuildingNoInput
 import com.teEcclesia.shared.domain.utils.validation.isValidCodeFormat
@@ -27,9 +29,8 @@ import com.teEcclesia.shared.domain.utils.validation.isValidFinalEmail
 import com.teEcclesia.shared.domain.utils.validation.isValidFloorInput
 import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
 import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
-import com.teEcclesia.shared.domain.utils.validation.validateArabicName
+import com.teEcclesia.shared.domain.utils.validation.validateArabicNameWithSpaces
 import com.teEcclesia.shared.domain.utils.validation.validatePhone
-import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitCameraType
 import io.github.vinceglb.filekit.dialogs.FileKitMode
@@ -41,6 +42,7 @@ import io.github.vinceglb.filekit.readBytes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
 import teecclesia.designsystem.generated.resources.failed_to_load_areas
 import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
@@ -57,10 +59,7 @@ import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
-import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.user_created_successfully
-
-import com.teEcclesia.identity.domain.service.AuthorizationService
 
 class ReviewAndEditRequestViewModel(
     private val userId: String? = null,
@@ -378,25 +377,25 @@ class ReviewAndEditRequestViewModel(
 
         val firstNameError = if (s.firstName.isBlank()) {
             UiText.StringRes(Res.string.field_required)
-        } else if (!validateArabicName(s.firstName)) {
+        } else if (!validateArabicNameWithSpaces(s.firstName)) {
             UiText.StringRes(Res.string.invalid_arabic_name)
         } else null
 
         val secondNameError = if (s.secondName.isBlank()) {
             UiText.StringRes(Res.string.field_required)
-        } else if (!validateArabicName(s.secondName)) {
+        } else if (!validateArabicNameWithSpaces(s.secondName)) {
             UiText.StringRes(Res.string.invalid_arabic_name)
         } else null
 
         val thirdNameError = if (s.thirdName.isBlank()) {
             UiText.StringRes(Res.string.field_required)
-        } else if (!validateArabicName(s.thirdName)) {
+        } else if (!validateArabicNameWithSpaces(s.thirdName)) {
             UiText.StringRes(Res.string.invalid_arabic_name)
         } else null
 
         val lastNameError = if (s.lastName.isBlank()) {
             UiText.StringRes(Res.string.field_required)
-        } else if (!validateArabicName(s.lastName)) {
+        } else if (!validateArabicNameWithSpaces(s.lastName)) {
             UiText.StringRes(Res.string.invalid_arabic_name)
         } else null
 
@@ -795,28 +794,28 @@ class ReviewAndEditRequestViewModel(
 
     override fun onFirstNameChanged(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(value)) {
+        if (value.isEmpty() || validateArabicNameWithSpaces(value)) {
             updateState { it.copy(firstName = value, firstNameError = null) }
         }
     }
 
     override fun onSecondNameChanged(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(value)) {
+        if (value.isEmpty() || validateArabicNameWithSpaces(value)) {
             updateState { it.copy(secondName = value, secondNameError = null) }
         }
     }
 
     override fun onThirdNameChanged(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(value)) {
+        if (value.isEmpty() || validateArabicNameWithSpaces(value)) {
             updateState { it.copy(thirdName = value, thirdNameError = null) }
         }
     }
 
     override fun onLastNameChanged(value: String) {
         val value = value.trim()
-        if (value.isEmpty() || validateArabicName(value)) {
+        if (value.isEmpty() || validateArabicNameWithSpaces(value)) {
             updateState { it.copy(lastName = value, lastNameError = null) }
         }
     }

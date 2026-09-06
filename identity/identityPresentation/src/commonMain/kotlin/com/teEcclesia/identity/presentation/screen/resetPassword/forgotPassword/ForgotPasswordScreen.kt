@@ -67,7 +67,7 @@ fun ForgotPasswordScreen(
 }
 
 @Composable
-fun ForgotPasswordContent(
+private fun ForgotPasswordContent(
     state: ForgotPasswordUiState,
     interactionListener: ForgotPasswordInteractionListener
 ) {
