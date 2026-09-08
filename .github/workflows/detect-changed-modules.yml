@@ -36,6 +36,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
 
       - name: Grant execute permission
         run: chmod +x gradlew
@@ -59,7 +61,7 @@ jobs:
         env:
           CHANGED_FILES_STR: ${{ steps.changed-files-git.outputs.changed_files }}
         run: |
-          RAW_GRADLE_JSON=$(./gradlew -q exportModuleDeps --no-configuration-cache 2>/dev/null | grep -Eo '\{.*\}' | tail -n 1 || true)
+          RAW_GRADLE_JSON=$(./gradlew -q exportModuleDeps 2>/dev/null | grep -Eo '\{.*\}' | tail -n 1 || true)
           export RAW_GRADLE_JSON
           python3 - << 'EOF'
           import json
