@@ -289,4 +289,17 @@
     <string name="push_token_connection_failed">فشل ربط الإشعارات</string>
     <string name="push_token_connection_failed_message">حدثت مشكلة في ربط الهاتف بالخادم لتلقي الإشعارات (قد يكون بسبب عدم توفر خدمات جوجل أو إذن الإشعارات). يرجى التأكد من الإذن وإعادة فتح التطبيق.</string>
     <string name="enable_notifications">تفعيل الإشعارات</string>
+
+    <!-- QR Scanner strings -->
+    <string name="scan_qr_code">مسح رمز الاستجابة السريعة</string>
+    <string name="position_the_qr_code_within_the_frame_to_scan">ضع رمز الاستجابة السريعة داخل الإطار للمسح</string>
+    <string name="permission_required">مطلوب إذن الوصول للكاميرا</string>
+    <string name="camera_permission_message">يرجى منح الإذن للوصول إلى الكاميرا لمسح رمز QR. يمكنك إدارة الأذونات في إعدادات جهازك.</string>
+    <string name="settings">الإعدادات</string>
+
+    <!-- Attendance strings -->
+    <string name="no_registered_attendees">لا يوجد أعضاء مسجلين حتى الآن</string>
+    <string name="failed_to_register_member">فشل تسجيل العضو</string>
+    <string name="user_not_found">المستخدم غير موجود</string>
+    <string name="role_guest">ضيف</string>
 </resources>

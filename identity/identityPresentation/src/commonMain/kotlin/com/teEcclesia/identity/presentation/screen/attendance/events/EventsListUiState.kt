@@ -13,6 +13,9 @@ data class EventsListUiState(
     val eventDateInput: String = "",
     val startTimeInput: String = "",
     val endTimeInput: String = "",
+    val isDatePickerOpen: Boolean = false,
+    val isStartTimePickerOpen: Boolean = false,
+    val isEndTimePickerOpen: Boolean = false,
     val isDeleteConfirmSheetOpen: Boolean = false,
     val deletingEvent: ServiceEvent? = null,
     val isActionLoading: Boolean = false

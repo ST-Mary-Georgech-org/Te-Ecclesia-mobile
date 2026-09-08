@@ -4,7 +4,8 @@ import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.identity.api.AttendanceRegisterRoute
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
-import com.teEcclesia.shared.domain.utils.getToday
+import com.teEcclesia.shared.domain.utils.formatTime
+import com.teEcclesia.shared.domain.utils.getNow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 
@@ -35,15 +36,20 @@ class EventsListViewModel(
     }
 
     override fun onClickAddEvent() {
-        val today = getToday()
+        val now = getNow()
+        val startTime = now.time
+        val endTime = LocalTime((now.hour + 1) % 24, now.minute)
         updateState {
             copy(
                 isAddEditSheetOpen = true,
                 editingEvent = null,
                 eventNameInput = "",
-                eventDateInput = today.toString(),
-                startTimeInput = "18:00",
-                endTimeInput = "20:00"
+                eventDateInput = now.date.toString(),
+                startTimeInput = startTime.formatTime(),
+                endTimeInput = endTime.formatTime(),
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false
             )
         }
     }
@@ -55,8 +61,11 @@ class EventsListViewModel(
                 editingEvent = event,
                 eventNameInput = event.name ?: "",
                 eventDateInput = event.eventDate.toString(),
-                startTimeInput = event.startTime.toString(),
-                endTimeInput = event.endTime.toString()
+                startTimeInput = event.startTime.formatTime(),
+                endTimeInput = event.endTime.formatTime(),
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false
             )
         }
     }
@@ -74,16 +83,40 @@ class EventsListViewModel(
         updateState { copy(eventNameInput = name) }
     }
 
-    override fun onEventDateChanged(date: String) {
-        updateState { copy(eventDateInput = date) }
+    override fun onClickDatePicker() {
+        updateState { copy(isDatePickerOpen = true) }
     }
 
-    override fun onStartTimeChanged(time: String) {
-        updateState { copy(startTimeInput = time) }
+    override fun onDismissDatePicker() {
+        updateState { copy(isDatePickerOpen = false) }
     }
 
-    override fun onEndTimeChanged(time: String) {
-        updateState { copy(endTimeInput = time) }
+    override fun onDateSelected(date: LocalDate) {
+        updateState { copy(eventDateInput = date.toString(), isDatePickerOpen = false) }
+    }
+
+    override fun onClickStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = true) }
+    }
+
+    override fun onDismissStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = false) }
+    }
+
+    override fun onStartTimeSelected(time: LocalTime) {
+        updateState { copy(startTimeInput = time.formatTime(), isStartTimePickerOpen = false) }
+    }
+
+    override fun onClickEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = true) }
+    }
+
+    override fun onDismissEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = false) }
+    }
+
+    override fun onEndTimeSelected(time: LocalTime) {
+        updateState { copy(endTimeInput = time.formatTime(), isEndTimePickerOpen = false) }
     }
 
     override fun onConfirmSaveEvent() {
@@ -150,6 +183,9 @@ class EventsListViewModel(
                 eventDateInput = "",
                 startTimeInput = "",
                 endTimeInput = "",
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false,
                 isDeleteConfirmSheetOpen = false,
                 deletingEvent = null
             )

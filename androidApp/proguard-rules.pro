@@ -46,4 +46,10 @@
 -dontwarn com.mmk.kmpnotifier.**
 -dontwarn com.google.firebase.**
 
+# CameraX (for QR Scanner)
+-keep class androidx.camera.** { *; }
+-keep interface androidx.camera.** { *; }
+-dontwarn androidx.camera.**
+
+
 

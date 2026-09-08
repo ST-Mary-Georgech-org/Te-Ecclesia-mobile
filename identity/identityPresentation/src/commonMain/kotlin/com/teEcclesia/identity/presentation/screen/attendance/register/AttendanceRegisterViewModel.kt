@@ -1,8 +1,11 @@
 package com.teEcclesia.identity.presentation.screen.attendance.register
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
+import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
+import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.failed_to_register_member
 
 class AttendanceRegisterViewModel(
     eventId: Long,
@@ -33,53 +36,48 @@ class AttendanceRegisterViewModel(
         popBackStack()
     }
 
-    override fun onClickAddPerson() {
-        updateState {
-            copy(
-                isAddPersonSheetOpen = true,
-                userCodeInput = "",
-                searchedUser = null,
-                searchUserError = null
-            )
-        }
+    override fun onToggleScanner() {
+        updateState { copy(isScannerOpen = !isScannerOpen) }
+    }
+
+    override fun onCloseScanner() {
+        updateState { copy(isScannerOpen = false) }
     }
 
     override fun onUserCodeChanged(code: String) {
         updateState { copy(userCodeInput = code, searchUserError = null) }
     }
 
-    override fun onSearchUserByCode() {
+    override fun onManualSubmit() {
         val code = state.value.userCodeInput.trim()
-        if (code.isBlank()) return
-
-        tryToCall(
-            onStart = { updateState { copy(isSearchingUser = true, searchUserError = null) } },
-            block = { attendanceRepository.getUserByCode(code) },
-            onSuccess = { user ->
-                updateState { copy(searchedUser = user) }
-            },
-            onError = {
-                updateState { copy(searchUserError = "المستخدم غير موجود") }
-            },
-            onEnd = { updateState { copy(isSearchingUser = false) } }
-        )
+        if (code.isNotBlank()) {
+            addMemberByCode(code)
+        }
     }
 
-    override fun onConfirmAddPerson() {
-        val code = state.value.userCodeInput.trim()
-        if (code.isBlank()) return
+    override fun onQrCodeScanned(code: String) {
+        val trimmed = code.trim()
+        if (trimmed.isNotBlank()) {
+            updateState { copy(userCodeInput = trimmed, searchUserError = null) }
+            addMemberByCode(trimmed)
+        }
+    }
 
+    private fun addMemberByCode(code: String) {
         tryToCall(
-            onStart = { updateState { copy(isActionLoading = true) } },
+            onStart = { updateState { copy(isActionLoading = true, searchUserError = null) } },
             block = { attendanceRepository.addAttendee(state.value.eventId, code) },
             onSuccess = { newAttendee ->
                 updateState {
                     val updatedList = (listOf(newAttendee) + attendees.filter { it.userId != newAttendee.userId })
-                    copy(attendees = updatedList)
+                    copy(attendees = updatedList, userCodeInput = "", searchUserError = null)
                 }
-                onDismissSheet()
             },
-            onError = { },
+            onError = { throwable ->
+                val error = throwable.message?.takeIf { it.isNotBlank() }?.let { UiText.DynamicString(it) }
+                    ?: UiText.StringRes(Res.string.failed_to_register_member)
+                updateState { copy(searchUserError = error) }
+            },
             onEnd = { updateState { copy(isActionLoading = false) } }
         )
     }
@@ -110,10 +108,6 @@ class AttendanceRegisterViewModel(
     override fun onDismissSheet() {
         updateState {
             copy(
-                isAddPersonSheetOpen = false,
-                userCodeInput = "",
-                searchedUser = null,
-                searchUserError = null,
                 isRemoveConfirmSheetOpen = false,
                 removingAttendee = null
             )

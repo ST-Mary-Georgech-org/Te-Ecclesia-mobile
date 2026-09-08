@@ -289,4 +289,17 @@
     <string name="push_token_connection_failed">Notification Connection Failed</string>
     <string name="push_token_connection_failed_message">Failed to connect device to notification server (may be due to missing Google Services or notification permission). Please verify permissions and reopen the app.</string>
     <string name="enable_notifications">Enable Notifications</string>
+
+    <!-- QR Scanner strings -->
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="position_the_qr_code_within_the_frame_to_scan">Position the QR code within the frame to scan</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="camera_permission_message">Please grant permission to access your camera to scan QR codes. You can manage permissions in your device settings.</string>
+    <string name="settings">Settings</string>
+
+    <!-- Attendance strings -->
+    <string name="no_registered_attendees">No registered members yet</string>
+    <string name="failed_to_register_member">Failed to register member</string>
+    <string name="user_not_found">Member not found</string>
+    <string name="role_guest">Guest</string>
 </resources>
