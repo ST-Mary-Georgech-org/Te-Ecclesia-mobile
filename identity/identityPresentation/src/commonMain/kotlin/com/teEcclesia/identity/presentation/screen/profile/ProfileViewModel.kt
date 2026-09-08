@@ -14,6 +14,8 @@ import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.notifications.api.NotificationsRoute
+import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
+import com.teEcclesia.shared.domain.push.PushTokenProvider
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.not_implemented_yet
 import teecclesia.designsystem.generated.resources.couldnt_refresh_profile
@@ -23,12 +25,14 @@ class ProfileViewModel(
     private val profileRepository: ProfileRepository,
     private val authorizationService: AuthorizationService,
     private val settingsRepository: SettingsRepository,
-    private val appLocalizer: AppLocalizer
+    private val appLocalizer: AppLocalizer,
+    private val notificationPermissionHandler: NotificationPermissionHandler
 ) : BaseViewModel<ProfileScreenState>(ProfileScreenState()) {
 
     init {
         observeCachedProfile()
         loadUserProfile()
+        checkNotificationPermission()
     }
 
     private fun observeCachedProfile() {
@@ -170,4 +174,17 @@ class ProfileViewModel(
             )
         }
     }
+
+    fun checkNotificationPermission() {
+        notificationPermissionHandler.checkPermission { isGranted ->
+            updateState { copy(isNotificationPermissionGranted = isGranted) }
+        }
+    }
+
+    fun openNotificationSettings() {
+        notificationPermissionHandler.openNotificationSettings()
+    }
 }
+
+
+

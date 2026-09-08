@@ -23,6 +23,7 @@ import com.teEcclesia.identity.presentation.screen.login.getName
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.continue_text
+import teecclesia.designsystem.generated.resources.enable_notifications
 import teecclesia.designsystem.generated.resources.select_language
 import teecclesia.designsystem.generated.resources.select_theme
 
@@ -63,6 +64,18 @@ fun OnboardingContent(
             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
         )
 
+        if (!state.isNotificationPermissionGranted) {
+            AppButton(
+                type = AppButtonType.Secondary,
+                onClick = interactionListener::onEnableNotificationsClicked,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                text = stringResource(Res.string.enable_notifications),
+                enableSecondaryBackgroundColor = Theme.colorScheme.error.copy(alpha = 0.12f)
+            )
+        }
+
         AppButton(
             type = AppButtonType.Primary,
             onClick = interactionListener::onContinueClicked,
@@ -73,3 +86,4 @@ fun OnboardingContent(
         )
     }
 }
+

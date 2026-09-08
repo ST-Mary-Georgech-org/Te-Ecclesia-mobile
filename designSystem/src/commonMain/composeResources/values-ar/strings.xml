@@ -286,4 +286,7 @@
     <string name="go_to_login">الذهاب لتسجيل الدخول</string>
     <string name="join_whatsapp_group">انضم لجروب الواتساب</string>
     <string name="couldnt_refresh_profile">تعذر تحديث بيانات الملف الشخصي</string>
+    <string name="push_token_connection_failed">فشل ربط الإشعارات</string>
+    <string name="push_token_connection_failed_message">حدثت مشكلة في ربط الهاتف بالخادم لتلقي الإشعارات (قد يكون بسبب عدم توفر خدمات جوجل أو إذن الإشعارات). يرجى التأكد من الإذن وإعادة فتح التطبيق.</string>
+    <string name="enable_notifications">تفعيل الإشعارات</string>
 </resources>

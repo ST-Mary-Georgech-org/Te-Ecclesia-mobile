@@ -38,12 +38,12 @@ import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 
-import com.mmk.kmpnotifier.KMPNotifier
-import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
+import com.teEcclesia.shared.domain.push.PushTokenProvider
 
 class RegisterRepositoryImpl(
     client: HttpClient,
-    private val authenticationRepository: AuthenticationRepository
+    private val authenticationRepository: AuthenticationRepository,
+    private val pushTokenProvider: PushTokenProvider,
 ) : BaseRepository(client), RegisterRepository {
 
     override suspend fun register(
@@ -51,7 +51,7 @@ class RegisterRepositoryImpl(
         imageBytes: ByteArray?,
         certificateImageBytes: ByteArray?
     ): TokenResponse {
-        val deviceToken = runCatching { KMPNotifier.firebasePushNotifier.getToken() }.getOrNull()
+        val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
         
         val response = tryToExecute<TokenResponseDto> {
@@ -90,7 +90,7 @@ class RegisterRepositoryImpl(
         ordinationCertificateBytes: ByteArray?,
         identityDocumentBytes: ByteArray?
     ): RegisterResponse {
-        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
         
         val response = tryToExecute<RegisterResponseDto> {
@@ -125,7 +125,7 @@ class RegisterRepositoryImpl(
     }
 
     override suspend fun verifyEmail(email: String, otp: String) {
-        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val deviceToken = pushTokenProvider.getToken()
         val response = tryToExecute<AuthenticationResponse> {
             post(VERIFY_EMAIL) {
                 setBody(VerifyEmailRequestDto(email = email, otp = otp, deviceToken = deviceToken))

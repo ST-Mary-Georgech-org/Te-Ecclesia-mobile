@@ -42,3 +42,8 @@
 # Keep SQLite bundled native classes
 -keep class androidx.sqlite.db.** { *; }
 
+# KMPNotifier & Firebase
+-dontwarn com.mmk.kmpnotifier.**
+-dontwarn com.google.firebase.**
+
+

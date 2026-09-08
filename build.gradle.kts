@@ -18,82 +18,90 @@ plugins {
     alias(libs.plugins.room) apply false
 }
 
-tasks.register("exportModuleDeps") {
-    doLast {
-        val allModulePaths = rootProject.subprojects
-            .filter { it.buildFile.exists() }
-            .map { it.path }
-            .toSet()
+abstract class ExportModuleDepsTask : DefaultTask() {
+    @get:Input
+    abstract val moduleJson: Property<String>
 
-        val directDependencies = mutableMapOf<String, MutableSet<String>>()
+    @TaskAction
+    fun run() {
+        println(moduleJson.get())
+    }
+}
 
-        rootProject.subprojects
-            .filter { it.buildFile.exists() }
-            .forEach { project ->
-                val projectDeps = mutableSetOf<String>()
-                project.configurations
-                    .matching { 
-                        it.name.contains("implementation", ignoreCase = true) || 
-                        it.name.contains("api", ignoreCase = true) 
-                    }
-                    .forEach { configuration ->
-                        configuration.dependencies.forEach { dependency ->
-                            if (dependency is ProjectDependency && allModulePaths.contains(dependency.path)) {
-                                projectDeps.add(dependency.path)
-                            }
+tasks.register<ExportModuleDepsTask>("exportModuleDeps") {
+    val allModulePaths = rootProject.subprojects
+        .filter { it.buildFile.exists() }
+        .map { it.path }
+        .toSet()
+
+    val directDependencies = mutableMapOf<String, MutableSet<String>>()
+
+    rootProject.subprojects
+        .filter { it.buildFile.exists() }
+        .forEach { project ->
+            val projectDeps = mutableSetOf<String>()
+            project.configurations
+                .matching {
+                    it.name.contains("implementation", ignoreCase = true) ||
+                    it.name.contains("api", ignoreCase = true)
+                }
+                .forEach { configuration ->
+                    configuration.dependencies.forEach { dependency ->
+                        if (dependency is ProjectDependency && allModulePaths.contains(dependency.path)) {
+                            projectDeps.add(dependency.path)
                         }
                     }
-                directDependencies[project.path] = projectDeps
-            }
-
-        val reverseDependencies = mutableMapOf<String, MutableSet<String>>()
-        directDependencies.keys.forEach { module -> reverseDependencies[module] = mutableSetOf() }
-        directDependencies.forEach { (module, deps) ->
-            deps.forEach { dep -> reverseDependencies[dep]?.add(module) }
+                }
+            directDependencies[project.path] = projectDeps
         }
 
-        fun collectAllDependents(
-            module: String,
-            visited: MutableSet<String> = mutableSetOf()
-        ): Set<String> {
-            if (!visited.add(module)) return emptySet()
-            val directDependents = reverseDependencies[module] ?: emptySet()
-            return directDependents + directDependents.flatMap { collectAllDependents(it, visited) }
-        }
-
-        val modulesWithDependents =
-            directDependencies.keys.associateWith { collectAllDependents(it) }
-
-        val rootDirPath = rootProject.projectDir.toPath()
-        val moduleInfo = rootProject.subprojects
-            .filter { it.buildFile.exists() }
-            .associate { project ->
-                val hasAndroid = project.pluginManager.hasPlugin("com.android.application") ||
-                        project.pluginManager.hasPlugin("com.android.library") ||
-                        project.pluginManager.hasPlugin("com.android.kotlin.multiplatform.library")
-
-                val hasIos = runCatching {
-                    val kotlinExt = project.extensions.findByName("kotlin")
-                    if (kotlinExt != null) {
-                        val targets = kotlinExt.javaClass.getMethod("getTargets").invoke(kotlinExt) as? Iterable<*>
-                        targets?.any { target ->
-                            val name = target?.javaClass?.getMethod("getName")?.invoke(target)?.toString()?.lowercase().orEmpty()
-                            name.contains("ios") || name.contains("apple")
-                        } == true
-                    } else false
-                }.getOrDefault(false)
-
-                val relDir = rootDirPath.relativize(project.projectDir.toPath()).toString().replace('\\', '/')
-
-                project.path to mapOf(
-                    "dir" to relDir,
-                    "hasAndroid" to hasAndroid,
-                    "hasIos" to hasIos,
-                    "dependents" to (modulesWithDependents[project.path] ?: emptySet<String>())
-                )
-            }
-
-        val output = mapOf("modules" to moduleInfo)
-        println(JsonOutput.toJson(output))
+    val reverseDependencies = mutableMapOf<String, MutableSet<String>>()
+    directDependencies.keys.forEach { module -> reverseDependencies[module] = mutableSetOf() }
+    directDependencies.forEach { (module, deps) ->
+        deps.forEach { dep -> reverseDependencies[dep]?.add(module) }
     }
+
+    fun collectAllDependents(
+        module: String,
+        visited: MutableSet<String> = mutableSetOf()
+    ): Set<String> {
+        if (!visited.add(module)) return emptySet()
+        val directDependents = reverseDependencies[module] ?: emptySet()
+        return directDependents + directDependents.flatMap { collectAllDependents(it, visited) }
+    }
+
+    val modulesWithDependents =
+        directDependencies.keys.associateWith { collectAllDependents(it) }
+
+    val rootDirPath = rootProject.projectDir.toPath()
+    val moduleInfo = rootProject.subprojects
+        .filter { it.buildFile.exists() }
+        .associate { project ->
+            val hasAndroid = project.pluginManager.hasPlugin("com.android.application") ||
+                    project.pluginManager.hasPlugin("com.android.library") ||
+                    project.pluginManager.hasPlugin("com.android.kotlin.multiplatform.library")
+
+            val hasIos = runCatching {
+                val kotlinExt = project.extensions.findByName("kotlin")
+                if (kotlinExt != null) {
+                    val targets = kotlinExt.javaClass.getMethod("getTargets").invoke(kotlinExt) as? Iterable<*>
+                    targets?.any { target ->
+                        val name = target?.javaClass?.getMethod("getName")?.invoke(target)?.toString()?.lowercase().orEmpty()
+                        name.contains("ios") || name.contains("apple")
+                    } == true
+                } else false
+            }.getOrDefault(false)
+
+            val relDir = rootDirPath.relativize(project.projectDir.toPath()).toString().replace('\\', '/')
+
+            project.path to mapOf(
+                "dir" to relDir,
+                "hasAndroid" to hasAndroid,
+                "hasIos" to hasIos,
+                "dependents" to (modulesWithDependents[project.path] ?: emptySet<String>())
+            )
+        }
+
+    val output = mapOf("modules" to moduleInfo)
+    moduleJson.set(JsonOutput.toJson(output))
 }

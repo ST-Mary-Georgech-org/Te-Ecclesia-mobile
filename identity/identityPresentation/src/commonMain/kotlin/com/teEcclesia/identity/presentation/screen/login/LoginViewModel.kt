@@ -25,12 +25,14 @@ import teecclesia.designsystem.generated.resources.failed_to_login
 import teecclesia.designsystem.generated.resources.invalid_phone_or_national_id_or_code_or_email
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
+import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
 
 class LoginViewModel(
     private val authenticationRepository: AuthenticationRepository,
     private val profileRepository: ProfileRepository,
     private val settingsRepository: SettingsRepository,
     appLocalizer: AppLocalizer,
+    private val notificationPermissionHandler: NotificationPermissionHandler,
 ) : BaseViewModel<LoginScreenState>(LoginScreenState()), LoginInteractionListener {
 
     init {
@@ -45,6 +47,7 @@ class LoginViewModel(
                 }
             )
         }
+        checkNotificationPermission()
     }
 
     override fun onLoginClicked() {
@@ -187,4 +190,15 @@ class LoginViewModel(
             updateState { copy(isOnboarding = true) }
         }
     }
+
+    fun checkNotificationPermission() {
+        notificationPermissionHandler.checkPermission { isGranted ->
+            updateState { copy(isNotificationPermissionGranted = isGranted) }
+        }
+    }
+
+    override fun onEnableNotificationsClicked() {
+        notificationPermissionHandler.openNotificationSettings()
+    }
 }
+

@@ -286,4 +286,7 @@
     <string name="go_to_login">go to Login</string>
     <string name="join_whatsapp_group">Join WhatsApp group</string>
     <string name="couldnt_refresh_profile">Couldn't refresh profile</string>
+    <string name="push_token_connection_failed">Notification Connection Failed</string>
+    <string name="push_token_connection_failed_message">Failed to connect device to notification server (may be due to missing Google Services or notification permission). Please verify permissions and reopen the app.</string>
+    <string name="enable_notifications">Enable Notifications</string>
 </resources>

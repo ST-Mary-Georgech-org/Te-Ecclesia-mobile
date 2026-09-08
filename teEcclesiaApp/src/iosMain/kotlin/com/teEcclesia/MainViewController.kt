@@ -1,9 +1,7 @@
 package com.teEcclesia
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.mmk.kmpnotifier.KMPNotifier
-import com.mmk.kmpnotifier.notification.configuration.NotificationPlatformConfiguration
-import com.mmk.kmpnotifier.push.firebase.FirebasePush
+import com.teEcclesia.notifications.data.push.PushNotificationsInitializer
 
 fun MainViewController() = ComposeUIViewController(
     configure = { initKoin() }
@@ -12,11 +10,6 @@ fun MainViewController() = ComposeUIViewController(
 }
 
 fun onApplicationStart() {
-    KMPNotifier.initialize(
-        configuration = NotificationPlatformConfiguration.Ios(
-            showPushNotification = true,
-            askNotificationPermissionOnStart = true
-        ),
-        FirebasePush
-    )
+    PushNotificationsInitializer.initialize(showPushNotification = true)
 }
+

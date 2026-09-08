@@ -9,9 +9,12 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.notifications.notificationsDomain)
-            implementation(projects.shared.sharedDomain)
+            implementation(projects.identity.identityDomain)
+            api(projects.shared.sharedDomain)
             implementation(projects.shared.sharedData)
-            implementation(libs.kmpnotifier)
+            implementation(projects.designSystem)
+            implementation(libs.compose.resources)
+            api(libs.kmpnotifier)
         }
     }
 }
