@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,7 +31,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
@@ -51,6 +55,7 @@ import qrgenerator.qrkitpainter.rememberQrKitPainter
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.add_new_user
 import teecclesia.designsystem.generated.resources.edit_profile
+import teecclesia.designsystem.generated.resources.enable_notifications
 import teecclesia.designsystem.generated.resources.ic_bell
 import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
 import teecclesia.designsystem.generated.resources.logout
@@ -65,6 +70,13 @@ fun ProfileScreen(
     viewModel: ProfileViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    LaunchedEffect(lifecycleOwner) {
+        lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            viewModel.checkNotificationPermission()
+        }
+    }
 
     ProfileContent(
         state = state,
@@ -75,7 +87,8 @@ fun ProfileScreen(
         onClickSearchUsers = viewModel::onClickSearchUsers,
         onClickAddUser = viewModel::onClickAddUser,
         onClickLogout = viewModel::onClickLogout,
-        onRefresh = viewModel::onRefresh
+        onRefresh = viewModel::onRefresh,
+        onClickEnableNotifications = viewModel::openNotificationSettings
     )
 }
 
@@ -90,6 +103,7 @@ private fun ProfileContent(
     onClickAddUser: () -> Unit,
     onClickLogout: () -> Unit,
     onRefresh: () -> Unit,
+    onClickEnableNotifications: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -230,6 +244,17 @@ private fun ProfileContent(
 //            text = stringResource(Res.string.edit_profile)
 //        )
 
+            if (!state.isNotificationPermissionGranted) {
+                Spacer(modifier = Modifier.height(16.dp))
+                AppButton(
+                    type = AppButtonType.Secondary,
+                    onClick = onClickEnableNotifications,
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(Res.string.enable_notifications),
+                    enableSecondaryBackgroundColor = Theme.colorScheme.error.copy(alpha = 0.12f)
+                )
+            }
+
             state.whatsAppLink?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 AppButton(
@@ -331,6 +356,8 @@ private fun ProfileContentPreview() = Theme {
         onClickSearchUsers = {},
         onClickAddUser = {},
         onClickLogout = {},
-        onRefresh = {}
+        onRefresh = {},
+        onClickEnableNotifications = {}
     )
 }
+

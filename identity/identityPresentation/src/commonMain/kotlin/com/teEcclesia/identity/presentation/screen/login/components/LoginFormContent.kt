@@ -181,7 +181,9 @@ fun LoginFormContentPreview() = Theme {
             override fun onLanguageSelected(language: AppLanguage) {}
             override fun onThemeSelected(theme: AppTheme) {}
             override fun onContinueClicked() {}
+            override fun onEnableNotificationsClicked() {}
             override fun onBackPressed() {}
         }
     )
 }
+

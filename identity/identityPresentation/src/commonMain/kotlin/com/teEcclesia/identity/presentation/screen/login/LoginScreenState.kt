@@ -21,7 +21,9 @@ data class LoginScreenState(
     val isPasswordVisible: Boolean = false,
     val isOnboarding: Boolean = true,
     val selectedLanguage: AppLanguage = AppLanguage.ENGLISH,
+    val isNotificationPermissionGranted: Boolean = true,
 )
+
 
 
 fun AppLanguage.getName(): StringResource = when (this) {

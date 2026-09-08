@@ -3,6 +3,7 @@ package com.teEcclesia.notifications.presentation.screen
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.notifications.domain.repository.NotificationRepository
+import com.teEcclesia.notifications.domain.util.NotificationReceiveState
 import com.teEcclesia.notifications.presentation.util.toPagedData
 import com.teEcclesia.shared.domain.utils.PageQuery
 import teecclesia.designsystem.generated.resources.Res
@@ -34,6 +35,22 @@ class NotificationsViewModel(
 
     init {
         loadNotifications()
+        observeIncomingNotifications()
+    }
+
+    private fun observeIncomingNotifications() {
+        tryToCollect(
+            block = { NotificationReceiveState.receiveFlow },
+            onEach = { newNotification ->
+                val currentNotifications = state.value.notifications
+                if (currentNotifications.none { it.id == newNotification.id }) {
+                    updateState {
+                        copy(notifications = listOf(newNotification) + notifications)
+                    }
+                }
+            },
+            onError = {}
+        )
     }
 
     private fun loadNotifications() {
