@@ -270,6 +270,12 @@ class ProfileRepositoryImpl(
         return response.toPagedData { it.toDomain() }
     }
 
+    override suspend fun downloadFile(url: String): ByteArray {
+        return tryToExecute<ByteArray> {
+            get(url)
+        }
+    }
+
     companion object {
         const val GET_ME_ENDPOINT = "api/v1/identity/auth/me"
         const val GET_REGISTRATION_REQUESTS_ENDPOINT = "api/v1/users/status/PENDING_APPROVAL"

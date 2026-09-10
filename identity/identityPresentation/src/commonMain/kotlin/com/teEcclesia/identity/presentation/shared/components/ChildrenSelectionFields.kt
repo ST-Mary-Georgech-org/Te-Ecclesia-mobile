@@ -26,6 +26,7 @@ fun ChildrenSelectionFields(
     onSearchChild: () -> Unit,
     selectedChildren: List<UserSummary>,
     onRemoveChild: (UserSummary) -> Unit,
+    isLoading: Boolean = false,
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -41,8 +42,9 @@ fun ChildrenSelectionFields(
             errorText = errorText,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            trailingIcon = painterResource(Res.drawable.ic_plus),
-            onTrailingIconClick = onSearchChild,
+            trailingIcon = if (childQuery.isNotBlank()) painterResource(Res.drawable.ic_plus) else null,
+            onTrailingIconClick = if (childQuery.isNotBlank()) onSearchChild else null,
+            isLoading = isLoading,
         )
 
         Column(

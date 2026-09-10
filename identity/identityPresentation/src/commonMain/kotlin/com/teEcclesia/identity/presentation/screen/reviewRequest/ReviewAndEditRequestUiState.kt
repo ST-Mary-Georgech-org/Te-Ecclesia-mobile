@@ -82,11 +82,17 @@ data class ReviewAndEditRequestUiState(
     val areas: List<String> = emptyList(),
     val isAreaSheetVisible: Boolean = false,
     val isAreaLoading: Boolean = false,
+    val isAreaLoadFailed: Boolean = false,
     val confessionPriests: List<Priest> = emptyList(),
     val selectedConfessionPriest: Priest? = null,
     val isPriestSheetVisible: Boolean = false,
     val isPriestLoading: Boolean = false,
+    val isPriestLoadFailed: Boolean = false,
     val isUploadBottomSheetVisible: Boolean = false,
+    val isImageViewerVisible: Boolean = false,
+    val activeImageViewerModel: Any? = null,
+    val isPdfViewerVisible: Boolean = false,
+    val activePdfBytes: ByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
     val ordinationCertificateBytes: ByteArray? = null,
     val ordinationCertificateFileName: String? = null,
@@ -104,6 +110,8 @@ data class ReviewAndEditRequestUiState(
     val isOrdained: Boolean = false,
     val selectedRank: LookupResponse? = null,
     val ranks: List<LookupResponse> = emptyList(),
+    val isRankLoading: Boolean = false,
+    val isRankLoadFailed: Boolean = false,
     val isRankSheetVisible: Boolean = false,
     val rankError: UiText? = null,
     val isOrdainedInThisChurch: Boolean = false,
@@ -115,6 +123,7 @@ data class ReviewAndEditRequestUiState(
     val studentEducationalStage: LookupResponse? = null,
     val educationalStages: List<LookupResponse> = emptyList(),
     val isStageLoading: Boolean = false,
+    val isStageLoadFailed: Boolean = false,
     val isStageEndReached: Boolean = false,
     val isStageSheetVisible: Boolean = false,
     val stageError: UiText? = null,
@@ -127,11 +136,13 @@ data class ReviewAndEditRequestUiState(
     val fatherPhoneError: UiText? = null,
     val fatherWhatsapp: String = "",
     val fatherWhatsappError: UiText? = null,
+    val isFatherWhatsappSameAsPhone: Boolean = true,
     val isMotherDeceased: Boolean = false,
     val motherPhone: String = "",
     val motherPhoneError: UiText? = null,
     val motherWhatsapp: String = "",
     val motherWhatsappError: UiText? = null,
+    val isMotherWhatsappSameAsPhone: Boolean = true,
 
     val servantEducationalStage: LookupResponse? = null,
     val servantEducationalYear: LookupResponse? = null,
@@ -147,9 +158,11 @@ data class ReviewAndEditRequestUiState(
     val allAvailableYearsForPermissions: List<LookupResponse> = emptyList(),
     val servantAvailableYears: List<LookupResponse> = emptyList(),
 
+    val isPartnerLoading: Boolean = false,
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
     val partnerError: UiText? = null,
+    val isChildLoading: Boolean = false,
     val childQuery: String = "",
     val selectedChildren: List<UserSummary> = emptyList(),
     val childError: UiText? = null,
@@ -189,21 +202,32 @@ data class ReviewAndEditRequestUiState(
         if (isUpdateMode != other.isUpdateMode) return false
         if (isAreaSheetVisible != other.isAreaSheetVisible) return false
         if (isAreaLoading != other.isAreaLoading) return false
+        if (isAreaLoadFailed != other.isAreaLoadFailed) return false
         if (isPriestSheetVisible != other.isPriestSheetVisible) return false
         if (isPriestLoading != other.isPriestLoading) return false
+        if (isPriestLoadFailed != other.isPriestLoadFailed) return false
         if (isUploadBottomSheetVisible != other.isUploadBottomSheetVisible) return false
+        if (isImageViewerVisible != other.isImageViewerVisible) return false
+        if (activeImageViewerModel != other.activeImageViewerModel) return false
+        if (isPdfViewerVisible != other.isPdfViewerVisible) return false
+        if (!activePdfBytes.contentEquals(other.activePdfBytes)) return false
         if (isRoleEditable != other.isRoleEditable) return false
         if (isRoleSheetVisible != other.isRoleSheetVisible) return false
         if (isMale != other.isMale) return false
         if (isOrdained != other.isOrdained) return false
+        if (isRankLoading != other.isRankLoading) return false
+        if (isRankLoadFailed != other.isRankLoadFailed) return false
         if (isRankSheetVisible != other.isRankSheetVisible) return false
         if (isOrdainedInThisChurch != other.isOrdainedInThisChurch) return false
         if (isStageLoading != other.isStageLoading) return false
+        if (isStageLoadFailed != other.isStageLoadFailed) return false
         if (isStageEndReached != other.isStageEndReached) return false
         if (isStageSheetVisible != other.isStageSheetVisible) return false
         if (isYearSheetVisible != other.isYearSheetVisible) return false
         if (isFatherDeceased != other.isFatherDeceased) return false
         if (isMotherDeceased != other.isMotherDeceased) return false
+        if (isFatherWhatsappSameAsPhone != other.isFatherWhatsappSameAsPhone) return false
+        if (isMotherWhatsappSameAsPhone != other.isMotherWhatsappSameAsPhone) return false
         if (isServantStageSheetVisible != other.isServantStageSheetVisible) return false
         if (isServantYearSheetVisible != other.isServantYearSheetVisible) return false
         if (canApproveNewRequests != other.canApproveNewRequests) return false
@@ -296,9 +320,11 @@ data class ReviewAndEditRequestUiState(
         if (responsibleYears != other.responsibleYears) return false
         if (allAvailableYearsForPermissions != other.allAvailableYearsForPermissions) return false
         if (servantAvailableYears != other.servantAvailableYears) return false
+        if (isPartnerLoading != other.isPartnerLoading) return false
         if (partnerQuery != other.partnerQuery) return false
         if (selectedPartner != other.selectedPartner) return false
         if (partnerError != other.partnerError) return false
+        if (isChildLoading != other.isChildLoading) return false
         if (childQuery != other.childQuery) return false
         if (selectedChildren != other.selectedChildren) return false
         if (childError != other.childError) return false
@@ -327,21 +353,32 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isUpdateMode.hashCode()
         result = 31 * result + isAreaSheetVisible.hashCode()
         result = 31 * result + isAreaLoading.hashCode()
+        result = 31 * result + isAreaLoadFailed.hashCode()
         result = 31 * result + isPriestSheetVisible.hashCode()
         result = 31 * result + isPriestLoading.hashCode()
+        result = 31 * result + isPriestLoadFailed.hashCode()
         result = 31 * result + isUploadBottomSheetVisible.hashCode()
+        result = 31 * result + isImageViewerVisible.hashCode()
+        result = 31 * result + (activeImageViewerModel?.hashCode() ?: 0)
+        result = 31 * result + isPdfViewerVisible.hashCode()
+        result = 31 * result + (activePdfBytes?.contentHashCode() ?: 0)
         result = 31 * result + isRoleEditable.hashCode()
         result = 31 * result + isRoleSheetVisible.hashCode()
         result = 31 * result + (isMale?.hashCode() ?: 0)
         result = 31 * result + isOrdained.hashCode()
+        result = 31 * result + isRankLoading.hashCode()
+        result = 31 * result + isRankLoadFailed.hashCode()
         result = 31 * result + isRankSheetVisible.hashCode()
         result = 31 * result + isOrdainedInThisChurch.hashCode()
         result = 31 * result + isStageLoading.hashCode()
+        result = 31 * result + isStageLoadFailed.hashCode()
         result = 31 * result + isStageEndReached.hashCode()
         result = 31 * result + isStageSheetVisible.hashCode()
         result = 31 * result + isYearSheetVisible.hashCode()
         result = 31 * result + isFatherDeceased.hashCode()
         result = 31 * result + isMotherDeceased.hashCode()
+        result = 31 * result + isFatherWhatsappSameAsPhone.hashCode()
+        result = 31 * result + isMotherWhatsappSameAsPhone.hashCode()
         result = 31 * result + isServantStageSheetVisible.hashCode()
         result = 31 * result + isServantYearSheetVisible.hashCode()
         result = 31 * result + canApproveNewRequests.hashCode()
@@ -434,9 +471,11 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + responsibleYears.hashCode()
         result = 31 * result + allAvailableYearsForPermissions.hashCode()
         result = 31 * result + servantAvailableYears.hashCode()
+        result = 31 * result + isPartnerLoading.hashCode()
         result = 31 * result + partnerQuery.hashCode()
         result = 31 * result + (selectedPartner?.hashCode() ?: 0)
         result = 31 * result + (partnerError?.hashCode() ?: 0)
+        result = 31 * result + isChildLoading.hashCode()
         result = 31 * result + childQuery.hashCode()
         result = 31 * result + selectedChildren.hashCode()
         result = 31 * result + (childError?.hashCode() ?: 0)
@@ -517,10 +556,10 @@ private fun ReviewAndEditRequestUiState.toMakhdoomProfileRequest(): MakhdoomProf
             educationalYearId = studentEducationalYear?.id,
             isFatherDeceased = isFatherDeceased,
             fatherPhone = fatherPhone.ifBlank { null },
-            fatherWhatsapp = fatherWhatsapp.ifBlank { null },
+            fatherWhatsapp = (if (isFatherWhatsappSameAsPhone) fatherPhone else fatherWhatsapp).ifBlank { null },
             isMotherDeceased = isMotherDeceased,
             motherPhone = motherPhone.ifBlank { null },
-            motherWhatsapp = motherWhatsapp.ifBlank { null }
+            motherWhatsapp = (if (isMotherWhatsappSameAsPhone) motherPhone else motherWhatsapp).ifBlank { null }
         )
     } else userProfile?.makhdoomProfile?.let { old ->
         MakhdoomProfileRequest(

@@ -42,6 +42,7 @@ import teecclesia.designsystem.generated.resources.confession_priest
 import teecclesia.designsystem.generated.resources.confession_priest_church
 import teecclesia.designsystem.generated.resources.confession_priest_name
 import teecclesia.designsystem.generated.resources.confession_priest_phone
+import teecclesia.designsystem.generated.resources.failed_to_load_priests
 import teecclesia.designsystem.generated.resources.from_another_church
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 
@@ -65,6 +66,9 @@ fun ConfessionPriestField(
     onExternalPriestNameChange: (String) -> Unit,
     onExternalPriestChurchChange: (String) -> Unit,
     onExternalPriestPhoneChange: (String) -> Unit,
+    isPriestLoading: Boolean = false,
+    isPriestLoadFailed: Boolean = false,
+    onRetryLoadPriests: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -114,61 +118,69 @@ fun ConfessionPriestField(
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                LazyColumn(
-                    state = priestListState,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f, fill = false),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                LookupContentContainer(
+                    isLoading = isPriestLoading,
+                    isError = isPriestLoadFailed,
+                    isEmpty = confessionPriests.isEmpty(),
+                    errorMessage = stringResource(Res.string.failed_to_load_priests),
+                    onRetry = onRetryLoadPriests
                 ) {
-                    items(
-                        items = confessionPriests,
-                        key = { priest -> priest.id }
-                    ) { priest ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickableNoRipple {
-                                    onSelectConfessionPriest(priest)
-                                    onTogglePriestSheet(false)
-                                }
-                                .padding(vertical = 12.dp, horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = priest.name,
-                                style = Theme.typography.bodyLarge,
-                                color = Theme.colorScheme.onSurface
-                            )
+                    LazyColumn(
+                        state = priestListState,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f, fill = false),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        items(
+                            items = confessionPriests,
+                            key = { priest -> priest.id }
+                        ) { priest ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        onSelectConfessionPriest(priest)
+                                        onTogglePriestSheet(false)
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = priest.name,
+                                    style = Theme.typography.bodyLarge,
+                                    color = Theme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        item {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        onSelectFromAnotherChurch()
+                                        onTogglePriestSheet(false)
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.from_another_church),
+                                    style = Theme.typography.bodyLarge,
+                                    color = Theme.colorScheme.primary
+                                )
+                            }
                         }
                     }
 
-                    item {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickableNoRipple {
-                                    onSelectFromAnotherChurch()
-                                    onTogglePriestSheet(false)
-                                }
-                                .padding(vertical = 12.dp, horizontal = 16.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = stringResource(Res.string.from_another_church),
-                                style = Theme.typography.bodyLarge,
-                                color = Theme.colorScheme.primary
-                            )
-                        }
-                    }
+                    PaginationTrigger(
+                        list = confessionPriests,
+                        listState = priestListState,
+                        remainingItemsToLoadNextPage = 5,
+                        loadNextItems = onLoadNextPriests
+                    )
                 }
-
-                PaginationTrigger(
-                    list = confessionPriests,
-                    listState = priestListState,
-                    remainingItemsToLoadNextPage = 5,
-                    loadNextItems = onLoadNextPriests
-                )
             }
         }
 

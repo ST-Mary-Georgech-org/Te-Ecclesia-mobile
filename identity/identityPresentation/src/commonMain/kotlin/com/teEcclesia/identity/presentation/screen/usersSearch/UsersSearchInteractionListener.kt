@@ -13,6 +13,7 @@ interface UsersSearchInteractionListener {
     fun onResetFilters()
     fun onUserClicked(user: ProfileResponse)
     fun onLoadMore()
+    fun onRetryLoadStages()
     fun onRefresh()
     fun onClickBack()
 }

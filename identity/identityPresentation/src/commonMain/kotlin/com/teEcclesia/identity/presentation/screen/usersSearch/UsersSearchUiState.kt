@@ -10,6 +10,8 @@ data class UsersSearchUiState(
     val selectedStage: LookupResponse? = null,
     val selectedYear: LookupResponse? = null,
     val stages: List<LookupResponse> = emptyList(),
+    val isStageLoading: Boolean = false,
+    val isStageLoadFailed: Boolean = false,
     val years: List<LookupResponse> = emptyList(),
     val roles: List<UserRole> = listOf(UserRole.MAKHDOOM, UserRole.KHADEM, UserRole.PARENT, UserRole.KAHEN),
     val users: List<ProfileResponse> = emptyList(),

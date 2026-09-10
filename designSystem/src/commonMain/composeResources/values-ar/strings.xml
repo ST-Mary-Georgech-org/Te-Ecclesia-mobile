@@ -124,6 +124,10 @@
     <string name="mother_deceased">الأم متوفاة؟</string>
     <string name="mother_phone">هاتف الأم</string>
     <string name="mother_whatsapp">واتساب الأم</string>
+    <string name="father_info">بيانات الأب</string>
+    <string name="mother_info">بيانات الأم</string>
+    <string name="whatsapp">واتساب</string>
+    <string name="same_as_whatsapp_number">رقم الواتساب هو نفس الرقم</string>
 
     <string name="partner">الشريك</string>
     <string name="search_partner">البحث عن الشريك</string>
@@ -133,6 +137,7 @@
     <string name="search_child_support_text">ابحث باستخدام الكود الخاص بالابن أو الرقم القومي، ثم اضغط على (+)</string>
     <string name="error_forgot_to_click_plus_partner">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الشريك أولاً</string>
     <string name="error_forgot_to_click_plus_child">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الابن أولاً</string>
+    <string name="error_child_already_added">تمت إضافة هذا الابن بالفعل</string>
     <string name="upload_ordination_certificate">تحميل شهادة السيامة (اختياري)</string>
     <string name="upload_identity_card">تحميل بطاقة الرقم القومي (اختياري)</string>
     <string name="file_ordination_certificate">شهادة السيامة</string>
@@ -143,6 +148,7 @@
     <string name="take_photo">التقاط صورة</string>
     <string name="from_gallery">من الاستوديو</string>
     <string name="from_files">من الملفات</string>
+    <string name="view_photo">عرض الصورة</string>
     <string name="account_and_contact">الحساب وبيانات الاتصال</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -157,6 +163,8 @@
     <string name="failed_to_search_child">تعذر البحث عن الابن/الابنة</string>
     <string name="failed_to_verify_whatsapp">فشل التحقق عبر الواتساب</string>
     <string name="failed_to_login">فشل تسجيل الدخول</string>
+    <string name="failed_to_load_data">حدث خطأ أثناء تحميل البيانات</string>
+    <string name="retry">إعادة المحاولة</string>
 
     <string name="error_account_already_exists">حساب برقم الهاتف أو اسم المستخدم أو الرقم القومي موجود بالفعل</string>
     <string name="error_no_internet">لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.</string>

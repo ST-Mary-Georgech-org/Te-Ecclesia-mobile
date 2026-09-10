@@ -49,6 +49,7 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.failed_to_complete_profile
@@ -86,7 +87,8 @@ class RegisterViewModel(
             updateState {
                 copy(
                     confessionPriests = confessionPriests + items.data,
-                    isPriestEndReached = items.isLastPage
+                    isPriestEndReached = items.isLastPage,
+                    isPriestLoadFailed = false
                 )
             }
         },
@@ -94,14 +96,10 @@ class RegisterViewModel(
             updateState { copy(isPriestLoading = loading) }
         },
         onReset = {
-            updateState { copy(confessionPriests = emptyList(), isPriestEndReached = false) }
+            updateState { copy(confessionPriests = emptyList(), isPriestEndReached = false, isPriestLoadFailed = false) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_priests),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onError = { _ ->
+            updateState { copy(isPriestLoadFailed = true) }
         }
     )
 
@@ -113,7 +111,8 @@ class RegisterViewModel(
             updateState {
                 copy(
                     ranks = ranks + items.data,
-                    isRankEndReached = items.isLastPage
+                    isRankEndReached = items.isLastPage,
+                    isRankLoadFailed = false
                 )
             }
         },
@@ -121,14 +120,10 @@ class RegisterViewModel(
             updateState { copy(isRankLoading = loading) }
         },
         onReset = {
-            updateState { copy(ranks = emptyList(), isRankEndReached = false) }
+            updateState { copy(ranks = emptyList(), isRankEndReached = false, isRankLoadFailed = false) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_ranks),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onError = { _ ->
+            updateState { copy(isRankLoadFailed = true) }
         }
     )
 
@@ -144,6 +139,7 @@ class RegisterViewModel(
                 copy(
                     educationalStages = educationalStages + items.data,
                     isStageEndReached = items.isLastPage,
+                    isStageLoadFailed = false
                 )
             }
         },
@@ -151,14 +147,10 @@ class RegisterViewModel(
             updateState { copy(isStageLoading = loading) }
         },
         onReset = {
-            updateState { copy(educationalStages = emptyList(), isStageEndReached = false) }
+            updateState { copy(educationalStages = emptyList(), isStageEndReached = false, isStageLoadFailed = false) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onError = { _ ->
+            updateState { copy(isStageLoadFailed = true) }
         }
     )
 
@@ -198,6 +190,13 @@ class RegisterViewModel(
                     val makhdoom = profile.makhdoomProfile
                     val ordination = profile.ordinationProfile
                     val khadem = profile.khademProfile
+                    val preloadedFatherPhone = makhdoom?.fatherPhone?.removePrefix("+2") ?: ""
+                    val preloadedFatherWhatsapp = makhdoom?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                    val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
+
+                    val preloadedMotherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: ""
+                    val preloadedMotherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: ""
+                    val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
                     updateState {
                         copy(
                             firstName = profile.firstName,
@@ -228,11 +227,13 @@ class RegisterViewModel(
 
                             // Makhdoom / Student fields
                             isFatherDeceased = makhdoom?.isFatherDeceased ?: false,
-                            fatherPhone = makhdoom?.fatherPhone?.removePrefix("+2") ?: "",
-                            fatherWhatsapp = makhdoom?.fatherWhatsapp?.removePrefix("+2") ?: "",
+                            fatherPhone = preloadedFatherPhone,
+                            fatherWhatsapp = if (makhdoom != null && isFatherSame && preloadedFatherWhatsapp.isBlank()) preloadedFatherPhone else preloadedFatherWhatsapp,
+                            isFatherWhatsappSameAsPhone = if (makhdoom != null) isFatherSame else true,
                             isMotherDeceased = makhdoom?.isMotherDeceased ?: false,
-                            motherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: "",
-                            motherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: "",
+                            motherPhone = preloadedMotherPhone,
+                            motherWhatsapp = if (makhdoom != null && isMotherSame && preloadedMotherWhatsapp.isBlank()) preloadedMotherPhone else preloadedMotherWhatsapp,
+                            isMotherWhatsappSameAsPhone = if (makhdoom != null) isMotherSame else true,
                             shamamsaStatus = makhdoom?.shamamsaStudyStatus
                                 ?: ShamamsaStudyStatus.YES,
                             studentEducationalStage = makhdoom?.educationalStage,
@@ -275,20 +276,43 @@ class RegisterViewModel(
 
     override fun onLoadNextPriests() {
         if (!state.value.isPriestEndReached && !state.value.isPriestLoading) {
+            updateState { copy(isPriestLoadFailed = false) }
             priestsPaginator.loadNextItems()
         }
     }
 
+    override fun onRetryLoadPriests() {
+        updateState { copy(isPriestLoadFailed = false) }
+        priestsPaginator.reset()
+    }
+
+    override fun onRetryLoadAreas() {
+        updateState { copy(isAreaLoadFailed = false) }
+        searchAreas(state.value.selectedArea ?: "")
+    }
+
     override fun onLoadNextRanks() {
         if (!state.value.isRankEndReached && !state.value.isRankLoading) {
+            updateState { copy(isRankLoadFailed = false) }
             ranksPaginator.loadNextItems()
         }
     }
 
+    override fun onRetryLoadRanks() {
+        updateState { copy(isRankLoadFailed = false) }
+        ranksPaginator.reset()
+    }
+
     override fun onLoadNextEducationalStages() {
         if (!state.value.isStageEndReached && !state.value.isStageLoading) {
+            updateState { copy(isStageLoadFailed = false) }
             stagesPaginator.loadNextItems()
         }
+    }
+
+    override fun onRetryLoadEducationalStages() {
+        updateState { copy(isStageLoadFailed = false) }
+        stagesPaginator.reset()
     }
 
     override fun onClickNextStep() {
@@ -497,6 +521,9 @@ class RegisterViewModel(
     }
 
     override fun onTogglePriestSheet(visible: Boolean) {
+        if (visible && state.value.confessionPriests.isEmpty() && !state.value.isPriestLoading && !state.value.isPriestLoadFailed) {
+            onLoadNextPriests()
+        }
         updateState { copy(isPriestSheetVisible = visible) }
     }
 
@@ -658,6 +685,7 @@ class RegisterViewModel(
                 areaError = null,
                 isAreaSheetVisible = false,
                 areas = emptyList(),
+                isAreaLoadFailed = false
             )
         }
         searchAreas(value)
@@ -669,18 +697,14 @@ class RegisterViewModel(
                 lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = 0, size = 20))
                     .toPagedData()
             },
-            onStart = { updateState { copy(isAreaLoading = true) } },
+            onStart = { updateState { copy(isAreaLoading = true, isAreaLoadFailed = false) } },
             onSuccess = { items ->
                 updateState {
-                    copy(areas = items.data, isAreaSheetVisible = true)
+                    copy(areas = items.data, isAreaSheetVisible = true, isAreaLoadFailed = false)
                 }
             },
-            onError = { throwable ->
-                showSnackBar(
-                    title = UiText.StringRes(Res.string.failed_to_load_areas),
-                    message = getLocalizedErrorMessage(throwable),
-                    isSuccess = false
-                )
+            onError = { _ ->
+                updateState { copy(isAreaLoadFailed = true, isAreaSheetVisible = true) }
             },
             onEnd = { updateState { copy(isAreaLoading = false) } }
         )
@@ -783,7 +807,7 @@ class RegisterViewModel(
                     } else null
                 } else null
 
-                val fatherWhatsappErr = if (!s.isFatherDeceased) {
+                val fatherWhatsappErr = if (!s.isFatherDeceased && !s.isFatherWhatsappSameAsPhone) {
                     if (s.fatherWhatsapp.isBlank()) {
                         UiText.StringRes(Res.string.field_required)
                     } else if (!validatePhone(s.fatherWhatsapp)) {
@@ -799,7 +823,7 @@ class RegisterViewModel(
                     } else null
                 } else null
 
-                val motherWhatsappErr = if (!s.isMotherDeceased) {
+                val motherWhatsappErr = if (!s.isMotherDeceased && !s.isMotherWhatsappSameAsPhone) {
                     if (s.motherWhatsapp.isBlank()) {
                         UiText.StringRes(Res.string.field_required)
                     } else if (!validatePhone(s.motherWhatsapp)) {
@@ -833,6 +857,7 @@ class RegisterViewModel(
             }
 
             UserRole.PARENT -> {
+                if (s.isPartnerLoading || s.isChildLoading) return
                 if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
                     showSnackBar(
                         title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
@@ -886,10 +911,10 @@ class RegisterViewModel(
                 educationalYearId = s.studentEducationalYear?.id,
                 isFatherDeceased = s.isFatherDeceased,
                 fatherPhone = s.fatherPhone.ifBlank { null },
-                fatherWhatsapp = s.fatherWhatsapp.ifBlank { null },
+                fatherWhatsapp = (if (s.isFatherWhatsappSameAsPhone) s.fatherPhone else s.fatherWhatsapp).ifBlank { null },
                 isMotherDeceased = s.isMotherDeceased,
                 motherPhone = s.motherPhone.ifBlank { null },
-                motherWhatsapp = s.motherWhatsapp.ifBlank { null }
+                motherWhatsapp = (if (s.isMotherWhatsappSameAsPhone) s.motherPhone else s.motherWhatsapp).ifBlank { null }
             ) else null,
             parentProfile = if (role == UserRole.PARENT) ParentProfileRequest(
                 partnerCode = s.selectedPartner?.code,
@@ -936,6 +961,9 @@ class RegisterViewModel(
     }
 
     override fun onToggleRankSheet(visible: Boolean) {
+        if (visible && state.value.ranks.isEmpty() && !state.value.isRankLoading && !state.value.isRankLoadFailed) {
+            onLoadNextRanks()
+        }
         updateState { copy(isRankSheetVisible = visible) }
     }
 
@@ -1032,13 +1060,30 @@ class RegisterViewModel(
 
     override fun onFatherPhoneChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
-            updateState { copy(fatherPhone = value, fatherPhoneError = null) }
+            updateState {
+                copy(
+                    fatherPhone = value,
+                    fatherPhoneError = null,
+                    fatherWhatsapp = if (isFatherWhatsappSameAsPhone) value else fatherWhatsapp,
+                    fatherWhatsappError = if (isFatherWhatsappSameAsPhone) null else fatherWhatsappError
+                )
+            }
         }
     }
 
     override fun onFatherWhatsappChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
             updateState { copy(fatherWhatsapp = value, fatherWhatsappError = null) }
+        }
+    }
+
+    override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {
+        updateState {
+            copy(
+                isFatherWhatsappSameAsPhone = isSame,
+                fatherWhatsapp = if (isSame) fatherPhone else fatherWhatsapp.ifEmpty { fatherPhone },
+                fatherWhatsappError = if (isSame) null else fatherWhatsappError
+            )
         }
     }
 
@@ -1054,7 +1099,14 @@ class RegisterViewModel(
 
     override fun onMotherPhoneChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
-            updateState { copy(motherPhone = value, motherPhoneError = null) }
+            updateState {
+                copy(
+                    motherPhone = value,
+                    motherPhoneError = null,
+                    motherWhatsapp = if (isMotherWhatsappSameAsPhone) value else motherWhatsapp,
+                    motherWhatsappError = if (isMotherWhatsappSameAsPhone) null else motherWhatsappError
+                )
+            }
         }
     }
 
@@ -1064,18 +1116,36 @@ class RegisterViewModel(
         }
     }
 
+    override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {
+        updateState {
+            copy(
+                isMotherWhatsappSameAsPhone = isSame,
+                motherWhatsapp = if (isSame) motherPhone else motherWhatsapp.ifEmpty { motherPhone },
+                motherWhatsappError = if (isSame) null else motherWhatsappError
+            )
+        }
+    }
+
     override fun onPartnerQueryChange(query: String) {
         updateState { copy(partnerQuery = query, partnerError = null) }
     }
 
     override fun onSearchPartner() {
+        if (state.value.isPartnerLoading) return
         if (state.value.partnerQuery.isNotBlank()) {
+            updateState { copy(isPartnerLoading = true, partnerError = null) }
             tryToCall(
                 block = { registerRepository.searchParent(state.value.partnerQuery) },
                 onSuccess = { res ->
-                    if (res != null) updateState { copy(selectedPartner = res) }
+                    updateState {
+                        copy(
+                            isPartnerLoading = false,
+                            selectedPartner = res ?: selectedPartner
+                        )
+                    }
                 },
                 onError = {
+                    updateState { copy(isPartnerLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_partner),
                         isSuccess = false
@@ -1094,18 +1164,38 @@ class RegisterViewModel(
     }
 
     override fun onSearchChild() {
+        if (state.value.isChildLoading) return
         if (state.value.childQuery.isNotBlank()) {
+            updateState { copy(isChildLoading = true, childError = null) }
             tryToCall(
                 block = { registerRepository.searchMakhdoom(state.value.childQuery) },
                 onSuccess = { res ->
-                    if (res != null) updateState {
-                        copy(
-                            selectedChildren = selectedChildren + res,
-                            childQuery = ""
-                        )
+                    if (res != null) {
+                        val isAlreadyAdded = state.value.selectedChildren.any { it.id == res.id }
+                        if (isAlreadyAdded) {
+                            updateState {
+                                copy(
+                                    isChildLoading = false,
+                                    childQuery = "",
+                                    childError = UiText.StringRes(Res.string.error_child_already_added)
+                                )
+                            }
+                        } else {
+                            updateState {
+                                copy(
+                                    isChildLoading = false,
+                                    selectedChildren = selectedChildren + res,
+                                    childQuery = "",
+                                    childError = null
+                                )
+                            }
+                        }
+                    } else {
+                        updateState { copy(isChildLoading = false) }
                     }
                 },
                 onError = {
+                    updateState { copy(isChildLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_child),
                         isSuccess = false
@@ -1128,8 +1218,40 @@ class RegisterViewModel(
         updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
     }
 
+    override fun onDismissImageViewer() {
+        updateState { copy(isImageViewerVisible = false, activeImageViewerModel = null) }
+    }
+
+    override fun onDismissPdfViewer() {
+        updateState { copy(isPdfViewerVisible = false, activePdfBytes = null) }
+    }
+
+    override fun onClickOrdinationCertificate() {
+        val bytes = state.value.ordinationCertificateBytes ?: return
+        val isPdf = state.value.ordinationCertificateFileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (isPdf) {
+            updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+        } else {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+        }
+    }
+
+    override fun onClickIdentityCertificate() {
+        val bytes = state.value.identityCertificateBytes ?: return
+        val isPdf = state.value.identityCertificateFileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (isPdf) {
+            updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+        } else {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+        }
+    }
+
     fun onFileOptionPicked(option: FilePickOption) {
         val target = state.value.activeUploadTarget ?: return
+        if (option == FilePickOption.VIEW) {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
+            return
+        }
         launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
@@ -1144,6 +1266,8 @@ class RegisterViewModel(
                     ),
                     mode = FileKitMode.Single
                 )
+
+                FilePickOption.VIEW -> null
             }
             if (file == null) return@launch
             val bytes = file.readBytes()

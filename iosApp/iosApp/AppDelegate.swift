@@ -15,12 +15,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
-        setupCrashlytics()
+        InitKoinKt.doInitKoin()
 
         if Bundle.main.path(forResource: "GoogleService-Info", ofType: "plist") != nil {
             if FirebaseApp.app() == nil {
                 FirebaseApp.configure()
                 PushNotificationsInitializer.shared.initialize(showPushNotification: true)
+                setupCrashlytics()
             }
         } else {
             print("GoogleService-Info.plist not found. Firebase not initialized.")
@@ -30,24 +31,31 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     private func setupCrashlytics() {
-        #if DEBUG
-        Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(false)
-        #else
         Crashlytics.crashlytics().setCrashlyticsCollectionEnabled(true)
-        #endif
+        print("[Crashlytics] Firebase Crashlytics initialized and collection enabled")
 
         #if canImport(TeEcclesiaApp)
         // Link Kotlin exceptions to Firebase Crashlytics
-        IosCrashLoggerBridge.shared.delegate = { (throwable: KotlinThrowable) in
+        IosCrashLoggerBridge.shared.delegate = { (throwable: KotlinThrowable, message: String, stackTrace: String) in
+            // 1. Log directly to Crashlytics breadcrumbs / logs
+            Crashlytics.crashlytics().log("[FATAL KOTLIN EXCEPTION] \(message)")
+            Crashlytics.crashlytics().log("StackTrace:\n\(stackTrace)")
+
+            // 2. Set Custom Keys visible immediately in the Crash page under 'Keys' tab
+            Crashlytics.crashlytics().setCustomValue(message, forKey: "FatalKotlinError")
+            Crashlytics.crashlytics().setCustomValue(stackTrace, forKey: "FatalKotlinStack")
+
+            // 3. Record non-fatal error with the exact stack trace
             let nsError = NSError(
                 domain: "KotlinError",
                 code: 0,
                 userInfo: [
-                    NSLocalizedDescriptionKey: throwable.message ?? "Unknown Kotlin Exception",
-                    "KotlinStackTrace": String(describing: throwable)
+                    NSLocalizedDescriptionKey: message,
+                    "KotlinStackTrace": stackTrace
                 ]
             )
             Crashlytics.crashlytics().record(error: nsError)
+            print("[Crashlytics] Successfully recorded Kotlin error to Crashlytics: \(message)")
         }
 
         IosCrashLoggerBridge.shared.customKeyDelegate = { (key: String, value: String) in

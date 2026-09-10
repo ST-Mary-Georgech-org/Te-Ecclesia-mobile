@@ -23,6 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
+import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
@@ -39,7 +41,6 @@ import com.teEcclesia.identity.presentation.screen.register.components.FilePickO
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
-import com.teEcclesia.identity.presentation.util.rememberFileOpener
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
@@ -79,12 +80,22 @@ private fun ReviewAndEditRequestContent(
     FilePickerBottomSheet(
         isVisible = state.isUploadBottomSheetVisible,
         target = state.activeUploadTarget,
+        canViewPhoto = state.activeUploadTarget == UploadTarget.PROFILE_PHOTO && (state.imageBytes != null || !state.imageUrl.isNullOrBlank()),
         onDismiss = listener::onDismissUploadBottomSheet,
         onOptionSelected = listener::onFileOptionPicked
     )
 
+    ImageViewerDialog(
+        isVisible = state.isImageViewerVisible,
+        model = state.activeImageViewerModel ?: state.imageBytes ?: state.imageUrl,
+        onDismiss = listener::onDismissImageViewer
+    )
 
-    val fileOpener = rememberFileOpener()
+    PdfViewerDialog(
+        isVisible = state.isPdfViewerVisible,
+        pdf = state.activePdfBytes,
+        onDismiss = listener::onDismissPdfViewer
+    )
 
     PullToRefresh(
         isRefreshing = state.isRefreshing,
@@ -161,18 +172,8 @@ private fun ReviewAndEditRequestContent(
                         2 -> ReviewStep2Content(
                             state = state,
                             listener = listener,
-                            onFileClickOrdinationCertificate = {
-                                fileOpener.openFile(
-                                    bytes = state.ordinationCertificateBytes,
-                                    fileName = state.ordinationCertificateFileName
-                                )
-                            },
-                            onFileClickIdentityCertificate = {
-                                fileOpener.openFile(
-                                    bytes = state.identityCertificateBytes,
-                                    fileName = state.identityCertificateFileName
-                                )
-                            }
+                            onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
+                            onFileClickIdentityCertificate = listener::onClickIdentityCertificate
                         )
                     }
                 }
@@ -201,6 +202,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onRefresh() {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
+        override fun onDismissImageViewer() {}
 
         override fun onCodeChanged(value: String) {}
         override fun onFirstNameChanged(value: String) {}
@@ -259,9 +261,11 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onToggleFatherDeceased(deceased: Boolean) {}
         override fun onFatherPhoneChange(value: String) {}
         override fun onFatherWhatsappChange(value: String) {}
+        override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
         override fun onToggleMotherDeceased(deceased: Boolean) {}
         override fun onMotherPhoneChange(value: String) {}
         override fun onMotherWhatsappChange(value: String) {}
+        override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
 
         override fun onToggleServantStageSelection(stage: LookupResponse) {}
         override fun onToggleServantStageSheet(visible: Boolean) {}
@@ -283,7 +287,11 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}
+        override fun onRetryLoadEducationalStages() {}
         override fun onLoadNextRanks() {}
+        override fun onRetryLoadRanks() {}
+        override fun onRetryLoadPriests() {}
+        override fun onRetryLoadAreas() {}
 
         override fun onNotesChanged(value: String) {}
     }

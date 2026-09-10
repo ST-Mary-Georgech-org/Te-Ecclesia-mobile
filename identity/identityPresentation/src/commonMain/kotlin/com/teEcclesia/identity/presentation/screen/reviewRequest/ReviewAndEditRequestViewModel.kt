@@ -40,6 +40,7 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.error_occurred
@@ -78,7 +79,8 @@ class ReviewAndEditRequestViewModel(
         onSuccess = { items ->
             updateState { current ->
                 current.copy(
-                    confessionPriests = current.confessionPriests + items.data
+                    confessionPriests = current.confessionPriests + items.data,
+                    isPriestLoadFailed = false
                 )
             }
         },
@@ -86,14 +88,10 @@ class ReviewAndEditRequestViewModel(
             updateState { it.copy(isPriestLoading = loading) }
         },
         onReset = {
-            updateState { it.copy(confessionPriests = emptyList()) }
+            updateState { it.copy(confessionPriests = emptyList(), isPriestLoadFailed = false) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_priests),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onError = { _ ->
+            updateState { it.copy(isPriestLoadFailed = true) }
         }
     )
 
@@ -112,7 +110,7 @@ class ReviewAndEditRequestViewModel(
         },
         onSuccess = { items ->
             rawEducationalStages = rawEducationalStages + items.data
-            updateState { it.copy(isStageEndReached = items.isLastPage) }
+            updateState { it.copy(isStageEndReached = items.isLastPage, isStageLoadFailed = false) }
             filterAndApplyEducationalStages()
         },
         onLoadUpdated = { loading ->
@@ -120,14 +118,10 @@ class ReviewAndEditRequestViewModel(
         },
         onReset = {
             rawEducationalStages = emptyList()
-            updateState { it.copy(educationalStages = emptyList()) }
+            updateState { it.copy(educationalStages = emptyList(), isStageLoadFailed = false) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onError = { _ ->
+            updateState { it.copy(isStageLoadFailed = true) }
         }
     )
 
@@ -138,20 +132,19 @@ class ReviewAndEditRequestViewModel(
         onSuccess = { items ->
             updateState { current ->
                 current.copy(
-                    ranks = current.ranks + items.data
+                    ranks = current.ranks + items.data,
+                    isRankLoadFailed = false
                 )
             }
         },
-        onLoadUpdated = { _ -> },
-        onReset = {
-            updateState { it.copy(ranks = emptyList()) }
+        onLoadUpdated = { loading ->
+            updateState { it.copy(isRankLoading = loading) }
         },
-        onError = { throwable ->
-            showSnackBar(
-                title = UiText.StringRes(Res.string.failed_to_load_ranks),
-                message = getLocalizedErrorMessage(throwable),
-                isSuccess = false
-            )
+        onReset = {
+            updateState { it.copy(ranks = emptyList(), isRankLoadFailed = false) }
+        },
+        onError = { _ ->
+            updateState { it.copy(isRankLoadFailed = true) }
         }
     )
 
@@ -272,6 +265,14 @@ class ReviewAndEditRequestViewModel(
         tryToCall(
             block = { profileRepository.getUserProfile(uid) },
             onSuccess = { profile ->
+                val preloadedFatherPhone = profile.makhdoomProfile?.fatherPhone?.removePrefix("+2") ?: ""
+                val preloadedFatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
+
+                val preloadedMotherPhone = profile.makhdoomProfile?.motherPhone?.removePrefix("+2") ?: ""
+                val preloadedMotherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.removePrefix("+2") ?: ""
+                val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
+
                 updateState {
                     it.copy(
                         isLoading = false,
@@ -323,10 +324,12 @@ class ReviewAndEditRequestViewModel(
                         studentEducationalStage = profile.makhdoomProfile?.educationalStage,
                         studentEducationalYear = profile.makhdoomProfile?.educationalYear,
                         shamamsaStatus = profile.makhdoomProfile?.shamamsaStudyStatus ?: ShamamsaStudyStatus.NO,
-                        fatherPhone = profile.makhdoomProfile?.fatherPhone?.removePrefix("+2") ?: "",
-                        fatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.removePrefix("+2") ?: "",
-                        motherPhone = profile.makhdoomProfile?.motherPhone?.removePrefix("+2") ?: "",
-                        motherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.removePrefix("+2") ?: "",
+                        fatherPhone = preloadedFatherPhone,
+                        fatherWhatsapp = if (profile.makhdoomProfile != null && isFatherSame && preloadedFatherWhatsapp.isBlank()) preloadedFatherPhone else preloadedFatherWhatsapp,
+                        isFatherWhatsappSameAsPhone = if (profile.makhdoomProfile != null) isFatherSame else true,
+                        motherPhone = preloadedMotherPhone,
+                        motherWhatsapp = if (profile.makhdoomProfile != null && isMotherSame && preloadedMotherWhatsapp.isBlank()) preloadedMotherPhone else preloadedMotherWhatsapp,
+                        isMotherWhatsappSameAsPhone = if (profile.makhdoomProfile != null) isMotherSame else true,
                         isFatherDeceased = profile.makhdoomProfile?.isFatherDeceased ?: false,
                         isMotherDeceased = profile.makhdoomProfile?.isMotherDeceased ?: false,
 
@@ -339,6 +342,26 @@ class ReviewAndEditRequestViewModel(
                         ordinationCertificateFileName = profile.ordinationProfile?.certificateImageUrl,
                         identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
                     ).let { state -> updateDerivedProperties(state) }
+                }
+                val ordinationUrl = profile.ordinationProfile?.certificateImageUrl
+                if (!ordinationUrl.isNullOrBlank() && ordinationUrl.endsWith(".pdf", ignoreCase = true)) {
+                    tryToCall(
+                        block = { profileRepository.downloadFile(ordinationUrl) },
+                        onSuccess = { bytes ->
+                            updateState { it.copy(ordinationCertificateBytes = bytes) }
+                        },
+                        onError = {}
+                    )
+                }
+                val identityUrl = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
+                if (!identityUrl.isNullOrBlank() && identityUrl.endsWith(".pdf", ignoreCase = true)) {
+                    tryToCall(
+                        block = { profileRepository.downloadFile(identityUrl) },
+                        onSuccess = { bytes ->
+                            updateState { it.copy(identityCertificateBytes = bytes) }
+                        },
+                        onError = {}
+                    )
                 }
                 loadEducationalStages()
             },
@@ -366,7 +389,18 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onLoadNextPriests() {
+        updateState { it.copy(isPriestLoadFailed = false) }
         priestsPaginator.loadNextItems()
+    }
+
+    override fun onRetryLoadPriests() {
+        updateState { it.copy(isPriestLoadFailed = false) }
+        priestsPaginator.reset()
+    }
+
+    override fun onRetryLoadAreas() {
+        updateState { it.copy(isAreaLoadFailed = false) }
+        searchAreas(state.value.area)
     }
 
     fun validateStep1(): Boolean {
@@ -511,7 +545,7 @@ class ReviewAndEditRequestViewModel(
                     UiText.StringRes(Res.string.invalid_phone_format)
                 } else null
 
-                val fatherWhatsappErr = if (!s.isFatherDeceased && s.fatherWhatsapp.isNotBlank() && !validatePhone(s.fatherWhatsapp)) {
+                val fatherWhatsappErr = if (!s.isFatherDeceased && !s.isFatherWhatsappSameAsPhone && s.fatherWhatsapp.isNotBlank() && !validatePhone(s.fatherWhatsapp)) {
                     UiText.StringRes(Res.string.invalid_phone_format)
                 } else null
 
@@ -519,7 +553,7 @@ class ReviewAndEditRequestViewModel(
                     UiText.StringRes(Res.string.invalid_phone_format)
                 } else null
 
-                val motherWhatsappErr = if (!s.isMotherDeceased && s.motherWhatsapp.isNotBlank() && !validatePhone(s.motherWhatsapp)) {
+                val motherWhatsappErr = if (!s.isMotherDeceased && !s.isMotherWhatsappSameAsPhone && s.motherWhatsapp.isNotBlank() && !validatePhone(s.motherWhatsapp)) {
                     UiText.StringRes(Res.string.invalid_phone_format)
                 } else null
 
@@ -550,6 +584,7 @@ class ReviewAndEditRequestViewModel(
             }
 
             UserRole.PARENT -> {
+                if (s.isPartnerLoading || s.isChildLoading) return false
                 if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
                     showSnackBar(
                         title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
@@ -742,8 +777,94 @@ class ReviewAndEditRequestViewModel(
         updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
     }
 
+    override fun onDismissImageViewer() {
+        updateState { copy(isImageViewerVisible = false, activeImageViewerModel = null) }
+    }
+
+    override fun onDismissPdfViewer() {
+        updateState { copy(isPdfViewerVisible = false, activePdfBytes = null) }
+    }
+
+    override fun onClickOrdinationCertificate() {
+        val bytes = state.value.ordinationCertificateBytes
+        val fileName = state.value.ordinationCertificateFileName
+        val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (bytes != null) {
+            if (isPdf) {
+                updateState { it.copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+            } else {
+                updateState { it.copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+            }
+        } else if (!fileName.isNullOrBlank()) {
+            if (isPdf) {
+                tryToCall(
+                    block = { profileRepository.downloadFile(fileName) },
+                    onSuccess = { downloadedBytes ->
+                        updateState {
+                            it.copy(
+                                ordinationCertificateBytes = downloadedBytes,
+                                isPdfViewerVisible = true,
+                                activePdfBytes = downloadedBytes
+                            )
+                        }
+                    },
+                    onError = { throwable ->
+                        showSnackBar(
+                            title = UiText.StringRes(Res.string.failed_to_load_request),
+                            message = getLocalizedErrorMessage(throwable),
+                            isSuccess = false
+                        )
+                    }
+                )
+            } else {
+                updateState { it.copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
+            }
+        }
+    }
+
+    override fun onClickIdentityCertificate() {
+        val bytes = state.value.identityCertificateBytes
+        val fileName = state.value.identityCertificateFileName
+        val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (bytes != null) {
+            if (isPdf) {
+                updateState { it.copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+            } else {
+                updateState { it.copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+            }
+        } else if (!fileName.isNullOrBlank()) {
+            if (isPdf) {
+                tryToCall(
+                    block = { profileRepository.downloadFile(fileName) },
+                    onSuccess = { downloadedBytes ->
+                        updateState {
+                            it.copy(
+                                identityCertificateBytes = downloadedBytes,
+                                isPdfViewerVisible = true,
+                                activePdfBytes = downloadedBytes
+                            )
+                        }
+                    },
+                    onError = { throwable ->
+                        showSnackBar(
+                            title = UiText.StringRes(Res.string.failed_to_load_request),
+                            message = getLocalizedErrorMessage(throwable),
+                            isSuccess = false
+                        )
+                    }
+                )
+            } else {
+                updateState { it.copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
+            }
+        }
+    }
+
     override fun onFileOptionPicked(option: FilePickOption) {
         val target = state.value.activeUploadTarget ?: return
+        if (option == FilePickOption.VIEW) {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
+            return
+        }
         launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
@@ -886,7 +1007,8 @@ class ReviewAndEditRequestViewModel(
                 area = value,
                 areaError = null,
                 isAreaSheetVisible = false,
-                areas = emptyList()
+                areas = emptyList(),
+                isAreaLoadFailed = false
             )
         }
         searchAreas(value)
@@ -897,16 +1019,12 @@ class ReviewAndEditRequestViewModel(
             block = {
                 lookupRepository.getAreas(query = query, pageQuery = PageQuery(page = 0, size = 20)).toPagedData()
             },
-            onStart = { updateState { it.copy(isAreaLoading = true) } },
+            onStart = { updateState { it.copy(isAreaLoading = true, isAreaLoadFailed = false) } },
             onSuccess = { items ->
-                updateState { it.copy(areas = items.data, isAreaSheetVisible = true) }
+                updateState { it.copy(areas = items.data, isAreaSheetVisible = true, isAreaLoadFailed = false) }
             },
-            onError = { throwable ->
-                showSnackBar(
-                    title = UiText.StringRes(Res.string.failed_to_load_areas),
-                    message = getLocalizedErrorMessage(throwable),
-                    isSuccess = false
-                )
+            onError = { _ ->
+                updateState { it.copy(isAreaLoadFailed = true, isAreaSheetVisible = true) }
             },
             onEnd = { updateState { it.copy(isAreaLoading = false) } }
         )
@@ -946,6 +1064,9 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onTogglePriestSheet(visible: Boolean) {
+        if (visible && state.value.confessionPriests.isEmpty() && !state.value.isPriestLoading && !state.value.isPriestLoadFailed) {
+            onLoadNextPriests()
+        }
         updateState { it.copy(isPriestSheetVisible = visible) }
     }
 
@@ -991,6 +1112,9 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onToggleRankSheet(visible: Boolean) {
+        if (visible && state.value.ranks.isEmpty() && !state.value.isRankLoading && !state.value.isRankLoadFailed) {
+            onLoadNextRanks()
+        }
         updateState { it.copy(isRankSheetVisible = visible) }
     }
 
@@ -1017,6 +1141,9 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onToggleStageSheet(visible: Boolean) {
+        if (visible && state.value.educationalStages.isEmpty() && !state.value.isStageLoading && !state.value.isStageLoadFailed) {
+            onLoadNextEducationalStages()
+        }
         updateState { it.copy(isStageSheetVisible = visible) }
     }
 
@@ -1034,7 +1161,14 @@ class ReviewAndEditRequestViewModel(
 
     override fun onFatherPhoneChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
-            updateState { it.copy(fatherPhone = value, fatherPhoneError = null) }
+            updateState {
+                it.copy(
+                    fatherPhone = value,
+                    fatherPhoneError = null,
+                    fatherWhatsapp = if (it.isFatherWhatsappSameAsPhone) value else it.fatherWhatsapp,
+                    fatherWhatsappError = if (it.isFatherWhatsappSameAsPhone) null else it.fatherWhatsappError
+                )
+            }
         }
     }
 
@@ -1044,19 +1178,46 @@ class ReviewAndEditRequestViewModel(
         }
     }
 
+    override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {
+        updateState {
+            it.copy(
+                isFatherWhatsappSameAsPhone = isSame,
+                fatherWhatsapp = if (isSame) it.fatherPhone else it.fatherWhatsapp.ifEmpty { it.fatherPhone },
+                fatherWhatsappError = if (isSame) null else it.fatherWhatsappError
+            )
+        }
+    }
+
     override fun onToggleMotherDeceased(deceased: Boolean) {
         updateState { it.copy(isMotherDeceased = deceased, motherPhoneError = null, motherWhatsappError = null) }
     }
 
     override fun onMotherPhoneChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
-            updateState { it.copy(motherPhone = value, motherPhoneError = null) }
+            updateState {
+                it.copy(
+                    motherPhone = value,
+                    motherPhoneError = null,
+                    motherWhatsapp = if (it.isMotherWhatsappSameAsPhone) value else it.motherWhatsapp,
+                    motherWhatsappError = if (it.isMotherWhatsappSameAsPhone) null else it.motherWhatsappError
+                )
+            }
         }
     }
 
     override fun onMotherWhatsappChange(value: String) {
         if (value.isEmpty() || isValidPhoneInput(value)) {
             updateState { it.copy(motherWhatsapp = value, motherWhatsappError = null) }
+        }
+    }
+
+    override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {
+        updateState {
+            it.copy(
+                isMotherWhatsappSameAsPhone = isSame,
+                motherWhatsapp = if (isSame) it.motherPhone else it.motherWhatsapp.ifEmpty { it.motherPhone },
+                motherWhatsappError = if (isSame) null else it.motherWhatsappError
+            )
         }
     }
 
@@ -1117,13 +1278,21 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onSearchPartner() {
+        if (state.value.isPartnerLoading) return
         if (state.value.partnerQuery.isNotBlank()) {
+            updateState { it.copy(isPartnerLoading = true, partnerError = null) }
             tryToCall(
                 block = { registerRepository.searchParent(state.value.partnerQuery) },
                 onSuccess = { res ->
-                    if (res != null) updateState { it.copy(selectedPartner = res) }
+                    updateState {
+                        it.copy(
+                            isPartnerLoading = false,
+                            selectedPartner = res ?: it.selectedPartner
+                        )
+                    }
                 },
                 onError = { throwable ->
+                    updateState { it.copy(isPartnerLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_partner),
                         message = getLocalizedErrorMessage(throwable),
@@ -1143,18 +1312,38 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onSearchChild() {
+        if (state.value.isChildLoading) return
         if (state.value.childQuery.isNotBlank()) {
+            updateState { it.copy(isChildLoading = true, childError = null) }
             tryToCall(
                 block = { registerRepository.searchMakhdoom(state.value.childQuery) },
                 onSuccess = { res ->
-                    if (res != null) updateState {
-                        it.copy(
-                            selectedChildren = it.selectedChildren + res,
-                            childQuery = ""
-                        )
+                    if (res != null) {
+                        val isAlreadyAdded = state.value.selectedChildren.any { it.id == res.id }
+                        if (isAlreadyAdded) {
+                            updateState {
+                                it.copy(
+                                    isChildLoading = false,
+                                    childQuery = "",
+                                    childError = UiText.StringRes(Res.string.error_child_already_added)
+                                )
+                            }
+                        } else {
+                            updateState {
+                                it.copy(
+                                    isChildLoading = false,
+                                    selectedChildren = it.selectedChildren + res,
+                                    childQuery = "",
+                                    childError = null
+                                )
+                            }
+                        }
+                    } else {
+                        updateState { it.copy(isChildLoading = false) }
                     }
                 },
                 onError = { throwable ->
+                    updateState { it.copy(isChildLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_child),
                         message = getLocalizedErrorMessage(throwable),
@@ -1182,15 +1371,30 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onToggleStagesSheet(visible: Boolean) {
+        if (visible && state.value.educationalStages.isEmpty() && !state.value.isStageLoading && !state.value.isStageLoadFailed) {
+            onLoadNextEducationalStages()
+        }
         updateState { it.copy(isStagesSheetVisible = visible) }
     }
 
     override fun onLoadNextEducationalStages() {
+        updateState { it.copy(isStageLoadFailed = false) }
         stagesPaginator.loadNextItems()
     }
 
+    override fun onRetryLoadEducationalStages() {
+        updateState { it.copy(isStageLoadFailed = false) }
+        stagesPaginator.reset()
+    }
+
     override fun onLoadNextRanks() {
+        updateState { it.copy(isRankLoadFailed = false) }
         ranksPaginator.loadNextItems()
+    }
+
+    override fun onRetryLoadRanks() {
+        updateState { it.copy(isRankLoadFailed = false) }
+        ranksPaginator.reset()
     }
 
     override fun onNotesChanged(value: String) {

@@ -20,6 +20,10 @@ interface ReviewAndEditRequestInteractionListener {
 
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
+    fun onDismissImageViewer() {}
+    fun onDismissPdfViewer() {}
+    fun onClickOrdinationCertificate() {}
+    fun onClickIdentityCertificate() {}
     fun onCodeChanged(value: String)
     fun onFirstNameChanged(value: String)
     fun onSecondNameChanged(value: String)
@@ -72,9 +76,11 @@ interface ReviewAndEditRequestInteractionListener {
     fun onToggleFatherDeceased(deceased: Boolean)
     fun onFatherPhoneChange(value: String)
     fun onFatherWhatsappChange(value: String)
+    fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
     fun onToggleMotherDeceased(deceased: Boolean)
     fun onMotherPhoneChange(value: String)
     fun onMotherWhatsappChange(value: String)
+    fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
 
     fun onToggleServantStageSelection(stage: LookupResponse)
     fun onToggleServantStageSheet(visible: Boolean)
@@ -96,7 +102,11 @@ interface ReviewAndEditRequestInteractionListener {
     fun onToggleEducationalStageSelection(stage: LookupResponse)
     fun onToggleStagesSheet(visible: Boolean)
     fun onLoadNextEducationalStages()
+    fun onRetryLoadEducationalStages()
     fun onLoadNextRanks()
+    fun onRetryLoadRanks()
+    fun onRetryLoadPriests()
+    fun onRetryLoadAreas()
 
     fun onNotesChanged(value: String)
 }

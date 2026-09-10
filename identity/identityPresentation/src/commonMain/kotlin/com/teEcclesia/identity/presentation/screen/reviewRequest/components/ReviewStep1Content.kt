@@ -171,6 +171,9 @@ fun ReviewStep1Content(
                 externalPriestChurchError = state.externalPriestChurchError?.asString(),
                 externalPriestPhone = state.confessionPriestPhone,
                 externalPriestPhoneError = state.externalPriestPhoneError?.asString(),
+                isPriestLoading = state.isPriestLoading,
+                isPriestLoadFailed = state.isPriestLoadFailed,
+                onRetryLoadPriests = listener::onRetryLoadPriests,
                 onTogglePriestSheet = listener::onTogglePriestSheet,
                 onSelectConfessionPriest = listener::onSelectConfessionPriest,
                 onSelectFromAnotherChurch = listener::onSelectFromAnotherChurch,
@@ -242,6 +245,9 @@ fun ReviewStep1Content(
                 onToggleAreaSheet = listener::onToggleAreaSheet,
                 onSelectArea = listener::onSelectArea,
                 areaError = state.areaError?.asString(),
+                isAreaLoading = state.isAreaLoading,
+                isAreaLoadFailed = state.isAreaLoadFailed,
+                onRetryLoadAreas = listener::onRetryLoadAreas,
                 floor = state.floor,
                 onFloorChange = listener::onFloorChanged,
                 floorError = state.floorError?.asString(),
@@ -313,6 +319,7 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
+        override fun onDismissImageViewer() {}
 
         override fun onSelectImageBytes(
             target: UploadTarget,
@@ -362,7 +369,11 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}
+        override fun onRetryLoadEducationalStages() {}
         override fun onLoadNextRanks() {}
+        override fun onRetryLoadRanks() {}
+        override fun onRetryLoadPriests() {}
+        override fun onRetryLoadAreas() {}
 
         override fun onNotesChanged(value: String) {}
     }

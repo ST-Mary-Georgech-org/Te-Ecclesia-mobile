@@ -7,11 +7,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -25,13 +27,16 @@ import com.teEcclesia.identity.presentation.screen.register.components.FilePicke
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.father_deceased
+import teecclesia.designsystem.generated.resources.father_info
 import teecclesia.designsystem.generated.resources.father_phone
 import teecclesia.designsystem.generated.resources.father_whatsapp
+import teecclesia.designsystem.generated.resources.file_identity_card
 import teecclesia.designsystem.generated.resources.mother_deceased
+import teecclesia.designsystem.generated.resources.mother_info
 import teecclesia.designsystem.generated.resources.mother_phone
 import teecclesia.designsystem.generated.resources.mother_whatsapp
 import teecclesia.designsystem.generated.resources.upload_identity_card
-import teecclesia.designsystem.generated.resources.file_identity_card
+import teecclesia.designsystem.generated.resources.whatsapp
 
 @Composable
 fun ParentsContactFields(
@@ -43,6 +48,8 @@ fun ParentsContactFields(
     fatherWhatsapp: String,
     onFatherWhatsappChange: (String) -> Unit,
     fatherWhatsappError: String?,
+    isFatherWhatsappSameAsPhone: Boolean = true,
+    onToggleFatherWhatsappSameAsPhone: (Boolean) -> Unit = {},
     isMotherDeceased: Boolean,
     onToggleMotherDeceased: (Boolean) -> Unit,
     motherPhone: String,
@@ -51,6 +58,8 @@ fun ParentsContactFields(
     motherWhatsapp: String,
     onMotherWhatsappChange: (String) -> Unit,
     motherWhatsappError: String?,
+    isMotherWhatsappSameAsPhone: Boolean = true,
+    onToggleMotherWhatsappSameAsPhone: (Boolean) -> Unit = {},
     identityCertificateFileName: String? = null,
     identityCertificateError: String? = null,
     onUploadIdentityCertificate: () -> Unit = {},
@@ -64,6 +73,13 @@ fun ParentsContactFields(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
+        Text(
+            text = stringResource(Res.string.father_info),
+            style = Theme.typography.titleMedium,
+            color = Theme.colorScheme.onBackground,
+            modifier = Modifier.padding(top = 4.dp)
+        )
+
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
                 checked = isFatherDeceased,
@@ -82,31 +98,74 @@ fun ParentsContactFields(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CustomTextField(
-                    value = fatherPhone,
-                    onValueChange = onFatherPhoneChange,
-                    labelText = stringResource(Res.string.father_phone),
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    prefixText = if (!isRtl) { "+2" } else null,
-                    suffixText = if (isRtl) { "+2" } else null,
-                    errorText = fatherPhoneError,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CustomTextField(
+                        value = fatherPhone,
+                        onValueChange = onFatherPhoneChange,
+                        labelText = stringResource(Res.string.father_phone),
+                        modifier = Modifier.weight(1f),
+                        prefixText = if (!isRtl) { "+2" } else null,
+                        suffixText = if (isRtl) { "+2" } else null,
+                        errorText = fatherPhoneError,
+                        textStyle = Theme.typography.bodyLarge.copy(
+                            textDirection = TextDirection.Ltr
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    )
 
-                CustomTextField(
-                    value = fatherWhatsapp,
-                    onValueChange = onFatherWhatsappChange,
-                    labelText = stringResource(Res.string.father_whatsapp),
-                    modifier = Modifier.fillMaxWidth(),
-                    errorText = fatherWhatsappError,
-                    prefixText = if (!isRtl) { "+2" } else null,
-                    suffixText = if (isRtl) { "+2" } else null,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clickableNoRipple { onToggleFatherWhatsappSameAsPhone(!isFatherWhatsappSameAsPhone) }
+                    ) {
+                        Checkbox(
+                            checked = isFatherWhatsappSameAsPhone,
+                            onCheckedChange = onToggleFatherWhatsappSameAsPhone
+                        )
+                        Text(
+                            text = stringResource(Res.string.whatsapp),
+                            style = Theme.typography.labelSmall,
+                            color = if (isFatherWhatsappSameAsPhone) Theme.colorScheme.primary else Theme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                AnimatedVisibility(visible = !isFatherWhatsappSameAsPhone) {
+                    CustomTextField(
+                        value = fatherWhatsapp,
+                        onValueChange = onFatherWhatsappChange,
+                        labelText = stringResource(Res.string.father_whatsapp),
+                        modifier = Modifier.fillMaxWidth(),
+                        errorText = fatherWhatsappError,
+                        prefixText = if (!isRtl) { "+2" } else null,
+                        suffixText = if (isRtl) { "+2" } else null,
+                        singleLine = true,
+                        textStyle = Theme.typography.bodyLarge.copy(
+                            textDirection = TextDirection.Ltr
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    )
+                }
             }
         }
+
+        HorizontalDivider(
+            color = Theme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+            modifier = Modifier.padding(vertical = 4.dp)
+        )
+
+        Text(
+            text = stringResource(Res.string.mother_info),
+            style = Theme.typography.titleMedium,
+            color = Theme.colorScheme.onBackground,
+            modifier = Modifier.padding(top = 4.dp)
+        )
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Checkbox(
@@ -126,29 +185,60 @@ fun ParentsContactFields(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                CustomTextField(
-                    value = motherPhone,
-                    onValueChange = onMotherPhoneChange,
-                    labelText = stringResource(Res.string.mother_phone),
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    errorText = motherPhoneError,
-                    prefixText = if (!isRtl) { "+2" } else null,
-                    suffixText = if (isRtl) { "+2" } else null,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    CustomTextField(
+                        value = motherPhone,
+                        onValueChange = onMotherPhoneChange,
+                        labelText = stringResource(Res.string.mother_phone),
+                        modifier = Modifier.weight(1f),
+                        errorText = motherPhoneError,
+                        prefixText = if (!isRtl) { "+2" } else null,
+                        suffixText = if (isRtl) { "+2" } else null,
+                        singleLine = true,
+                        textStyle = Theme.typography.bodyLarge.copy(
+                            textDirection = TextDirection.Ltr
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    )
 
-                CustomTextField(
-                    value = motherWhatsapp,
-                    onValueChange = onMotherWhatsappChange,
-                    labelText = stringResource(Res.string.mother_whatsapp),
-                    modifier = Modifier.fillMaxWidth(),
-                    errorText = motherWhatsappError,
-                    prefixText = if (!isRtl) { "+2" } else null,
-                    suffixText = if (isRtl) { "+2" } else null,
-                    singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-                )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                            .clickableNoRipple { onToggleMotherWhatsappSameAsPhone(!isMotherWhatsappSameAsPhone) }
+                    ) {
+                        Checkbox(
+                            checked = isMotherWhatsappSameAsPhone,
+                            onCheckedChange = onToggleMotherWhatsappSameAsPhone
+                        )
+                        Text(
+                            text = stringResource(Res.string.whatsapp),
+                            style = Theme.typography.labelSmall,
+                            color = if (isMotherWhatsappSameAsPhone) Theme.colorScheme.primary else Theme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                AnimatedVisibility(visible = !isMotherWhatsappSameAsPhone) {
+                    CustomTextField(
+                        value = motherWhatsapp,
+                        onValueChange = onMotherWhatsappChange,
+                        labelText = stringResource(Res.string.mother_whatsapp),
+                        modifier = Modifier.fillMaxWidth(),
+                        errorText = motherWhatsappError,
+                        prefixText = if (!isRtl) { "+2" } else null,
+                        suffixText = if (isRtl) { "+2" } else null,
+                        singleLine = true,
+                        textStyle = Theme.typography.bodyLarge.copy(
+                            textDirection = TextDirection.Ltr
+                        ),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+                    )
+                }
             }
         }
 
@@ -183,6 +273,8 @@ private fun ParentsContactFieldsPreview() {
                 fatherWhatsapp = "",
                 onFatherWhatsappChange = {},
                 fatherWhatsappError = null,
+                isFatherWhatsappSameAsPhone = true,
+                onToggleFatherWhatsappSameAsPhone = {},
                 isMotherDeceased = false,
                 onToggleMotherDeceased = {},
                 motherPhone = "",
@@ -191,6 +283,8 @@ private fun ParentsContactFieldsPreview() {
                 motherWhatsapp = "",
                 onMotherWhatsappChange = {},
                 motherWhatsappError = null,
+                isMotherWhatsappSameAsPhone = true,
+                onToggleMotherWhatsappSameAsPhone = {},
                 identityCertificateFileName = null,
                 onUploadIdentityCertificate = {},
                 onClearIdentityCertificate = {}

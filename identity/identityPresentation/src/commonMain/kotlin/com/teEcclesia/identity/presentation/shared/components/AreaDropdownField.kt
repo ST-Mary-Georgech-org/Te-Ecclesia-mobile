@@ -18,6 +18,7 @@ import com.teEcclesia.designsystem.utils.Preview
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.area
+import teecclesia.designsystem.generated.resources.failed_to_load_areas
 
 @Composable
 fun AreaDropdownField(
@@ -28,6 +29,9 @@ fun AreaDropdownField(
     onToggleAreaSheet: (Boolean) -> Unit,
     onSelectArea: (String) -> Unit,
     errorText: String?,
+    isAreaLoading: Boolean = false,
+    isAreaLoadFailed: Boolean = false,
+    onRetryLoadAreas: () -> Unit = {},
     modifier: Modifier = Modifier,
     imeAction: ImeAction = ImeAction.Next
 ) {
@@ -43,24 +47,32 @@ fun AreaDropdownField(
         )
 
         DropdownMenu(
-            expanded = isAreaSheetVisible && areas.isNotEmpty(),
+            expanded = isAreaSheetVisible && (areas.isNotEmpty() || isAreaLoading || isAreaLoadFailed),
             onDismissRequest = { onToggleAreaSheet(false) },
             properties = PopupProperties(focusable = false),
             modifier = Modifier.fillMaxWidth(0.9f)
         ) {
-            areas.forEach { areaItem ->
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = areaItem,
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onSurface
-                        )
-                    },
-                    onClick = {
-                        onSelectArea(areaItem)
-                    }
-                )
+            LookupContentContainer(
+                isLoading = isAreaLoading,
+                isError = isAreaLoadFailed,
+                isEmpty = areas.isEmpty(),
+                errorMessage = stringResource(Res.string.failed_to_load_areas),
+                onRetry = onRetryLoadAreas
+            ) {
+                areas.forEach { areaItem ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = areaItem,
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            onSelectArea(areaItem)
+                        }
+                    )
+                }
             }
         }
     }

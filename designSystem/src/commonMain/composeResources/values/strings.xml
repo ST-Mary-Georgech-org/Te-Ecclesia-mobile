@@ -23,7 +23,7 @@
     <string name="register">Register</string>
 
     <string name="dont_have_an_account">Don&apos;t have an account?</string>
-    <string name="password">Your Password</string>
+    <string name="password">Password</string>
     <string name="forget_your_password">Forgot your password?</string>
     <string name="already_have_an_account">Already have an account?</string>
     <string name="verify_your_phone">Verify your Phone</string>
@@ -124,6 +124,10 @@
     <string name="mother_deceased">Mother Deceased?</string>
     <string name="mother_phone">Mother Phone</string>
     <string name="mother_whatsapp">Mother WhatsApp</string>
+    <string name="father_info">Father&apos;s Details</string>
+    <string name="mother_info">Mother&apos;s Details</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="same_as_whatsapp_number">Same as WhatsApp number</string>
 
     <string name="partner">Partner</string>
     <string name="search_partner">Search Partner</string>
@@ -133,6 +137,7 @@
     <string name="search_child_support_text">Search by child's code or national ID, then press (+)</string>
     <string name="error_forgot_to_click_plus_partner">You typed text in partner search, please click (+) to add partner first</string>
     <string name="error_forgot_to_click_plus_child">You typed text in child search, please click (+) to add child first</string>
+    <string name="error_child_already_added">Child has already been added</string>
     <string name="upload_ordination_certificate">Upload Ordination Certificate (Optional)</string>
     <string name="upload_identity_card">Upload National ID Card (Optional)</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>
@@ -143,6 +148,7 @@
     <string name="take_photo">Take Photo</string>
     <string name="from_gallery">From Gallery</string>
     <string name="from_files">From Files</string>
+    <string name="view_photo">View Photo</string>
     <string name="account_and_contact">Account &amp; Contact</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -157,6 +163,8 @@
     <string name="failed_to_search_child">Failed to Search Child</string>
     <string name="failed_to_verify_whatsapp">WhatsApp Verification Failed</string>
     <string name="failed_to_login">Login Failed</string>
+    <string name="failed_to_load_data">An error occurred while loading data</string>
+    <string name="retry">Retry</string>
 
     <string name="error_account_already_exists">An account with this phone number, username, or national ID already exists</string>
     <string name="error_no_internet">No internet connection. Please check your network.</string>

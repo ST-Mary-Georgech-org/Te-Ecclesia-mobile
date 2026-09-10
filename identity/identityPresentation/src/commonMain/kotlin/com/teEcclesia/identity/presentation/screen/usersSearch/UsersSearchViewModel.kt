@@ -80,24 +80,26 @@ class UsersSearchViewModel(
         onSuccess = { items ->
             updateState { current ->
                 current.copy(
-                    stages = current.stages + items.data
+                    stages = current.stages + items.data,
+                    isStageLoadFailed = false
                 )
             }
         },
-        onLoadUpdated = { _ -> },
+        onLoadUpdated = { loading ->
+            updateState { it.copy(isStageLoading = loading) }
+        },
         onReset = {
-            updateState { it.copy(stages = emptyList()) }
+            updateState { it.copy(stages = emptyList(), isStageLoadFailed = false) }
         },
-        onError = { throwable ->
-            throwable?.let { t ->
-                showSnackBar(
-                    title = UiText.StringRes(Res.string.failed_to_load_educational_stages),
-                    message = getLocalizedErrorMessage(t),
-                    isSuccess = false
-                )
-            }
+        onError = { _ ->
+            updateState { it.copy(isStageLoadFailed = true) }
         }
     )
+
+    override fun onRetryLoadStages() {
+        updateState { it.copy(isStageLoadFailed = false) }
+        stagesPaginator.reset()
+    }
 
     init {
         initializeFiltersAndLoadUsers()

@@ -37,7 +37,10 @@ fun ReviewStep2KahenContent(
                 onToggleSheet = listener::onToggleStagesSheet,
                 onSelectStage = listener::onToggleEducationalStageSelection,
                 label = stringResource(Res.string.educational_stages),
-                onLoadNextStages = listener::onLoadNextEducationalStages
+                onLoadNextStages = listener::onLoadNextEducationalStages,
+                isStageLoading = state.isStageLoading,
+                isStageLoadFailed = state.isStageLoadFailed,
+                onRetryLoadStages = listener::onRetryLoadEducationalStages
             )
         }
     }

@@ -47,5 +47,6 @@ interface ProfileRepository {
         sortBy: String = "createdAt",
         sortOrder: String = "DESC"
     ): PagedData<ProfileResponse>
+    suspend fun downloadFile(url: String): ByteArray
 }
 
