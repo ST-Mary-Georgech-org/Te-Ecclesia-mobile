@@ -351,7 +351,7 @@ private fun UserCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = user.displayName,
+                    text = user.fullName,
                     style = Theme.typography.bodyMedium,
                     color = Theme.colorScheme.onSecondaryContainer
                 )

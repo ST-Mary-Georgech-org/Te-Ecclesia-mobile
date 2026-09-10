@@ -8,7 +8,9 @@ import kotlinx.serialization.Serializable
 data class UserSummaryDto(
     @SerialName("id") val id: String,
     @SerialName("code") val code: String? = null,
-    @SerialName("name") val name: String,
+    @SerialName("fullName") val fullName: String? = null,
+    @SerialName("name") val name: String? = null,
+    @SerialName("displayName") val displayName: String? = null,
     @SerialName("imageUrl") val imageUrl: String? = null
 )
 
@@ -16,7 +18,7 @@ fun UserSummaryDto.toDomain(): UserSummary {
     return UserSummary(
         id = id,
         code = code,
-        name = name,
+        name = fullName ?: name ?: displayName ?: "",
         imageUrl = imageUrl
     )
 }
