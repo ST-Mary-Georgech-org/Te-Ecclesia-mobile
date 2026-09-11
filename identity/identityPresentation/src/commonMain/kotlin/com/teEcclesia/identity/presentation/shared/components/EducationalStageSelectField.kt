@@ -32,10 +32,50 @@ import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import teecclesia.designsystem.generated.resources.ic_chevron_down
+import teecclesia.designsystem.generated.resources.no_stage
 import teecclesia.designsystem.generated.resources.ok
 
 /**
- * Single-select Educational Stage field overload.
+ * Single-select Educational Stage field overload (with optional clear support).
+ */
+@Composable
+fun EducationalStageSelectField(
+    selectedStage: LookupResponse?,
+    educationalStages: List<LookupResponse>,
+    isSheetVisible: Boolean,
+    onToggleSheet: (Boolean) -> Unit,
+    onSelectStage: (LookupResponse?) -> Unit,
+    label: String = stringResource(Res.string.educational_stage),
+    allowClear: Boolean = false,
+    onLoadNextStages: () -> Unit = {},
+    isStageLoading: Boolean = false,
+    isStageLoadFailed: Boolean = false,
+    onRetryLoadStages: () -> Unit = {},
+    errorText: String? = null,
+    modifier: Modifier = Modifier
+) {
+    EducationalStageSelectContent(
+        displayValue = selectedStage?.name ?: "",
+        label = label,
+        educationalStages = educationalStages,
+        isMultiSelect = false,
+        isSelected = { stage -> selectedStage?.id == stage.id },
+        isNoneSelected = selectedStage == null,
+        allowClear = allowClear,
+        isSheetVisible = isSheetVisible,
+        onToggleSheet = onToggleSheet,
+        onSelectStage = onSelectStage,
+        onLoadNextStages = onLoadNextStages,
+        isStageLoading = isStageLoading,
+        isStageLoadFailed = isStageLoadFailed,
+        onRetryLoadStages = onRetryLoadStages,
+        errorText = errorText,
+        modifier = modifier
+    )
+}
+
+/**
+ * Single-select Educational Stage field overload (mandatory selection).
  */
 @Composable
 fun EducationalStageSelectField(
@@ -52,15 +92,14 @@ fun EducationalStageSelectField(
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
-    EducationalStageSelectContent(
-        displayValue = selectedStage?.name ?: "",
-        label = label,
+    EducationalStageSelectField(
+        selectedStage = selectedStage,
         educationalStages = educationalStages,
-        isMultiSelect = false,
-        isSelected = { stage -> selectedStage?.id == stage.id },
         isSheetVisible = isSheetVisible,
         onToggleSheet = onToggleSheet,
-        onSelectStage = onSelectStage,
+        onSelectStage = { stage -> if (stage != null) onSelectStage(stage) },
+        label = label,
+        allowClear = false,
         onLoadNextStages = onLoadNextStages,
         isStageLoading = isStageLoading,
         isStageLoadFailed = isStageLoadFailed,
@@ -94,9 +133,11 @@ fun EducationalStageSelectField(
         educationalStages = educationalStages,
         isMultiSelect = true,
         isSelected = { stage -> selectedStages.any { it.id == stage.id } },
+        isNoneSelected = false,
+        allowClear = false,
         isSheetVisible = isSheetVisible,
         onToggleSheet = onToggleSheet,
-        onSelectStage = onSelectStage,
+        onSelectStage = { stage -> if (stage != null) onSelectStage(stage) },
         onLoadNextStages = onLoadNextStages,
         isStageLoading = isStageLoading,
         isStageLoadFailed = isStageLoadFailed,
@@ -113,9 +154,11 @@ private fun EducationalStageSelectContent(
     educationalStages: List<LookupResponse>,
     isMultiSelect: Boolean,
     isSelected: (LookupResponse) -> Boolean,
+    isNoneSelected: Boolean,
+    allowClear: Boolean,
     isSheetVisible: Boolean,
     onToggleSheet: (Boolean) -> Unit,
-    onSelectStage: (LookupResponse) -> Unit,
+    onSelectStage: (LookupResponse?) -> Unit,
     onLoadNextStages: () -> Unit,
     isStageLoading: Boolean,
     isStageLoadFailed: Boolean,
@@ -152,7 +195,7 @@ private fun EducationalStageSelectContent(
             LookupContentContainer(
                 isLoading = isStageLoading,
                 isError = isStageLoadFailed,
-                isEmpty = educationalStages.isEmpty(),
+                isEmpty = educationalStages.isEmpty() && !allowClear,
                 errorMessage = stringResource(Res.string.failed_to_load_educational_stages),
                 onRetry = onRetryLoadStages
             ) {
@@ -193,8 +236,32 @@ private fun EducationalStageSelectContent(
                             Text(
                                 text = stage.name,
                                 style = Theme.typography.bodyLarge,
-                                color = Theme.colorScheme.onSurface
+                                color = if (!isMultiSelect && selected) Theme.colorScheme.primary else Theme.colorScheme.onSurface
                             )
+                        }
+                    }
+
+                    if (allowClear) {
+                        item(key = "no_stage_option") {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickableNoRipple {
+                                        onSelectStage(null)
+                                        if (!isMultiSelect) {
+                                            onToggleSheet(false)
+                                        }
+                                    }
+                                    .padding(vertical = 12.dp, horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.no_stage),
+                                    style = Theme.typography.bodyLarge,
+                                    color = if (isNoneSelected) Theme.colorScheme.primary else Theme.colorScheme.onSurface
+                                )
+                            }
                         }
                     }
                 }

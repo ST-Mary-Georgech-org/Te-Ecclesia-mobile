@@ -10,7 +10,7 @@ interface ServicesListInteractionListener {
     fun onClickEditService(service: ChurchService)
     fun onClickDeleteService(service: ChurchService)
     fun onServiceNameChanged(name: String)
-    fun onStageSelected(stage: LookupResponse?)
+    fun onToggleStageSelection(stage: LookupResponse)
     fun onToggleStageSheet(visible: Boolean)
     fun onLoadNextStages()
     fun onRetryLoadStages()

@@ -69,6 +69,7 @@ import teecclesia.designsystem.generated.resources.confirm
 import teecclesia.designsystem.generated.resources.confirm_delete_service
 import teecclesia.designsystem.generated.resources.delete
 import teecclesia.designsystem.generated.resources.edit_service
+import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.ic_arrow_right
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.ic_close
@@ -246,12 +247,30 @@ private fun ServicesListContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.educational_stage),
+                        style = Theme.typography.labelMedium,
+                        color = Theme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = "${state.selectedStages.size}/10",
+                        style = Theme.typography.labelSmall,
+                        color = if (state.selectedStages.size >= 10) Theme.colorScheme.error else Theme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+
                 EducationalStageSelectField(
-                    selectedStage = state.selectedStage,
+                    selectedStages = state.selectedStages,
                     educationalStages = state.educationalStages,
                     isSheetVisible = state.isStageSheetVisible,
                     onToggleSheet = listener::onToggleStageSheet,
-                    onSelectStage = { listener.onStageSelected(it) },
+                    onSelectStage = listener::onToggleStageSelection,
                     label = stringResource(Res.string.select_educational_stage_optional),
                     onLoadNextStages = listener::onLoadNextStages,
                     isStageLoading = state.isStageLoading,
@@ -465,15 +484,15 @@ private fun ServiceCard(
                     style = Theme.typography.titleMedium,
                     color = Theme.colorScheme.onSurface
                 )
-                val stageName = service.educationalStageName
-                if (!stageName.isNullOrBlank()) {
+                val stagesText = service.educationalStages.joinToString("، ") { it.name }
+                if (stagesText.isNotBlank()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = Theme.colorScheme.primaryContainer
                     ) {
                         Text(
-                            text = stageName,
+                            text = stagesText,
                             style = Theme.typography.labelSmall,
                             color = Theme.colorScheme.onPrimaryContainer,
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -522,8 +541,7 @@ private fun ServicesListPreview() = Theme {
                     name = "خدمة ابتدائي",
                     createdAt = getNow(),
                     isResponsible = true,
-                    educationalStageId = null,
-                    educationalStageName = null,
+                    educationalStages = emptyList(),
                     responsibleServants = emptyList()
                 ),
                 ChurchService(
@@ -531,8 +549,13 @@ private fun ServicesListPreview() = Theme {
                     name = "خدمة إعدادي",
                     createdAt = getNow(),
                     isResponsible = false,
-                    educationalStageId = 1L,
-                    educationalStageName = "إعدادي",
+                    educationalStages = listOf(
+                        LookupResponse(
+                            id = 1L,
+                            name = "إعدادي",
+                            subItems = emptyList()
+                        )
+                    ),
                     responsibleServants = emptyList()
                 )
             )
@@ -542,7 +565,7 @@ private fun ServicesListPreview() = Theme {
             override fun onClickEditService(service: ChurchService) {}
             override fun onClickDeleteService(service: ChurchService) {}
             override fun onServiceNameChanged(name: String) {}
-            override fun onStageSelected(stage: LookupResponse?) {}
+            override fun onToggleStageSelection(stage: LookupResponse) {}
             override fun onToggleStageSheet(visible: Boolean) {}
             override fun onLoadNextStages() {}
             override fun onRetryLoadStages() {}

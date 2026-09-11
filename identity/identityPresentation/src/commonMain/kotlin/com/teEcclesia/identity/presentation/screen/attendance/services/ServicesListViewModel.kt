@@ -21,6 +21,7 @@ import teecclesia.designsystem.generated.resources.failed_to_delete_service
 import teecclesia.designsystem.generated.resources.failed_to_load_services
 import teecclesia.designsystem.generated.resources.failed_to_save_service
 import teecclesia.designsystem.generated.resources.maximum_servants_reached
+import teecclesia.designsystem.generated.resources.maximum_stages_reached
 import kotlin.time.Duration.Companion.milliseconds
 
 class ServicesListViewModel(
@@ -159,7 +160,7 @@ class ServicesListViewModel(
                 isAddEditSheetOpen = true,
                 editingService = null,
                 serviceNameInput = "",
-                selectedStage = null,
+                selectedStages = emptyList(),
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
@@ -169,20 +170,12 @@ class ServicesListViewModel(
     }
 
     override fun onClickEditService(service: ChurchService) {
-        val stage = state.value.educationalStages.firstOrNull { it.id == service.educationalStageId }
-            ?: service.educationalStageId?.let {
-                LookupResponse(
-                    id = it,
-                    name = service.educationalStageName ?: "",
-                    subItems = emptyList()
-                )
-            }
         updateState {
             copy(
                 isAddEditSheetOpen = true,
                 editingService = service,
                 serviceNameInput = service.name,
-                selectedStage = stage,
+                selectedStages = service.educationalStages,
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
@@ -204,8 +197,22 @@ class ServicesListViewModel(
         updateState { copy(serviceNameInput = name) }
     }
 
-    override fun onStageSelected(stage: LookupResponse?) {
-        updateState { copy(selectedStage = stage, isStageSheetVisible = false) }
+    override fun onToggleStageSelection(stage: LookupResponse) {
+        val currentStages = state.value.selectedStages
+        val isAlreadySelected = currentStages.any { it.id == stage.id }
+        if (isAlreadySelected) {
+            updateState { copy(selectedStages = currentStages.filter { it.id != stage.id }) }
+        } else {
+            if (currentStages.size >= 10) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_save_service),
+                    message = UiText.StringRes(Res.string.maximum_stages_reached),
+                    isSuccess = false
+                )
+                return
+            }
+            updateState { copy(selectedStages = currentStages + stage) }
+        }
     }
 
     override fun onServantSearchQueryChanged(query: String) {
@@ -290,7 +297,7 @@ class ServicesListViewModel(
         if (input.isBlank()) return
 
         val editing = state.value.editingService
-        val stageId = state.value.selectedStage?.id
+        val stageIds = state.value.selectedStages.map { it.id }
         val servantIds = state.value.selectedServants.map { it.id }
 
         tryToCall(
@@ -299,14 +306,14 @@ class ServicesListViewModel(
                 if (editing == null) {
                     attendanceRepository.createService(
                         name = input,
-                        educationalStageId = stageId,
+                        educationalStageIds = stageIds,
                         responsibleServantIds = servantIds
                     )
                 } else {
                     attendanceRepository.updateService(
                         id = editing.id,
                         name = input,
-                        educationalStageId = stageId,
+                        educationalStageIds = stageIds,
                         responsibleServantIds = servantIds
                     )
                 }
@@ -352,7 +359,7 @@ class ServicesListViewModel(
                 isAddEditSheetOpen = false,
                 editingService = null,
                 serviceNameInput = "",
-                selectedStage = null,
+                selectedStages = emptyList(),
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),

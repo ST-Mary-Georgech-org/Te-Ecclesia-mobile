@@ -10,8 +10,8 @@ import kotlinx.datetime.LocalTime
 
 interface AttendanceRepository {
     suspend fun getServices(page: Int, size: Int = 20): PagedData<ChurchService>
-    suspend fun createService(name: String, educationalStageId: Long?, responsibleServantIds: List<String>): ChurchService
-    suspend fun updateService(id: Long, name: String, educationalStageId: Long?, responsibleServantIds: List<String>): ChurchService
+    suspend fun createService(name: String, educationalStageIds: List<Long>, responsibleServantIds: List<String>): ChurchService
+    suspend fun updateService(id: Long, name: String, educationalStageIds: List<Long>, responsibleServantIds: List<String>): ChurchService
     suspend fun deleteService(id: Long)
 
     suspend fun getEvents(serviceId: Long, page: Int, size: Int = 20): PagedData<ServiceEvent>

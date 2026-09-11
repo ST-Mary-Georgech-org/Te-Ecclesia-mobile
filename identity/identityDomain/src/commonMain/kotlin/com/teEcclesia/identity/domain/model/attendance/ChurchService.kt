@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.domain.model.attendance
 
+import com.teEcclesia.lookups.domain.model.LookupResponse
 import kotlinx.datetime.LocalDateTime
 
 data class ChurchService(
@@ -7,7 +8,6 @@ data class ChurchService(
     val name: String,
     val createdAt: LocalDateTime,
     val isResponsible: Boolean,
-    val educationalStageId: Long?,
-    val educationalStageName: String?,
+    val educationalStages: List<LookupResponse>,
     val responsibleServants: List<ResponsibleServant>
 )

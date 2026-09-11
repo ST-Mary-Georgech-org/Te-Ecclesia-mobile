@@ -17,7 +17,7 @@ data class ServicesListUiState(
     val editingService: ChurchService? = null,
     val serviceNameInput: String = "",
     val educationalStages: List<LookupResponse> = emptyList(),
-    val selectedStage: LookupResponse? = null,
+    val selectedStages: List<LookupResponse> = emptyList(),
     val isStageSheetVisible: Boolean = false,
     val isStageLoading: Boolean = false,
     val isStageLoadFailed: Boolean = false,
