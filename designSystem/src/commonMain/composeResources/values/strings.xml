@@ -358,4 +358,5 @@
     <string name="select_educational_stage_optional">Educational Stage (Optional)</string>
     <string name="no_stage">None</string>
     <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
+    <string name="maximum_stages_reached">Cannot select more than 10 educational stages</string>
 </resources>

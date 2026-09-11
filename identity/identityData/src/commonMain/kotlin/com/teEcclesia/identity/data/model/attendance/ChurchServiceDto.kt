@@ -1,6 +1,8 @@
 package com.teEcclesia.identity.data.model.attendance
 
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
+import com.teEcclesia.lookups.data.dataSource.remote.dto.LookupResponseDto
+import com.teEcclesia.lookups.data.dataSource.remote.dto.toDomain
 import com.teEcclesia.shared.domain.utils.getNow
 import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import kotlinx.serialization.ExperimentalSerializationApi
@@ -18,10 +20,8 @@ data class ChurchServiceDto(
     val createdAt: String,
     @SerialName("responsible")
     val isResponsible: Boolean,
-    @SerialName("educationalStageId")
-    val educationalStageId: Long?,
-    @SerialName("educationalStageName")
-    val educationalStageName: String?,
+    @SerialName("educationalStages")
+    val educationalStages: List<LookupResponseDto> = emptyList(),
     @SerialName("responsibleServants")
     val responsibleServants: List<ResponsibleServantDto>
 )
@@ -32,8 +32,7 @@ fun ChurchServiceDto.toDomain(): ChurchService {
         name = name,
         createdAt = createdAt.toLocalDateTimeOrDefault(),
         isResponsible = isResponsible,
-        educationalStageId = educationalStageId,
-        educationalStageName = educationalStageName,
+        educationalStages = educationalStages.map { it.toDomain() },
         responsibleServants = responsibleServants.map { it.toDomain() }
     )
 }
