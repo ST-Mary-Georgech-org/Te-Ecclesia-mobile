@@ -30,6 +30,9 @@ fun EducationalStageFields(
     isYearSheetVisible: Boolean,
     onSelectEducationalYear: (LookupResponse) -> Unit,
     yearError: String?,
+    isStageLoading: Boolean = false,
+    isStageLoadFailed: Boolean = false,
+    onRetryLoadStages: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -43,6 +46,9 @@ fun EducationalStageFields(
             onToggleSheet = onToggleStageSheet,
             onSelectStage = onSelectEducationalStage,
             onLoadNextStages = onLoadNextEducationalStages,
+            isStageLoading = isStageLoading,
+            isStageLoadFailed = isStageLoadFailed,
+            onRetryLoadStages = onRetryLoadStages,
             errorText = stageError
         )
 

@@ -40,6 +40,9 @@ fun AddressFieldsSection(
     onToggleAreaSheet: (Boolean) -> Unit,
     onSelectArea: (String) -> Unit,
     areaError: String?,
+    isAreaLoading: Boolean = false,
+    isAreaLoadFailed: Boolean = false,
+    onRetryLoadAreas: () -> Unit = {},
     floor: String,
     onFloorChange: (String) -> Unit,
     floorError: String?,
@@ -90,7 +93,10 @@ fun AddressFieldsSection(
             isAreaSheetVisible = isAreaSheetVisible,
             onToggleAreaSheet = onToggleAreaSheet,
             onSelectArea = onSelectArea,
-            errorText = areaError
+            errorText = areaError,
+            isAreaLoading = isAreaLoading,
+            isAreaLoadFailed = isAreaLoadFailed,
+            onRetryLoadAreas = onRetryLoadAreas
         )
 
         Row(

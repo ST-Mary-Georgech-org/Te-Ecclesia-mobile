@@ -30,6 +30,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.bishop_name
+import teecclesia.designsystem.generated.resources.failed_to_load_ranks
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.no
 import teecclesia.designsystem.generated.resources.ordained
@@ -64,8 +65,11 @@ fun OrdinationInfoFields(
     ordinationCertificateFileName: String? = null,
     onUploadOrdinationCertificate: () -> Unit = {},
     onClearOrdinationCertificate: () -> Unit = {},
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
+    isRankLoading: Boolean = false,
+    isRankLoadFailed: Boolean = false,
+    onRetryLoadRanks: () -> Unit = {},
     filePickerContent: (@Composable () -> Unit)? = null,
+    onFileClickOrdinationCertificate: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -139,20 +143,28 @@ fun OrdinationInfoFields(
                         onDismissRequest = { onToggleRankSheet(false) },
                         modifier = Modifier.fillMaxWidth(0.9f)
                     ) {
-                        ranks.forEach { rank ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        rank.name,
-                                        style = Theme.typography.bodyMedium,
-                                        color = Theme.colorScheme.onBackground
-                                    )
-                                },
-                                onClick = {
-                                    onSelectRank(rank)
-                                    onToggleRankSheet(false)
-                                }
-                            )
+                        LookupContentContainer(
+                            isLoading = isRankLoading,
+                            isError = isRankLoadFailed,
+                            isEmpty = ranks.isEmpty(),
+                            errorMessage = stringResource(Res.string.failed_to_load_ranks),
+                            onRetry = onRetryLoadRanks
+                        ) {
+                            ranks.forEach { rank ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            rank.name,
+                                            style = Theme.typography.bodyMedium,
+                                            color = Theme.colorScheme.onBackground
+                                        )
+                                    },
+                                    onClick = {
+                                        onSelectRank(rank)
+                                        onToggleRankSheet(false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

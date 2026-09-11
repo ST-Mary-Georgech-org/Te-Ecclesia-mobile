@@ -1,5 +1,7 @@
 package com.teEcclesia.identity.presentation.screen.register
 
+import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
+import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 
 import androidx.compose.animation.AnimatedContent
@@ -89,11 +91,22 @@ fun RegisterScreenContent(
     FilePickerBottomSheet(
         isVisible = state.isUploadBottomSheetVisible,
         target = state.activeUploadTarget,
+        canViewPhoto = state.activeUploadTarget == UploadTarget.PROFILE_PHOTO && (state.imageBytes != null || !state.imageUrl.isNullOrBlank()),
         onDismiss = listener::onDismissUploadBottomSheet,
         onOptionSelected = onFileOptionPicked
     )
 
-    val fileOpener = com.teEcclesia.identity.presentation.util.rememberFileOpener()
+    ImageViewerDialog(
+        isVisible = state.isImageViewerVisible,
+        model = state.activeImageViewerModel ?: state.imageBytes ?: state.imageUrl,
+        onDismiss = listener::onDismissImageViewer
+    )
+
+    PdfViewerDialog(
+        isVisible = state.isPdfViewerVisible,
+        pdf = state.activePdfBytes,
+        onDismiss = listener::onDismissPdfViewer
+    )
 
     PullToRefresh(
         isRefreshing = state.isRefreshing,
@@ -173,30 +186,15 @@ fun RegisterScreenContent(
                                 UserRole.MAKHDOOM -> RegisterStep4StudentContent(
                                     state = state,
                                     listener = listener,
-                                    onFileClickOrdinationCertificate = {
-                                        fileOpener.openFile(
-                                            bytes = state.ordinationCertificateBytes,
-                                            fileName = state.ordinationCertificateFileName
-                                        )
-                                    },
-                                    onFileClickIdentityCertificate = {
-                                        fileOpener.openFile(
-                                            bytes = state.identityCertificateBytes,
-                                            fileName = state.identityCertificateFileName
-                                        )
-                                    }
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
+                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
                                 )
                                 UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
                                 UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
                                 UserRole.PARENT -> RegisterStep4ParentContent(
                                     state = state,
                                     listener = listener,
-                                    onFileClickIdentityCertificate = {
-                                        fileOpener.openFile(
-                                            bytes = state.identityCertificateBytes,
-                                            fileName = state.identityCertificateFileName
-                                        )
-                                    }
+                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
                                 )
                                 else -> RegisterStep4ServantContent(state = state, listener = listener)
                             }
@@ -263,11 +261,13 @@ private fun RegisterScreenPreview() {
             override fun onSelectEducationalYear(year: LookupResponse) {  }
             override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
             override fun onToggleFatherDeceased(deceased: Boolean) { state = state.copy(isFatherDeceased = deceased, fatherPhoneError = if (deceased) null else state.fatherPhoneError, fatherWhatsappError = if (deceased) null else state.fatherWhatsappError) }
-            override fun onFatherPhoneChange(value: String) { state = state.copy(fatherPhone = value, fatherPhoneError = null) }
+            override fun onFatherPhoneChange(value: String) { state = state.copy(fatherPhone = value, fatherPhoneError = null, fatherWhatsapp = if (state.isFatherWhatsappSameAsPhone) value else state.fatherWhatsapp) }
             override fun onFatherWhatsappChange(value: String) { state = state.copy(fatherWhatsapp = value, fatherWhatsappError = null) }
+            override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) { state = state.copy(isFatherWhatsappSameAsPhone = isSame, fatherWhatsapp = if (isSame) state.fatherPhone else state.fatherWhatsapp) }
             override fun onToggleMotherDeceased(deceased: Boolean) { state = state.copy(isMotherDeceased = deceased, motherPhoneError = if (deceased) null else state.motherPhoneError, motherWhatsappError = if (deceased) null else state.motherWhatsappError) }
-            override fun onMotherPhoneChange(value: String) { state = state.copy(motherPhone = value, motherPhoneError = null) }
+            override fun onMotherPhoneChange(value: String) { state = state.copy(motherPhone = value, motherPhoneError = null, motherWhatsapp = if (state.isMotherWhatsappSameAsPhone) value else state.motherWhatsapp) }
             override fun onMotherWhatsappChange(value: String) { state = state.copy(motherWhatsapp = value, motherWhatsappError = null) }
+            override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) { state = state.copy(isMotherWhatsappSameAsPhone = isSame, motherWhatsapp = if (isSame) state.motherPhone else state.motherWhatsapp) }
             override fun onPartnerQueryChange(query: String) { state = state.copy(partnerQuery = query) }
             override fun onSearchPartner() {}
             override fun onRemovePartner() { state = state.copy(selectedPartner = null) }
@@ -276,12 +276,17 @@ private fun RegisterScreenPreview() {
             override fun onRemoveChild(child: UserSummary) { state = state.copy(selectedChildren = state.selectedChildren - child) }
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
+            override fun onDismissImageViewer() { state = state.copy(isImageViewerVisible = false) }
             override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
             override fun onRefresh() {}
         }
     }

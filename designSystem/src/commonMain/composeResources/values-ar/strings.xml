@@ -124,6 +124,10 @@
     <string name="mother_deceased">الأم متوفاة؟</string>
     <string name="mother_phone">هاتف الأم</string>
     <string name="mother_whatsapp">واتساب الأم</string>
+    <string name="father_info">بيانات الأب</string>
+    <string name="mother_info">بيانات الأم</string>
+    <string name="whatsapp">واتساب</string>
+    <string name="same_as_whatsapp_number">رقم الواتساب هو نفس الرقم</string>
 
     <string name="partner">الشريك</string>
     <string name="search_partner">البحث عن الشريك</string>
@@ -133,6 +137,7 @@
     <string name="search_child_support_text">ابحث باستخدام الكود الخاص بالابن أو الرقم القومي، ثم اضغط على (+)</string>
     <string name="error_forgot_to_click_plus_partner">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الشريك أولاً</string>
     <string name="error_forgot_to_click_plus_child">لقد قمت بكتابة نص في البحث، يرجى الضغط على (+) لإضافة الابن أولاً</string>
+    <string name="error_child_already_added">تمت إضافة هذا الابن بالفعل</string>
     <string name="upload_ordination_certificate">تحميل شهادة السيامة (اختياري)</string>
     <string name="upload_identity_card">تحميل بطاقة الرقم القومي (اختياري)</string>
     <string name="file_ordination_certificate">شهادة السيامة</string>
@@ -143,6 +148,7 @@
     <string name="take_photo">التقاط صورة</string>
     <string name="from_gallery">من الاستوديو</string>
     <string name="from_files">من الملفات</string>
+    <string name="view_photo">عرض الصورة</string>
     <string name="account_and_contact">الحساب وبيانات الاتصال</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -157,6 +163,8 @@
     <string name="failed_to_search_child">تعذر البحث عن الابن/الابنة</string>
     <string name="failed_to_verify_whatsapp">فشل التحقق عبر الواتساب</string>
     <string name="failed_to_login">فشل تسجيل الدخول</string>
+    <string name="failed_to_load_data">حدث خطأ أثناء تحميل البيانات</string>
+    <string name="retry">إعادة المحاولة</string>
 
     <string name="error_account_already_exists">حساب برقم الهاتف أو اسم المستخدم أو الرقم القومي موجود بالفعل</string>
     <string name="error_no_internet">لا يوجد اتصال بالإنترنت. يرجى التحقق من الشبكة.</string>
@@ -289,4 +297,65 @@
     <string name="push_token_connection_failed">فشل ربط الإشعارات</string>
     <string name="push_token_connection_failed_message">حدثت مشكلة في ربط الهاتف بالخادم لتلقي الإشعارات (قد يكون بسبب عدم توفر خدمات جوجل أو إذن الإشعارات). يرجى التأكد من الإذن وإعادة فتح التطبيق.</string>
     <string name="enable_notifications">تفعيل الإشعارات</string>
+
+    <!-- QR Scanner strings -->
+    <string name="scan_qr_code">مسح رمز الاستجابة السريعة</string>
+    <string name="position_the_qr_code_within_the_frame_to_scan">ضع رمز الاستجابة السريعة داخل الإطار للمسح</string>
+    <string name="permission_required">مطلوب إذن الوصول للكاميرا</string>
+    <string name="camera_permission_message">يرجى منح الإذن للوصول إلى الكاميرا لمسح رمز QR. يمكنك إدارة الأذونات في إعدادات جهازك.</string>
+    <string name="settings">الإعدادات</string>
+
+    <!-- Attendance strings -->
+    <string name="no_registered_attendees">لا يوجد أعضاء مسجلين حتى الآن</string>
+    <string name="failed_to_register_member">فشل تسجيل العضو</string>
+    <string name="failed_to_load_attendees">فشل تحميل قائمة الحضور</string>
+    <string name="user_not_found">المستخدم غير موجود</string>
+    <string name="role_guest">ضيف</string>
+
+    <!-- Last Action Strings -->
+    <string name="last_action_title">آخر إجراء</string>
+    <string name="action_approved_by">تم القبول بواسطة</string>
+    <string name="action_rejected_by">تم الرفض بواسطة</string>
+    <string name="action_banned_by">تم الحظر بواسطة</string>
+    <string name="action_updated_by">تم التعديل بواسطة</string>
+    <string name="action_at">بتاريخ</string>
+
+    <!-- Academic Year Strings -->
+    <string name="academic_year">السنة الدراسية</string>
+    <string name="edit">تعديل</string>
+    <string name="edit_academic_year">تعديل السنة الدراسية</string>
+    <string name="academic_year_confirmation_title">تأكيد تغيير السنة الدراسية</string>
+    <string name="academic_year_confirmation_message">هل أنت متأكد من تغيير السنة الدراسية؟ سيؤدي هذا لتغيير سجلات مدرسة الشمامسة النشطة لكافة المخدومين.</string>
+    <string name="academic_year_updated_successfully">تم تحديث السنة الدراسية بنجاح</string>
+    <string name="failed_to_update_academic_year">فشل تحديث السنة الدراسية</string>
+    <string name="failed_to_load_academic_year">فشل تحميل السنة الدراسية</string>
+    <string name="enter_academic_year">أدخل السنة الدراسية (مثال: 2026)</string>
+    <string name="invalid_academic_year">يرجى إدخال سنة صحيحة بين 2000 و 2100</string>
+
+    <!-- Deacons School Strings -->
+    <string name="enrolled_in_deacons_school">مشترك في مدرسة الشمامسة</string>
+    <string name="payment_status">حالة الدفع</string>
+    <string name="paid">مدفوع</string>
+    <string name="unpaid">غير مدفوع</string>
+    <string name="amount_paid">دفع كام</string>
+    <string name="deacons_school_status">الحالة</string>
+    <string name="status_pending">قيد الانتظار</string>
+    <string name="status_incomplete">غير مكتمل</string>
+    <string name="status_completed">مكتمل</string>
+
+    <!-- Attendance Services & Events Strings -->
+    <string name="failed_to_load_services">فشل تحميل الخدمات</string>
+    <string name="failed_to_save_service">فشل حفظ الخدمة</string>
+    <string name="failed_to_delete_service">فشل حذف الخدمة</string>
+    <string name="failed_to_load_events">فشل تحميل الفعاليات</string>
+    <string name="failed_to_save_event">فشل حفظ الفعالية</string>
+    <string name="failed_to_delete_event">فشل حذف الفعالية</string>
+    <string name="no_services_found">لا توجد خدمات متاحة</string>
+    <string name="no_events_found">لا توجد فعاليات متاحة</string>
+    <string name="responsible_servants">الخدام المسؤولون</string>
+    <string name="search_servants_hint">ابحث عن خادم بالاسم أو الكود</string>
+    <string name="no_servants_found">لم يتم العثور على خدام</string>
+    <string name="select_educational_stage_optional">المرحلة الدراسية (اختياري)</string>
+    <string name="no_stage">بدون مرحلة</string>
+    <string name="maximum_servants_reached">لا يمكن إضافة أكثر من 30 خادم مسؤول</string>
 </resources>

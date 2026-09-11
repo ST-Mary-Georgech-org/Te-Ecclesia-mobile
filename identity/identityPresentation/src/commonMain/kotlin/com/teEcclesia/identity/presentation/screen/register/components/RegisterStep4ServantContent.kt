@@ -60,6 +60,9 @@ fun RegisterStep4ServantContent(
                 onToggleStageSheet = listener::onToggleStageSheet,
                 isStageSheetVisible = state.isStageSheetVisible,
                 educationalStages = state.educationalStages,
+                isStageLoading = state.isStageLoading,
+                isStageLoadFailed = state.isStageLoadFailed,
+                onRetryLoadStages = listener::onRetryLoadEducationalStages,
                 onSelectEducationalStage = listener::onSelectEducationalStage,
                 onLoadNextEducationalStages = listener::onLoadNextEducationalStages,
                 stageError = state.stageError?.asString(),
@@ -181,8 +184,12 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

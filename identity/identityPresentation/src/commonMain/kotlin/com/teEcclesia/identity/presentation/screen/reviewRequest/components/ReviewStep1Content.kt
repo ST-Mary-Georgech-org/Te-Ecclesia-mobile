@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,10 +21,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.identity.presentation.screen.reviewRequest.actionTypeLabel
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
@@ -36,23 +39,27 @@ import com.teEcclesia.identity.presentation.shared.components.AddressFieldsSecti
 import com.teEcclesia.identity.presentation.shared.components.ConfessionPriestField
 import com.teEcclesia.identity.presentation.shared.components.ContactInfoFields
 import com.teEcclesia.identity.presentation.shared.components.FourNamesFields
+import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.account_contact_info
+import teecclesia.designsystem.generated.resources.action_at
 import teecclesia.designsystem.generated.resources.address_info
 import teecclesia.designsystem.generated.resources.code
 import teecclesia.designsystem.generated.resources.confession_priest
 import teecclesia.designsystem.generated.resources.display_name
 import teecclesia.designsystem.generated.resources.display_name_hint
 import teecclesia.designsystem.generated.resources.ic_church_mark
+import teecclesia.designsystem.generated.resources.ic_clock
 import teecclesia.designsystem.generated.resources.ic_contact
 import teecclesia.designsystem.generated.resources.ic_eye_closed
 import teecclesia.designsystem.generated.resources.ic_eye_opened
 import teecclesia.designsystem.generated.resources.ic_home_mark
 import teecclesia.designsystem.generated.resources.ic_profile_mark
+import teecclesia.designsystem.generated.resources.last_action_title
 import teecclesia.designsystem.generated.resources.job
 import teecclesia.designsystem.generated.resources.job_hint
 import teecclesia.designsystem.generated.resources.national_id
@@ -78,6 +85,48 @@ fun ReviewStep1Content(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        if (state.isUpdateMode && !state.actionTakenAt.isNullOrBlank()) {
+            ReviewSectionCard(
+                title = stringResource(Res.string.last_action_title),
+                icon = painterResource(Res.drawable.ic_clock)
+            ) {
+                if (state.actionTakenByName.isNotBlank()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = state.actionTypeLabel.asString(),
+                            style = Theme.typography.bodyMedium,
+                            color = Theme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = state.actionTakenByName,
+                            style = Theme.typography.titleSmall,
+                            color = Theme.colorScheme.onSurface
+                        )
+                    }
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.action_at),
+                        style = Theme.typography.bodyMedium,
+                        color = Theme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = state.actionTakenAt.orEmpty(),
+                        style = Theme.typography.bodyMedium,
+                        color = Theme.colorScheme.onSurface
+                    )
+                }
+            }
+        }
+
         ReviewSectionCard(
             title = stringResource(Res.string.personal_info),
             icon = painterResource(Res.drawable.ic_profile_mark)
@@ -171,6 +220,9 @@ fun ReviewStep1Content(
                 externalPriestChurchError = state.externalPriestChurchError?.asString(),
                 externalPriestPhone = state.confessionPriestPhone,
                 externalPriestPhoneError = state.externalPriestPhoneError?.asString(),
+                isPriestLoading = state.isPriestLoading,
+                isPriestLoadFailed = state.isPriestLoadFailed,
+                onRetryLoadPriests = listener::onRetryLoadPriests,
                 onTogglePriestSheet = listener::onTogglePriestSheet,
                 onSelectConfessionPriest = listener::onSelectConfessionPriest,
                 onSelectFromAnotherChurch = listener::onSelectFromAnotherChurch,
@@ -242,6 +294,9 @@ fun ReviewStep1Content(
                 onToggleAreaSheet = listener::onToggleAreaSheet,
                 onSelectArea = listener::onSelectArea,
                 areaError = state.areaError?.asString(),
+                isAreaLoading = state.isAreaLoading,
+                isAreaLoadFailed = state.isAreaLoadFailed,
+                onRetryLoadAreas = listener::onRetryLoadAreas,
                 floor = state.floor,
                 onFloorChange = listener::onFloorChanged,
                 floorError = state.floorError?.asString(),
@@ -263,11 +318,14 @@ fun ReviewStep1Content(
 }
 
 @Composable
-@Preview
+@Preview(heightDp = 2100)
 private fun ReviewStep1ContentPreview() = Theme {
     val state = ReviewAndEditRequestUiState(
         userId = "123",
-        isLoading = false
+        isLoading = false,
+        isUpdateMode = true,
+        actionTakenByName = "Joseph",
+        actionTakenAt = "2026"
     )
     val listener = object : ReviewAndEditRequestInteractionListener {
         override fun onClickBack() {}
@@ -313,6 +371,10 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
+        override fun onDismissImageViewer() {}
+        override fun onDismissPdfViewer() {}
+        override fun onClickOrdinationCertificate() {}
+        override fun onClickIdentityCertificate() {}
 
         override fun onSelectImageBytes(
             target: UploadTarget,
@@ -338,9 +400,11 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onToggleFatherDeceased(deceased: Boolean) {}
         override fun onFatherPhoneChange(value: String) {}
         override fun onFatherWhatsappChange(value: String) {}
+        override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
         override fun onToggleMotherDeceased(deceased: Boolean) {}
         override fun onMotherPhoneChange(value: String) {}
         override fun onMotherWhatsappChange(value: String) {}
+        override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
 
         override fun onToggleServantStageSelection(stage: LookupResponse) {}
         override fun onToggleServantStageSheet(visible: Boolean) {}
@@ -362,9 +426,18 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}
+        override fun onRetryLoadEducationalStages() {}
         override fun onLoadNextRanks() {}
+        override fun onRetryLoadRanks() {}
+        override fun onRetryLoadPriests() {}
+        override fun onRetryLoadAreas() {}
 
         override fun onNotesChanged(value: String) {}
+        override fun onToggleEnrolledInDeaconSchool(enrolled: Boolean) {}
+        override fun onToggleDeaconSchoolPaid(isPaid: Boolean) {}
+        override fun onDeaconSchoolPaidAmountChange(amount: String) {}
+        override fun onDeaconSchoolStatusSelected(status: DeaconsSchoolStatus) {}
+        override fun onToggleDeaconSchoolStatusSheet(visible: Boolean) {}
     }
 
     Preview {

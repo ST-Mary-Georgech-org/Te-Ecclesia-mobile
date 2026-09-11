@@ -6,5 +6,5 @@ import org.koin.core.module.Module
 import org.koin.dsl.module
 
 actual val platformLoggingModule: Module = module {
-    single<CrashLogger> { IosCrashLogger() }
+    single<CrashLogger>(createdAtStart = true) { IosCrashLogger() }
 }

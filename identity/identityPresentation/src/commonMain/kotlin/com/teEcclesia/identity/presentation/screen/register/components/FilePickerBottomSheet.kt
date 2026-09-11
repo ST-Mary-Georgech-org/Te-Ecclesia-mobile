@@ -20,16 +20,19 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_camera
+import teecclesia.designsystem.generated.resources.ic_eye_opened
 import teecclesia.designsystem.generated.resources.ic_gallery
 import teecclesia.designsystem.generated.resources.ic_folder
 import teecclesia.designsystem.generated.resources.take_photo
 import teecclesia.designsystem.generated.resources.from_gallery
 import teecclesia.designsystem.generated.resources.from_files
+import teecclesia.designsystem.generated.resources.view_photo
 
 enum class FilePickOption {
     CAMERA,
     GALLERY,
-    FILES
+    FILES,
+    VIEW
 }
 
 @Composable
@@ -37,7 +40,8 @@ fun FilePickerBottomSheet(
     isVisible: Boolean,
     onDismiss: () -> Unit,
     onOptionSelected: (FilePickOption) -> Unit,
-    target: UploadTarget?
+    target: UploadTarget?,
+    canViewPhoto: Boolean = false
 ) {
     BottomSheet(
         isVisible = isVisible,
@@ -48,6 +52,30 @@ fun FilePickerBottomSheet(
                 .fillMaxWidth()
                 .padding(vertical = 8.dp)
         ) {
+            if (canViewPhoto) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickableNoRipple {
+                            onOptionSelected(FilePickOption.VIEW)
+                            onDismiss()
+                        }
+                        .padding(vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_eye_opened),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = stringResource(Res.string.view_photo),
+                        style = Theme.typography.bodyLarge,
+                        color = Theme.colorScheme.onSurface
+                    )
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

@@ -23,7 +23,7 @@
     <string name="register">Register</string>
 
     <string name="dont_have_an_account">Don&apos;t have an account?</string>
-    <string name="password">Your Password</string>
+    <string name="password">Password</string>
     <string name="forget_your_password">Forgot your password?</string>
     <string name="already_have_an_account">Already have an account?</string>
     <string name="verify_your_phone">Verify your Phone</string>
@@ -124,6 +124,10 @@
     <string name="mother_deceased">Mother Deceased?</string>
     <string name="mother_phone">Mother Phone</string>
     <string name="mother_whatsapp">Mother WhatsApp</string>
+    <string name="father_info">Father&apos;s Details</string>
+    <string name="mother_info">Mother&apos;s Details</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="same_as_whatsapp_number">Same as WhatsApp number</string>
 
     <string name="partner">Partner</string>
     <string name="search_partner">Search Partner</string>
@@ -133,6 +137,7 @@
     <string name="search_child_support_text">Search by child's code or national ID, then press (+)</string>
     <string name="error_forgot_to_click_plus_partner">You typed text in partner search, please click (+) to add partner first</string>
     <string name="error_forgot_to_click_plus_child">You typed text in child search, please click (+) to add child first</string>
+    <string name="error_child_already_added">Child has already been added</string>
     <string name="upload_ordination_certificate">Upload Ordination Certificate (Optional)</string>
     <string name="upload_identity_card">Upload National ID Card (Optional)</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>
@@ -143,6 +148,7 @@
     <string name="take_photo">Take Photo</string>
     <string name="from_gallery">From Gallery</string>
     <string name="from_files">From Files</string>
+    <string name="view_photo">View Photo</string>
     <string name="account_and_contact">Account &amp; Contact</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -157,6 +163,8 @@
     <string name="failed_to_search_child">Failed to Search Child</string>
     <string name="failed_to_verify_whatsapp">WhatsApp Verification Failed</string>
     <string name="failed_to_login">Login Failed</string>
+    <string name="failed_to_load_data">An error occurred while loading data</string>
+    <string name="retry">Retry</string>
 
     <string name="error_account_already_exists">An account with this phone number, username, or national ID already exists</string>
     <string name="error_no_internet">No internet connection. Please check your network.</string>
@@ -289,4 +297,65 @@
     <string name="push_token_connection_failed">Notification Connection Failed</string>
     <string name="push_token_connection_failed_message">Failed to connect device to notification server (may be due to missing Google Services or notification permission). Please verify permissions and reopen the app.</string>
     <string name="enable_notifications">Enable Notifications</string>
+
+    <!-- QR Scanner strings -->
+    <string name="scan_qr_code">Scan QR Code</string>
+    <string name="position_the_qr_code_within_the_frame_to_scan">Position the QR code within the frame to scan</string>
+    <string name="permission_required">Permission Required</string>
+    <string name="camera_permission_message">Please grant permission to access your camera to scan QR codes. You can manage permissions in your device settings.</string>
+    <string name="settings">Settings</string>
+
+    <!-- Attendance strings -->
+    <string name="no_registered_attendees">No registered members yet</string>
+    <string name="failed_to_register_member">Failed to register member</string>
+    <string name="failed_to_load_attendees">Failed to load attendees</string>
+    <string name="user_not_found">Member not found</string>
+    <string name="role_guest">Guest</string>
+
+    <!-- Last Action Strings -->
+    <string name="last_action_title">Last Action</string>
+    <string name="action_approved_by">Approved by</string>
+    <string name="action_rejected_by">Rejected by</string>
+    <string name="action_banned_by">Banned by</string>
+    <string name="action_updated_by">Updated by</string>
+    <string name="action_at">at</string>
+
+    <!-- Academic Year Strings -->
+    <string name="academic_year">Academic Year</string>
+    <string name="edit">Edit</string>
+    <string name="edit_academic_year">Edit Academic Year</string>
+    <string name="academic_year_confirmation_title">Confirm Academic Year Change</string>
+    <string name="academic_year_confirmation_message">Are you sure you want to change the academic year? This will switch the active deacons school records for all students.</string>
+    <string name="academic_year_updated_successfully">Academic year updated successfully</string>
+    <string name="failed_to_update_academic_year">Failed to update academic year</string>
+    <string name="failed_to_load_academic_year">Failed to load academic year</string>
+    <string name="enter_academic_year">Enter Academic Year (e.g. 2026)</string>
+    <string name="invalid_academic_year">Please enter a valid year between 2000 and 2100</string>
+
+    <!-- Deacons School Strings -->
+    <string name="enrolled_in_deacons_school">Enrolled in Deacons School</string>
+    <string name="payment_status">Payment Status</string>
+    <string name="paid">Paid</string>
+    <string name="unpaid">Unpaid</string>
+    <string name="amount_paid">Amount Paid</string>
+    <string name="deacons_school_status">School Status</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_incomplete">Incomplete</string>
+    <string name="status_completed">Completed</string>
+
+    <!-- Attendance Services & Events Strings -->
+    <string name="failed_to_load_services">Failed to load services</string>
+    <string name="failed_to_save_service">Failed to save service</string>
+    <string name="failed_to_delete_service">Failed to delete service</string>
+    <string name="failed_to_load_events">Failed to load events</string>
+    <string name="failed_to_save_event">Failed to save event</string>
+    <string name="failed_to_delete_event">Failed to delete event</string>
+    <string name="no_services_found">No services available</string>
+    <string name="no_events_found">No events available</string>
+    <string name="responsible_servants">Responsible Servants</string>
+    <string name="search_servants_hint">Search servant by name or code</string>
+    <string name="no_servants_found">No servants found</string>
+    <string name="select_educational_stage_optional">Educational Stage (Optional)</string>
+    <string name="no_stage">None</string>
+    <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
 </resources>

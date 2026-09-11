@@ -179,6 +179,7 @@ fun RegistrationRequestCard(
 private fun RegistrationRequestCardPreview() = Theme {
     val profile = ProfileResponse(
         id = "1",
+        code = "M12345678",
         firstName = "Joseph",
         secondName = "Sameh",
         thirdName = "Fouad",
@@ -213,7 +214,10 @@ private fun RegistrationRequestCardPreview() = Theme {
         parentProfile = null,
         ordinationProfile = null,
         makhdoomProfile = null,
-        createdAt = LocalDateTime(2024, 6, 1, 12, 0)
+        createdAt = LocalDateTime(2024, 6, 1, 12, 0),
+        actionTakenAt = null,
+        actionTakenBy = null,
+        deaconsSchoolRecord = null
     )
 
     Preview(darkTheme = Theme.isDarkTheme) {

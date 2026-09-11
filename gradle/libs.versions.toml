@@ -61,10 +61,14 @@ sqlite = "2.5.0-alpha01"
 ksp = "2.3.9"
 mmkv = "2.0.2"
 qr-kit = "3.1.3"
+moko-permissions = "0.20.1"
 
 [libraries]
 mmkv = { module = "com.tencent:mmkv", version.ref = "mmkv" }
 qr-kit = { module = "network.chaintech:qr-kit", version.ref = "qr-kit" }
+moko-permissions = { module = "dev.icerock.moko:permissions", version.ref = "moko-permissions" }
+moko-permissions-compose = { module = "dev.icerock.moko:permissions-compose", version.ref = "moko-permissions" }
+moko-permissions-camera = { module = "dev.icerock.moko:permissions-camera", version.ref = "moko-permissions" }
 
 # Coil (image loading)
 coil-svg = { module = "io.coil-kt.coil3:coil-svg", version.ref = "coil" }

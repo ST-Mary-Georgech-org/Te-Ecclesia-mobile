@@ -14,11 +14,13 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.verifyEmail.Ver
 import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.VerifyPhoneResetPasswordViewModel
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestViewModel
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchViewModel
+import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val identityScreensModule = module {
+    viewModelOf(::AcademicYearSettingsViewModel)
     viewModelOf(::LoginViewModel)
     viewModel { parameters ->
         RegisterViewModel(
@@ -34,11 +36,18 @@ val identityScreensModule = module {
     viewModelOf(::ProfileViewModel)
     viewModelOf(::RegistrationRequestsViewModel)
     viewModelOf(::UsersSearchViewModel)
-    viewModelOf(::ServicesListViewModel)
+    viewModel {
+        ServicesListViewModel(
+            attendanceRepository = get(),
+            lookupRepository = get(),
+            authorizationService = get()
+        )
+    }
     viewModel { parameters ->
         EventsListViewModel(
             serviceId = parameters.get(),
             serviceName = parameters.get(),
+            isResponsible = parameters.get(),
             attendanceRepository = get()
         )
     }
@@ -47,6 +56,7 @@ val identityScreensModule = module {
             eventId = parameters.get(),
             serviceName = parameters.get(),
             eventName = parameters.get(),
+            isResponsible = parameters.get(),
             attendanceRepository = get()
         )
     }

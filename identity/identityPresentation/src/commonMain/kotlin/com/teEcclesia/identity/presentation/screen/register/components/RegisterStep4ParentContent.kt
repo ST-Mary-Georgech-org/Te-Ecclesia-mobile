@@ -65,6 +65,7 @@ fun RegisterStep4ParentContent(
                 onPartnerQueryChange = listener::onPartnerQueryChange,
                 onSearchPartner = listener::onSearchPartner,
                 onRemovePartner = listener::onRemovePartner,
+                isLoading = state.isPartnerLoading,
                 errorText = state.partnerError?.asString()
             )
 
@@ -82,6 +83,7 @@ fun RegisterStep4ParentContent(
                 onSearchChild = listener::onSearchChild,
                 selectedChildren = state.selectedChildren,
                 onRemoveChild = listener::onRemoveChild,
+                isLoading = state.isChildLoading,
                 errorText = state.childError?.asString()
             )
 
@@ -187,8 +189,12 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
