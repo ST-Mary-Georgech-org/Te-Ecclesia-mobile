@@ -48,5 +48,7 @@ interface ProfileRepository {
         sortOrder: String = "DESC"
     ): PagedData<ProfileResponse>
     suspend fun downloadFile(url: String): ByteArray
+    suspend fun getCurrentAcademicYear(): Int
+    suspend fun updateCurrentAcademicYear(year: Int)
 }
 

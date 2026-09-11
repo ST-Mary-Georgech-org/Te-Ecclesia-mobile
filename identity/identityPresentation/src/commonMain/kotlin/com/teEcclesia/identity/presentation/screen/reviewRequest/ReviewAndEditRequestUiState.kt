@@ -4,8 +4,11 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
+import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
+import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
+import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
@@ -14,6 +17,14 @@ import com.teEcclesia.identity.domain.model.MakhdoomProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
 import com.teEcclesia.identity.domain.model.ParentProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
+import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.action_approved_by
+import teecclesia.designsystem.generated.resources.action_banned_by
+import teecclesia.designsystem.generated.resources.action_rejected_by
+import teecclesia.designsystem.generated.resources.action_updated_by
+import teecclesia.designsystem.generated.resources.status_completed
+import teecclesia.designsystem.generated.resources.status_incomplete
+import teecclesia.designsystem.generated.resources.status_pending
 
 data class ReviewAndEditRequestUiState(
     val userId: String = "",
@@ -173,7 +184,17 @@ data class ReviewAndEditRequestUiState(
 
     val notes: String = "",
     val notesError: UiText? = null,
-    val submittedAt: String = "2026-02-16 13:06"
+    val submittedAt: String = "--",
+
+    val actionTakenAt: String? = null,
+    val actionTakenByName: String = "",
+    val actionTakenByUserCode: String = "",
+    val isEnrolledInDeaconSchool: Boolean = false,
+    val isDeaconSchoolPaid: Boolean = false,
+    val deaconSchoolPaidAmount: String = "",
+    val deaconSchoolStatus: DeaconsSchoolStatus = DeaconsSchoolStatus.PENDING,
+    val isDeaconSchoolStatusSheetVisible: Boolean = false,
+    val isAdmin: Boolean = false
 ) {
     val progress: Float
         get() = currentStep.toFloat() / totalSteps.toFloat()
@@ -333,6 +354,15 @@ data class ReviewAndEditRequestUiState(
         if (notes != other.notes) return false
         if (notesError != other.notesError) return false
         if (submittedAt != other.submittedAt) return false
+        if (actionTakenAt != other.actionTakenAt) return false
+        if (actionTakenByName != other.actionTakenByName) return false
+        if (actionTakenByUserCode != other.actionTakenByUserCode) return false
+        if (isEnrolledInDeaconSchool != other.isEnrolledInDeaconSchool) return false
+        if (isDeaconSchoolPaid != other.isDeaconSchoolPaid) return false
+        if (deaconSchoolPaidAmount != other.deaconSchoolPaidAmount) return false
+        if (deaconSchoolStatus != other.deaconSchoolStatus) return false
+        if (isDeaconSchoolStatusSheetVisible != other.isDeaconSchoolStatusSheetVisible) return false
+        if (isAdmin != other.isAdmin) return false
         if (progress != other.progress) return false
         if (canGoPrevious != other.canGoPrevious) return false
         if (canGoNext != other.canGoNext) return false
@@ -484,6 +514,15 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + notes.hashCode()
         result = 31 * result + (notesError?.hashCode() ?: 0)
         result = 31 * result + submittedAt.hashCode()
+        result = 31 * result + (actionTakenAt?.hashCode() ?: 0)
+        result = 31 * result + actionTakenByName.hashCode()
+        result = 31 * result + actionTakenByUserCode.hashCode()
+        result = 31 * result + isEnrolledInDeaconSchool.hashCode()
+        result = 31 * result + isDeaconSchoolPaid.hashCode()
+        result = 31 * result + deaconSchoolPaidAmount.hashCode()
+        result = 31 * result + deaconSchoolStatus.hashCode()
+        result = 31 * result + isDeaconSchoolStatusSheetVisible.hashCode()
+        result = 31 * result + isAdmin.hashCode()
         result = 31 * result + progress.hashCode()
         result = 31 * result + canGoPrevious.hashCode()
         result = 31 * result + canGoNext.hashCode()
@@ -522,7 +561,15 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
         makhdoomProfile = toMakhdoomProfileRequest(),
         khademProfile = toKhademProfileRequest(),
         parentProfile = toParentProfileRequest(),
-        kahenProfile = toKahenProfileRequest()
+        kahenProfile = toKahenProfileRequest(),
+        deaconsSchoolRecord = if (selectedRole == UserRole.MAKHDOOM && isAdmin) {
+            DeaconsSchoolRecordRequest(
+                enrolled = isEnrolledInDeaconSchool,
+                paid = isDeaconSchoolPaid,
+                paidAmount = deaconSchoolPaidAmount.toDoubleOrNull() ?: 0.0,
+                status = deaconSchoolStatus
+            )
+        } else null
     )
 }
 
@@ -623,3 +670,20 @@ private fun ReviewAndEditRequestUiState.toKahenProfileRequest(): KahenProfileReq
         )
     }
 }
+
+fun DeaconsSchoolStatus.toUiText(): UiText = when (this) {
+    DeaconsSchoolStatus.PENDING -> UiText.StringRes(Res.string.status_pending)
+    DeaconsSchoolStatus.INCOMPLETE -> UiText.StringRes(Res.string.status_incomplete)
+    DeaconsSchoolStatus.COMPLETED -> UiText.StringRes(Res.string.status_completed)
+}
+
+val ReviewAndEditRequestUiState.actionTypeLabel: UiText
+    get() = when (userProfile?.status) {
+        UserStatus.APPROVED -> UiText.StringRes(Res.string.action_approved_by)
+        UserStatus.REJECTED -> UiText.StringRes(Res.string.action_rejected_by)
+        UserStatus.BANNED -> UiText.StringRes(Res.string.action_banned_by)
+        UserStatus.PENDING_APPROVAL,
+        UserStatus.UNVERIFIED,
+        UserStatus.PROFILE_INCOMPLETE,
+        null -> UiText.StringRes(Res.string.action_updated_by)
+    }

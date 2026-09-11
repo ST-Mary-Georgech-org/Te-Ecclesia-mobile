@@ -37,7 +37,8 @@ fun EventCard(
     onClick: () -> Unit,
     onEdit: () -> Unit,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isResponsible: Boolean = true
 ) {
     Surface(
         modifier = modifier
@@ -80,20 +81,22 @@ fun EventCard(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onEdit) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_user_settings),
-                        contentDescription = "Edit event",
-                        tint = Theme.colorScheme.primary
-                    )
-                }
+                if (isResponsible) {
+                    IconButton(onClick = onEdit) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_user_settings),
+                            contentDescription = "Edit event",
+                            tint = Theme.colorScheme.primary
+                        )
+                    }
 
-                IconButton(onClick = onDelete) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_close),
-                        contentDescription = "Delete event",
-                        tint = Theme.colorScheme.error
-                    )
+                    IconButton(onClick = onDelete) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_close),
+                            contentDescription = "Delete event",
+                            tint = Theme.colorScheme.error
+                        )
+                    }
                 }
 
                 Icon(

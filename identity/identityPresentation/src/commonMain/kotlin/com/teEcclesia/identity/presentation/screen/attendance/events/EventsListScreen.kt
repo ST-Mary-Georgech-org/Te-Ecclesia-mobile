@@ -11,9 +11,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,8 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.presentation.screen.attendance.events.components.AddEditEventSheet
 import com.teEcclesia.identity.presentation.screen.attendance.events.components.DeleteEventConfirmSheet
@@ -41,19 +47,27 @@ import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.events
 import teecclesia.designsystem.generated.resources.ic_arrow_back
 import teecclesia.designsystem.generated.resources.ic_plus
+import teecclesia.designsystem.generated.resources.no_events_found
 
 @Composable
 fun EventsListScreen(
     serviceId: Long,
     serviceName: String,
-    viewModel: EventsListViewModel = koinViewModel(parameters = { parametersOf(serviceId, serviceName) })
+    isResponsible: Boolean,
+    viewModel: EventsListViewModel = koinViewModel(parameters = { parametersOf(serviceId, serviceName, isResponsible) })
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    EventsListContent(
-        state = state,
-        listener = viewModel
-    )
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = viewModel::onRefresh,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        EventsListContent(
+            state = state,
+            listener = viewModel
+        )
+    }
 }
 
 @Composable
@@ -62,6 +76,8 @@ private fun EventsListContent(
     listener: EventsListInteractionListener,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -96,50 +112,95 @@ private fun EventsListContent(
                     )
                 }
 
-                IconButton(onClick = listener::onClickAddEvent) {
-                    Icon(
-                        painter = painterResource(Res.drawable.ic_plus),
-                        contentDescription = "Add event",
-                        tint = Theme.colorScheme.primary
-                    )
+                if (state.isResponsible) {
+                    IconButton(onClick = listener::onClickAddEvent) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_plus),
+                            contentDescription = "Add event",
+                            tint = Theme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (state.isLoading) {
+            if (state.isLoading && !state.isRefreshing) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(color = Theme.colorScheme.primary)
                 }
+            } else if (state.events.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = stringResource(Res.string.no_events_found),
+                        style = Theme.typography.bodyMedium,
+                        color = Theme.colorScheme.onSurfaceVariant
+                    )
+                }
             } else {
                 LazyColumn(
+                    state = listState,
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
                     items(state.events, key = { it.id }) { event ->
                         EventCard(
                             event = event,
+                            isResponsible = state.isResponsible,
                             onClick = { listener.onClickEvent(event) },
                             onEdit = { listener.onClickEditEvent(event) },
                             onDelete = { listener.onClickDeleteEvent(event) }
                         )
                     }
+
+                    if (state.isPagingLoading) {
+                        item(key = "paging_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Theme.colorScheme.primary,
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        AddEditEventSheet(
-            state = state,
-            listener = listener
+        PaginationTrigger(
+            list = state.events,
+            listState = listState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadMore
         )
 
-        DeleteEventConfirmSheet(
-            state = state,
-            listener = listener
-        )
+        if (state.isResponsible) {
+            AddEditEventSheet(
+                state = state,
+                listener = listener
+            )
+
+            DeleteEventConfirmSheet(
+                state = state,
+                listener = listener
+            )
+        }
     }
 }
 
@@ -172,6 +233,8 @@ private fun EventsListPreview() = Theme {
             override fun onConfirmDeleteEvent() {}
             override fun onDismissSheet() {}
             override fun onClickEvent(event: ServiceEvent) {}
+            override fun onRefresh() {}
+            override fun onLoadMore() {}
         }
     )
 }

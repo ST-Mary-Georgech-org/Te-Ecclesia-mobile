@@ -52,11 +52,16 @@ data object AttendanceServicesRoute : NavKey
 data class AttendanceRegisterRoute(
     val eventId: Long,
     val serviceName: String,
-    val eventName: String
+    val eventName: String,
+    val isResponsible: Boolean = false
 ) : NavKey
 
 @Serializable
 data class AttendanceEventsRoute(
     val serviceId: Long,
-    val serviceName: String
+    val serviceName: String,
+    val isResponsible: Boolean = false
 ) : NavKey
+
+@Serializable
+data object AcademicYearSettingsRoute : NavKey

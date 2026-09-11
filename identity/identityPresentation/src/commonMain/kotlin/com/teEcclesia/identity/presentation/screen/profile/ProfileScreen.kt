@@ -29,7 +29,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -48,13 +47,13 @@ import com.teEcclesia.designsystem.utils.preview.PreviewThemes
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.login.getName
+import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import qrgenerator.qrkitpainter.rememberQrKitPainter
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.add_new_user
-import teecclesia.designsystem.generated.resources.edit_profile
 import teecclesia.designsystem.generated.resources.enable_notifications
 import teecclesia.designsystem.generated.resources.ic_bell
 import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
@@ -64,6 +63,8 @@ import teecclesia.designsystem.generated.resources.search_users
 import teecclesia.designsystem.generated.resources.select_language
 import teecclesia.designsystem.generated.resources.select_theme
 import teecclesia.designsystem.generated.resources.join_whatsapp_group
+import teecclesia.designsystem.generated.resources.academic_year
+import teecclesia.designsystem.generated.resources.edit
 
 @Composable
 fun ProfileScreen(
@@ -75,6 +76,7 @@ fun ProfileScreen(
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.checkNotificationPermission()
+            viewModel.loadAcademicYear()
         }
     }
 
@@ -88,7 +90,8 @@ fun ProfileScreen(
         onClickAddUser = viewModel::onClickAddUser,
         onClickLogout = viewModel::onClickLogout,
         onRefresh = viewModel::onRefresh,
-        onClickEnableNotifications = viewModel::openNotificationSettings
+        onClickEnableNotifications = viewModel::openNotificationSettings,
+        onClickEditAcademicYear = viewModel::onClickEditAcademicYear
     )
 }
 
@@ -104,6 +107,7 @@ private fun ProfileContent(
     onClickLogout: () -> Unit,
     onRefresh: () -> Unit,
     onClickEnableNotifications: () -> Unit,
+    onClickEditAcademicYear: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -234,6 +238,44 @@ private fun ProfileContent(
             modifier = Modifier.fillMaxWidth()
         )
 
+        if (state.userRole == UserRole.ADMIN) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = Theme.colorScheme.surfaceContainerHighest,
+                border = BorderStroke(1.dp, Theme.colorScheme.outlineVariant)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(
+                            text = stringResource(Res.string.academic_year),
+                            style = Theme.typography.labelMedium,
+                            color = Theme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Text(
+                            text = state.currentAcademicYear.ifBlank { "—" },
+                            style = Theme.typography.titleMedium,
+                            color = Theme.colorScheme.onBackground
+                        )
+                    }
+
+                    AppButton(
+                        type = AppButtonType.Secondary,
+                        onClick = onClickEditAcademicYear,
+                        text = stringResource(Res.string.edit)
+                    )
+                }
+            }
+        }
+
 
 //        Spacer(modifier = Modifier.height(24.dp))
 
@@ -347,6 +389,7 @@ private fun ProfileContentPreview() = Theme {
             userCode = "USR-10294",
             canSearchUsers = true,
             canAddUser = true,
+            userRole = UserRole.ADMIN,
             whatsAppLink = "https://chat.whatsapp.com/EXAMPLE"
         ),
         onClickNotifications = {},
@@ -357,7 +400,8 @@ private fun ProfileContentPreview() = Theme {
         onClickAddUser = {},
         onClickLogout = {},
         onRefresh = {},
-        onClickEnableNotifications = {}
+        onClickEnableNotifications = {},
+        onClickEditAcademicYear = {}
     )
 }
 

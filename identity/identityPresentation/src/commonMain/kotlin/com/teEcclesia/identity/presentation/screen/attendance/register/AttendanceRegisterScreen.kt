@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
@@ -31,10 +33,13 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.scanner.EmbeddedBarcodeScannerCard
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.asString
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.presentation.screen.attendance.register.components.AttendeeCard
 import com.teEcclesia.identity.presentation.screen.attendance.register.components.MemberCodeInputField
@@ -56,14 +61,21 @@ fun AttendanceRegisterScreen(
     eventId: Long,
     serviceName: String,
     eventName: String,
-    viewModel: AttendanceRegisterViewModel = koinViewModel(parameters = { parametersOf(eventId, serviceName, eventName) })
+    isResponsible: Boolean,
+    viewModel: AttendanceRegisterViewModel = koinViewModel(parameters = { parametersOf(eventId, serviceName, eventName, isResponsible) })
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    AttendanceRegisterContent(
-        state = state,
-        listener = viewModel
-    )
+    PullToRefresh(
+        isRefreshing = state.isRefreshing,
+        onRefresh = viewModel::onRefresh,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        AttendanceRegisterContent(
+            state = state,
+            listener = viewModel
+        )
+    }
 }
 
 @Composable
@@ -72,6 +84,8 @@ private fun AttendanceRegisterContent(
     listener: AttendanceRegisterInteractionListener,
     modifier: Modifier = Modifier
 ) {
+    val listState = rememberLazyListState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -82,10 +96,12 @@ private fun AttendanceRegisterContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .padding(vertical = 16.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -120,7 +136,7 @@ private fun AttendanceRegisterContent(
                     modifier = Modifier.padding(start = 8.dp)
                 ) {
                     Text(
-                        text = "${state.attendees.size}",
+                        text = "${state.totalAttendees}",
                         style = Theme.typography.titleMedium,
                         color = Theme.colorScheme.onPrimaryContainer,
                         fontWeight = FontWeight.Bold,
@@ -131,113 +147,158 @@ private fun AttendanceRegisterContent(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            MemberCodeInputField(
-                code = state.userCodeInput,
-                onCodeChange = listener::onUserCodeChanged,
-                onOpenScanner = listener::onToggleScanner,
-                onManualSubmit = listener::onManualSubmit,
-                isScannerOpen = state.isScannerOpen
-            )
-
-            EmbeddedBarcodeScannerCard(
-                isVisible = state.isScannerOpen,
-                onClose = listener::onCloseScanner,
-                onQrCodeScanned = listener::onQrCodeScanned,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
-            AnimatedVisibility(
-                visible = state.searchUserError != null,
-                enter = fadeIn(),
-                exit = fadeOut()
+            LazyColumn(
+                state = listState,
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                state.searchUserError?.let { errorText ->
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 12.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = Theme.colorScheme.errorContainer
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                if (state.isResponsible) {
+                    item(key = "member_code_input") {
+                        MemberCodeInputField(
+                            code = state.userCodeInput,
+                            onCodeChange = listener::onUserCodeChanged,
+                            onOpenScanner = listener::onToggleScanner,
+                            onManualSubmit = listener::onManualSubmit,
+                            isScannerOpen = state.isScannerOpen,
+                            suggestedUsers = state.suggestedUsers,
+                            isSuggestionsDropdownVisible = state.isSuggestionsDropdownVisible,
+                            isSearchingSuggestions = state.isSearchingSuggestions,
+                            onSelectSuggestedUser = listener::onSelectSuggestedUser,
+                            onDismissSuggestions = listener::onDismissSuggestions
+                        )
+                    }
+
+                    item(key = "barcode_scanner") {
+                        EmbeddedBarcodeScannerCard(
+                            isVisible = state.isScannerOpen,
+                            onClose = listener::onCloseScanner,
+                            onQrCodeScanned = listener::onQrCodeScanned
+                        )
+                    }
+
+                    item(key = "search_user_error") {
+                        AnimatedVisibility(
+                            visible = state.searchUserError != null,
+                            enter = fadeIn(),
+                            exit = fadeOut()
                         ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_error),
-                                contentDescription = null,
-                                tint = Theme.colorScheme.error,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = errorText.asString(),
-                                style = Theme.typography.bodySmall,
-                                color = Theme.colorScheme.onErrorContainer
-                            )
+                            state.searchUserError?.let { errorText ->
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = Theme.colorScheme.errorContainer
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(Res.drawable.ic_error),
+                                            contentDescription = null,
+                                            tint = Theme.colorScheme.error,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                        Text(
+                                            text = errorText.asString(),
+                                            style = Theme.typography.bodySmall,
+                                            color = Theme.colorScheme.onErrorContainer
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (state.isActionLoading) {
+                        item(key = "action_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Theme.colorScheme.primary,
+                                    strokeWidth = 2.dp
+                                )
+                            }
                         }
                     }
                 }
-            }
 
-            if (state.isActionLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = Theme.colorScheme.primary,
-                        strokeWidth = 2.dp
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Theme.colorScheme.primary)
-                }
-            } else if (state.attendees.isEmpty()) {
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = stringResource(Res.string.no_registered_attendees),
-                        style = Theme.typography.bodyMedium,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                ) {
+                if (state.isLoading && !state.isRefreshing) {
+                    item(key = "initial_loading") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = Theme.colorScheme.primary)
+                        }
+                    }
+                } else if (state.attendees.isEmpty()) {
+                    item(key = "empty_attendees") {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillParentMaxHeight(0.7f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.no_registered_attendees),
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                } else {
                     items(state.attendees, key = { it.id }) { attendee ->
                         AttendeeCard(
                             attendee = attendee,
+                            isResponsible = state.isResponsible,
                             onRemove = { listener.onClickRemoveAttendee(attendee) }
                         )
+                    }
+
+                    if (state.isPagingLoading) {
+                        item(key = "paging_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Theme.colorScheme.primary,
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
 
-        RemoveAttendeeConfirmSheet(
-            state = state,
-            listener = listener
+        PaginationTrigger(
+            list = state.attendees,
+            listState = listState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadMore
         )
+
+        if (state.isResponsible) {
+            RemoveAttendeeConfirmSheet(
+                state = state,
+                listener = listener
+            )
+        }
     }
 }
 
@@ -249,7 +310,8 @@ private fun AttendanceRegisterPreview() = Theme {
             eventName = "اجتماع الجمعة",
             attendees = listOf(
                 EventAttendee(1, 1, "u1", "ماريو عماد", UserRole.MAKHDOOM, "ابتدائي", "السادسة", getNow())
-            )
+            ),
+            totalAttendees = 1
         ),
         listener = object : AttendanceRegisterInteractionListener {
             override fun onClickBack() {}
@@ -261,6 +323,10 @@ private fun AttendanceRegisterPreview() = Theme {
             override fun onClickRemoveAttendee(attendee: EventAttendee) {}
             override fun onConfirmRemoveAttendee() {}
             override fun onDismissSheet() {}
+            override fun onRefresh() {}
+            override fun onLoadMore() {}
+            override fun onSelectSuggestedUser(user: AttendeeUserPreview) {}
+            override fun onDismissSuggestions() {}
         }
     )
 }

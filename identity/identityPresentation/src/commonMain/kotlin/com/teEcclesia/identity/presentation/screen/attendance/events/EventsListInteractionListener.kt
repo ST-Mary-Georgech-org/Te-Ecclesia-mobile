@@ -23,4 +23,6 @@ interface EventsListInteractionListener {
     fun onConfirmDeleteEvent()
     fun onDismissSheet()
     fun onClickEvent(event: ServiceEvent)
+    fun onRefresh()
+    fun onLoadMore()
 }

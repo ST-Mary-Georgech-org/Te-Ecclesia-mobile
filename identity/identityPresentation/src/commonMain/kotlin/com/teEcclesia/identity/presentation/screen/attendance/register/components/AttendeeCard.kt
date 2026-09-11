@@ -31,7 +31,8 @@ import teecclesia.designsystem.generated.resources.ic_close
 fun AttendeeCard(
     attendee: EventAttendee,
     onRemove: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isResponsible: Boolean = true
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -73,12 +74,14 @@ fun AttendeeCard(
                 }
             }
 
-            IconButton(onClick = onRemove) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_close),
-                    contentDescription = "Remove attendee",
-                    tint = Theme.colorScheme.error
-                )
+            if (isResponsible) {
+                IconButton(onClick = onRemove) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_close),
+                        contentDescription = "Remove attendee",
+                        tint = Theme.colorScheme.error
+                    )
+                }
             }
         }
     }

@@ -308,6 +308,54 @@
     <!-- Attendance strings -->
     <string name="no_registered_attendees">No registered members yet</string>
     <string name="failed_to_register_member">Failed to register member</string>
+    <string name="failed_to_load_attendees">Failed to load attendees</string>
     <string name="user_not_found">Member not found</string>
     <string name="role_guest">Guest</string>
+
+    <!-- Last Action Strings -->
+    <string name="last_action_title">Last Action</string>
+    <string name="action_approved_by">Approved by</string>
+    <string name="action_rejected_by">Rejected by</string>
+    <string name="action_banned_by">Banned by</string>
+    <string name="action_updated_by">Updated by</string>
+    <string name="action_at">at</string>
+
+    <!-- Academic Year Strings -->
+    <string name="academic_year">Academic Year</string>
+    <string name="edit">Edit</string>
+    <string name="edit_academic_year">Edit Academic Year</string>
+    <string name="academic_year_confirmation_title">Confirm Academic Year Change</string>
+    <string name="academic_year_confirmation_message">Are you sure you want to change the academic year? This will switch the active deacons school records for all students.</string>
+    <string name="academic_year_updated_successfully">Academic year updated successfully</string>
+    <string name="failed_to_update_academic_year">Failed to update academic year</string>
+    <string name="failed_to_load_academic_year">Failed to load academic year</string>
+    <string name="enter_academic_year">Enter Academic Year (e.g. 2026)</string>
+    <string name="invalid_academic_year">Please enter a valid year between 2000 and 2100</string>
+
+    <!-- Deacons School Strings -->
+    <string name="enrolled_in_deacons_school">Enrolled in Deacons School</string>
+    <string name="payment_status">Payment Status</string>
+    <string name="paid">Paid</string>
+    <string name="unpaid">Unpaid</string>
+    <string name="amount_paid">Amount Paid</string>
+    <string name="deacons_school_status">School Status</string>
+    <string name="status_pending">Pending</string>
+    <string name="status_incomplete">Incomplete</string>
+    <string name="status_completed">Completed</string>
+
+    <!-- Attendance Services & Events Strings -->
+    <string name="failed_to_load_services">Failed to load services</string>
+    <string name="failed_to_save_service">Failed to save service</string>
+    <string name="failed_to_delete_service">Failed to delete service</string>
+    <string name="failed_to_load_events">Failed to load events</string>
+    <string name="failed_to_save_event">Failed to save event</string>
+    <string name="failed_to_delete_event">Failed to delete event</string>
+    <string name="no_services_found">No services available</string>
+    <string name="no_events_found">No events available</string>
+    <string name="responsible_servants">Responsible Servants</string>
+    <string name="search_servants_hint">Search servant by name or code</string>
+    <string name="no_servants_found">No servants found</string>
+    <string name="select_educational_stage_optional">Educational Stage (Optional)</string>
+    <string name="no_stage">None</string>
+    <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
 </resources>

@@ -41,6 +41,7 @@ import com.teEcclesia.identity.presentation.screen.register.components.FilePickO
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
+import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
@@ -203,6 +204,9 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
+        override fun onDismissPdfViewer() {}
+        override fun onClickOrdinationCertificate() {}
+        override fun onClickIdentityCertificate() {}
 
         override fun onCodeChanged(value: String) {}
         override fun onFirstNameChanged(value: String) {}
@@ -294,6 +298,11 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onRetryLoadAreas() {}
 
         override fun onNotesChanged(value: String) {}
+        override fun onToggleEnrolledInDeaconSchool(enrolled: Boolean) {}
+        override fun onToggleDeaconSchoolPaid(isPaid: Boolean) {}
+        override fun onDeaconSchoolPaidAmountChange(amount: String) {}
+        override fun onDeaconSchoolStatusSelected(status: DeaconsSchoolStatus) {}
+        override fun onToggleDeaconSchoolStatusSheet(visible: Boolean) {}
     }
 
     Preview(darkTheme = Theme.isDarkTheme) {

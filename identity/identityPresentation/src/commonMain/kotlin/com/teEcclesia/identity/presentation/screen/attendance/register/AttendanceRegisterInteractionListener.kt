@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.register
 
+import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 
 interface AttendanceRegisterInteractionListener {
@@ -12,4 +13,8 @@ interface AttendanceRegisterInteractionListener {
     fun onClickRemoveAttendee(attendee: EventAttendee)
     fun onConfirmRemoveAttendee()
     fun onDismissSheet()
+    fun onRefresh()
+    fun onLoadMore()
+    fun onSelectSuggestedUser(user: AttendeeUserPreview)
+    fun onDismissSuggestions()
 }

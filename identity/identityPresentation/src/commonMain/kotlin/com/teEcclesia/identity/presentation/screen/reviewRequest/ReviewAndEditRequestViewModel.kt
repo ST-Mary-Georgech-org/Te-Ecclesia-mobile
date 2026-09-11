@@ -3,6 +3,8 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
+import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
+import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
@@ -230,10 +232,12 @@ class ReviewAndEditRequestViewModel(
             callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
             callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
             filterAndApplyEducationalStages()
+            val isAdmin = callerRole == UserRole.ADMIN
             updateState {
                 it.copy(
                     isLoading = false,
-                    isRoleEditable = if (it.isUpdateMode) (callerRole == UserRole.ADMIN) else it.isRoleEditable
+                    isAdmin = isAdmin,
+                    isRoleEditable = if (it.isUpdateMode) isAdmin else it.isRoleEditable
                 ) 
             }
     }
@@ -340,7 +344,17 @@ class ReviewAndEditRequestViewModel(
                         bishopName = profile.ordinationProfile?.bishopName ?: "",
                         ordinationPlace = profile.ordinationProfile?.ordinationPlace ?: "",
                         ordinationCertificateFileName = profile.ordinationProfile?.certificateImageUrl,
-                        identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
+                        identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
+
+                        actionTakenAt = profile.actionTakenAt?.replace("T", " ")?.take(16),
+                        actionTakenByName = profile.actionTakenBy?.name.orEmpty(),
+                        actionTakenByUserCode = profile.actionTakenBy?.code.orEmpty(),
+                        isEnrolledInDeaconSchool = profile.deaconsSchoolRecord?.enrolled ?: false,
+                        isDeaconSchoolPaid = profile.deaconsSchoolRecord?.paid ?: false,
+                        deaconSchoolPaidAmount = profile.deaconsSchoolRecord?.paidAmount?.let { amt ->
+                            if (amt == amt.toLong().toDouble()) amt.toLong().toString() else amt.toString()
+                        } ?: "",
+                        deaconSchoolStatus = profile.deaconsSchoolRecord?.status ?: DeaconsSchoolStatus.PENDING
                     ).let { state -> updateDerivedProperties(state) }
                 }
                 val ordinationUrl = profile.ordinationProfile?.certificateImageUrl
@@ -662,7 +676,15 @@ class ReviewAndEditRequestViewModel(
                     val customCode = s.code.ifBlank { null }
                     val request = ApproveUserRequest(
                         customCode = customCode,
-                        updateProfileData = registerRequest
+                        updateProfileData = registerRequest,
+                        deaconsSchoolRecord = if (s.selectedRole == UserRole.MAKHDOOM && s.isAdmin) {
+                            DeaconsSchoolRecordRequest(
+                                enrolled = s.isEnrolledInDeaconSchool,
+                                paid = s.isDeaconSchoolPaid,
+                                paidAmount = s.deaconSchoolPaidAmount.toDoubleOrNull() ?: 0.0,
+                                status = s.deaconSchoolStatus
+                            )
+                        } else null
                     )
                     
                     if (isFromSearch) {
@@ -1399,5 +1421,32 @@ class ReviewAndEditRequestViewModel(
 
     override fun onNotesChanged(value: String) {
         updateState { it.copy(notes = value) }
+    }
+
+    override fun onToggleEnrolledInDeaconSchool(enrolled: Boolean) {
+        if (!state.value.isAdmin) return
+        updateState { it.copy(isEnrolledInDeaconSchool = enrolled) }
+    }
+
+    override fun onToggleDeaconSchoolPaid(isPaid: Boolean) {
+        if (!state.value.isAdmin) return
+        updateState { it.copy(isDeaconSchoolPaid = isPaid) }
+    }
+
+    override fun onDeaconSchoolPaidAmountChange(amount: String) {
+        if (!state.value.isAdmin) return
+        if (amount.isEmpty() || (amount.all { it.isDigit() || it == '.' } && amount.count { it == '.' } <= 1)) {
+            updateState { it.copy(deaconSchoolPaidAmount = amount) }
+        }
+    }
+
+    override fun onDeaconSchoolStatusSelected(status: DeaconsSchoolStatus) {
+        if (!state.value.isAdmin) return
+        updateState { it.copy(deaconSchoolStatus = status) }
+    }
+
+    override fun onToggleDeaconSchoolStatusSheet(visible: Boolean) {
+        if (!state.value.isAdmin && visible) return
+        updateState { it.copy(isDeaconSchoolStatusSheetVisible = visible) }
     }
 }

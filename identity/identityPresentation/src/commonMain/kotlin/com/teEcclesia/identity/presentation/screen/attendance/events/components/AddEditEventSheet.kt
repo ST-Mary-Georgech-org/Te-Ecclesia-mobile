@@ -203,6 +203,8 @@ private fun AddEditEventSheetPreview() = Theme {
             override fun onConfirmDeleteEvent() {}
             override fun onDismissSheet() {}
             override fun onClickEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
+            override fun onRefresh() {}
+            override fun onLoadMore() {}
         }
     )
 }

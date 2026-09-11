@@ -18,7 +18,9 @@ data class AttendeeUserPreviewDto(
     @SerialName("yearName")
     val yearName: String? = null,
     @SerialName("code")
-    val code: String? = null
+    val code: String? = null,
+    @SerialName("imageUrl")
+    val imageUrl: String? = null
 )
 
 fun AttendeeUserPreviewDto.toDomain(): AttendeeUserPreview {
@@ -28,6 +30,7 @@ fun AttendeeUserPreviewDto.toDomain(): AttendeeUserPreview {
         role = runCatching { UserRole.valueOf(role) }.getOrDefault(UserRole.MAKHDOOM),
         stageName = stageName,
         yearName = yearName,
-        code = code
+        code = code,
+        imageUrl = imageUrl
     )
 }

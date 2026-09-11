@@ -6,6 +6,8 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.AddUserRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
+import com.teEcclesia.identity.api.AcademicYearSettingsRoute
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.SettingsRepository
@@ -49,6 +51,9 @@ class ProfileViewModel(
                             imageUrl = cached.imageUrl,
                             whatsAppLink =  cached.whatsAppLink
                         )
+                    }
+                    if (cached.role == UserRole.ADMIN) {
+                        loadAcademicYear()
                     }
                 }
             },
@@ -183,6 +188,20 @@ class ProfileViewModel(
 
     fun openNotificationSettings() {
         notificationPermissionHandler.openNotificationSettings()
+    }
+
+    fun loadAcademicYear() {
+        tryToCall(
+            block = { profileRepository.getCurrentAcademicYear() },
+            onSuccess = { year ->
+                updateState { copy(currentAcademicYear = year.toString()) }
+            },
+            onError = { }
+        )
+    }
+
+    fun onClickEditAcademicYear() {
+        navigate(AcademicYearSettingsRoute)
     }
 }
 

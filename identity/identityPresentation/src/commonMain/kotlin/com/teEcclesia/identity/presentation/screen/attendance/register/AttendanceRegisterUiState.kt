@@ -17,7 +17,12 @@ data class AttendanceRegisterUiState(
     val eventId: Long = 0,
     val serviceName: String = "",
     val eventName: String = "",
+    val isResponsible: Boolean = false,
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
+    val isPagingLoading: Boolean = false,
+    val isLastPage: Boolean = false,
+    val totalAttendees: Long = 0,
     val attendees: List<EventAttendee> = emptyList(),
     val isScannerOpen: Boolean = false,
     val userCodeInput: String = "",
@@ -26,7 +31,10 @@ data class AttendanceRegisterUiState(
     val searchUserError: UiText? = null,
     val isRemoveConfirmSheetOpen: Boolean = false,
     val removingAttendee: EventAttendee? = null,
-    val isActionLoading: Boolean = false
+    val isActionLoading: Boolean = false,
+    val suggestedUsers: List<AttendeeUserPreview> = emptyList(),
+    val isSearchingSuggestions: Boolean = false,
+    val isSuggestionsDropdownVisible: Boolean = false
 )
 
 fun UserRole.toDisplayString(): StringResource = when (this) {

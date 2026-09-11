@@ -9,6 +9,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 import com.teEcclesia.identity.data.dto.PriestDto
+import com.teEcclesia.identity.data.dto.UserSummaryDto
 import com.teEcclesia.identity.data.dto.toDomain
 import com.teEcclesia.identity.domain.model.CachedProfile
 import com.teEcclesia.shared.domain.utils.getNow
@@ -90,7 +91,11 @@ data class ProfileResponseDto(
     @SerialName("createdAt")
     val createdAt: String? = null,
     @SerialName("actionTakenAt")
-    val actionTakenAt: String? = null
+    val actionTakenAt: String? = null,
+    @SerialName("actionTakenBy")
+    val actionTakenBy: UserSummaryDto? = null,
+    @SerialName("deaconsSchoolRecord")
+    val deaconsSchoolRecord: DeaconsSchoolRecordDto? = null
 )
 
 fun ProfileResponseDto.toDomain() = ProfileResponse(
@@ -131,7 +136,9 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     ordinationProfile = ordinationProfile?.toDomain(),
     makhdoomProfile = makhdoomProfile?.toDomain(),
     createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow(),
-    actionTakenAt = actionTakenAt
+    actionTakenAt = actionTakenAt,
+    actionTakenBy = actionTakenBy?.toDomain(),
+    deaconsSchoolRecord = deaconsSchoolRecord?.toDomain()
 )
 
 fun ProfileResponseDto.toCachedProfile() = CachedProfile(
