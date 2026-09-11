@@ -147,6 +147,9 @@ fun RegisterStep1Content(
                 externalPriestChurchError = state.externalPriestChurchError?.asString(),
                 externalPriestPhone = state.externalPriestPhone,
                 externalPriestPhoneError = state.externalPriestPhoneError?.asString(),
+                isPriestLoading = state.isPriestLoading,
+                isPriestLoadFailed = state.isPriestLoadFailed,
+                onRetryLoadPriests = listener::onRetryLoadPriests,
                 onTogglePriestSheet = listener::onTogglePriestSheet,
                 onSelectConfessionPriest = listener::onSelectConfessionPriest,
                 onSelectFromAnotherChurch = listener::onSelectFromAnotherChurch,
@@ -255,8 +258,12 @@ private fun RegisterStep1ContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

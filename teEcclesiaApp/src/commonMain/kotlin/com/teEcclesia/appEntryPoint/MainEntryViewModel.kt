@@ -13,14 +13,18 @@ import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.VerifyPhoneRoute
 import com.teEcclesia.identity.domain.model.AuthState
 import com.teEcclesia.identity.domain.model.UserStatus
+import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
+import com.teEcclesia.shared.domain.push.PushTokenProvider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 
 class MainEntryViewModel(
     private val authorizationService: AuthorizationService,
     private val profileRepository: ProfileRepository,
+    private val authenticationRepository: AuthenticationRepository,
+    private val pushTokenProvider: PushTokenProvider,
 ) : BaseViewModel<MainEntryState>(MainEntryState()),
     MainEntryInteractionListener {
 
@@ -47,8 +51,23 @@ class MainEntryViewModel(
     }
 
     private var lastHandledAuthState: AuthState? = null
-
     private var job: Job? = null
+
+    fun syncPushTokenIfLoggedIn() {
+        if (authorizationService.observeAuthState().value == AuthState.AUTHENTICATED) {
+            launch {
+                try {
+                    val token = pushTokenProvider.getToken()
+                    if (!token.isNullOrBlank()) {
+                        authenticationRepository.updateDeviceToken(token)
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
+
 
     fun handleAuthState(authState: AuthState, currentRoute: NavKey?) {
         job?.cancel()

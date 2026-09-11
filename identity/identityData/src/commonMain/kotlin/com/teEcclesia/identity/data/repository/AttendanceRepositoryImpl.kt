@@ -13,10 +13,14 @@ import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
+import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
+import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
 import com.teEcclesia.shared.data.shared.BaseRepository
+import com.teEcclesia.shared.domain.utils.PagedData
 import io.ktor.client.HttpClient
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.parameter
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -29,28 +33,52 @@ class AttendanceRepositoryImpl(
     client: HttpClient
 ) : BaseRepository(client), AttendanceRepository {
 
-    override suspend fun getServices(): List<ChurchService> {
-        val dtos = tryToExecute<List<ChurchServiceDto>> {
-            get("/api/v1/attendance/services")
+    override suspend fun getServices(page: Int, size: Int): PagedData<ChurchService> {
+        val response = tryToExecute<BasePagedData<ChurchServiceDto>> {
+            get("/api/v1/attendance/services") {
+                parameter("page", page)
+                parameter("size", size)
+            }
         }
-        return dtos.map { it.toDomain() }
+        return response.toPagedData { it.toDomain() }
     }
 
-    override suspend fun createService(name: String): ChurchService {
+    override suspend fun createService(
+        name: String,
+        educationalStageId: Long?,
+        responsibleServantIds: List<String>
+    ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
             post("/api/v1/attendance/services") {
                 contentType(ContentType.Application.Json)
-                setBody(CreateServiceDto(name = name))
+                setBody(
+                    CreateServiceDto(
+                        name = name,
+                        educationalStageId = educationalStageId,
+                        responsibleServantIds = responsibleServantIds
+                    )
+                )
             }
         }
         return dto.toDomain()
     }
 
-    override suspend fun updateService(id: Long, name: String): ChurchService {
+    override suspend fun updateService(
+        id: Long,
+        name: String,
+        educationalStageId: Long?,
+        responsibleServantIds: List<String>
+    ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
             put("/api/v1/attendance/services/$id") {
                 contentType(ContentType.Application.Json)
-                setBody(CreateServiceDto(name = name))
+                setBody(
+                    CreateServiceDto(
+                        name = name,
+                        educationalStageId = educationalStageId,
+                        responsibleServantIds = responsibleServantIds
+                    )
+                )
             }
         }
         return dto.toDomain()
@@ -62,11 +90,14 @@ class AttendanceRepositoryImpl(
         }
     }
 
-    override suspend fun getEvents(serviceId: Long): List<ServiceEvent> {
-        val dtos = tryToExecute<List<ServiceEventDto>> {
-            get("/api/v1/attendance/services/$serviceId/events")
+    override suspend fun getEvents(serviceId: Long, page: Int, size: Int): PagedData<ServiceEvent> {
+        val response = tryToExecute<BasePagedData<ServiceEventDto>> {
+            get("/api/v1/attendance/services/$serviceId/events") {
+                parameter("page", page)
+                parameter("size", size)
+            }
         }
-        return dtos.map { it.toDomain() }
+        return response.toPagedData { it.toDomain() }
     }
 
     override suspend fun createEvent(
@@ -121,11 +152,14 @@ class AttendanceRepositoryImpl(
         }
     }
 
-    override suspend fun getAttendees(eventId: Long): List<EventAttendee> {
-        val dtos = tryToExecute<List<EventAttendeeDto>> {
-            get("/api/v1/attendance/events/$eventId/attendees")
+    override suspend fun getAttendees(eventId: Long, page: Int, size: Int): PagedData<EventAttendee> {
+        val response = tryToExecute<BasePagedData<EventAttendeeDto>> {
+            get("/api/v1/attendance/events/$eventId/attendees") {
+                parameter("page", page)
+                parameter("size", size)
+            }
         }
-        return dtos.map { it.toDomain() }
+        return response.toPagedData { it.toDomain() }
     }
 
     override suspend fun getUserByCode(code: String): AttendeeUserPreview {
@@ -133,6 +167,24 @@ class AttendanceRepositoryImpl(
             get("/api/v1/attendance/users/by-code/$code")
         }
         return dto.toDomain()
+    }
+
+    override suspend fun searchUsers(query: String): List<AttendeeUserPreview> {
+        val dtos = tryToExecute<List<AttendeeUserPreviewDto>> {
+            get("/api/v1/attendance/users/search") {
+                parameter("query", query)
+            }
+        }
+        return dtos.map { it.toDomain() }
+    }
+
+    override suspend fun searchServants(query: String): List<AttendeeUserPreview> {
+        val dtos = tryToExecute<List<AttendeeUserPreviewDto>> {
+            get("/api/v1/attendance/servants/search") {
+                parameter("query", query)
+            }
+        }
+        return dtos.map { it.toDomain() }
     }
 
     override suspend fun addAttendee(eventId: Long, code: String): EventAttendee {

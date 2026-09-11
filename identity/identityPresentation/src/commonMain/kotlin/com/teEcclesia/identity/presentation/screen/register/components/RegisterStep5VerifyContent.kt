@@ -172,8 +172,12 @@ private fun RegisterStep5VerifyContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

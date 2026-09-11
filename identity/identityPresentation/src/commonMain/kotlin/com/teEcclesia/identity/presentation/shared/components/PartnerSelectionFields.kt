@@ -23,6 +23,7 @@ fun PartnerSelectionFields(
     onPartnerQueryChange: (String) -> Unit,
     onSearchPartner: () -> Unit,
     onRemovePartner: () -> Unit,
+    isLoading: Boolean = false,
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -35,8 +36,9 @@ fun PartnerSelectionFields(
             errorText = errorText,
             modifier = modifier.fillMaxWidth(),
             singleLine = true,
-            trailingIcon = painterResource(Res.drawable.ic_plus),
-            onTrailingIconClick = onSearchPartner,
+            trailingIcon = if (partnerQuery.isNotBlank()) painterResource(Res.drawable.ic_plus) else null,
+            onTrailingIconClick = if (partnerQuery.isNotBlank()) onSearchPartner else null,
+            isLoading = isLoading,
         )
     } else {
         UserChip(

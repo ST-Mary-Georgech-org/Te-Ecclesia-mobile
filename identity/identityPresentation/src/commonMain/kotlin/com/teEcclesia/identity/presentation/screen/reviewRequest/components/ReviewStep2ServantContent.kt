@@ -57,7 +57,10 @@ fun ReviewStep2ServantContent(
                     onToggleSheet = listener::onToggleServantStageSheet,
                     onSelectStage = listener::onToggleServantStageSelection,
                     label = stringResource(Res.string.educational_stages),
-                    onLoadNextStages = listener::onLoadNextEducationalStages
+                    onLoadNextStages = listener::onLoadNextEducationalStages,
+                    isStageLoading = state.isStageLoading,
+                    isStageLoadFailed = state.isStageLoadFailed,
+                    onRetryLoadStages = listener::onRetryLoadEducationalStages
                 )
 
                 AnimatedVisibility(
@@ -115,7 +118,10 @@ fun ReviewStep2ServantContent(
                     onToggleSheet = listener::onToggleResponsibleStageSheet,
                     onSelectStage = listener::onToggleResponsibleStageSelection,
                     label = stringResource(Res.string.responsible_stages_optional),
-                    onLoadNextStages = listener::onLoadNextEducationalStages
+                    onLoadNextStages = listener::onLoadNextEducationalStages,
+                    isStageLoading = state.isStageLoading,
+                    isStageLoadFailed = state.isStageLoadFailed,
+                    onRetryLoadStages = listener::onRetryLoadEducationalStages
                 )
 
                 EducationalYearSelectField(

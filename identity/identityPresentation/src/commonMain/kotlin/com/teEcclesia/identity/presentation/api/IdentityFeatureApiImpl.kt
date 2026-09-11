@@ -18,8 +18,10 @@ import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
+import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
+import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsScreen
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListScreen
 import com.teEcclesia.identity.presentation.screen.attendance.register.AttendanceRegisterScreen
 import com.teEcclesia.identity.presentation.screen.attendance.services.ServicesListScreen
@@ -72,15 +74,20 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
             entry<AttendanceEventsRoute> { route ->
                 EventsListScreen(
                     serviceId = route.serviceId,
-                    serviceName = route.serviceName
+                    serviceName = route.serviceName,
+                    isResponsible = route.isResponsible
                 )
             }
             entry<AttendanceRegisterRoute> { route ->
                 AttendanceRegisterScreen(
                     eventId = route.eventId,
                     serviceName = route.serviceName,
-                    eventName = route.eventName
+                    eventName = route.eventName,
+                    isResponsible = route.isResponsible
                 )
+            }
+            entry<AcademicYearSettingsRoute> {
+                AcademicYearSettingsScreen()
             }
         }
     }

@@ -118,6 +118,9 @@ fun RegisterStep2Content(
                 onToggleAreaSheet = listener::onToggleAreaSheet,
                 onSelectArea = listener::onSelectArea,
                 areaError = state.areaError?.asString(),
+                isAreaLoading = state.isAreaLoading,
+                isAreaLoadFailed = state.isAreaLoadFailed,
+                onRetryLoadAreas = listener::onRetryLoadAreas,
                 floor = state.floor,
                 onFloorChange = listener::onFloorChange,
                 floorError = state.floorError?.asString(),
@@ -220,8 +223,12 @@ private fun RegisterStep2ContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

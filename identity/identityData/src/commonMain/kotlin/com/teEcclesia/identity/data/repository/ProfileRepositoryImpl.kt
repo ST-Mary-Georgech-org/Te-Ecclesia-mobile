@@ -10,8 +10,13 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.patch
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.request.parameter
+import io.ktor.http.ContentType
+import io.ktor.http.contentType
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.AcademicYearResponseDto
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateAcademicYearRequestDto
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
@@ -270,8 +275,31 @@ class ProfileRepositoryImpl(
         return response.toPagedData { it.toDomain() }
     }
 
+    override suspend fun downloadFile(url: String): ByteArray {
+        return tryToExecute<ByteArray> {
+            get(url)
+        }
+    }
+
+    override suspend fun getCurrentAcademicYear(): Int {
+        val response = tryToExecute<AcademicYearResponseDto> {
+            get(ACADEMIC_YEAR_ENDPOINT)
+        }
+        return response.academicYear
+    }
+
+    override suspend fun updateCurrentAcademicYear(year: Int) {
+        tryToExecute<AcademicYearResponseDto> {
+            put(ACADEMIC_YEAR_ENDPOINT) {
+                contentType(ContentType.Application.Json)
+                setBody(UpdateAcademicYearRequestDto(year))
+            }
+        }
+    }
+
     companion object {
         const val GET_ME_ENDPOINT = "api/v1/identity/auth/me"
         const val GET_REGISTRATION_REQUESTS_ENDPOINT = "api/v1/users/status/PENDING_APPROVAL"
+        const val ACADEMIC_YEAR_ENDPOINT = "api/v1/settings/academic-year"
     }
 }

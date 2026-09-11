@@ -2,6 +2,7 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest
 
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
+import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
@@ -20,6 +21,10 @@ interface ReviewAndEditRequestInteractionListener {
 
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
+    fun onDismissImageViewer()
+    fun onDismissPdfViewer()
+    fun onClickOrdinationCertificate()
+    fun onClickIdentityCertificate()
     fun onCodeChanged(value: String)
     fun onFirstNameChanged(value: String)
     fun onSecondNameChanged(value: String)
@@ -72,9 +77,11 @@ interface ReviewAndEditRequestInteractionListener {
     fun onToggleFatherDeceased(deceased: Boolean)
     fun onFatherPhoneChange(value: String)
     fun onFatherWhatsappChange(value: String)
+    fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean)
     fun onToggleMotherDeceased(deceased: Boolean)
     fun onMotherPhoneChange(value: String)
     fun onMotherWhatsappChange(value: String)
+    fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean)
 
     fun onToggleServantStageSelection(stage: LookupResponse)
     fun onToggleServantStageSheet(visible: Boolean)
@@ -96,7 +103,17 @@ interface ReviewAndEditRequestInteractionListener {
     fun onToggleEducationalStageSelection(stage: LookupResponse)
     fun onToggleStagesSheet(visible: Boolean)
     fun onLoadNextEducationalStages()
+    fun onRetryLoadEducationalStages()
     fun onLoadNextRanks()
+    fun onRetryLoadRanks()
+    fun onRetryLoadPriests()
+    fun onRetryLoadAreas()
 
     fun onNotesChanged(value: String)
+
+    fun onToggleEnrolledInDeaconSchool(enrolled: Boolean)
+    fun onToggleDeaconSchoolPaid(isPaid: Boolean)
+    fun onDeaconSchoolPaidAmountChange(amount: String)
+    fun onDeaconSchoolStatusSelected(status: DeaconsSchoolStatus)
+    fun onToggleDeaconSchoolStatusSheet(visible: Boolean)
 }

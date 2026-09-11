@@ -38,12 +38,14 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.identity.presentation.shared.components.LookupContentContainer
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.educational_stages
+import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.ok
@@ -126,41 +128,49 @@ fun RegisterStep4KahenContent(
         )
 
 
-        LazyColumn(
-            state = stageListState,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f, fill = false),
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+        LookupContentContainer(
+            isLoading = state.isStageLoading,
+            isError = state.isStageLoadFailed,
+            isEmpty = state.educationalStages.isEmpty(),
+            errorMessage = stringResource(Res.string.failed_to_load_educational_stages),
+            onRetry = listener::onRetryLoadEducationalStages
         ) {
-            items(
-                items = state.educationalStages,
-                key = { stage -> stage.id }
-            ) { stage ->
-                val isSelected = state.kahenEducationalStages.any { it.id == stage.id }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickableNoRipple {
-                            listener.onToggleEducationalStageSelection(stage)
-                        }
-                        .padding(vertical = 12.dp, horizontal = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Checkbox(
-                        checked = isSelected,
-                        onCheckedChange = {
-                            listener.onToggleEducationalStageSelection(stage)
-                        },
-                        checkedColor = Theme.colorScheme.primary,
-                        uncheckedColor = Theme.colorScheme.outline
-                    )
-                    Text(
-                        text = stage.name,
-                        style = Theme.typography.bodyLarge,
-                        color = Theme.colorScheme.onSurface
-                    )
+            LazyColumn(
+                state = stageListState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f, fill = false),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                items(
+                    items = state.educationalStages,
+                    key = { stage -> stage.id }
+                ) { stage ->
+                    val isSelected = state.kahenEducationalStages.any { it.id == stage.id }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickableNoRipple {
+                                listener.onToggleEducationalStageSelection(stage)
+                            }
+                            .padding(vertical = 12.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Checkbox(
+                            checked = isSelected,
+                            onCheckedChange = {
+                                listener.onToggleEducationalStageSelection(stage)
+                            },
+                            checkedColor = Theme.colorScheme.primary,
+                            uncheckedColor = Theme.colorScheme.outline
+                        )
+                        Text(
+                            text = stage.name,
+                            style = Theme.typography.bodyLarge,
+                            color = Theme.colorScheme.onSurface
+                        )
+                    }
                 }
             }
         }
@@ -274,8 +284,12 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -49,7 +50,7 @@ fun BottomSheet(
             !(!canSwipeToDismiss && sheetValue == SheetValue.Hidden && isVisible)
         }
     )
-    var showSheet by remember { mutableStateOf(false) }
+    var showSheet by remember { mutableStateOf(isVisible) }
 
     LaunchedEffect(isVisible) {
         if (isVisible) {
@@ -67,16 +68,16 @@ fun BottomSheet(
     if (showSheet) {
         ModalBottomSheet(
             onDismissRequest = {
-                if (canSwipeToDismiss) {
-                    showSheet = false
-                    onDismiss()
-                }
+                showSheet = false
+                onDismiss()
             },
+            sheetGesturesEnabled = canSwipeToDismiss,
             contentWindowInsets = { WindowInsets(0.dp) },
             sheetState = sheetState,
             containerColor = containerColor,
             scrimColor = scrimColor,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+            tonalElevation = 0.dp,
+            shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             dragHandle = if (showDragHandle) {
                 { BottomSheetDragHandle() }
             } else null
@@ -87,6 +88,7 @@ fun BottomSheet(
                     .wrapContentHeight()
                     .background(containerColor)
                     .padding(horizontal = horizontalPadding)
+                    .navigationBarsPadding()
                     .padding(bottom = 16.dp),
                 content = content
             )

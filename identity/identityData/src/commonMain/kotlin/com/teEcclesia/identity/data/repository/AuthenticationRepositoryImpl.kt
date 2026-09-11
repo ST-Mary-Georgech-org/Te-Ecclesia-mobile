@@ -10,7 +10,6 @@ import com.teEcclesia.identity.data.dataSource.local.setting.responsibleStageIds
 import com.teEcclesia.identity.data.dataSource.local.setting.responsibleYearIds
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
-import com.teEcclesia.identity.data.dataSource.local.setting.cachedProfileJson
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -23,11 +22,11 @@ import com.teEcclesia.identity.domain.model.LoginRequest
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
+import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.exception.UnAuthorizedException
 import com.teEcclesia.shared.domain.exception.UserIsBlockedException
-import com.mmk.kmpnotifier.KMPNotifier
-import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
+import com.teEcclesia.shared.domain.push.PushTokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
@@ -35,15 +34,16 @@ import io.ktor.client.request.setBody
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
-
-import com.teEcclesia.identity.domain.repository.SettingsRepository
 
 class AuthenticationRepositoryImpl(
     client: HttpClient,
     private val settings: Settings,
     private val settingsRepository: SettingsRepository,
+    private val pushTokenProvider: PushTokenProvider,
 ) : BaseRepository(client), AuthenticationRepository {
 
     private val observableToken: MutableStateFlow<String> = MutableStateFlow(getInitialToken())
@@ -91,7 +91,7 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun login(request: LoginRequest) {
-        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val deviceToken = pushTokenProvider.getToken().orEmpty()
         val response = tryToExecute<AuthenticationResponse> {
             post(LOGIN_ENDPOINT) {
                 setBody(request.toDto(deviceToken))
@@ -104,7 +104,7 @@ class AuthenticationRepositoryImpl(
     }
 
     override suspend fun logout() {
-        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val deviceToken = pushTokenProvider.getToken().orEmpty()
         withContext(NonCancellable) {
             tryToExecute<Unit> {
                 post(LOGOUT_ENDPOINT) {
@@ -118,7 +118,7 @@ class AuthenticationRepositoryImpl(
     override suspend fun refreshAccessToken(): String {
         return withContext(NonCancellable) {
             try {
-                val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+                val deviceToken = pushTokenProvider.getToken().orEmpty()
                 val response = tryToExecute<AuthenticationResponse> {
                     post(REFRESH_ENDPOINT) {
                         setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
@@ -140,11 +140,13 @@ class AuthenticationRepositoryImpl(
     private suspend fun clearAuthState() {
         client.invalidateAuthTokens()
         clearAuthTokens()
-        KMPNotifier.firebasePushNotifier.deleteMyToken()
+        lastSyncedDeviceToken = null
+        pushTokenProvider.deleteToken()
     }
 
+
     override suspend fun refreshRegistrationToken(): String {
-        val deviceToken = KMPNotifier.firebasePushNotifier.getToken()
+        val deviceToken = pushTokenProvider.getToken().orEmpty()
         val response = tryToExecute<AuthenticationResponse> {
             post(REFRESH_REGISTRATION_ENDPOINT) {
                 setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
@@ -290,25 +292,35 @@ class AuthenticationRepositoryImpl(
                 status == UserStatus.PENDING_APPROVAL
     }
 
+    private val deviceTokenMutex = Mutex()
+    private var lastSyncedDeviceToken: String? = null
+
     override suspend fun updateDeviceToken(deviceToken: String) {
-        val refreshToken = settings.refreshToken
-        if (refreshToken.isNotBlank()) {
-            try {
-                tryToExecute<Unit> {
-                    patch(DEVICE_TOKEN_ENDPOINT) {
-                        setBody(
-                            UpdateDeviceTokenRequestDto(
-                                refreshToken = refreshToken,
-                                deviceToken = deviceToken
+        if (deviceToken.isBlank()) return
+        deviceTokenMutex.withLock {
+            if (deviceToken == lastSyncedDeviceToken) return
+            val refreshToken = settings.refreshToken
+            if (refreshToken.isNotBlank()) {
+                try {
+                    tryToExecute<Unit> {
+                        patch(DEVICE_TOKEN_ENDPOINT) {
+                            setBody(
+                                UpdateDeviceTokenRequestDto(
+                                    refreshToken = refreshToken,
+                                    deviceToken = deviceToken
+                                )
                             )
-                        )
+                        }
                     }
+                    lastSyncedDeviceToken = deviceToken
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                 }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
             }
         }
     }
+
+
 
     override fun observeTokenChange(): StateFlow<String> = observableToken
 
@@ -336,7 +348,7 @@ class AuthenticationRepositoryImpl(
     }
 
     private suspend fun syncDeviceTokenIfAvailable() {
-        val deviceToken = runCatching { KMPNotifier.firebasePushNotifier.getToken() }.getOrNull()
+        val deviceToken = pushTokenProvider.getToken()
         if (!deviceToken.isNullOrBlank()) {
             updateDeviceToken(deviceToken)
         }

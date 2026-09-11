@@ -14,6 +14,7 @@ kotlin {
     targets.withType<KotlinNativeTarget> {
         binaries.withType<Framework> {
             export(projects.logging)
+            export(projects.notifications.notificationsData)
         }
     }
 
@@ -36,7 +37,8 @@ kotlin {
                 
                 implementation(projects.lookups.lookupsData)
                 implementation(projects.lookups.lookupsDomain)
-                implementation(projects.notifications.notificationsData)
+                implementation(projects.shared.sharedDomain)
+                api(projects.notifications.notificationsData)
                 implementation(projects.notifications.notificationsDomain)
                 implementation(projects.notifications.notificationsApi)
                 implementation(projects.notifications.notificationsPresentation)

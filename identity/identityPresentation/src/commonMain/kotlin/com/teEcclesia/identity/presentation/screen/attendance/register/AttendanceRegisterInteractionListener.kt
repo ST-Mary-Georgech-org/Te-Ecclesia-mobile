@@ -1,14 +1,20 @@
 package com.teEcclesia.identity.presentation.screen.attendance.register
 
+import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 
 interface AttendanceRegisterInteractionListener {
     fun onClickBack()
-    fun onClickAddPerson()
+    fun onToggleScanner()
+    fun onCloseScanner()
     fun onUserCodeChanged(code: String)
-    fun onSearchUserByCode()
-    fun onConfirmAddPerson()
+    fun onManualSubmit()
+    fun onQrCodeScanned(code: String)
     fun onClickRemoveAttendee(attendee: EventAttendee)
     fun onConfirmRemoveAttendee()
     fun onDismissSheet()
+    fun onRefresh()
+    fun onLoadMore()
+    fun onSelectSuggestedUser(user: AttendeeUserPreview)
+    fun onDismissSuggestions()
 }

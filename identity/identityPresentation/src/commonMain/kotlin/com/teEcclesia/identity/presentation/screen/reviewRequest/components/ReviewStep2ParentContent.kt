@@ -50,6 +50,7 @@ fun ReviewStep2ParentContent(
                     onPartnerQueryChange = listener::onPartnerQueryChange,
                     onSearchPartner = listener::onSearchPartner,
                     onRemovePartner = listener::onRemovePartner,
+                    isLoading = state.isPartnerLoading,
                     errorText = state.partnerError?.asString()
                 )
 
@@ -65,6 +66,7 @@ fun ReviewStep2ParentContent(
                     onSearchChild = listener::onSearchChild,
                     selectedChildren = state.selectedChildren,
                     onRemoveChild = listener::onRemoveChild,
+                    isLoading = state.isChildLoading,
                     errorText = state.childError?.asString()
                 )
 

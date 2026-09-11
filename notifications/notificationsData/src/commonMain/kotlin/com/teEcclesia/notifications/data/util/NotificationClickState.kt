@@ -1,20 +1,19 @@
-package com.teEcclesia.util
+package com.teEcclesia.notifications.data.util
 
 import com.mmk.kmpnotifier.notification.PayloadData
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.receiveAsFlow
 
 object NotificationClickState {
     private var pendingPayload: PayloadData? = null
 
-    private val _clickChannel = Channel<PayloadData>(Channel.BUFFERED)
-    val clickFlow = _clickChannel.receiveAsFlow()
+    private val _clickFlow = MutableSharedFlow<PayloadData>(extraBufferCapacity = 1)
+    val clickFlow = _clickFlow.asSharedFlow()
 
     fun onNotificationClicked(data: PayloadData) {
         if (data.isNotEmpty()) {
-            _clickChannel.trySend(data)
+            pendingPayload = data
+            _clickFlow.tryEmit(data)
         }
     }
 

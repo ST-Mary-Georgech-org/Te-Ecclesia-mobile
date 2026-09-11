@@ -1,5 +1,7 @@
 package com.teEcclesia.identity.domain.model
 
+import com.teEcclesia.shared.domain.model.UserRole
+
 data class RegisterRequest(
     val firstName: String,
     val secondName: String,
@@ -20,7 +22,7 @@ data class RegisterRequest(
     val floor: String,
     val apartment: String?,
     val specialMark: String,
-    val role: com.teEcclesia.shared.domain.model.UserRole?,
+    val role: UserRole?,
     val confessionPriestId: String?,
     val externalConfessionPriestName: String?,
     val externalConfessionChurch: String?,
@@ -29,5 +31,6 @@ data class RegisterRequest(
     val makhdoomProfile: MakhdoomProfileRequest? = null,
     val parentProfile: ParentProfileRequest? = null,
     val khademProfile: KhademProfileRequest? = null,
-    val kahenProfile: KahenProfileRequest? = null
+    val kahenProfile: KahenProfileRequest? = null,
+    val deaconsSchoolRecord: DeaconsSchoolRecordRequest? = null
 )

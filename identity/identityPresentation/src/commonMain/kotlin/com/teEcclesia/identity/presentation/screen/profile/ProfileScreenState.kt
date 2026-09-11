@@ -15,5 +15,8 @@ data class ProfileScreenState(
     val imageUrl: String? = null,
     val whatsAppLink: String? = null,
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val isNotificationPermissionGranted: Boolean = true,
+    val currentAcademicYear: String = ""
 )
+

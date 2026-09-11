@@ -32,6 +32,11 @@ kotlin {
 
                 implementation(libs.koin.core)
                 implementation(projects.logging)
+
+                implementation(libs.qr.kit)
+                implementation(libs.moko.permissions)
+                implementation(libs.moko.permissions.compose)
+                implementation(libs.moko.permissions.camera)
             }
         }
 

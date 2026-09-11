@@ -1,33 +1,99 @@
 package com.teEcclesia.identity.presentation.screen.attendance.events
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
+import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.AttendanceRegisterRoute
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
-import com.teEcclesia.shared.domain.utils.getToday
+import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.identity.presentation.util.toPagedData
+import com.teEcclesia.shared.domain.utils.formatTime
+import com.teEcclesia.shared.domain.utils.getNow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.failed_to_delete_event
+import teecclesia.designsystem.generated.resources.failed_to_load_events
+import teecclesia.designsystem.generated.resources.failed_to_save_event
 
 class EventsListViewModel(
     serviceId: Long,
     serviceName: String,
+    isResponsible: Boolean,
     private val attendanceRepository: AttendanceRepository
-) : BaseViewModel<EventsListUiState>(EventsListUiState(serviceId = serviceId, serviceName = serviceName)), EventsListInteractionListener {
+) : BaseViewModel<EventsListUiState>(EventsListUiState(serviceId = serviceId, serviceName = serviceName, isResponsible = isResponsible)), EventsListInteractionListener {
+
+    private val pageSize = 20
+
+    private val eventsPaginator = createPaginator(
+        loadPage = { page ->
+            attendanceRepository.getEvents(
+                serviceId = state.value.serviceId,
+                page = page,
+                size = pageSize
+            ).toPagedData()
+        },
+        onSuccess = { items ->
+            updateState { current ->
+                current.copy(
+                    isLoading = false,
+                    isPagingLoading = false,
+                    isRefreshing = false,
+                    events = current.events + items.data,
+                    totalEvents = items.totalItems,
+                    isLastPage = items.isLastPage
+                )
+            }
+        },
+        onLoadUpdated = { loading ->
+            updateState { current ->
+                if (current.events.isEmpty() && !current.isRefreshing) {
+                    current.copy(isLoading = loading)
+                } else if (!current.isRefreshing) {
+                    current.copy(isPagingLoading = loading)
+                } else {
+                    current
+                }
+            }
+        },
+        onReset = {
+            updateState { it.copy(events = emptyList(), isLastPage = false) }
+        },
+        onError = { throwable ->
+            updateState { current ->
+                current.copy(
+                    isLoading = false,
+                    isPagingLoading = false,
+                    isRefreshing = false
+                )
+            }
+            throwable?.let { t ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_load_events),
+                    message = getLocalizedErrorMessage(t),
+                    isSuccess = false
+                )
+            }
+        }
+    )
 
     init {
         loadEvents()
     }
 
     private fun loadEvents() {
-        tryToCall(
-            onStart = { updateState { copy(isLoading = true) } },
-            block = { attendanceRepository.getEvents(state.value.serviceId) },
-            onSuccess = { events ->
-                updateState { copy(events = events) }
-            },
-            onError = { },
-            onEnd = { updateState { copy(isLoading = false) } }
-        )
+        eventsPaginator.reset()
+    }
+
+    override fun onRefresh() {
+        updateState { it.copy(isRefreshing = true) }
+        loadEvents()
+    }
+
+    override fun onLoadMore() {
+        if (!state.value.isLastPage && !state.value.isPagingLoading && !state.value.isLoading) {
+            eventsPaginator.loadNextItems()
+        }
     }
 
     override fun onClickBack() {
@@ -35,15 +101,20 @@ class EventsListViewModel(
     }
 
     override fun onClickAddEvent() {
-        val today = getToday()
+        val now = getNow()
+        val startTime = now.time
+        val endTime = LocalTime((now.hour + 1) % 24, now.minute)
         updateState {
             copy(
                 isAddEditSheetOpen = true,
                 editingEvent = null,
                 eventNameInput = "",
-                eventDateInput = today.toString(),
-                startTimeInput = "18:00",
-                endTimeInput = "20:00"
+                eventDateInput = now.date.toString(),
+                startTimeInput = startTime.formatTime(),
+                endTimeInput = endTime.formatTime(),
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false
             )
         }
     }
@@ -55,8 +126,11 @@ class EventsListViewModel(
                 editingEvent = event,
                 eventNameInput = event.name ?: "",
                 eventDateInput = event.eventDate.toString(),
-                startTimeInput = event.startTime.toString(),
-                endTimeInput = event.endTime.toString()
+                startTimeInput = event.startTime.formatTime(),
+                endTimeInput = event.endTime.formatTime(),
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false
             )
         }
     }
@@ -74,16 +148,40 @@ class EventsListViewModel(
         updateState { copy(eventNameInput = name) }
     }
 
-    override fun onEventDateChanged(date: String) {
-        updateState { copy(eventDateInput = date) }
+    override fun onClickDatePicker() {
+        updateState { copy(isDatePickerOpen = true) }
     }
 
-    override fun onStartTimeChanged(time: String) {
-        updateState { copy(startTimeInput = time) }
+    override fun onDismissDatePicker() {
+        updateState { copy(isDatePickerOpen = false) }
     }
 
-    override fun onEndTimeChanged(time: String) {
-        updateState { copy(endTimeInput = time) }
+    override fun onDateSelected(date: LocalDate) {
+        updateState { copy(eventDateInput = date.toString(), isDatePickerOpen = false) }
+    }
+
+    override fun onClickStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = true) }
+    }
+
+    override fun onDismissStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = false) }
+    }
+
+    override fun onStartTimeSelected(time: LocalTime) {
+        updateState { copy(startTimeInput = time.formatTime(), isStartTimePickerOpen = false) }
+    }
+
+    override fun onClickEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = true) }
+    }
+
+    override fun onDismissEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = false) }
+    }
+
+    override fun onEndTimeSelected(time: LocalTime) {
+        updateState { copy(endTimeInput = time.formatTime(), isEndTimePickerOpen = false) }
     }
 
     override fun onConfirmSaveEvent() {
@@ -122,7 +220,13 @@ class EventsListViewModel(
                 onDismissSheet()
                 loadEvents()
             },
-            onError = { },
+            onError = { throwable ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_save_event),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            },
             onEnd = { updateState { copy(isActionLoading = false) } }
         )
     }
@@ -136,7 +240,13 @@ class EventsListViewModel(
                 onDismissSheet()
                 loadEvents()
             },
-            onError = { },
+            onError = { throwable ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_delete_event),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            },
             onEnd = { updateState { copy(isActionLoading = false) } }
         )
     }
@@ -150,6 +260,9 @@ class EventsListViewModel(
                 eventDateInput = "",
                 startTimeInput = "",
                 endTimeInput = "",
+                isDatePickerOpen = false,
+                isStartTimePickerOpen = false,
+                isEndTimePickerOpen = false,
                 isDeleteConfirmSheetOpen = false,
                 deletingEvent = null
             )
@@ -161,7 +274,8 @@ class EventsListViewModel(
             AttendanceRegisterRoute(
                 eventId = event.id,
                 serviceName = state.value.serviceName,
-                eventName = event.name ?: state.value.serviceName
+                eventName = event.name ?: state.value.serviceName,
+                isResponsible = state.value.isResponsible
             )
         )
     }

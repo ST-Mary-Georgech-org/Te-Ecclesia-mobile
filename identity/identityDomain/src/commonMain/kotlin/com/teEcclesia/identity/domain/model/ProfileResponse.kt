@@ -4,7 +4,7 @@ import kotlinx.datetime.LocalDateTime
 
 data class ProfileResponse(
     val id: String,
-    val code: String = "",
+    val code: String,
     val firstName: String,
     val secondName: String,
     val thirdName: String,
@@ -40,5 +40,7 @@ data class ProfileResponse(
     val ordinationProfile: OrdinationProfileResponse?,
     val makhdoomProfile: MakhdoomProfileResponse?,
     val createdAt: LocalDateTime,
-    val actionTakenAt: String? = null
+    val actionTakenAt: String?,
+    val actionTakenBy: UserSummary?,
+    val deaconsSchoolRecord: DeaconsSchoolRecord?
 )

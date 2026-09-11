@@ -9,12 +9,12 @@ import androidx.compose.ui.tooling.preview.Preview
     name = "Light Mode",
     uiMode = UI_MODE_NIGHT_NO,
     group = "Themes",
-    heightDp = 1000
+    heightDp = 1500
 )
 @Preview(
     name = "Dark Mode",
     uiMode = UI_MODE_NIGHT_YES or UI_MODE_TYPE_NORMAL,
     group = "Themes",
-    heightDp = 1000
+    heightDp = 1500
 )
 annotation class PreviewThemes

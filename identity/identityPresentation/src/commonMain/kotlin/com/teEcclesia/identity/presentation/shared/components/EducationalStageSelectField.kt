@@ -30,6 +30,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.educational_stage
+import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.ok
 
@@ -45,6 +46,9 @@ fun EducationalStageSelectField(
     onSelectStage: (LookupResponse) -> Unit,
     label: String = stringResource(Res.string.educational_stage),
     onLoadNextStages: () -> Unit = {},
+    isStageLoading: Boolean = false,
+    isStageLoadFailed: Boolean = false,
+    onRetryLoadStages: () -> Unit = {},
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -58,6 +62,9 @@ fun EducationalStageSelectField(
         onToggleSheet = onToggleSheet,
         onSelectStage = onSelectStage,
         onLoadNextStages = onLoadNextStages,
+        isStageLoading = isStageLoading,
+        isStageLoadFailed = isStageLoadFailed,
+        onRetryLoadStages = onRetryLoadStages,
         errorText = errorText,
         modifier = modifier
     )
@@ -75,6 +82,9 @@ fun EducationalStageSelectField(
     onSelectStage: (LookupResponse) -> Unit,
     label: String = stringResource(Res.string.educational_stage),
     onLoadNextStages: () -> Unit = {},
+    isStageLoading: Boolean = false,
+    isStageLoadFailed: Boolean = false,
+    onRetryLoadStages: () -> Unit = {},
     errorText: String? = null,
     modifier: Modifier = Modifier
 ) {
@@ -88,6 +98,9 @@ fun EducationalStageSelectField(
         onToggleSheet = onToggleSheet,
         onSelectStage = onSelectStage,
         onLoadNextStages = onLoadNextStages,
+        isStageLoading = isStageLoading,
+        isStageLoadFailed = isStageLoadFailed,
+        onRetryLoadStages = onRetryLoadStages,
         errorText = errorText,
         modifier = modifier
     )
@@ -104,6 +117,9 @@ private fun EducationalStageSelectContent(
     onToggleSheet: (Boolean) -> Unit,
     onSelectStage: (LookupResponse) -> Unit,
     onLoadNextStages: () -> Unit,
+    isStageLoading: Boolean,
+    isStageLoadFailed: Boolean,
+    onRetryLoadStages: () -> Unit,
     errorText: String?,
     modifier: Modifier = Modifier
 ) {
@@ -133,64 +149,72 @@ private fun EducationalStageSelectContent(
                 modifier = Modifier.padding(top = 8.dp, bottom = 16.dp)
             )
 
-            LazyColumn(
-                state = stageListState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f, fill = false),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+            LookupContentContainer(
+                isLoading = isStageLoading,
+                isError = isStageLoadFailed,
+                isEmpty = educationalStages.isEmpty(),
+                errorMessage = stringResource(Res.string.failed_to_load_educational_stages),
+                onRetry = onRetryLoadStages
             ) {
-                items(
-                    items = educationalStages,
-                    key = { stage -> stage.id }
-                ) { stage ->
-                    val selected = isSelected(stage)
+                LazyColumn(
+                    state = stageListState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f, fill = false),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    items(
+                        items = educationalStages,
+                        key = { stage -> stage.id }
+                    ) { stage ->
+                        val selected = isSelected(stage)
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickableNoRipple {
-                                onSelectStage(stage)
-                                if (!isMultiSelect) {
-                                    onToggleSheet(false)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickableNoRipple {
+                                    onSelectStage(stage)
+                                    if (!isMultiSelect) {
+                                        onToggleSheet(false)
+                                    }
                                 }
+                                .padding(vertical = 12.dp, horizontal = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            if (isMultiSelect) {
+                                Checkbox(
+                                    checked = selected,
+                                    onCheckedChange = { onSelectStage(stage) },
+                                    checkedColor = Theme.colorScheme.primary,
+                                    uncheckedColor = Theme.colorScheme.outline
+                                )
                             }
-                            .padding(vertical = 12.dp, horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        if (isMultiSelect) {
-                            Checkbox(
-                                checked = selected,
-                                onCheckedChange = { onSelectStage(stage) },
-                                checkedColor = Theme.colorScheme.primary,
-                                uncheckedColor = Theme.colorScheme.outline
+                            Text(
+                                text = stage.name,
+                                style = Theme.typography.bodyLarge,
+                                color = Theme.colorScheme.onSurface
                             )
                         }
-                        Text(
-                            text = stage.name,
-                            style = Theme.typography.bodyLarge,
-                            color = Theme.colorScheme.onSurface
-                        )
                     }
                 }
-            }
 
-            PaginationTrigger(
-                list = educationalStages,
-                listState = stageListState,
-                remainingItemsToLoadNextPage = 5,
-                loadNextItems = onLoadNextStages
-            )
-
-            if (isMultiSelect) {
-                Spacer(modifier = Modifier.height(16.dp))
-                AppButton(
-                    type = AppButtonType.Primary,
-                    onClick = { onToggleSheet(false) },
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.ok)
+                PaginationTrigger(
+                    list = educationalStages,
+                    listState = stageListState,
+                    remainingItemsToLoadNextPage = 5,
+                    loadNextItems = onLoadNextStages
                 )
+
+                if (isMultiSelect) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    AppButton(
+                        type = AppButtonType.Primary,
+                        onClick = { onToggleSheet(false) },
+                        text = stringResource(Res.string.ok),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
     }

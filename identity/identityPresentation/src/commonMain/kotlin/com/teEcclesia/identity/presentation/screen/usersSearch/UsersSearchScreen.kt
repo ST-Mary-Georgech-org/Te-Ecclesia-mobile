@@ -41,6 +41,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.teEcclesia.identity.presentation.shared.components.LookupContentContainer
+import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.chips.FilterChip
@@ -349,7 +351,7 @@ private fun UserCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = user.displayName,
+                    text = user.fullName,
                     style = Theme.typography.bodyMedium,
                     color = Theme.colorScheme.onSecondaryContainer
                 )
@@ -494,35 +496,43 @@ private fun FilterBottomSheet(
                 color = Theme.colorScheme.onSurface
             )
 
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            LookupContentContainer(
+                isLoading = state.isStageLoading,
+                isError = state.isStageLoadFailed,
+                isEmpty = state.stages.isEmpty(),
+                errorMessage = stringResource(Res.string.failed_to_load_educational_stages),
+                onRetry = listener::onRetryLoadStages
             ) {
-                if (!state.isStageFilterLocked) {
-                    FilterChip(
-                        selected = state.selectedStage == null,
-                        onClick = { listener.onStageFilterSelected(null) },
-                        label = {
-                            Text(
-                                text = stringResource(Res.string.all_stages),
-                                style = Theme.typography.bodyMedium,
-                                color = if (state.selectedStage == null) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    )
-                }
-                state.stages.forEach { stage ->
-                    FilterChip(
-                        selected = state.selectedStage?.id == stage.id,
-                        onClick = { listener.onStageFilterSelected(stage) },
-                        label = {
-                            Text(
-                                text = stage.name,
-                                style = Theme.typography.bodyMedium,
-                                color = if (state.selectedStage?.id == stage.id) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    )
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    if (!state.isStageFilterLocked) {
+                        FilterChip(
+                            selected = state.selectedStage == null,
+                            onClick = { listener.onStageFilterSelected(null) },
+                            label = {
+                                Text(
+                                    text = stringResource(Res.string.all_stages),
+                                    style = Theme.typography.bodyMedium,
+                                    color = if (state.selectedStage == null) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        )
+                    }
+                    state.stages.forEach { stage ->
+                        FilterChip(
+                            selected = state.selectedStage?.id == stage.id,
+                            onClick = { listener.onStageFilterSelected(stage) },
+                            label = {
+                                Text(
+                                    text = stage.name,
+                                    style = Theme.typography.bodyMedium,
+                                    color = if (state.selectedStage?.id == stage.id) Theme.colorScheme.onSecondaryContainer else Theme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        )
+                    }
                 }
             }
 

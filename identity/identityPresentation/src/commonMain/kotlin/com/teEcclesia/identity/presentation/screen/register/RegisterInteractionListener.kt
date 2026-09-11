@@ -64,9 +64,11 @@ interface RegisterInteractionListener {
     fun onToggleFatherDeceased(deceased: Boolean)
     fun onFatherPhoneChange(value: String)
     fun onFatherWhatsappChange(value: String)
+    fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
     fun onToggleMotherDeceased(deceased: Boolean)
     fun onMotherPhoneChange(value: String)
     fun onMotherWhatsappChange(value: String)
+    fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
     
     // Parent search
     fun onPartnerQueryChange(query: String)
@@ -79,16 +81,24 @@ interface RegisterInteractionListener {
     // Upload & Bottom Sheet
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
+    fun onDismissImageViewer() {}
+    fun onDismissPdfViewer() {}
+    fun onClickOrdinationCertificate() {}
+    fun onClickIdentityCertificate() {}
     fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?)
     
     // Step 5: Verify
     fun onClickVerifyWhatsApp()
     fun onClickCheckWhatsAppStatus()
 
-    // Pagination
+    // Pagination & Retry
     fun onLoadNextPriests()
+    fun onRetryLoadPriests()
+    fun onRetryLoadAreas()
     fun onLoadNextRanks()
+    fun onRetryLoadRanks()
     fun onLoadNextEducationalStages()
+    fun onRetryLoadEducationalStages()
 
     fun onRefresh() {}
 }

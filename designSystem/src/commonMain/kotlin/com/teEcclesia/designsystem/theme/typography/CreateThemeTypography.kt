@@ -2,44 +2,45 @@ package com.teEcclesia.designsystem.theme.typography
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import org.jetbrains.compose.resources.Font
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.poppins_medium
-import teecclesia.designsystem.generated.resources.poppins_regular
-import teecclesia.designsystem.generated.resources.poppins_semi_bold
-
-import androidx.compose.runtime.remember
+import teecclesia.designsystem.generated.resources.cairo_bold
+import teecclesia.designsystem.generated.resources.cairo_medium
+import teecclesia.designsystem.generated.resources.cairo_regular
+import teecclesia.designsystem.generated.resources.cairo_semi_bold
 
 @Composable
 fun createThemeTypography(): Typography {
-    val regular = Font(resource = Res.font.poppins_regular, FontWeight.Normal)
-    val medium = Font(resource = Res.font.poppins_medium, FontWeight.Medium)
-    val semiBold = Font(resource = Res.font.poppins_semi_bold, FontWeight.SemiBold)
+    val regular = Font(resource = Res.font.cairo_regular, FontWeight.Normal)
+    val medium = Font(resource = Res.font.cairo_medium, FontWeight.Medium)
+    val semiBold = Font(resource = Res.font.cairo_semi_bold, FontWeight.SemiBold)
+    val bold = Font(resource = Res.font.cairo_bold, FontWeight.Bold)
 
-    val poppinsFontFamily = remember(regular, medium, semiBold) {
-        FontFamily(regular, medium, semiBold)
+    val fontFamily = remember(regular, medium, semiBold, bold) {
+        FontFamily(regular, medium, semiBold, bold)
     }
 
-    return remember(poppinsFontFamily) {
+    return remember(fontFamily) {
         val defaultTypography = Typography()
         Typography(
-            displayLarge = defaultTypography.displayLarge.copy(fontFamily = poppinsFontFamily),
-            displayMedium = defaultTypography.displayMedium.copy(fontFamily = poppinsFontFamily),
-            displaySmall = defaultTypography.displaySmall.copy(fontFamily = poppinsFontFamily),
-            headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = poppinsFontFamily),
-            headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = poppinsFontFamily),
-            headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = poppinsFontFamily),
-            titleLarge = defaultTypography.titleLarge.copy(fontFamily = poppinsFontFamily),
-            titleMedium = defaultTypography.titleMedium.copy(fontFamily = poppinsFontFamily),
-            titleSmall = defaultTypography.titleSmall.copy(fontFamily = poppinsFontFamily),
-            bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = poppinsFontFamily),
-            bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = poppinsFontFamily),
-            bodySmall = defaultTypography.bodySmall.copy(fontFamily = poppinsFontFamily),
-            labelLarge = defaultTypography.labelLarge.copy(fontFamily = poppinsFontFamily),
-            labelMedium = defaultTypography.labelMedium.copy(fontFamily = poppinsFontFamily),
-            labelSmall = defaultTypography.labelSmall.copy(fontFamily = poppinsFontFamily)
+            displayLarge = defaultTypography.displayLarge.copy(fontFamily = fontFamily),
+            displayMedium = defaultTypography.displayMedium.copy(fontFamily = fontFamily),
+            displaySmall = defaultTypography.displaySmall.copy(fontFamily = fontFamily),
+            headlineLarge = defaultTypography.headlineLarge.copy(fontFamily = fontFamily),
+            headlineMedium = defaultTypography.headlineMedium.copy(fontFamily = fontFamily),
+            headlineSmall = defaultTypography.headlineSmall.copy(fontFamily = fontFamily),
+            titleLarge = defaultTypography.titleLarge.copy(fontFamily = fontFamily),
+            titleMedium = defaultTypography.titleMedium.copy(fontFamily = fontFamily),
+            titleSmall = defaultTypography.titleSmall.copy(fontFamily = fontFamily),
+            bodyLarge = defaultTypography.bodyLarge.copy(fontFamily = fontFamily),
+            bodyMedium = defaultTypography.bodyMedium.copy(fontFamily = fontFamily),
+            bodySmall = defaultTypography.bodySmall.copy(fontFamily = fontFamily),
+            labelLarge = defaultTypography.labelLarge.copy(fontFamily = fontFamily),
+            labelMedium = defaultTypography.labelMedium.copy(fontFamily = fontFamily),
+            labelSmall = defaultTypography.labelSmall.copy(fontFamily = fontFamily)
         )
     }
 }

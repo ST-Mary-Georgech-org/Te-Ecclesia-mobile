@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -68,6 +69,7 @@ fun CustomTextField(
     trailingIcon: Painter? = null,
     onTrailingIconClick: (() -> Unit)? = null,
     trailingIconColor: Color? = null,
+    isLoading: Boolean = false,
     backgroundColor: Color = Color.Unspecified,
     textColor: Color = Theme.colorScheme.onSurfaceVariant,
     textStyle: TextStyle = Theme.typography.bodyLarge,
@@ -256,7 +258,7 @@ fun CustomTextField(
             suffix = rememberedSuffix,
             label = rememberedLabel,
             leadingIcon = rememberedLeadingIcon,
-            trailingIcon = trailingIcon?.let { painter ->
+            trailingIcon = if (isLoading || trailingIcon != null) {
                 {
                     Row(
                         verticalAlignment = Alignment.CenterVertically
@@ -273,29 +275,37 @@ fun CustomTextField(
                             )
                         }
 
-                        Icon(
-                            painter = painter,
-                            contentDescription = null,
-                            tint = resolvedTrailingIconColor,
-                            modifier = Modifier
-                                .size(24.dp)
-                                .scale(
-                                    scaleX = if (isRtl) -1f else 1f,
-                                    scaleY = 1f
-                                )
-                                .thenIf(onTrailingIconClick != null || onClick != null) {
-                                    clickableNoRipple {
-                                        onTrailingIconClick?.invoke() ?: onClick?.let {
-                                            focusManager.clearFocus()
-                                            it()
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                color = colors.primary,
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        } else if (trailingIcon != null) {
+                            Icon(
+                                painter = trailingIcon,
+                                contentDescription = null,
+                                tint = resolvedTrailingIconColor,
+                                modifier = Modifier
+                                    .size(24.dp)
+                                    .scale(
+                                        scaleX = if (isRtl) -1f else 1f,
+                                        scaleY = 1f
+                                    )
+                                    .thenIf(onTrailingIconClick != null || onClick != null) {
+                                        clickableNoRipple {
+                                            onTrailingIconClick?.invoke() ?: onClick?.let {
+                                                focusManager.clearFocus()
+                                                it()
+                                            }
                                         }
                                     }
-                                }
-                        )
+                            )
+                        }
                         Spacer(Modifier.width(8.dp))
                     }
                 }
-            },
+            } else null,
             shape = shape,
             colors = textFieldColors,
             modifier = Modifier.fillMaxWidth()

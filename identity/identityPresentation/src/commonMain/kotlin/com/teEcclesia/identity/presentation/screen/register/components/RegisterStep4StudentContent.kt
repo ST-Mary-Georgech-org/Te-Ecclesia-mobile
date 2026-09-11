@@ -85,6 +85,9 @@ fun RegisterStep4StudentContent(
                     onToggleRankSheet = listener::onToggleRankSheet,
                     onSelectRank = listener::onSelectRank,
                     rankError = state.rankError?.asString(),
+                    isRankLoading = state.isRankLoading,
+                    isRankLoadFailed = state.isRankLoadFailed,
+                    onRetryLoadRanks = listener::onRetryLoadRanks,
                     isOrdainedInThisChurch = state.isOrdainedInThisChurch,
                     onToggleOrdainedInThisChurch = listener::onToggleOrdainedInThisChurch,
                     ordinationYear = state.ordinationYear,
@@ -117,6 +120,9 @@ fun RegisterStep4StudentContent(
                 onToggleStageSheet = listener::onToggleStageSheet,
                 isStageSheetVisible = state.isStageSheetVisible,
                 educationalStages = state.educationalStages,
+                isStageLoading = state.isStageLoading,
+                isStageLoadFailed = state.isStageLoadFailed,
+                onRetryLoadStages = listener::onRetryLoadEducationalStages,
                 onSelectEducationalStage = listener::onSelectEducationalStage,
                 onLoadNextEducationalStages = listener::onLoadNextEducationalStages,
                 stageError = state.stageError?.asString(),
@@ -136,14 +142,18 @@ fun RegisterStep4StudentContent(
                 fatherWhatsapp = state.fatherWhatsapp,
                 onFatherWhatsappChange = listener::onFatherWhatsappChange,
                 fatherWhatsappError = state.fatherWhatsappError?.asString(),
+                isFatherWhatsappSameAsPhone = state.isFatherWhatsappSameAsPhone,
+                onToggleFatherWhatsappSameAsPhone = listener::onToggleFatherWhatsappSameAsPhone,
                 isMotherDeceased = state.isMotherDeceased,
                 onToggleMotherDeceased = listener::onToggleMotherDeceased,
                 motherPhone = state.motherPhone,
-                onMotherPhoneChange = listener::onMotherPhoneChange,
                 motherPhoneError = state.motherPhoneError?.asString(),
+                onMotherPhoneChange = listener::onMotherPhoneChange,
                 motherWhatsapp = state.motherWhatsapp,
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
+                isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
+                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
                 identityCertificateFileName = state.identityCertificateFileName,
                 identityCertificateError = state.identityCertificateError?.asString(),
                 onUploadIdentityCertificate = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
@@ -278,11 +288,22 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onFatherPhoneChange(value: String) {
-                state = state.copy(fatherPhone = value, fatherPhoneError = null)
+                state = state.copy(
+                    fatherPhone = value,
+                    fatherPhoneError = null,
+                    fatherWhatsapp = if (state.isFatherWhatsappSameAsPhone) value else state.fatherWhatsapp
+                )
             }
 
             override fun onFatherWhatsappChange(value: String) {
                 state = state.copy(fatherWhatsapp = value, fatherWhatsappError = null)
+            }
+
+            override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {
+                state = state.copy(
+                    isFatherWhatsappSameAsPhone = isSame,
+                    fatherWhatsapp = if (isSame) state.fatherPhone else state.fatherWhatsapp
+                )
             }
 
             override fun onToggleMotherDeceased(deceased: Boolean) {
@@ -294,11 +315,22 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onMotherPhoneChange(value: String) {
-                state = state.copy(motherPhone = value, motherPhoneError = null)
+                state = state.copy(
+                    motherPhone = value,
+                    motherPhoneError = null,
+                    motherWhatsapp = if (state.isMotherWhatsappSameAsPhone) value else state.motherWhatsapp
+                )
             }
 
             override fun onMotherWhatsappChange(value: String) {
                 state = state.copy(motherWhatsapp = value, motherWhatsappError = null)
+            }
+
+            override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {
+                state = state.copy(
+                    isMotherWhatsappSameAsPhone = isSame,
+                    motherWhatsapp = if (isSame) state.motherPhone else state.motherWhatsapp
+                )
             }
 
             override fun onPartnerQueryChange(query: String) {}
@@ -319,8 +351,12 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}
+            override fun onRetryLoadPriests() {}
+            override fun onRetryLoadAreas() {}
             override fun onLoadNextRanks() {}
+            override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
+            override fun onRetryLoadEducationalStages() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {
