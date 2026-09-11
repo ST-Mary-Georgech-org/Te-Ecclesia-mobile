@@ -7,8 +7,8 @@ import kotlinx.serialization.Serializable
 data class CreateServiceDto(
     @SerialName("name")
     val name: String,
-    @SerialName("educationalStageId")
-    val educationalStageId: Long?,
+    @SerialName("educationalStageIds")
+    val educationalStageIds: List<Long>,
     @SerialName("responsibleServantIds")
     val responsibleServantIds: List<String>
 )

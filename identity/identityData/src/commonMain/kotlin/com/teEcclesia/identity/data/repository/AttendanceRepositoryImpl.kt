@@ -45,7 +45,7 @@ class AttendanceRepositoryImpl(
 
     override suspend fun createService(
         name: String,
-        educationalStageId: Long?,
+        educationalStageIds: List<Long>,
         responsibleServantIds: List<String>
     ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
@@ -54,7 +54,7 @@ class AttendanceRepositoryImpl(
                 setBody(
                     CreateServiceDto(
                         name = name,
-                        educationalStageId = educationalStageId,
+                        educationalStageIds = educationalStageIds,
                         responsibleServantIds = responsibleServantIds
                     )
                 )
@@ -66,7 +66,7 @@ class AttendanceRepositoryImpl(
     override suspend fun updateService(
         id: Long,
         name: String,
-        educationalStageId: Long?,
+        educationalStageIds: List<Long>,
         responsibleServantIds: List<String>
     ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
@@ -75,7 +75,7 @@ class AttendanceRepositoryImpl(
                 setBody(
                     CreateServiceDto(
                         name = name,
-                        educationalStageId = educationalStageId,
+                        educationalStageIds = educationalStageIds,
                         responsibleServantIds = responsibleServantIds
                     )
                 )
