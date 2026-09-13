@@ -205,6 +205,9 @@ data class ReviewAndEditRequestUiState(
     val canGoNext: Boolean
         get() = currentStep < totalSteps
 
+    val fullName: String
+        get() = "$firstName $secondName $thirdName $lastName"
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false

@@ -2,6 +2,7 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
@@ -47,10 +48,6 @@ import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_ch
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
-import teecclesia.designsystem.generated.resources.failed_to_load_areas
-import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
-import teecclesia.designsystem.generated.resources.failed_to_load_priests
-import teecclesia.designsystem.generated.resources.failed_to_load_ranks
 import teecclesia.designsystem.generated.resources.failed_to_load_request
 import teecclesia.designsystem.generated.resources.failed_to_reject_request
 import teecclesia.designsystem.generated.resources.failed_to_search_child
@@ -625,6 +622,12 @@ class ReviewAndEditRequestViewModel(
     override fun onClickBack() {
         popBackStack()
     }
+
+    override fun onClickViewAttendanceHistory() {
+        val name = state.value.fullName
+        navigate(AttendanceHistoryRoute(userId = state.value.userId, userName = name))
+    }
+
 
     override fun onNextStep() {
         if (state.value.currentStep == 1 && !validateStep1()) return

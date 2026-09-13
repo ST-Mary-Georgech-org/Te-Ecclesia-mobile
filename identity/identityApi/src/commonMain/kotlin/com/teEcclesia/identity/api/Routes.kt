@@ -65,3 +65,9 @@ data class AttendanceEventsRoute(
 
 @Serializable
 data object AcademicYearSettingsRoute : NavKey
+
+@Serializable
+data class AttendanceHistoryRoute(
+    val userId: String,
+    val userName: String = ""
+) : NavKey

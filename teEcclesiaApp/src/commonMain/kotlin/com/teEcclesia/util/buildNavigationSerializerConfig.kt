@@ -12,6 +12,7 @@ import com.teEcclesia.identity.api.AddUserRoute
 import com.teEcclesia.identity.api.AttendanceEventsRoute
 import com.teEcclesia.identity.api.AttendanceRegisterRoute
 import com.teEcclesia.identity.api.AttendanceServicesRoute
+import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.api.CreateNewPasswordRoute
 import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.api.ForgotPasswordRoute
@@ -48,6 +49,8 @@ fun buildNavigationSerializerConfig(): SavedStateConfiguration = SavedStateConfi
             subclass(AttendanceRegisterRoute::class, AttendanceRegisterRoute.serializer())
             subclass(EditUserRoute::class, EditUserRoute.serializer())
             subclass(AcademicYearSettingsRoute::class, AcademicYearSettingsRoute.serializer())
+            subclass(AttendanceHistoryRoute::class, AttendanceHistoryRoute.serializer())
         }
     }
 }
+

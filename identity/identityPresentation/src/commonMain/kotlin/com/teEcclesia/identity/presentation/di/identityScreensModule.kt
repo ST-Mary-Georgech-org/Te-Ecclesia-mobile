@@ -1,6 +1,7 @@
 package com.teEcclesia.identity.presentation.di
 
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListViewModel
+import com.teEcclesia.identity.presentation.screen.attendance.history.AttendanceHistoryViewModel
 import com.teEcclesia.identity.presentation.screen.attendance.register.AttendanceRegisterViewModel
 import com.teEcclesia.identity.presentation.screen.attendance.services.ServicesListViewModel
 import com.teEcclesia.identity.presentation.screen.login.LoginViewModel
@@ -60,6 +61,14 @@ val identityScreensModule = module {
             attendanceRepository = get()
         )
     }
+    viewModel { parameters ->
+        AttendanceHistoryViewModel(
+            userId = parameters.get(),
+            userName = parameters.getOrNull<String>() ?: "",
+            attendanceRepository = get()
+        )
+    }
+
     viewModel { parameters ->
         ReviewAndEditRequestViewModel(
             userId = parameters.getOrNull<String>(),

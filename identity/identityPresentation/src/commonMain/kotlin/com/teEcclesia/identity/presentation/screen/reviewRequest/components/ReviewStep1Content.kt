@@ -69,6 +69,7 @@ import teecclesia.designsystem.generated.resources.optional_password_hint
 import teecclesia.designsystem.generated.resources.password
 import teecclesia.designsystem.generated.resources.personal_info
 import teecclesia.designsystem.generated.resources.should_have_whatsapp
+import teecclesia.designsystem.generated.resources.view_attendance_history
 
 @Composable
 fun ReviewStep1Content(
@@ -125,6 +126,15 @@ fun ReviewStep1Content(
                     )
                 }
             }
+        }
+
+        if (state.isUpdateMode && state.userId.isNotBlank()) {
+            AppButton(
+                text = stringResource(Res.string.view_attendance_history),
+                onClick = listener::onClickViewAttendanceHistory,
+                type = AppButtonType.Secondary,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         ReviewSectionCard(
@@ -336,6 +346,7 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onClickViewAttendanceHistory() {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
 

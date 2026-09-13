@@ -1,11 +1,13 @@
 package com.teEcclesia.identity.presentation.screen.login
 
 import com.teEcclesia.identity.api.ForgotPasswordRoute
+import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.LoginRequest
+import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.presentation.util.toUiText
@@ -67,7 +69,18 @@ class LoginViewModel(
                 )
                 profileRepository.getRegistrationProfile()
             },
-            onSuccess = { },
+            onSuccess = { profile ->
+                when (profile.status) {
+                    UserStatus.PENDING_APPROVAL -> resetTo(PendingApprovalRoute, forceNavigate = true)
+                    UserStatus.APPROVED -> resetTo(ProfileRoute, forceNavigate = true)
+                    UserStatus.PROFILE_INCOMPLETE,
+                    UserStatus.UNVERIFIED -> resetTo(SignUpRoute(), forceNavigate = true)
+                    UserStatus.REJECTED,
+                    UserStatus.BANNED -> {
+                        launch { authenticationRepository.clearAuthTokens() }
+                    }
+                }
+            },
             onError = { error ->
                 when (error) {
                     is IncompleteProfileException -> {

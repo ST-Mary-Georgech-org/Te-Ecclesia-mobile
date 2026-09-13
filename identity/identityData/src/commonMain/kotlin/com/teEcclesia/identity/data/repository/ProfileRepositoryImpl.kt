@@ -54,6 +54,10 @@ class ProfileRepositoryImpl(
         val wasRegistrationPending = authorizationService.isRegistrationPending()
         saveUserAuthorizationDetails(domainProfile)
 
+        if (domainProfile.status == UserStatus.BANNED || domainProfile.status == UserStatus.REJECTED) {
+            sessionManager.onUserBlocked()
+        }
+
         if (wasRegistrationPending && domainProfile.status == UserStatus.APPROVED) {
             try {
                 authorizationService.upgradeRegistrationToken()

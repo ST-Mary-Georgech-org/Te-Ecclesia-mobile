@@ -18,6 +18,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onRejectRequest(reason: String)
     fun onToggleRejectDialog(isVisible: Boolean)
     fun onRefresh()
+    fun onClickViewAttendanceHistory()
 
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()

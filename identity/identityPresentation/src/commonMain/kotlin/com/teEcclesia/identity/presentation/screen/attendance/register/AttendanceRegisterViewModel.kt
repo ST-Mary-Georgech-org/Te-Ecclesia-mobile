@@ -2,6 +2,7 @@ package com.teEcclesia.identity.presentation.screen.attendance.register
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
@@ -254,4 +255,9 @@ class AttendanceRegisterViewModel(
             )
         }
     }
+
+    override fun onClickAttendee(attendee: EventAttendee) {
+        navigate(AttendanceHistoryRoute(userId = attendee.userId, userName = attendee.name))
+    }
 }
+

@@ -30,7 +30,6 @@ import com.teEcclesia.designsystem.navigation.effector.EffectHandler
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.AttendanceServicesRoute
-import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.domain.service.AuthorizationService
@@ -52,8 +51,6 @@ fun EntryPoint(
     permissionHandler: NotificationPermissionHandler = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val authState by authorizationService.observeAuthState().collectAsStateWithLifecycle()
-    val accessToken by authorizationService.observeAccessToken().collectAsStateWithLifecycle()
 
     var isNotificationPermissionGranted by remember { mutableStateOf(true) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -86,8 +83,7 @@ fun EntryPoint(
     }
 
     val navigationSerializerConfig = remember { buildNavigationSerializerConfig() }
-    val backStack = rememberNavBackStack(navigationSerializerConfig,
-        viewModel.getStaticInitialRoute(authState))
+    val backStack = rememberNavBackStack(navigationSerializerConfig, viewModel.startDestination)
     val currentRoute = backStack.lastOrNull()
 
     LaunchedEffect(currentRoute) {
@@ -124,10 +120,6 @@ fun EntryPoint(
             || currentRoute is ProfileRoute
             || currentRoute is RegistrationRequestsRoute
             || currentRoute is AttendanceServicesRoute
-
-    LaunchedEffect(authState, accessToken) {
-        viewModel.handleAuthState(authState, currentRoute)
-    }
 
     Box(
         modifier = Modifier.fillMaxSize(),

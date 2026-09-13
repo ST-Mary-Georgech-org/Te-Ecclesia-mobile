@@ -359,4 +359,10 @@
     <string name="no_stage">بدون مرحلة</string>
     <string name="maximum_servants_reached">لا يمكن إضافة أكثر من 30 خادم مسؤول</string>
     <string name="maximum_stages_reached">لا يمكن اختيار أكثر من 10 مراحل</string>
+    <string name="view_attendance_history">عرض سجل الحضور</string>
+    <string name="attendance_history">سجل الحضور</string>
+    <string name="failed_to_load_attendance_history">فشل تحميل سجل الحضور</string>
+    <string name="no_attendance_history_found">لا يوجد سجل حضور مسجل</string>
+    <string name="total_attended_sessions">إجمالي مرات الحضور</string>
+    <string name="attended_at">تم التسجيل</string>
 </resources>

@@ -4,6 +4,7 @@ import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
+import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.shared.domain.utils.PagedData
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
@@ -39,4 +40,6 @@ interface AttendanceRepository {
     suspend fun searchServants(query: String): List<AttendeeUserPreview>
     suspend fun addAttendee(eventId: Long, code: String): EventAttendee
     suspend fun removeAttendee(eventId: Long, userId: String)
+    suspend fun getUserAttendanceHistory(userId: String, serviceId: Long? = null, page: Int, size: Int = 20): PagedData<UserAttendanceHistory>
 }
+
