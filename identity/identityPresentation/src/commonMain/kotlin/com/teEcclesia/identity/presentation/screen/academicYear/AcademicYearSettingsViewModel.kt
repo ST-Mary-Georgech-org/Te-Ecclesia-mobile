@@ -112,7 +112,7 @@ class AcademicYearSettingsViewModel(
                     message = null,
                     isSuccess = true
                 )
-                popBackStack()
+                popBackStack(KEY_UPDATED_ACADEMIC_YEAR to yearInt.toString())
             },
             onError = { throwable ->
                 showSnackBar(
@@ -134,5 +134,9 @@ class AcademicYearSettingsViewModel(
 
     override fun onClickBack() {
         popBackStack()
+    }
+
+    companion object {
+        const val KEY_UPDATED_ACADEMIC_YEAR = "updatedAcademicYear"
     }
 }

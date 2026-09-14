@@ -77,7 +77,6 @@ fun ProfileScreen(
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.checkNotificationPermission()
-            viewModel.loadAcademicYear()
         }
     }
 
