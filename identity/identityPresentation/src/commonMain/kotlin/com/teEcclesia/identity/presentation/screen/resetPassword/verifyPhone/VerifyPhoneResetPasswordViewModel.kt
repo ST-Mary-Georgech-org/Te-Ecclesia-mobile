@@ -6,7 +6,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.CreateNewPasswordRoute
 import com.teEcclesia.identity.domain.model.VerificationMethod
 import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_verify_code
 import teecclesia.designsystem.generated.resources.verification_pending

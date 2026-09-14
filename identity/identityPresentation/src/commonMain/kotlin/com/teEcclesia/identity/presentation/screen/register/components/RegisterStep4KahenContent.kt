@@ -38,7 +38,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
-import com.teEcclesia.identity.presentation.shared.components.LookupContentContainer
+import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource

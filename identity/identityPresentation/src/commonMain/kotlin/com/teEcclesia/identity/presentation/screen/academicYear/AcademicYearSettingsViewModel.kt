@@ -4,7 +4,7 @@ import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.academic_year_updated_successfully
 import teecclesia.designsystem.generated.resources.failed_to_load_academic_year

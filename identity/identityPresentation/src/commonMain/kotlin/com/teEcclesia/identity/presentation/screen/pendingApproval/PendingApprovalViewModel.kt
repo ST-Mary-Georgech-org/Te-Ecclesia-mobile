@@ -9,7 +9,7 @@ import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_occurred
 

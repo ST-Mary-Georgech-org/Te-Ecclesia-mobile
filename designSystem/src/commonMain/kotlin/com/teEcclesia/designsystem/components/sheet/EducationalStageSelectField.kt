@@ -1,4 +1,4 @@
-package com.teEcclesia.identity.presentation.shared.components
+package com.teEcclesia.designsystem.components.sheet
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,14 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.checkbox.Checkbox
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
-import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
@@ -36,15 +34,18 @@ import teecclesia.designsystem.generated.resources.no_stage
 import teecclesia.designsystem.generated.resources.ok
 
 /**
- * Single-select Educational Stage field overload (with optional clear support).
+ * Single-select Generic Educational Stage field overload (with optional clear support).
  */
 @Composable
-fun EducationalStageSelectField(
-    selectedStage: LookupResponse?,
-    educationalStages: List<LookupResponse>,
+fun <T> EducationalStageSelectField(
+    selectedStage: T?,
+    educationalStages: List<T>,
+    itemTitle: (T) -> String,
+    itemId: (T) -> Any,
+    isSelected: (T) -> Boolean,
     isSheetVisible: Boolean,
     onToggleSheet: (Boolean) -> Unit,
-    onSelectStage: (LookupResponse?) -> Unit,
+    onSelectStage: (T?) -> Unit,
     label: String = stringResource(Res.string.educational_stage),
     allowClear: Boolean = false,
     onLoadNextStages: () -> Unit = {},
@@ -55,11 +56,13 @@ fun EducationalStageSelectField(
     modifier: Modifier = Modifier
 ) {
     EducationalStageSelectContent(
-        displayValue = selectedStage?.name ?: "",
+        displayValue = selectedStage?.let(itemTitle) ?: "",
         label = label,
         educationalStages = educationalStages,
+        itemTitle = itemTitle,
+        itemId = itemId,
         isMultiSelect = false,
-        isSelected = { stage -> selectedStage?.id == stage.id },
+        isSelected = isSelected,
         isNoneSelected = selectedStage == null,
         allowClear = allowClear,
         isSheetVisible = isSheetVisible,
@@ -75,15 +78,18 @@ fun EducationalStageSelectField(
 }
 
 /**
- * Single-select Educational Stage field overload (mandatory selection).
+ * Single-select Generic Educational Stage field overload (mandatory selection).
  */
 @Composable
-fun EducationalStageSelectField(
-    selectedStage: LookupResponse?,
-    educationalStages: List<LookupResponse>,
+fun <T> EducationalStageSelectField(
+    selectedStage: T?,
+    educationalStages: List<T>,
+    itemTitle: (T) -> String,
+    itemId: (T) -> Any,
+    isSelected: (T) -> Boolean,
     isSheetVisible: Boolean,
     onToggleSheet: (Boolean) -> Unit,
-    onSelectStage: (LookupResponse) -> Unit,
+    onSelectStage: (T) -> Unit,
     label: String = stringResource(Res.string.educational_stage),
     onLoadNextStages: () -> Unit = {},
     isStageLoading: Boolean = false,
@@ -95,6 +101,9 @@ fun EducationalStageSelectField(
     EducationalStageSelectField(
         selectedStage = selectedStage,
         educationalStages = educationalStages,
+        itemTitle = itemTitle,
+        itemId = itemId,
+        isSelected = isSelected,
         isSheetVisible = isSheetVisible,
         onToggleSheet = onToggleSheet,
         onSelectStage = { stage -> if (stage != null) onSelectStage(stage) },
@@ -110,15 +119,18 @@ fun EducationalStageSelectField(
 }
 
 /**
- * Multi-select Educational Stage field overload.
+ * Multi-select Generic Educational Stage field overload.
  */
 @Composable
-fun EducationalStageSelectField(
-    selectedStages: List<LookupResponse>,
-    educationalStages: List<LookupResponse>,
+fun <T> EducationalStageSelectField(
+    selectedStages: List<T>,
+    educationalStages: List<T>,
+    itemTitle: (T) -> String,
+    itemId: (T) -> Any,
+    isSelected: (T) -> Boolean,
     isSheetVisible: Boolean,
     onToggleSheet: (Boolean) -> Unit,
-    onSelectStage: (LookupResponse) -> Unit,
+    onSelectStage: (T) -> Unit,
     label: String = stringResource(Res.string.educational_stage),
     onLoadNextStages: () -> Unit = {},
     isStageLoading: Boolean = false,
@@ -128,11 +140,13 @@ fun EducationalStageSelectField(
     modifier: Modifier = Modifier
 ) {
     EducationalStageSelectContent(
-        displayValue = selectedStages.joinToString(", ") { it.name },
+        displayValue = selectedStages.joinToString(", ", transform = itemTitle),
         label = label,
         educationalStages = educationalStages,
+        itemTitle = itemTitle,
+        itemId = itemId,
         isMultiSelect = true,
-        isSelected = { stage -> selectedStages.any { it.id == stage.id } },
+        isSelected = isSelected,
         isNoneSelected = false,
         allowClear = false,
         isSheetVisible = isSheetVisible,
@@ -148,17 +162,19 @@ fun EducationalStageSelectField(
 }
 
 @Composable
-private fun EducationalStageSelectContent(
+private fun <T> EducationalStageSelectContent(
     displayValue: String,
     label: String,
-    educationalStages: List<LookupResponse>,
+    educationalStages: List<T>,
+    itemTitle: (T) -> String,
+    itemId: (T) -> Any,
     isMultiSelect: Boolean,
-    isSelected: (LookupResponse) -> Boolean,
+    isSelected: (T) -> Boolean,
     isNoneSelected: Boolean,
     allowClear: Boolean,
     isSheetVisible: Boolean,
     onToggleSheet: (Boolean) -> Unit,
-    onSelectStage: (LookupResponse?) -> Unit,
+    onSelectStage: (T?) -> Unit,
     onLoadNextStages: () -> Unit,
     isStageLoading: Boolean,
     isStageLoadFailed: Boolean,
@@ -208,7 +224,7 @@ private fun EducationalStageSelectContent(
                 ) {
                     items(
                         items = educationalStages,
-                        key = { stage -> stage.id }
+                        key = { stage -> itemId(stage) }
                     ) { stage ->
                         val selected = isSelected(stage)
 
@@ -234,7 +250,7 @@ private fun EducationalStageSelectContent(
                                 )
                             }
                             Text(
-                                text = stage.name,
+                                text = itemTitle(stage),
                                 style = Theme.typography.bodyLarge,
                                 color = if (!isMultiSelect && selected) Theme.colorScheme.primary else Theme.colorScheme.onSurface
                             )
@@ -292,9 +308,12 @@ private fun EducationalStageSelectContent(
 private fun EducationalStageSelectFieldPreview() {
     Theme(darkTheme = Theme.isDarkTheme) {
         Preview(darkTheme = Theme.isDarkTheme) {
-            EducationalStageSelectField(
+            EducationalStageSelectField<String>(
                 selectedStage = null,
                 educationalStages = emptyList(),
+                itemTitle = { it },
+                itemId = { it },
+                isSelected = { false },
                 isSheetVisible = false,
                 onToggleSheet = {},
                 onSelectStage = {}

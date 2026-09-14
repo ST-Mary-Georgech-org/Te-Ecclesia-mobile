@@ -365,4 +365,26 @@
     <string name="no_attendance_history_found">لا يوجد سجل حضور مسجل</string>
     <string name="total_attended_sessions">إجمالي مرات الحضور</string>
     <string name="attended_at">تم التسجيل</string>
+
+    <!-- Admin Send Notification Strings -->
+    <string name="send_notification">إرسال إشعار</string>
+    <string name="notification_title">عنوان الإشعار</string>
+    <string name="notification_title_hint">أدخل عنواناً واضحاً ومختصراً</string>
+    <string name="notification_body">نص الإشعار</string>
+    <string name="notification_body_hint">اكتب تفاصيل الإشعار هنا...</string>
+    <string name="target_recipients">المستهدفون بالإشعار</string>
+    <string name="specific_users">أشخاص محددون</string>
+    <string name="target_group">فئة أو مرحلة</string>
+    <string name="add_payload_field">إضافة بيانات مخصصة (Payload)</string>
+    <string name="payload_key">المفتاح (Key)</string>
+    <string name="payload_value">القيمة (Value)</string>
+    <string name="send">إرسال</string>
+    <string name="notification_sent_successfully">تم إرسال الإشعار بنجاح</string>
+    <string name="failed_to_send_notification">فشل إرسال الإشعار</string>
+    <string name="please_enter_notification_title">يرجى كتابة عنوان للإشعار</string>
+    <string name="please_enter_notification_body">يرجى كتابة نص الإشعار</string>
+    <string name="please_select_recipients">يرجى تحديد مستلم واحد على الأقل</string>
+    <string name="custom_payload">بيانات إضافية (Payload اختياري)</string>
+    <string name="no_notifications">لا توجد إشعارات حتى الآن</string>
+    <string name="failed_to_load_notifications">فشل في تحميل الإشعارات</string>
 </resources>

@@ -23,6 +23,7 @@ import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
 import com.teEcclesia.notifications.api.NotificationsRoute
+import com.teEcclesia.notifications.api.SendNotificationRoute
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 
@@ -35,6 +36,7 @@ fun buildNavigationSerializerConfig(): SavedStateConfiguration = SavedStateConfi
             subclass(ProfileRoute::class, ProfileRoute.serializer())
             subclass(HomeRoute::class, HomeRoute.serializer())
             subclass(NotificationsRoute::class, NotificationsRoute.serializer())
+            subclass(SendNotificationRoute::class, SendNotificationRoute.serializer())
             subclass(RegistrationRequestsRoute::class, RegistrationRequestsRoute.serializer())
             subclass(PendingApprovalRoute::class, PendingApprovalRoute.serializer())
             subclass(ReviewAndEditRequestRoute::class, ReviewAndEditRequestRoute.serializer())

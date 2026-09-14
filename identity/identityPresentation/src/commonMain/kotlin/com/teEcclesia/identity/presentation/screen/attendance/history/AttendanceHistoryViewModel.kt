@@ -3,7 +3,7 @@ package com.teEcclesia.identity.presentation.screen.attendance.history
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_load_attendance_history

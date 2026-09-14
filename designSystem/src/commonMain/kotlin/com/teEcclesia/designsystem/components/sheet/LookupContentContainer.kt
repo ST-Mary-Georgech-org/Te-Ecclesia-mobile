@@ -1,4 +1,4 @@
-package com.teEcclesia.identity.presentation.shared.components
+package com.teEcclesia.designsystem.components.sheet
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

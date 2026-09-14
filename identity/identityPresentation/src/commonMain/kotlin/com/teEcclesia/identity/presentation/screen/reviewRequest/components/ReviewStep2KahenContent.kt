@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestUiState
-import com.teEcclesia.identity.presentation.shared.components.EducationalStageSelectField
+import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
@@ -33,6 +33,9 @@ fun ReviewStep2KahenContent(
             EducationalStageSelectField(
                 selectedStages = state.kahenEducationalStages,
                 educationalStages = state.educationalStages,
+                itemTitle = { it.name },
+                itemId = { it.id },
+                isSelected = { stage -> state.kahenEducationalStages.any { it.id == stage.id } },
                 isSheetVisible = state.isStagesSheetVisible,
                 onToggleSheet = listener::onToggleStagesSheet,
                 onSelectStage = listener::onToggleEducationalStageSelection,

@@ -11,10 +11,8 @@ object NotificationClickState {
     val clickFlow = _clickFlow.asSharedFlow()
 
     fun onNotificationClicked(data: PayloadData) {
-        if (data.isNotEmpty()) {
-            pendingPayload = data
-            _clickFlow.tryEmit(data)
-        }
+        pendingPayload = data
+        _clickFlow.tryEmit(data)
     }
 
     fun consumePendingPayload(): PayloadData? {

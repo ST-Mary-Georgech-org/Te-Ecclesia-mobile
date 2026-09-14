@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
+import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple

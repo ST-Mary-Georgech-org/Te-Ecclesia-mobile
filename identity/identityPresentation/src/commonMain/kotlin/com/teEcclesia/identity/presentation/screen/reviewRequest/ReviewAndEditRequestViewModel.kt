@@ -14,7 +14,7 @@ import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse

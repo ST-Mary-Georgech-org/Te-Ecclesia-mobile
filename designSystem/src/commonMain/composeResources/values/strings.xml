@@ -365,4 +365,26 @@
     <string name="no_attendance_history_found">No attendance history recorded</string>
     <string name="total_attended_sessions">Total Attended Sessions</string>
     <string name="attended_at">Recorded at</string>
+
+    <!-- Admin Send Notification Strings -->
+    <string name="send_notification">Send Notification</string>
+    <string name="notification_title">Notification Title</string>
+    <string name="notification_title_hint">Enter a clear, concise title</string>
+    <string name="notification_body">Notification Message</string>
+    <string name="notification_body_hint">Write the notification content here...</string>
+    <string name="target_recipients">Target Recipients</string>
+    <string name="specific_users">Specific Users</string>
+    <string name="target_group">Target Group</string>
+    <string name="add_payload_field">Add Custom Data (Payload)</string>
+    <string name="payload_key">Key</string>
+    <string name="payload_value">Value</string>
+    <string name="send">Send</string>
+    <string name="notification_sent_successfully">Notification sent successfully</string>
+    <string name="failed_to_send_notification">Failed to send notification</string>
+    <string name="please_enter_notification_title">Please enter a title for the notification</string>
+    <string name="please_enter_notification_body">Please enter the notification message</string>
+    <string name="please_select_recipients">Please select at least one recipient</string>
+    <string name="custom_payload">Custom Payload (Optional)</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="failed_to_load_notifications">Failed to load notifications</string>
 </resources>

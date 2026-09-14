@@ -16,6 +16,7 @@ import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.notifications.api.NotificationsRoute
+import com.teEcclesia.notifications.api.SendNotificationRoute
 import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
 import com.teEcclesia.shared.domain.push.PushTokenProvider
 import teecclesia.designsystem.generated.resources.Res
@@ -138,6 +139,10 @@ class ProfileViewModel(
 
     fun onClickSearchUsers() {
         navigate(UsersSearchRoute)
+    }
+
+    fun onClickSendNotification() {
+        navigate(SendNotificationRoute)
     }
 
     fun onClickLogout() {

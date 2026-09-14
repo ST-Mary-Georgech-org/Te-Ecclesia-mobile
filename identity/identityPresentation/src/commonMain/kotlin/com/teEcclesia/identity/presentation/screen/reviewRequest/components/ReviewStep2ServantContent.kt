@@ -16,7 +16,7 @@ import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestUiState
-import com.teEcclesia.identity.presentation.shared.components.EducationalStageSelectField
+import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import com.teEcclesia.identity.presentation.shared.components.EducationalYearSelectField
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -53,6 +53,9 @@ fun ReviewStep2ServantContent(
                 EducationalStageSelectField(
                     selectedStage = state.servantEducationalStage,
                     educationalStages = state.educationalStages,
+                    itemTitle = { it.name },
+                    itemId = { it.id },
+                    isSelected = { it.id == state.servantEducationalStage?.id },
                     isSheetVisible = state.isServantStageSheetVisible,
                     onToggleSheet = listener::onToggleServantStageSheet,
                     onSelectStage = listener::onToggleServantStageSelection,
@@ -114,6 +117,9 @@ fun ReviewStep2ServantContent(
                 EducationalStageSelectField(
                     selectedStages = state.responsibleStages,
                     educationalStages = state.educationalStages,
+                    itemTitle = { it.name },
+                    itemId = { it.id },
+                    isSelected = { stage -> state.responsibleStages.any { it.id == stage.id } },
                     isSheetVisible = state.isResponsibleStageSheetVisible,
                     onToggleSheet = listener::onToggleResponsibleStageSheet,
                     onSelectStage = listener::onToggleResponsibleStageSelection,
