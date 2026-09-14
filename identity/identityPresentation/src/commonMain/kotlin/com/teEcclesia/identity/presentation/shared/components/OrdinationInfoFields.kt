@@ -64,6 +64,7 @@ fun OrdinationInfoFields(
     ordinationPlace: String,
     onOrdinationPlaceChange: (String) -> Unit,
     ordinationCertificateFileName: String? = null,
+    ordinationCertificateBytes: ByteArray? = null,
     onUploadOrdinationCertificate: () -> Unit = {},
     onClearOrdinationCertificate: () -> Unit = {},
     isRankLoading: Boolean = false,
@@ -242,6 +243,7 @@ fun OrdinationInfoFields(
                         title = stringResource(Res.string.upload_ordination_certificate),
                         fileTitle = stringResource(Res.string.file_ordination_certificate),
                         fileName = ordinationCertificateFileName,
+                        fileBytes = ordinationCertificateBytes,
                         onUploadClick = onUploadOrdinationCertificate,
                         onClearClick = onClearOrdinationCertificate,
                         onFileClick = onFileClickOrdinationCertificate

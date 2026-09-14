@@ -46,6 +46,7 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.poolingcontainer)
                 implementation(libs.firebase.crashlytics)
+                implementation(libs.androidx.exifinterface)
             }
         }
     }

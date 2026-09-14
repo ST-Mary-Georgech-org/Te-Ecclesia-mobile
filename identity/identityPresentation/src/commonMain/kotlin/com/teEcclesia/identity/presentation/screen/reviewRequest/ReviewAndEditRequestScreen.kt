@@ -39,6 +39,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
+import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewAndEditRequestShimmer
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
@@ -111,12 +112,7 @@ private fun ReviewAndEditRequestContent(
                 .navigationBarsPadding()
         ) {
             if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Theme.colorScheme.primary)
-                }
+                ReviewAndEditRequestShimmer()
             } else {
                 Row(
                     modifier = Modifier

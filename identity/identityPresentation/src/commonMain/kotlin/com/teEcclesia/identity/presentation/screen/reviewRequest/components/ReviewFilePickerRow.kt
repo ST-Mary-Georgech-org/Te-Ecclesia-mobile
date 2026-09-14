@@ -40,9 +40,11 @@ fun ReviewFilePickerRow(
     onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
     fileTitle: String? = null,
+    fileBytes: ByteArray? = null,
+    fileSizeBytes: Long? = null,
     onFileClick: (() -> Unit)? = null
 ) {
-    val displayFileName = getDisplayFileName(fileTitle, fileName)
+    val displayFileName = getDisplayFileName(fileTitle, fileName, fileBytes, fileSizeBytes)
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)

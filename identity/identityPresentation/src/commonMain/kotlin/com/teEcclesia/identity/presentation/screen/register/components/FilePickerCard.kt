@@ -50,11 +50,13 @@ fun FilePickerCard(
     onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
     fileTitle: String? = null,
+    fileBytes: ByteArray? = null,
+    fileSizeBytes: Long? = null,
     radius: Dp = 32.dp,
     onFileClick: (() -> Unit)? = null,
     errorText: String? = null
 ) {
-    val displayFileName = getDisplayFileName(fileTitle, fileName)
+    val displayFileName = getDisplayFileName(fileTitle, fileName, fileBytes, fileSizeBytes)
 
     Column(modifier = modifier.fillMaxWidth()) {
         AnimatedContent(

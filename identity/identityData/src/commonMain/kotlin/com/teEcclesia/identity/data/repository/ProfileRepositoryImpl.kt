@@ -37,6 +37,9 @@ import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toCachedProfile
 
+import io.ktor.client.plugins.timeout
+import com.teEcclesia.identity.data.utils.calculateUploadTimeoutMillis
+
 class ProfileRepositoryImpl(
     client: HttpClient,
     private val settingsRepository: SettingsRepository,
@@ -128,8 +131,13 @@ class ProfileRepositoryImpl(
         ordinationCertificateBytes: ByteArray?
     ) {
         val requestJson = request?.let { Json.encodeToString(it.toDto()) }
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes, ordinationCertificateBytes)
         tryToExecute<Unit> {
             post("api/v1/users/$userId/approve") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 if (requestJson != null || imageBytes != null || identityDocumentBytes != null || ordinationCertificateBytes != null) {
                     setBody(
                         MultiPartFormDataContent(
@@ -176,8 +184,13 @@ class ProfileRepositoryImpl(
         ordinationCertificateBytes: ByteArray?
     ) {
         val requestJson = Json.encodeToString(request.toDto())
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes, ordinationCertificateBytes)
         tryToExecute<Unit> {
             patch("api/v1/users/$userId") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -226,8 +239,13 @@ class ProfileRepositoryImpl(
         identityDocumentBytes: ByteArray?
     ) {
         val requestJson = Json.encodeToString(request.toDto())
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes)
         tryToExecute<ProfileResponseDto> {
             post("api/v1/users/makhdoom") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {

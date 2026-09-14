@@ -76,6 +76,7 @@ fun ReviewStep2ParentContent(
                     label = stringResource(Res.string.identity_card_certificate_optional),
                     fileTitle = stringResource(Res.string.file_identity_card),
                     fileName = state.identityCertificateFileName,
+                    fileBytes = state.identityCertificateBytes,
                     onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
                     onClearClick = {
                         listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)

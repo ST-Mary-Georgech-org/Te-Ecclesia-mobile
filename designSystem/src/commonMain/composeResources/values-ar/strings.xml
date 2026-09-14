@@ -149,6 +149,7 @@
     <string name="from_gallery">من الاستوديو</string>
     <string name="from_files">من الملفات</string>
     <string name="view_photo">عرض الصورة</string>
+    <string name="delete_photo">حذف الصورة</string>
     <string name="account_and_contact">الحساب وبيانات الاتصال</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -387,4 +388,5 @@
     <string name="custom_payload">بيانات إضافية (Payload اختياري)</string>
     <string name="no_notifications">لا توجد إشعارات حتى الآن</string>
     <string name="failed_to_load_notifications">فشل في تحميل الإشعارات</string>
+    <string name="file_size_exceeded_limit">حجم الملف المحدد يتجاوز الحد الأقصى المسموح به (10 ميجابايت)</string>
 </resources>

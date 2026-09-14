@@ -34,15 +34,25 @@ import com.teEcclesia.designsystem.utils.Preview
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_close
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.utils.formatFileSize
 
 @Composable
 fun ImageViewerDialog(
     isVisible: Boolean,
     model: Any?,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imageSizeBytes: Long? = null
 ) {
     if (!isVisible || model == null) return
+
+    val sizeText = remember(model, imageSizeBytes) {
+        val size = imageSizeBytes ?: (model as? ByteArray)?.size?.toLong()
+        size?.let { formatFileSize(it) }?.takeIf { it.isNotEmpty() }
+    }
 
     var scale by remember(model) { mutableStateOf(1f) }
     var offset by remember(model) { mutableStateOf(Offset.Zero) }
@@ -122,6 +132,25 @@ fun ImageViewerDialog(
                     tint = Color.White,
                     modifier = Modifier.size(20.dp)
                 )
+            }
+
+            if (!sizeText.isNullOrBlank()) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .navigationBarsPadding()
+                        .padding(bottom = 24.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color.Black.copy(alpha = 0.6f))
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = sizeText,
+                        style = Theme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

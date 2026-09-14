@@ -92,6 +92,7 @@ fun RegisterStep4ParentContent(
             FilePickerCard(
                 title = stringResource(Res.string.upload_identity_card),
                 fileName = state.identityCertificateFileName,
+                fileBytes = state.identityCertificateBytes,
                 onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
                 onClearClick = { listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null) },
                 onFileClick = onFileClickIdentityCertificate

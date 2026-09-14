@@ -98,6 +98,7 @@ fun RegisterStep4StudentContent(
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
                     ordinationCertificateFileName = state.ordinationCertificateFileName,
+                    ordinationCertificateBytes = state.ordinationCertificateBytes,
                     onUploadOrdinationCertificate = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
                     onClearOrdinationCertificate = {
                         listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
@@ -155,6 +156,7 @@ fun RegisterStep4StudentContent(
                 isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
                 onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
                 identityCertificateFileName = state.identityCertificateFileName,
+                identityCertificateBytes = state.identityCertificateBytes,
                 identityCertificateError = state.identityCertificateError?.asString(),
                 onUploadIdentityCertificate = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
                 onClearIdentityCertificate = {

@@ -42,6 +42,8 @@ import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
+import com.teEcclesia.designsystem.utils.compressImage
+import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
@@ -50,6 +52,7 @@ import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
 import teecclesia.designsystem.generated.resources.failed_to_load_request
 import teecclesia.designsystem.generated.resources.failed_to_reject_request
+import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.failed_to_search_child
 import teecclesia.designsystem.generated.resources.failed_to_search_partner
 import teecclesia.designsystem.generated.resources.field_required
@@ -224,35 +227,33 @@ class ReviewAndEditRequestViewModel(
     }
 
     private fun loadCallerProfile() {
-            callerRole = authorizationService.getUserRole()
-            callerCanApproveRequests = authorizationService.canApproveRequests()
-            callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
-            callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
-            filterAndApplyEducationalStages()
-            val isAdmin = callerRole == UserRole.ADMIN
-            updateState {
-                it.copy(
-                    isLoading = false,
-                    isAdmin = isAdmin,
-                    isRoleEditable = if (it.isUpdateMode) isAdmin else it.isRoleEditable
-                ) 
-            }
+        callerRole = authorizationService.getUserRole()
+        callerCanApproveRequests = authorizationService.canApproveRequests()
+        callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
+        callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
+        filterAndApplyEducationalStages()
+        val isAdmin = callerRole == UserRole.ADMIN
+        updateState {
+            it.copy(
+                isLoading = if (userId.isNullOrBlank()) false else it.isLoading,
+                isAdmin = isAdmin,
+                isRoleEditable = if (it.isUpdateMode) isAdmin else it.isRoleEditable
+            )
+        }
     }
 
     init {
         updateState { it.copy(isUpdateMode = isFromSearch && userId.isNotBlank()) }
-        
+
         if (!userId.isNullOrBlank()) {
             loadRequestDetails()
         } else {
             updateState {
                 it.copy(
-                    isLoading = true,
                     selectedRole = UserRole.MAKHDOOM,
                     isRoleEditable = false
                 )
             }
-            loadCallerProfile()
         }
         loadCallerProfile()
         loadConfessionPriests()
@@ -687,7 +688,10 @@ class ReviewAndEditRequestViewModel(
                                 paidAmount = s.deaconSchoolPaidAmount.toDoubleOrNull() ?: 0.0,
                                 status = s.deaconSchoolStatus
                             )
-                        } else null
+                        } else null,
+                        deleteImage = s.imageBytes == null && s.imageUrl.isNullOrBlank(),
+                        deleteIdentityDocument = s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank(),
+                        deleteOrdinationCertificate = s.ordinationCertificateBytes == null && s.ordinationCertificateFileName.isNullOrBlank()
                     )
                     
                     if (isFromSearch) {
@@ -890,6 +894,24 @@ class ReviewAndEditRequestViewModel(
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
             return
         }
+        if (option == FilePickOption.DELETE) {
+            when (target) {
+                UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = null, imageUrl = null) }
+                UploadTarget.ORDINATION_CERTIFICATE -> updateState {
+                    copy(
+                        ordinationCertificateBytes = null,
+                        ordinationCertificateFileName = null
+                    )
+                }
+                UploadTarget.IDENTITY_CERTIFICATE -> updateState {
+                    copy(
+                        identityCertificateBytes = null,
+                        identityCertificateFileName = null
+                    )
+                }
+            }
+            return
+        }
         launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
@@ -904,11 +926,22 @@ class ReviewAndEditRequestViewModel(
                     ),
                     mode = FileKitMode.Single
                 )
+
+                FilePickOption.VIEW, FilePickOption.DELETE -> null
             }
             if (file == null) return@launch
-            val bytes = file.readBytes()
+            val rawBytes = file.readBytes()
             val fileName = file.name
-            onSelectImageBytes(target, bytes, fileName)
+            val processedBytes = compressImage(rawBytes)
+            if (!validateFileSizes(processedBytes)) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_occurred),
+                    message = UiText.StringRes(Res.string.file_size_exceeded_limit),
+                    isSuccess = false
+                )
+                return@launch
+            }
+            onSelectImageBytes(target, processedBytes, fileName)
         }
     }
 

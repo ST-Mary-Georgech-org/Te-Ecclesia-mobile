@@ -232,6 +232,7 @@ fun ReviewStep2StudentContent(
                             label = stringResource(Res.string.ordination_certificate_optional),
                             fileTitle = stringResource(Res.string.file_ordination_certificate),
                             fileName = state.ordinationCertificateFileName,
+                            fileBytes = state.ordinationCertificateBytes,
                             onUploadClick = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
                             onClearClick = {
                                 listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
@@ -291,6 +292,7 @@ fun ReviewStep2StudentContent(
                         label = stringResource(Res.string.identity_card_certificate_optional),
                         fileTitle = stringResource(Res.string.file_identity_card),
                         fileName = state.identityCertificateFileName,
+                        fileBytes = state.identityCertificateBytes,
                         onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
                         onClearClick = {
                             listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)

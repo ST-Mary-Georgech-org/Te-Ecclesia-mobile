@@ -149,6 +149,7 @@
     <string name="from_gallery">From Gallery</string>
     <string name="from_files">From Files</string>
     <string name="view_photo">View Photo</string>
+    <string name="delete_photo">Delete Photo</string>
     <string name="account_and_contact">Account &amp; Contact</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -387,4 +388,5 @@
     <string name="custom_payload">Custom Payload (Optional)</string>
     <string name="no_notifications">No notifications yet</string>
     <string name="failed_to_load_notifications">Failed to load notifications</string>
+    <string name="file_size_exceeded_limit">The selected file exceeds the maximum allowed size of 10 MB</string>
 </resources>
