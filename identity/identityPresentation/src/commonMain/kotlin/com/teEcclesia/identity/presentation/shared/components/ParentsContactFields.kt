@@ -109,8 +109,8 @@ fun ParentsContactFields(
                         onValueChange = onFatherPhoneChange,
                         labelText = stringResource(Res.string.father_phone),
                         modifier = Modifier.weight(1f),
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !fatherPhone.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !fatherPhone.startsWith("+")) { "+2" } else null,
                         errorText = fatherPhoneError,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -144,8 +144,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.father_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
                         errorText = fatherWhatsappError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !fatherWhatsapp.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !fatherWhatsapp.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -197,8 +197,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.mother_phone),
                         modifier = Modifier.weight(1f),
                         errorText = motherPhoneError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !motherPhone.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !motherPhone.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -231,8 +231,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.mother_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
                         errorText = motherWhatsappError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !motherWhatsapp.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !motherWhatsapp.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr

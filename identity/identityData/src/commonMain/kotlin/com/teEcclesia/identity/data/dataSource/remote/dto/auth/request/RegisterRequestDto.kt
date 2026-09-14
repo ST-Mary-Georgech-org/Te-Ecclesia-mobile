@@ -94,7 +94,7 @@ fun RegisterRequest.toDto(deviceToken: String? = null) = RegisterRequestDto(
     confessionPriestId = confessionPriestId?.ifEmpty { null },
     externalConfessionPriestName = externalConfessionPriestName?.ifEmpty { null },
     externalConfessionChurch = externalConfessionChurch?.ifEmpty { null },
-    externalConfessionPhone = externalConfessionPhone?.ifEmpty { null },
+    externalConfessionPhone = externalConfessionPhone?.ifEmpty { null }?.normalizeEgyptPhone(),
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
     parentProfile = parentProfile?.toDto(),

@@ -267,13 +267,15 @@ class ReviewAndEditRequestViewModel(
         tryToCall(
             block = { profileRepository.getUserProfile(uid) },
             onSuccess = { profile ->
-                val preloadedFatherPhone = profile.makhdoomProfile?.fatherPhone?.removePrefix("+2") ?: ""
-                val preloadedFatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                val preloadedFatherPhone = profile.makhdoomProfile?.fatherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                val preloadedFatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                 val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
 
-                val preloadedMotherPhone = profile.makhdoomProfile?.motherPhone?.removePrefix("+2") ?: ""
-                val preloadedMotherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.removePrefix("+2") ?: ""
+                val preloadedMotherPhone = profile.makhdoomProfile?.motherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                val preloadedMotherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                 val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
+                val cleanedExternalPriestPhone = if (profile.externalConfessionPhone.startsWith("+201")) profile.externalConfessionPhone.removePrefix("+2") else profile.externalConfessionPhone
+                val cleanedPhone = if (profile.phone.startsWith("+201")) profile.phone.removePrefix("+2") else profile.phone
 
                 updateState {
                     it.copy(
@@ -293,8 +295,8 @@ class ReviewAndEditRequestViewModel(
                         confessionPriestId = profile.confessionPriest?.id,
                         confessionPriestName = profile.confessionPriest?.name ?: profile.externalConfessionPriestName,
                         confessionPriestChurch = profile.externalConfessionChurch,
-                        confessionPriestPhone = profile.externalConfessionPhone,
-                        phone = profile.phone.removePrefix("+2"),
+                        confessionPriestPhone = cleanedExternalPriestPhone,
+                        phone = cleanedPhone,
                         homePhone = profile.homePhone.removePrefix("02"),
                         email = profile.email,
                         buildingNo = profile.buildingNo,

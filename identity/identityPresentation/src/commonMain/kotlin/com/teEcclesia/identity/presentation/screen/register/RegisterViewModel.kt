@@ -185,17 +185,18 @@ class RegisterViewModel(
                         profile.firstName.isNotBlank() && profile.lastName.isNotBlank() -> 2
                         else -> 1
                     }
-                    val cleanedPhone = profile.phone.removePrefix("+2")
+                    val cleanedPhone = if (profile.phone.startsWith("+201")) profile.phone.removePrefix("+2") else profile.phone
                     val cleanedHomePhone = profile.homePhone.removePrefix("02")
+                    val cleanedExternalPriestPhone = if (profile.externalConfessionPhone.startsWith("+201")) profile.externalConfessionPhone.removePrefix("+2") else profile.externalConfessionPhone
                     val makhdoom = profile.makhdoomProfile
                     val ordination = profile.ordinationProfile
                     val khadem = profile.khademProfile
-                    val preloadedFatherPhone = makhdoom?.fatherPhone?.removePrefix("+2") ?: ""
-                    val preloadedFatherWhatsapp = makhdoom?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                    val preloadedFatherPhone = makhdoom?.fatherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                    val preloadedFatherWhatsapp = makhdoom?.fatherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                     val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
 
-                    val preloadedMotherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: ""
-                    val preloadedMotherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: ""
+                    val preloadedMotherPhone = makhdoom?.motherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                    val preloadedMotherWhatsapp = makhdoom?.motherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                     val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
                     updateState {
                         copy(
@@ -211,7 +212,7 @@ class RegisterViewModel(
                             isFromAnotherChurch = profile.confessionPriest == null && profile.externalConfessionPriestName.isNotBlank(),
                             externalPriestName = profile.externalConfessionPriestName,
                             externalPriestChurch = profile.externalConfessionChurch,
-                            externalPriestPhone = profile.externalConfessionPhone,
+                            externalPriestPhone = cleanedExternalPriestPhone,
                             phone = cleanedPhone,
                             homePhone = cleanedHomePhone,
                             email = profile.email,

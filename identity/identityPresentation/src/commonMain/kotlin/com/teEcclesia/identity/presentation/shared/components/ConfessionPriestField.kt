@@ -226,8 +226,8 @@ fun ConfessionPriestField(
                     textStyle = Theme.typography.bodyLarge.copy(
                         textDirection = TextDirection.Ltr
                     ),
-                    prefixText = if (!isRtl) { "+2" } else null,
-                    suffixText = if (isRtl) { "+2" } else null,
+                    prefixText = if (!isRtl && !externalPriestPhone.startsWith("+")) { "+2" } else null,
+                    suffixText = if (isRtl && !externalPriestPhone.startsWith("+")) { "+2" } else null,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done)
                 )
             }
