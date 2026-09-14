@@ -6,6 +6,7 @@ import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
+import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
@@ -23,6 +24,7 @@ import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
+import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
 import com.teEcclesia.shared.domain.utils.validation.isValidApartmentInput
 import com.teEcclesia.shared.domain.utils.validation.isValidBuildingNoInput
 import com.teEcclesia.shared.domain.utils.validation.isValidCodeFormat
@@ -276,6 +278,7 @@ class ReviewAndEditRequestViewModel(
                 val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
                 val cleanedExternalPriestPhone = if (profile.externalConfessionPhone.startsWith("+201")) profile.externalConfessionPhone.removePrefix("+2") else profile.externalConfessionPhone
                 val cleanedPhone = if (profile.phone.startsWith("+201")) profile.phone.removePrefix("+2") else profile.phone
+                val isMale = if (profile.gender == Gender.FEMALE) false else isMaleFromEgyptianNationalId(profile.nationalId) ?: (profile.gender == Gender.MALE)
 
                 updateState {
                     it.copy(
@@ -291,6 +294,7 @@ class ReviewAndEditRequestViewModel(
                         displayName = profile.displayName,
                         nationalId = profile.nationalId,
                         job = profile.job,
+                        isMale = isMale,
                         isFromAnotherChurch = profile.confessionPriest == null && profile.externalConfessionPriestName.isNotBlank(),
                         confessionPriestId = profile.confessionPriest?.id,
                         confessionPriestName = profile.confessionPriest?.name ?: profile.externalConfessionPriestName,
@@ -337,13 +341,13 @@ class ReviewAndEditRequestViewModel(
                         isFatherDeceased = profile.makhdoomProfile?.isFatherDeceased ?: false,
                         isMotherDeceased = profile.makhdoomProfile?.isMotherDeceased ?: false,
 
-                        isOrdained = profile.ordinationProfile != null,
-                        selectedRank = profile.ordinationProfile?.rank,
-                        isOrdainedInThisChurch = !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false),
-                        ordinationYear = profile.ordinationProfile?.ordinationYear?.toString() ?: "",
-                        bishopName = profile.ordinationProfile?.bishopName ?: "",
-                        ordinationPlace = profile.ordinationProfile?.ordinationPlace ?: "",
-                        ordinationCertificateFileName = profile.ordinationProfile?.certificateImageUrl,
+                        isOrdained = if (isMale != false) profile.ordinationProfile != null else false,
+                        selectedRank = if (isMale != false) profile.ordinationProfile?.rank else null,
+                        isOrdainedInThisChurch = if (isMale != false) !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false) else false,
+                        ordinationYear = if (isMale != false) profile.ordinationProfile?.ordinationYear?.toString() ?: "" else "",
+                        bishopName = if (isMale != false) profile.ordinationProfile?.bishopName ?: "" else "",
+                        ordinationPlace = if (isMale != false) profile.ordinationProfile?.ordinationPlace ?: "" else "",
+                        ordinationCertificateFileName = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null,
                         identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
 
                         actionTakenAt = profile.actionTakenAt?.replace("T", " ")?.take(16),
@@ -357,7 +361,7 @@ class ReviewAndEditRequestViewModel(
                         deaconSchoolStatus = profile.deaconsSchoolRecord?.status ?: DeaconsSchoolStatus.PENDING
                     ).let { state -> updateDerivedProperties(state) }
                 }
-                val ordinationUrl = profile.ordinationProfile?.certificateImageUrl
+                val ordinationUrl = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null
                 if (!ordinationUrl.isNullOrBlank() && ordinationUrl.endsWith(".pdf", ignoreCase = true)) {
                     tryToCall(
                         block = { profileRepository.downloadFile(ordinationUrl) },
@@ -452,6 +456,7 @@ class ReviewAndEditRequestViewModel(
         } else null
 
         val nationalIdError = getNationalIdValidationError(s.nationalId)?.toUiText()
+        val isMale = isMaleFromEgyptianNationalId(s.nationalId)
 
         val confessionPriestErr =
             if (!s.isFromAnotherChurch && s.selectedConfessionPriest == null && s.confessionPriestName.isBlank()) UiText.StringRes(Res.string.field_required) else null
@@ -505,6 +510,8 @@ class ReviewAndEditRequestViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                isMale = isMale,
+                isOrdained = if (isMale == false) false else it.isOrdained,
                 confessionPriestError = confessionPriestErr,
                 externalPriestNameError = externalNameErr,
                 externalPriestChurchError = externalChurchErr,
@@ -693,7 +700,7 @@ class ReviewAndEditRequestViewModel(
                         } else null,
                         deleteImage = s.imageBytes == null && s.imageUrl.isNullOrBlank(),
                         deleteIdentityDocument = s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank(),
-                        deleteOrdinationCertificate = s.ordinationCertificateBytes == null && s.ordinationCertificateFileName.isNullOrBlank()
+                        deleteOrdinationCertificate = if (s.isMale == false) true else (s.ordinationCertificateBytes == null && s.ordinationCertificateFileName.isNullOrBlank())
                     )
                     
                     if (isFromSearch) {
@@ -702,7 +709,7 @@ class ReviewAndEditRequestViewModel(
                             request = request,
                             imageBytes = s.imageBytes,
                             identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null
                         )
                     } else {
                         profileRepository.approveUser(
@@ -710,7 +717,7 @@ class ReviewAndEditRequestViewModel(
                             request = request,
                             imageBytes = s.imageBytes,
                             identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null
                         )
                     }
                 },
@@ -1009,7 +1016,15 @@ class ReviewAndEditRequestViewModel(
             val error = if (trimmed.length == 14) {
                 getNationalIdValidationError(trimmed)?.toUiText()
             } else null
-            updateState { it.copy(nationalId = trimmed, nationalIdError = error) }
+            val isMale = isMaleFromEgyptianNationalId(trimmed)
+            updateState {
+                it.copy(
+                    nationalId = trimmed,
+                    nationalIdError = error,
+                    isMale = isMale,
+                    isOrdained = if (isMale == false) false else it.isOrdained
+                )
+            }
         }
     }
 

@@ -114,7 +114,7 @@ data class ReviewAndEditRequestUiState(
     val isRoleEditable: Boolean = true,
     val roles: List<UserRole> = listOf(UserRole.MAKHDOOM, UserRole.KHADEM, UserRole.PARENT, UserRole.KAHEN),
     val isRoleSheetVisible: Boolean = false,
-    val isMale: Boolean? = true,
+    val isMale: Boolean? = null,
 
     val shamamsaStatus: ShamamsaStudyStatus = ShamamsaStudyStatus.NO,
 
@@ -577,7 +577,7 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
 }
 
 private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): OrdinationProfileRequest? {
-    if (isMale == false) return null
+    if (isMale == false || selectedRole == UserRole.KAHEN || selectedRole == UserRole.PARENT) return null
     return if (isOrdained) {
         OrdinationProfileRequest(
             rankId = selectedRank?.id ?: 1L,

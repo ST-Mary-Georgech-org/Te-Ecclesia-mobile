@@ -312,6 +312,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         userId = "123",
         isLoading = false,
         isAdmin = true,
+        isMale = true,
         isEnrolledInDeaconSchool = true,
         deaconSchoolPaidAmount = "500"
     )
