@@ -39,6 +39,7 @@ data class ReviewAndEditRequestUiState(
 
     val code: String = "",
     val imageBytes: ByteArray? = null,
+    val shouldOpenDocumentScanner: Boolean = false,
     val imageUrl: String? = null,
     val firstName: String = "",
     val secondName: String = "",
@@ -218,6 +219,7 @@ data class ReviewAndEditRequestUiState(
         if (isReadOnlyMode != other.isReadOnlyMode) return false
         if (isSubmitting != other.isSubmitting) return false
         if (isRejectDialogVisible != other.isRejectDialogVisible) return false
+        if (shouldOpenDocumentScanner != other.shouldOpenDocumentScanner) return false
         if (isFromAnotherChurch != other.isFromAnotherChurch) return false
         if (isPasswordVisible != other.isPasswordVisible) return false
         if (isUpdateMode != other.isUpdateMode) return false
@@ -229,9 +231,7 @@ data class ReviewAndEditRequestUiState(
         if (isPriestLoadFailed != other.isPriestLoadFailed) return false
         if (isUploadBottomSheetVisible != other.isUploadBottomSheetVisible) return false
         if (isImageViewerVisible != other.isImageViewerVisible) return false
-        if (activeImageViewerModel != other.activeImageViewerModel) return false
         if (isPdfViewerVisible != other.isPdfViewerVisible) return false
-        if (!activePdfBytes.contentEquals(other.activePdfBytes)) return false
         if (isRoleEditable != other.isRoleEditable) return false
         if (isRoleSheetVisible != other.isRoleSheetVisible) return false
         if (isMale != other.isMale) return false
@@ -246,8 +246,8 @@ data class ReviewAndEditRequestUiState(
         if (isStageSheetVisible != other.isStageSheetVisible) return false
         if (isYearSheetVisible != other.isYearSheetVisible) return false
         if (isFatherDeceased != other.isFatherDeceased) return false
-        if (isMotherDeceased != other.isMotherDeceased) return false
         if (isFatherWhatsappSameAsPhone != other.isFatherWhatsappSameAsPhone) return false
+        if (isMotherDeceased != other.isMotherDeceased) return false
         if (isMotherWhatsappSameAsPhone != other.isMotherWhatsappSameAsPhone) return false
         if (isServantStageSheetVisible != other.isServantStageSheetVisible) return false
         if (isServantYearSheetVisible != other.isServantYearSheetVisible) return false
@@ -255,7 +255,13 @@ data class ReviewAndEditRequestUiState(
         if (canEditUser != other.canEditUser) return false
         if (isResponsibleStageSheetVisible != other.isResponsibleStageSheetVisible) return false
         if (isResponsibleYearSheetVisible != other.isResponsibleYearSheetVisible) return false
+        if (isPartnerLoading != other.isPartnerLoading) return false
+        if (isChildLoading != other.isChildLoading) return false
         if (isStagesSheetVisible != other.isStagesSheetVisible) return false
+        if (isEnrolledInDeaconSchool != other.isEnrolledInDeaconSchool) return false
+        if (isDeaconSchoolPaid != other.isDeaconSchoolPaid) return false
+        if (isDeaconSchoolStatusSheetVisible != other.isDeaconSchoolStatusSheetVisible) return false
+        if (isAdmin != other.isAdmin) return false
         if (userId != other.userId) return false
         if (userProfile != other.userProfile) return false
         if (code != other.code) return false
@@ -306,6 +312,8 @@ data class ReviewAndEditRequestUiState(
         if (areas != other.areas) return false
         if (confessionPriests != other.confessionPriests) return false
         if (selectedConfessionPriest != other.selectedConfessionPriest) return false
+        if (activeImageViewerModel != other.activeImageViewerModel) return false
+        if (!activePdfBytes.contentEquals(other.activePdfBytes)) return false
         if (activeUploadTarget != other.activeUploadTarget) return false
         if (!ordinationCertificateBytes.contentEquals(other.ordinationCertificateBytes)) return false
         if (ordinationCertificateFileName != other.ordinationCertificateFileName) return false
@@ -341,11 +349,9 @@ data class ReviewAndEditRequestUiState(
         if (responsibleYears != other.responsibleYears) return false
         if (allAvailableYearsForPermissions != other.allAvailableYearsForPermissions) return false
         if (servantAvailableYears != other.servantAvailableYears) return false
-        if (isPartnerLoading != other.isPartnerLoading) return false
         if (partnerQuery != other.partnerQuery) return false
         if (selectedPartner != other.selectedPartner) return false
         if (partnerError != other.partnerError) return false
-        if (isChildLoading != other.isChildLoading) return false
         if (childQuery != other.childQuery) return false
         if (selectedChildren != other.selectedChildren) return false
         if (childError != other.childError) return false
@@ -357,12 +363,8 @@ data class ReviewAndEditRequestUiState(
         if (actionTakenAt != other.actionTakenAt) return false
         if (actionTakenByName != other.actionTakenByName) return false
         if (actionTakenByUserCode != other.actionTakenByUserCode) return false
-        if (isEnrolledInDeaconSchool != other.isEnrolledInDeaconSchool) return false
-        if (isDeaconSchoolPaid != other.isDeaconSchoolPaid) return false
         if (deaconSchoolPaidAmount != other.deaconSchoolPaidAmount) return false
         if (deaconSchoolStatus != other.deaconSchoolStatus) return false
-        if (isDeaconSchoolStatusSheetVisible != other.isDeaconSchoolStatusSheetVisible) return false
-        if (isAdmin != other.isAdmin) return false
         if (progress != other.progress) return false
         if (canGoPrevious != other.canGoPrevious) return false
         if (canGoNext != other.canGoNext) return false
@@ -378,6 +380,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isReadOnlyMode.hashCode()
         result = 31 * result + isSubmitting.hashCode()
         result = 31 * result + isRejectDialogVisible.hashCode()
+        result = 31 * result + shouldOpenDocumentScanner.hashCode()
         result = 31 * result + isFromAnotherChurch.hashCode()
         result = 31 * result + isPasswordVisible.hashCode()
         result = 31 * result + isUpdateMode.hashCode()
@@ -389,9 +392,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isPriestLoadFailed.hashCode()
         result = 31 * result + isUploadBottomSheetVisible.hashCode()
         result = 31 * result + isImageViewerVisible.hashCode()
-        result = 31 * result + (activeImageViewerModel?.hashCode() ?: 0)
         result = 31 * result + isPdfViewerVisible.hashCode()
-        result = 31 * result + (activePdfBytes?.contentHashCode() ?: 0)
         result = 31 * result + isRoleEditable.hashCode()
         result = 31 * result + isRoleSheetVisible.hashCode()
         result = 31 * result + (isMale?.hashCode() ?: 0)
@@ -406,8 +407,8 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + isStageSheetVisible.hashCode()
         result = 31 * result + isYearSheetVisible.hashCode()
         result = 31 * result + isFatherDeceased.hashCode()
-        result = 31 * result + isMotherDeceased.hashCode()
         result = 31 * result + isFatherWhatsappSameAsPhone.hashCode()
+        result = 31 * result + isMotherDeceased.hashCode()
         result = 31 * result + isMotherWhatsappSameAsPhone.hashCode()
         result = 31 * result + isServantStageSheetVisible.hashCode()
         result = 31 * result + isServantYearSheetVisible.hashCode()
@@ -415,7 +416,13 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + canEditUser.hashCode()
         result = 31 * result + isResponsibleStageSheetVisible.hashCode()
         result = 31 * result + isResponsibleYearSheetVisible.hashCode()
+        result = 31 * result + isPartnerLoading.hashCode()
+        result = 31 * result + isChildLoading.hashCode()
         result = 31 * result + isStagesSheetVisible.hashCode()
+        result = 31 * result + isEnrolledInDeaconSchool.hashCode()
+        result = 31 * result + isDeaconSchoolPaid.hashCode()
+        result = 31 * result + isDeaconSchoolStatusSheetVisible.hashCode()
+        result = 31 * result + isAdmin.hashCode()
         result = 31 * result + userId.hashCode()
         result = 31 * result + (userProfile?.hashCode() ?: 0)
         result = 31 * result + code.hashCode()
@@ -466,6 +473,8 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + areas.hashCode()
         result = 31 * result + confessionPriests.hashCode()
         result = 31 * result + (selectedConfessionPriest?.hashCode() ?: 0)
+        result = 31 * result + (activeImageViewerModel?.hashCode() ?: 0)
+        result = 31 * result + (activePdfBytes?.contentHashCode() ?: 0)
         result = 31 * result + (activeUploadTarget?.hashCode() ?: 0)
         result = 31 * result + (ordinationCertificateBytes?.contentHashCode() ?: 0)
         result = 31 * result + (ordinationCertificateFileName?.hashCode() ?: 0)
@@ -501,11 +510,9 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + responsibleYears.hashCode()
         result = 31 * result + allAvailableYearsForPermissions.hashCode()
         result = 31 * result + servantAvailableYears.hashCode()
-        result = 31 * result + isPartnerLoading.hashCode()
         result = 31 * result + partnerQuery.hashCode()
         result = 31 * result + (selectedPartner?.hashCode() ?: 0)
         result = 31 * result + (partnerError?.hashCode() ?: 0)
-        result = 31 * result + isChildLoading.hashCode()
         result = 31 * result + childQuery.hashCode()
         result = 31 * result + selectedChildren.hashCode()
         result = 31 * result + (childError?.hashCode() ?: 0)
@@ -517,17 +524,14 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + (actionTakenAt?.hashCode() ?: 0)
         result = 31 * result + actionTakenByName.hashCode()
         result = 31 * result + actionTakenByUserCode.hashCode()
-        result = 31 * result + isEnrolledInDeaconSchool.hashCode()
-        result = 31 * result + isDeaconSchoolPaid.hashCode()
         result = 31 * result + deaconSchoolPaidAmount.hashCode()
         result = 31 * result + deaconSchoolStatus.hashCode()
-        result = 31 * result + isDeaconSchoolStatusSheetVisible.hashCode()
-        result = 31 * result + isAdmin.hashCode()
         result = 31 * result + progress.hashCode()
         result = 31 * result + canGoPrevious.hashCode()
         result = 31 * result + canGoNext.hashCode()
         return result
     }
+
 
 }
 

@@ -887,9 +887,14 @@ class ReviewAndEditRequestViewModel(
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
             return
         }
+        if (option == FilePickOption.CAMERA){
+            updateState {
+                copy(shouldOpenDocumentScanner = true)
+            }
+           return
+        }
         launch {
             val file = when (option) {
-                FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
                 FilePickOption.GALLERY -> FileKit.openFilePicker(
                     type = FileKitType.Image,
                     mode = FileKitMode.Single
@@ -906,6 +911,12 @@ class ReviewAndEditRequestViewModel(
             val bytes = file.readBytes()
             val fileName = file.name
             onSelectImageBytes(target, bytes, fileName)
+        }
+    }
+
+    override fun onDocumentScannerOpened() {
+        updateState {
+            copy(shouldOpenDocumentScanner = false)
         }
     }
 

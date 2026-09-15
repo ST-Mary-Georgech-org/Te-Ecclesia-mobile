@@ -29,6 +29,7 @@ import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.navigation.BackHandler
+import com.teEcclesia.designsystem.components.scanner.DocumentScannerLauncher
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -77,6 +78,18 @@ private fun ReviewAndEditRequestContent(
     BackHandler(enabled = state.canGoPrevious) {
         listener.onPreviousStep()
     }
+
+    DocumentScannerLauncher(
+        shouldOpen = state.shouldOpenDocumentScanner,
+        onScannerOpened = listener::onDocumentScannerOpened,
+        onResult = { bytes ->
+            listener.onSelectImageBytes(
+                UploadTarget.PROFILE_PHOTO,
+                bytes,
+                "test"
+            )
+        }
+    )
 
     FilePickerBottomSheet(
         isVisible = state.isUploadBottomSheetVisible,
@@ -201,6 +214,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onDocumentScannerOpened() {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}

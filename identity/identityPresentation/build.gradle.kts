@@ -20,6 +20,8 @@ kotlin {
                 implementation(libs.filekit.dialogs)
                 implementation(libs.filekit.core)
                 implementation(libs.qr.kit)
+                implementation(libs.easydocumentscanner.compose)
+                implementation(libs.easydocumentscanner.core)
             }
         }
     }

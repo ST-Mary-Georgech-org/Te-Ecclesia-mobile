@@ -322,6 +322,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onDocumentScannerOpened() {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
