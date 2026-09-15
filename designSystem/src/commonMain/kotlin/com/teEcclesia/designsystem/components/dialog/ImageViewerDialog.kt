@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.utils.formatFileSize
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 @Composable
 fun ImageViewerDialog(
@@ -50,7 +51,9 @@ fun ImageViewerDialog(
     if (!isVisible || model == null) return
 
     val sizeText = remember(model, imageSizeBytes) {
-        val size = imageSizeBytes ?: (model as? ByteArray)?.size?.toLong()
+        val size = imageSizeBytes
+            ?: (model as? ByteArray)?.size?.toLong()
+            ?: (model as? SafeByteArray)?.size?.toLong()
         size?.let { formatFileSize(it) }?.takeIf { it.isNotEmpty() }
     }
 
@@ -72,7 +75,7 @@ fun ImageViewerDialog(
             contentAlignment = Alignment.Center
         ) {
             AsyncImage(
-                model = model,
+                model = (model as? SafeByteArray)?.bytes ?: model,
                 contentDescription = null,
                 modifier = Modifier
                     .fillMaxSize()

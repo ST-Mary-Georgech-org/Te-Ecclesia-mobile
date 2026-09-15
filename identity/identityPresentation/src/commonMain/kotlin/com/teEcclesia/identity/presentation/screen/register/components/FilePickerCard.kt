@@ -41,6 +41,7 @@ import com.teEcclesia.identity.presentation.util.getDisplayFileName
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 @Composable
 fun FilePickerCard(
@@ -50,7 +51,7 @@ fun FilePickerCard(
     onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
     fileTitle: String? = null,
-    fileBytes: ByteArray? = null,
+    fileBytes: SafeByteArray? = null,
     fileSizeBytes: Long? = null,
     radius: Dp = 32.dp,
     onFileClick: (() -> Unit)? = null,

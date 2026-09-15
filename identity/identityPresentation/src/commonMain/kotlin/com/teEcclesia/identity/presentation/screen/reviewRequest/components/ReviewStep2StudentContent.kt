@@ -38,6 +38,7 @@ import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRe
 import com.teEcclesia.identity.presentation.screen.reviewRequest.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.shared.components.DeaconSchoolFields
 import com.teEcclesia.identity.presentation.shared.components.EducationalStageFields
 import com.teEcclesia.identity.presentation.shared.components.OrdinationInfoFields
@@ -350,7 +351,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
-        override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+        override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
         override fun onRoleSelected(role: UserRole) {}
         override fun onToggleRoleSheet(visible: Boolean) {}
         override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}

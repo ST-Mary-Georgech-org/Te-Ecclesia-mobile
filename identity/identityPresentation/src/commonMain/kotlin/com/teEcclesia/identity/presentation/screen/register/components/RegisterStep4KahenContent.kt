@@ -36,6 +36,7 @@ import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
@@ -346,7 +347,7 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onDismissUploadBottomSheet() {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
-                bytes: ByteArray?,
+                bytes: SafeByteArray?,
                 fileName: String?
             ) {
             }

@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
 import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -285,7 +286,7 @@ private fun RegisterScreenPreview() {
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
             override fun onDismissImageViewer() { state = state.copy(isImageViewerVisible = false) }
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}

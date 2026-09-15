@@ -21,6 +21,8 @@ import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
+import com.teEcclesia.shared.domain.model.toSafeByteArray
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
@@ -367,7 +369,7 @@ class ReviewAndEditRequestViewModel(
                     tryToCall(
                         block = { profileRepository.downloadFile(ordinationUrl) },
                         onSuccess = { bytes ->
-                            updateState { it.copy(ordinationCertificateBytes = bytes) }
+                            updateState { it.copy(ordinationCertificateBytes = bytes.toSafeByteArray()) }
                         },
                         onError = {}
                     )
@@ -377,7 +379,7 @@ class ReviewAndEditRequestViewModel(
                     tryToCall(
                         block = { profileRepository.downloadFile(identityUrl) },
                         onSuccess = { bytes ->
-                            updateState { it.copy(identityCertificateBytes = bytes) }
+                            updateState { it.copy(identityCertificateBytes = bytes.toSafeByteArray()) }
                         },
                         onError = {}
                     )
@@ -712,17 +714,17 @@ class ReviewAndEditRequestViewModel(
                         profileRepository.updateUser(
                             userId = userId,
                             request = request,
-                            imageBytes = s.imageBytes,
-                            identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null
+                            imageBytes = s.imageBytes?.bytes,
+                            identityDocumentBytes = s.identityCertificateBytes?.bytes,
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null
                         )
                     } else {
                         profileRepository.approveUser(
                             userId = userId,
                             request = request,
-                            imageBytes = s.imageBytes,
-                            identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null
+                            imageBytes = s.imageBytes?.bytes,
+                            identityDocumentBytes = s.identityCertificateBytes?.bytes,
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null
                         )
                     }
                 },
@@ -744,8 +746,8 @@ class ReviewAndEditRequestViewModel(
                 block = {
                     profileRepository.createMakhdoomDirectly(
                         request = registerRequest,
-                        imageBytes = s.imageBytes,
-                        identityDocumentBytes = s.identityCertificateBytes
+                        imageBytes = s.imageBytes?.bytes,
+                        identityDocumentBytes = s.identityCertificateBytes?.bytes
                     )
                 },
                 onSuccess = {
@@ -843,11 +845,12 @@ class ReviewAndEditRequestViewModel(
                 tryToCall(
                     block = { profileRepository.downloadFile(fileName) },
                     onSuccess = { downloadedBytes ->
+                        val safeBytes = downloadedBytes.toSafeByteArray()
                         updateState {
                             it.copy(
-                                ordinationCertificateBytes = downloadedBytes,
+                                ordinationCertificateBytes = safeBytes,
                                 isPdfViewerVisible = true,
-                                activePdfBytes = downloadedBytes
+                                activePdfBytes = safeBytes
                             )
                         }
                     },
@@ -880,11 +883,12 @@ class ReviewAndEditRequestViewModel(
                 tryToCall(
                     block = { profileRepository.downloadFile(fileName) },
                     onSuccess = { downloadedBytes ->
+                        val safeBytes = downloadedBytes.toSafeByteArray()
                         updateState {
                             it.copy(
-                                identityCertificateBytes = downloadedBytes,
+                                identityCertificateBytes = safeBytes,
                                 isPdfViewerVisible = true,
-                                activePdfBytes = downloadedBytes
+                                activePdfBytes = safeBytes
                             )
                         }
                     },
@@ -955,11 +959,11 @@ class ReviewAndEditRequestViewModel(
                 )
                 return@launch
             }
-            onSelectImageBytes(target, processedBytes, fileName)
+            onSelectImageBytes(target, processedBytes.toSafeByteArray(), fileName)
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {
+    override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {

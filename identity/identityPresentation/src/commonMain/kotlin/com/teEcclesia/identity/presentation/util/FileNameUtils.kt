@@ -1,11 +1,12 @@
 package com.teEcclesia.identity.presentation.util
 
 import com.teEcclesia.designsystem.utils.formatFileSize
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 fun getDisplayFileName(
     fileTitle: String?,
     fileName: String?,
-    fileBytes: ByteArray? = null,
+    fileBytes: SafeByteArray? = null,
     fileSizeBytes: Long? = null
 ): String {
     if (fileTitle.isNullOrBlank() && fileName.isNullOrBlank()) return ""

@@ -43,6 +43,7 @@ import com.teEcclesia.identity.presentation.screen.reviewRequest.components.Revi
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
@@ -243,7 +244,7 @@ private fun ReviewAndEditRequestScreenPreview() {
 
         override fun onSelectImageBytes(
             target: UploadTarget,
-            bytes: ByteArray?,
+            bytes: SafeByteArray?,
             fileName: String?
         ) {
         }

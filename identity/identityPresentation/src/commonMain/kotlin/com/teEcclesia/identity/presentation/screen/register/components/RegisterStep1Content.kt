@@ -28,6 +28,7 @@ import com.teEcclesia.identity.presentation.shared.components.FourNamesFields
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.designsystem.utils.asString
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
@@ -270,7 +271,7 @@ private fun RegisterStep1ContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}

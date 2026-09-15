@@ -15,6 +15,8 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
+import com.teEcclesia.shared.domain.model.toSafeByteArray
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
@@ -624,8 +626,8 @@ class RegisterViewModel(
                 block = {
                     val tokenResponse = registerRepository.register(
                         request = registerRequest,
-                        imageBytes = s.imageBytes,
-                        certificateImageBytes = s.identityCertificateBytes
+                        imageBytes = s.imageBytes?.bytes,
+                        certificateImageBytes = s.identityCertificateBytes?.bytes
                     )
                     authenticationRepository.saveRegistrationToken(
                         tokenResponse.token,
@@ -953,8 +955,8 @@ class RegisterViewModel(
             block = {
                 registerRepository.completeProfile(
                     request = request,
-                    ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null,
-                    identityDocumentBytes = s.identityCertificateBytes
+                    ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null,
+                    identityDocumentBytes = s.identityCertificateBytes?.bytes
                 )
             },
             onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
@@ -1336,11 +1338,11 @@ class RegisterViewModel(
                 )
                 return@launch
             }
-            onSelectImageBytes(target, processedBytes, fileName)
+            onSelectImageBytes(target, processedBytes.toSafeByteArray(), fileName)
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {
+    override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {

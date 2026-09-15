@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.lookups.domain.model.LookupResponse
 
@@ -86,7 +87,7 @@ interface RegisterInteractionListener {
     fun onDismissPdfViewer() {}
     fun onClickOrdinationCertificate() {}
     fun onClickIdentityCertificate() {}
-    fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?)
+    fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
     
     // Step 5: Verify
     fun onClickVerifyWhatsApp()

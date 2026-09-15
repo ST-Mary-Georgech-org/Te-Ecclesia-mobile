@@ -34,6 +34,7 @@ import com.teEcclesia.designsystem.components.pdf.PdfViewer
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_close
@@ -155,6 +156,21 @@ fun PdfViewerDialog(
     }
 }
 
+@Composable
+fun PdfViewerDialog(
+    isVisible: Boolean,
+    pdf: SafeByteArray?,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    PdfViewerDialog(
+        isVisible = isVisible,
+        pdf = pdf?.bytes,
+        onDismiss = onDismiss,
+        modifier = modifier
+    )
+}
+
 @PreviewLightDark
 @Composable
 private fun PdfViewerDialogPreview() {
@@ -162,7 +178,7 @@ private fun PdfViewerDialogPreview() {
         Preview(darkTheme = Theme.isDarkTheme) {
             PdfViewerDialog(
                 isVisible = true,
-                pdf = null,
+                pdf = null as ByteArray?,
                 onDismiss = {}
             )
         }

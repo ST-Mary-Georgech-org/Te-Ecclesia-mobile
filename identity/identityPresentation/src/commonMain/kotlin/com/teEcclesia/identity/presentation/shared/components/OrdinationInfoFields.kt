@@ -27,6 +27,7 @@ import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerCard
 import com.teEcclesia.lookups.domain.model.LookupResponse
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
@@ -64,7 +65,7 @@ fun OrdinationInfoFields(
     ordinationPlace: String,
     onOrdinationPlaceChange: (String) -> Unit,
     ordinationCertificateFileName: String? = null,
-    ordinationCertificateBytes: ByteArray? = null,
+    ordinationCertificateBytes: SafeByteArray? = null,
     onUploadOrdinationCertificate: () -> Unit = {},
     onClearOrdinationCertificate: () -> Unit = {},
     isRankLoading: Boolean = false,

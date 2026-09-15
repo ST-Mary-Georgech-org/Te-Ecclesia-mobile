@@ -4,6 +4,7 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
@@ -59,7 +60,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onTogglePriestSheet(visible: Boolean)
     fun onLoadNextPriests()
     fun onFileOptionPicked(option: FilePickOption)
-    fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?)
+    fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
 
     fun onRoleSelected(role: UserRole)
     fun onToggleRoleSheet(visible: Boolean)

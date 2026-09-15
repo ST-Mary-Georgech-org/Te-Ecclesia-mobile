@@ -31,6 +31,7 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.components.AvatarPicker
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
@@ -404,7 +405,7 @@ private fun ReviewStep1ContentPreview() = Theme {
 
         override fun onSelectImageBytes(
             target: UploadTarget,
-            bytes: ByteArray?,
+            bytes: SafeByteArray?,
             fileName: String?
         ) {
         }
