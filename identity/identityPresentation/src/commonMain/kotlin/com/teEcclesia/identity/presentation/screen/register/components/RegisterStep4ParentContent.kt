@@ -35,15 +35,13 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.children
-import teecclesia.designsystem.generated.resources.upload_identity_card
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
 
 @Composable
 fun RegisterStep4ParentContent(
     state: RegisterScreenState,
-    listener: RegisterInteractionListener,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    listener: RegisterInteractionListener
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -85,17 +83,6 @@ fun RegisterStep4ParentContent(
                 onRemoveChild = listener::onRemoveChild,
                 isLoading = state.isChildLoading,
                 errorText = state.childError?.asString()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FilePickerCard(
-                title = stringResource(Res.string.upload_identity_card),
-                fileName = state.identityCertificateFileName,
-                fileBytes = state.identityCertificateBytes,
-                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearClick = { listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null) },
-                onFileClick = onFileClickIdentityCertificate
             )
         }
 

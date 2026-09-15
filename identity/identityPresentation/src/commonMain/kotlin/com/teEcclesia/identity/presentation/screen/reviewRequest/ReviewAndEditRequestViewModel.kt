@@ -348,7 +348,7 @@ class ReviewAndEditRequestViewModel(
                         bishopName = if (isMale != false) profile.ordinationProfile?.bishopName ?: "" else "",
                         ordinationPlace = if (isMale != false) profile.ordinationProfile?.ordinationPlace ?: "" else "",
                         ordinationCertificateFileName = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null,
-                        identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
+                        identityCertificateFileName = profile.identityDocumentImageUrl,
 
                         actionTakenAt = profile.actionTakenAt?.replace("T", " ")?.take(16),
                         actionTakenByName = profile.actionTakenBy?.name.orEmpty(),
@@ -371,7 +371,7 @@ class ReviewAndEditRequestViewModel(
                         onError = {}
                     )
                 }
-                val identityUrl = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
+                val identityUrl = profile.identityDocumentImageUrl
                 if (!identityUrl.isNullOrBlank() && identityUrl.endsWith(".pdf", ignoreCase = true)) {
                     tryToCall(
                         block = { profileRepository.downloadFile(identityUrl) },

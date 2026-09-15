@@ -165,12 +165,15 @@ private fun ReviewAndEditRequestContent(
                     label = "StepTransition"
                 ) { step ->
                     when (step) {
-                        1 -> ReviewStep1Content(state = state, listener = listener)
+                        1 -> ReviewStep1Content(
+                            state = state,
+                            listener = listener,
+                            onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                        )
                         2 -> ReviewStep2Content(
                             state = state,
                             listener = listener,
-                            onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
-                            onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                            onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                         )
                     }
                 }

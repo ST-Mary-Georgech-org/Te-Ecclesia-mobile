@@ -51,8 +51,7 @@ fun ReviewStep2Content(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier,
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -114,21 +113,21 @@ fun ReviewStep2Content(
                 UserRole.MAKHDOOM -> ReviewStep2StudentContent(
                     state = state,
                     listener = listener,
-                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate,
-                    onFileClickIdentityCertificate = onFileClickIdentityCertificate
+                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
                 )
-                UserRole.KHADEM -> ReviewStep2ServantContent(state = state, listener = listener)
+                UserRole.KHADEM -> ReviewStep2ServantContent(
+                    state = state,
+                    listener = listener
+                )
                 UserRole.PARENT -> ReviewStep2ParentContent(
                     state = state,
-                    listener = listener,
-                    onFileClickIdentityCertificate = onFileClickIdentityCertificate
+                    listener = listener
                 )
                 UserRole.KAHEN -> ReviewStep2KahenContent(state = state, listener = listener)
                 else -> ReviewStep2StudentContent(
                     state = state,
                     listener = listener,
-                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate,
-                    onFileClickIdentityCertificate = onFileClickIdentityCertificate
+                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
                 )
             }
         }

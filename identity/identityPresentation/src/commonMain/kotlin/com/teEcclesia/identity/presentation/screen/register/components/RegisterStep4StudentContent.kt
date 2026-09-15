@@ -46,8 +46,7 @@ import teecclesia.designsystem.generated.resources.personal_info
 fun RegisterStep4StudentContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener,
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().animateContentSize(),
@@ -154,15 +153,7 @@ fun RegisterStep4StudentContent(
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
                 isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
-                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
-                identityCertificateFileName = state.identityCertificateFileName,
-                identityCertificateBytes = state.identityCertificateBytes,
-                identityCertificateError = state.identityCertificateError?.asString(),
-                onUploadIdentityCertificate = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearIdentityCertificate = {
-                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                },
-                onFileClickIdentityCertificate = onFileClickIdentityCertificate
+                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone
             )
         }
 

@@ -547,6 +547,7 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
         email = email.trim().ifBlank { null },
         password = password.ifBlank { null },
         imageUrl = imageUrl,
+        identityDocumentImageUrl = identityCertificateFileName,
         job = job,
         buildingNo = buildingNo.trim(),
         street = street.trim(),
@@ -621,8 +622,7 @@ private fun ReviewAndEditRequestUiState.toMakhdoomProfileRequest(): MakhdoomProf
             motherPhone = old.motherPhone.ifBlank { null },
             motherWhatsapp = old.motherWhatsapp.ifBlank { null },
             isFatherDeceased = old.isFatherDeceased,
-            isMotherDeceased = old.isMotherDeceased,
-            identityDocumentImageUrl = old.identityDocumentImageUrl
+            isMotherDeceased = old.isMotherDeceased
         )
     }
 }
@@ -656,8 +656,7 @@ private fun ReviewAndEditRequestUiState.toParentProfileRequest(): ParentProfileR
     } else userProfile?.parentProfile?.let { old ->
         ParentProfileRequest(
             partnerCode = old.partner?.code,
-            childrenCodes = old.children.mapNotNull { it.code },
-            nationalIdImageUrl = old.nationalIdImageUrl
+            childrenCodes = old.children.mapNotNull { it.code }
         )
     }
 }

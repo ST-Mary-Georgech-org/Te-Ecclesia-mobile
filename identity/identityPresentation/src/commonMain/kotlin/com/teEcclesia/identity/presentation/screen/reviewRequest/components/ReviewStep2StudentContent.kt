@@ -68,8 +68,7 @@ fun ReviewStep2StudentContent(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier,
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -286,20 +285,7 @@ fun ReviewStep2StudentContent(
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
                 isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
-                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
-                filePickerContent = {
-                    ReviewFilePickerRow(
-                        label = stringResource(Res.string.identity_card_certificate_optional),
-                        fileTitle = stringResource(Res.string.file_identity_card),
-                        fileName = state.identityCertificateFileName,
-                        fileBytes = state.identityCertificateBytes,
-                        onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                        onClearClick = {
-                            listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                        },
-                        onFileClick = onFileClickIdentityCertificate
-                    )
-                }
+                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone
             )
         }
     }

@@ -193,6 +193,7 @@ private fun RegistrationRequestCardPreview() = Theme {
         isEmailVerified = true,
         isPhoneVerified = true,
         imageUrl = null,
+        identityDocumentImageUrl = null,
         job = "Engineer",
         buildingNo = "1",
         street = "Street",

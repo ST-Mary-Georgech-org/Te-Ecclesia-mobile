@@ -18,6 +18,7 @@ data class ProfileResponse(
     val isEmailVerified: Boolean,
     val isPhoneVerified: Boolean,
     val imageUrl: String?,
+    val identityDocumentImageUrl: String?,
     val job: String,
     val buildingNo: String,
     val street: String,

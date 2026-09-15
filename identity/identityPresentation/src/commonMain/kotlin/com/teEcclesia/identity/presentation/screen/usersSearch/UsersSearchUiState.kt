@@ -32,13 +32,13 @@ val ProfileResponse.educationalStageName: String?
     get() = when (role) {
         UserRole.KHADEM -> khademProfile?.educationalStage?.name
         UserRole.MAKHDOOM -> makhdoomProfile?.educationalStage?.name
-        else -> khademProfile?.educationalStage?.name ?: makhdoomProfile?.educationalStage?.name
+        else -> null
     }
 
 val ProfileResponse.educationalYearName: String?
     get() = when (role) {
         UserRole.KHADEM -> khademProfile?.educationalYear?.name
         UserRole.MAKHDOOM -> makhdoomProfile?.educationalYear?.name
-        else -> khademProfile?.educationalYear?.name ?: makhdoomProfile?.educationalYear?.name
+        else -> null
     }
 

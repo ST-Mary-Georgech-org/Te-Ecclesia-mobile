@@ -49,12 +49,15 @@ import teecclesia.designsystem.generated.resources.login
 import teecclesia.designsystem.generated.resources.national_id
 import teecclesia.designsystem.generated.resources.national_id_hint
 import teecclesia.designsystem.generated.resources.next
+import teecclesia.designsystem.generated.resources.upload_national_id_card
+import teecclesia.designsystem.generated.resources.file_identity_card
 import teecclesia.designsystem.generated.resources.personal_info
 
 @Composable
 fun RegisterStep1Content(
     state: RegisterScreenState,
-    listener: RegisterInteractionListener
+    listener: RegisterInteractionListener,
+    onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
@@ -122,6 +125,19 @@ fun RegisterStep1Content(
                 errorText = state.nationalIdError?.asString(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
+            )
+
+            FilePickerCard(
+                title = stringResource(Res.string.upload_national_id_card),
+                fileTitle = stringResource(Res.string.file_identity_card),
+                fileName = state.identityCertificateFileName,
+                fileBytes = state.identityCertificateBytes,
+                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                onClearClick = {
+                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                },
+                onFileClick = onFileClickIdentityCertificate,
+                errorText = state.identityCertificateError?.asString()
             )
 
             CustomTextField(

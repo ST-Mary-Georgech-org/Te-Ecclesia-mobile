@@ -20,6 +20,9 @@ import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import com.teEcclesia.identity.presentation.shared.components.EducationalYearSelectField
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import teecclesia.designsystem.generated.resources.file_identity_card
+import teecclesia.designsystem.generated.resources.identity_card_certificate_optional
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.can_approve_new_requests
 import teecclesia.designsystem.generated.resources.educational_stages

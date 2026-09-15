@@ -179,24 +179,32 @@ fun RegisterScreenContent(
                         label = "RegisterStepTransition"
                     ) { targetStep ->
                         when (targetStep) {
-                            1 -> RegisterStep1Content(state = state, listener = listener)
+                            1 -> RegisterStep1Content(
+                                state = state,
+                                listener = listener,
+                                onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                            )
                             2 -> RegisterStep2Content(state = state, listener = listener)
                             3 -> RegisterStep3Content(state = state, listener = listener)
                             4 -> when (state.selectedRole) {
                                 UserRole.MAKHDOOM -> RegisterStep4StudentContent(
                                     state = state,
                                     listener = listener,
-                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
-                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
-                                UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
+                                UserRole.KHADEM -> RegisterStep4ServantContent(
+                                    state = state,
+                                    listener = listener
+                                )
                                 UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
                                 UserRole.PARENT -> RegisterStep4ParentContent(
                                     state = state,
-                                    listener = listener,
-                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                                    listener = listener
                                 )
-                                else -> RegisterStep4ServantContent(state = state, listener = listener)
+                                else -> RegisterStep4ServantContent(
+                                    state = state,
+                                    listener = listener
+                                )
                             }
                             5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                         }

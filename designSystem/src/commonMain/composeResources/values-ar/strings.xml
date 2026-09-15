@@ -140,6 +140,8 @@
     <string name="error_child_already_added">تمت إضافة هذا الابن بالفعل</string>
     <string name="upload_ordination_certificate">تحميل شهادة السيامة (اختياري)</string>
     <string name="upload_identity_card">تحميل بطاقة الرقم القومي (اختياري)</string>
+    <string name="upload_national_id_card">تحميل بطاقة الرقم القومي</string>
+    <string name="national_id_card_required">يرجى تحميل صورة بطاقة الرقم القومي أو شهادة الميلاد</string>
     <string name="file_ordination_certificate">شهادة السيامة</string>
     <string name="file_identity_card">بطاقة الرقم القومي</string>
 

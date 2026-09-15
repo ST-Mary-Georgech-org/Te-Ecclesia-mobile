@@ -68,6 +68,8 @@ import teecclesia.designsystem.generated.resources.next_step
 import teecclesia.designsystem.generated.resources.optional_password_hint
 import teecclesia.designsystem.generated.resources.password
 import teecclesia.designsystem.generated.resources.personal_info
+import teecclesia.designsystem.generated.resources.upload_national_id_card
+import teecclesia.designsystem.generated.resources.file_identity_card
 import teecclesia.designsystem.generated.resources.should_have_whatsapp
 import teecclesia.designsystem.generated.resources.view_attendance_history
 
@@ -76,6 +78,7 @@ fun ReviewStep1Content(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier,
+    onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -201,6 +204,18 @@ fun ReviewStep1Content(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 )
+            )
+
+            ReviewFilePickerRow(
+                label = stringResource(Res.string.upload_national_id_card),
+                fileTitle = stringResource(Res.string.file_identity_card),
+                fileName = state.identityCertificateFileName,
+                fileBytes = state.identityCertificateBytes,
+                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                onClearClick = {
+                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                },
+                onFileClick = onFileClickIdentityCertificate
             )
 
             CustomTextField(

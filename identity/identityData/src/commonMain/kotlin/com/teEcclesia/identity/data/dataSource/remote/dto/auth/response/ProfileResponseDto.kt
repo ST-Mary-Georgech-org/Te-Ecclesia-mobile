@@ -46,6 +46,8 @@ data class ProfileResponseDto(
     val isPhoneVerified: Boolean = false,
     @SerialName("imageUrl")
     val imageUrl: String? = null,
+    @SerialName("identityDocumentImageUrl")
+    val identityDocumentImageUrl: String? = null,
     @SerialName("job")
     val job: String? = null,
     @SerialName("buildingNo")
@@ -114,6 +116,7 @@ fun ProfileResponseDto.toDomain() = ProfileResponse(
     isEmailVerified = isEmailVerified,
     isPhoneVerified = isPhoneVerified,
     imageUrl = imageUrl,
+    identityDocumentImageUrl = identityDocumentImageUrl,
     job = job.orEmpty(),
     buildingNo = buildingNo.orEmpty(),
     street = street.orEmpty(),

@@ -140,6 +140,8 @@
     <string name="error_child_already_added">Child has already been added</string>
     <string name="upload_ordination_certificate">Upload Ordination Certificate (Optional)</string>
     <string name="upload_identity_card">Upload National ID Card (Optional)</string>
+    <string name="upload_national_id_card">Upload National ID Card</string>
+    <string name="national_id_card_required">Please upload National ID or Birth Certificate</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>
     <string name="file_identity_card">National ID Card</string>
 

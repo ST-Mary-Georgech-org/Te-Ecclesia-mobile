@@ -11,6 +11,5 @@ data class MakhdoomProfileResponse(
     val motherPhone: String,
     val motherWhatsapp: String,
     val isFatherDeceased: Boolean = false,
-    val isMotherDeceased: Boolean = false,
-    val identityDocumentImageUrl: String?
+    val isMotherDeceased: Boolean = false
 )

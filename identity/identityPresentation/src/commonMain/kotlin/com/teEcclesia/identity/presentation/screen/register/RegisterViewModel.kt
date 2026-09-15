@@ -67,6 +67,7 @@ import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
+import teecclesia.designsystem.generated.resources.national_id_card_required
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -253,7 +254,7 @@ class RegisterViewModel(
                             bishopName = ordination?.bishopName ?: "",
                             ordinationPlace = ordination?.ordinationPlace ?: "",
                             ordinationCertificateFileName = ordination?.certificateImageUrl,
-                            identityCertificateFileName = makhdoom?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
+                            identityCertificateFileName = profile.identityDocumentImageUrl,
 
                             kahenEducationalStages = profile.kahenProfile?.educationalStages
                                 ?: emptyList(),
@@ -386,6 +387,10 @@ class RegisterViewModel(
         val externalPhoneErr =
             if (s.isFromAnotherChurch && !validatePhone(s.externalPriestPhone)) UiText.StringRes(Res.string.invalid_phone_format) else null
 
+        val identityCertificateError = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
+            UiText.StringRes(Res.string.national_id_card_required)
+        } else null
+
         val hasError = listOfNotNull(
             firstNameError,
             secondNameError,
@@ -393,6 +398,7 @@ class RegisterViewModel(
             lastNameError,
             displayNameError,
             nationalIdError,
+            identityCertificateError,
             confessionPriestErr,
             externalNameErr,
             externalChurchErr,
@@ -407,6 +413,7 @@ class RegisterViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                identityCertificateError = identityCertificateError,
                 isMale = isMale,
                 confessionPriestError = confessionPriestErr,
                 externalPriestNameError = externalNameErr,
@@ -596,6 +603,7 @@ class RegisterViewModel(
                 email = s.email.ifBlank { null },
                 password = s.password,
                 imageUrl = null,
+                identityDocumentImageUrl = s.identityCertificateFileName,
                 buildingNo = s.buildingNo,
                 street = s.street,
                 streetBranch = s.streetBranch.ifBlank { null },
@@ -614,7 +622,7 @@ class RegisterViewModel(
                     val tokenResponse = registerRepository.register(
                         request = registerRequest,
                         imageBytes = s.imageBytes,
-                        certificateImageBytes = null
+                        certificateImageBytes = s.identityCertificateBytes
                     )
                     authenticationRepository.saveRegistrationToken(
                         tokenResponse.token,
@@ -832,14 +840,9 @@ class RegisterViewModel(
                     } else null
                 } else null
 
-                val identityCertificateErr = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
-                    UiText.StringRes(Res.string.field_required)
-                } else null
-
                 val hasError = listOfNotNull(
                     rankErr, stageErr, yearErr, ordinationYearErr,
-                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr,
-                    identityCertificateErr
+                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr
                 ).isNotEmpty()
                 updateState {
                     copy(
@@ -850,8 +853,7 @@ class RegisterViewModel(
                         fatherPhoneError = fatherPhoneErr,
                         fatherWhatsappError = fatherWhatsappErr,
                         motherPhoneError = motherPhoneErr,
-                        motherWhatsappError = motherWhatsappErr,
-                        identityCertificateError = identityCertificateErr
+                        motherWhatsappError = motherWhatsappErr
                     )
                 }
                 if (hasError) return
@@ -892,6 +894,7 @@ class RegisterViewModel(
 
         val request = CompleteProfileRequest(
             role = role,
+            identityDocumentImageUrl = s.identityCertificateFileName,
             khademProfile = if (role == UserRole.KHADEM) KhademProfileRequest(
                 educationalStageId = s.servantEducationalStage?.id ?: 1L,
                 educationalYearId = s.servantEducationalYear?.id
@@ -1238,12 +1241,17 @@ class RegisterViewModel(
     }
 
     override fun onClickIdentityCertificate() {
-        val bytes = state.value.identityCertificateBytes ?: return
-        val isPdf = state.value.identityCertificateFileName?.endsWith(".pdf", ignoreCase = true) == true
-        if (isPdf) {
-            updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
-        } else {
-            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+        val bytes = state.value.identityCertificateBytes
+        val fileName = state.value.identityCertificateFileName
+        val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (bytes != null) {
+            if (isPdf) {
+                updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+            } else {
+                updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+            }
+        } else if (!fileName.isNullOrBlank() && !isPdf) {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
         }
     }
 

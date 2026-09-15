@@ -11,9 +11,7 @@ data class ParentProfileResponseDto(
     @SerialName("partner")
     val partner: UserSummaryDto?,
     @SerialName("children")
-    val children: List<UserSummaryDto>,
-    @SerialName("nationalIdImageUrl")
-    val nationalIdImageUrl: String? = null,
+    val children: List<UserSummaryDto> = emptyList(),
     @SerialName("whatsAppLink")
     val whatsAppLink: String? = null
 )
@@ -21,6 +19,5 @@ data class ParentProfileResponseDto(
 fun ParentProfileResponseDto.toDomain() = ParentProfileResponse(
     partner = partner?.toDomain(),
     children = children.map { it.toDomain() },
-    nationalIdImageUrl = nationalIdImageUrl,
     whatsAppLink = whatsAppLink
 )
