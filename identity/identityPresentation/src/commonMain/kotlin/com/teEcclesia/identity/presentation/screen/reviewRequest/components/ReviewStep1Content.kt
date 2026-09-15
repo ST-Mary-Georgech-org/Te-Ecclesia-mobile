@@ -378,7 +378,7 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onClickIdentityCertificate() {}
 
         override fun onSelectImageBytes(
-            target: UploadTarget,
+            target: UploadTarget?,
             bytes: ByteArray?,
             fileName: String?
         ) {

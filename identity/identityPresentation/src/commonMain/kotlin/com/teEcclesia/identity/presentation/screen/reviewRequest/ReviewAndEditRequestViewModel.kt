@@ -796,7 +796,7 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onDismissUploadBottomSheet() {
-        updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
+        updateState { copy(isUploadBottomSheetVisible = false) }
     }
 
     override fun onDismissImageViewer() {
@@ -920,7 +920,7 @@ class ReviewAndEditRequestViewModel(
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {
+    override fun onSelectImageBytes(target: UploadTarget?, bytes: ByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {
@@ -936,6 +936,8 @@ class ReviewAndEditRequestViewModel(
                     identityCertificateFileName = fileName
                 )
             }
+
+            else -> return
         }
     }
 

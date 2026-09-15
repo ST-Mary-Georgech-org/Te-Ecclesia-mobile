@@ -33,8 +33,7 @@ fun DocumentScannerLauncher(
 
                         onResult(bytes)
                     }
-                    .onFailure { error ->
-                        println("Document scanner error: $error")
+                    .onFailure { _ ->
                         onResult(null)
                     }
             }

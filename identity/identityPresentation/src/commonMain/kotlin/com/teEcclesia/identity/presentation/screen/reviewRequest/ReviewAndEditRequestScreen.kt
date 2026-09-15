@@ -84,7 +84,7 @@ private fun ReviewAndEditRequestContent(
         onScannerOpened = listener::onDocumentScannerOpened,
         onResult = { bytes ->
             listener.onSelectImageBytes(
-                UploadTarget.PROFILE_PHOTO,
+                state.activeUploadTarget,
                 bytes,
                 "test"
             )
@@ -256,7 +256,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onFileOptionPicked(option: FilePickOption) {}
 
         override fun onSelectImageBytes(
-            target: UploadTarget,
+            target: UploadTarget?,
             bytes: ByteArray?,
             fileName: String?
         ) {

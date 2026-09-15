@@ -361,7 +361,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
-        override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+        override fun onSelectImageBytes(target: UploadTarget?, bytes: ByteArray?, fileName: String?) {}
         override fun onRoleSelected(role: UserRole) {}
         override fun onToggleRoleSheet(visible: Boolean) {}
         override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}

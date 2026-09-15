@@ -59,7 +59,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onTogglePriestSheet(visible: Boolean)
     fun onLoadNextPriests()
     fun onFileOptionPicked(option: FilePickOption)
-    fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?)
+    fun onSelectImageBytes(target: UploadTarget?, bytes: ByteArray?, fileName: String?)
 
     fun onRoleSelected(role: UserRole)
     fun onToggleRoleSheet(visible: Boolean)
