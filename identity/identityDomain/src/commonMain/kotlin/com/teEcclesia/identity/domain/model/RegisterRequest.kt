@@ -14,6 +14,7 @@ data class RegisterRequest(
     val email: String?,
     val password: String? = null,
     val imageUrl: String? = null,
+    val identityDocumentImageUrl: String? = null,
     val job: String?,
     val buildingNo: String,
     val street: String,

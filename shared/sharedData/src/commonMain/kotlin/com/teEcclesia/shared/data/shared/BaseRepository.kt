@@ -25,10 +25,14 @@ import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
 
 import com.teEcclesia.shared.data.dataSource.remote.dto.ErrorResponse
-import com.teEcclesia.shared.domain.exception.DuplicatePhoneException
 import com.teEcclesia.shared.domain.exception.ServerErrorException
+import com.teEcclesia.shared.domain.manager.SessionManager
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-abstract class BaseRepository(val client: HttpClient) {
+abstract class BaseRepository(val client: HttpClient) : KoinComponent {
+
+    val sessionManager: SessionManager by inject()
 
     suspend inline fun <reified T> tryToExecute(method: HttpClient.() -> HttpResponse): T {
         try {
@@ -37,6 +41,20 @@ abstract class BaseRepository(val client: HttpClient) {
             val status = e.response.status
             val errorResponse = runCatching { e.response.body<ErrorResponse>() }.getOrNull()
             val serverMessage = errorResponse?.message?.takeIf { it.isNotBlank() }
+            val path = e.response.call.request.url.encodedPath.removePrefix("/")
+            val isAuthEndpoint = path.startsWith("api/v1/identity/auth/login") ||
+                    path.startsWith("api/v1/identity/auth/signup") ||
+                    path.startsWith("api/v1/identity/auth/forgot-password") ||
+                    path.startsWith("api/v1/identity/auth/verify-otp") ||
+                    path.startsWith("api/v1/identity/auth/reset-password")
+
+            if (!isAuthEndpoint) {
+                if (status == HttpStatusCode.Unauthorized) {
+                    sessionManager.onSessionExpired(serverMessage)
+                } else if (status == HttpStatusCode.Forbidden) {
+                    sessionManager.onUserBlocked(serverMessage)
+                }
+            }
 
             throw when {
                 status == HttpStatusCode.PreconditionRequired -> {

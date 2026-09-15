@@ -13,7 +13,10 @@ kotlin {
                 implementation(projects.designSystem)
                 implementation(projects.notifications.notificationsDomain)
                 implementation(projects.notifications.notificationsApi)
+                implementation(projects.identity.identityDomain)
+                implementation(projects.lookups.lookupsDomain)
                 implementation(projects.shared.sharedDomain)
+                implementation(libs.coil.compose)
             }
         }
     }

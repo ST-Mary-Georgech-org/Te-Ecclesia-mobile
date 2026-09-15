@@ -3,12 +3,9 @@ package com.teEcclesia.identity.data.model.attendance
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.lookups.data.dataSource.remote.dto.LookupResponseDto
 import com.teEcclesia.lookups.data.dataSource.remote.dto.toDomain
-import com.teEcclesia.shared.domain.utils.getNow
 import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonNames
 
 @Serializable
 data class ChurchServiceDto(

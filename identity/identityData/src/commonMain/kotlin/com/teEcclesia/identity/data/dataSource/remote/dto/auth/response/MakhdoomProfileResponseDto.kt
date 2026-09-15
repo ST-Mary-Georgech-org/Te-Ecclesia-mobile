@@ -26,9 +26,7 @@ data class MakhdoomProfileResponseDto(
     @SerialName("fatherDeceased")
     val isFatherDeceased: Boolean = false,
     @SerialName("motherDeceased")
-    val isMotherDeceased: Boolean = false,
-    @SerialName("identityDocumentImageUrl")
-    val identityDocumentImageUrl: String? = null
+    val isMotherDeceased: Boolean = false
 )
 
 fun MakhdoomProfileResponseDto.toDomain() = MakhdoomProfileResponse(
@@ -40,6 +38,5 @@ fun MakhdoomProfileResponseDto.toDomain() = MakhdoomProfileResponse(
     motherPhone = motherPhone.orEmpty(),
     motherWhatsapp = motherWhatsapp.orEmpty(),
     isFatherDeceased = isFatherDeceased,
-    isMotherDeceased = isMotherDeceased,
-    identityDocumentImageUrl = identityDocumentImageUrl
+    isMotherDeceased = isMotherDeceased
 )

@@ -36,9 +36,10 @@ import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
-import com.teEcclesia.identity.presentation.shared.components.LookupContentContainer
+import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -50,6 +51,17 @@ import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.ok
 import teecclesia.designsystem.generated.resources.priest_info
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
+import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
+import teecclesia.designsystem.generated.resources.children
+import teecclesia.designsystem.generated.resources.i_am_also_a_parent
+import teecclesia.designsystem.generated.resources.partner
 
 @Composable
 fun RegisterStep4KahenContent(
@@ -87,6 +99,65 @@ fun RegisterStep4KahenContent(
                     errorText = currentError?.asString(),
                     trailingIcon = painterResource(Res.drawable.ic_chevron_down)
                 )
+            }
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            ) {
+                Checkbox(
+                    checked = state.isAlsoParent,
+                    onCheckedChange = listener::onToggleAlsoParent
+                )
+                Text(
+                    text = stringResource(Res.string.i_am_also_a_parent),
+                    style = Theme.typography.bodyMedium,
+                    color = Theme.colorScheme.onBackground,
+                    modifier = Modifier.clickableNoRipple { listener.onToggleAlsoParent(!state.isAlsoParent) }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = state.isAlsoParent,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.partner),
+                        style = Theme.typography.headlineMedium,
+                        color = Theme.colorScheme.onBackground
+                    )
+
+                    PartnerSelectionFields(
+                        selectedPartner = state.selectedPartner,
+                        partnerQuery = state.partnerQuery,
+                        onPartnerQueryChange = listener::onPartnerQueryChange,
+                        onSearchPartner = listener::onSearchPartner,
+                        onRemovePartner = listener::onRemovePartner,
+                        isLoading = state.isPartnerLoading,
+                        errorText = state.partnerError?.asString()
+                    )
+
+                    Text(
+                        text = stringResource(Res.string.children),
+                        style = Theme.typography.headlineMedium,
+                        color = Theme.colorScheme.onBackground
+                    )
+
+                    ChildrenSelectionFields(
+                        childQuery = state.childQuery,
+                        onChildQueryChange = listener::onChildQueryChange,
+                        onSearchChild = listener::onSearchChild,
+                        selectedChildren = state.selectedChildren,
+                        onRemoveChild = listener::onRemoveChild,
+                        isLoading = state.isChildLoading,
+                        errorText = state.childError?.asString()
+                    )
+                }
             }
         }
 
@@ -276,7 +347,7 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
             override fun onDismissUploadBottomSheet() {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
-                bytes: ByteArray?,
+                bytes: SafeByteArray?,
                 fileName: String?
             ) {
             }

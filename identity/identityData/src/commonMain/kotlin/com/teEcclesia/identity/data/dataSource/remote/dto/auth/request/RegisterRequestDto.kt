@@ -30,6 +30,8 @@ data class RegisterRequestDto(
     val password: String? = null,
     @SerialName("imageUrl")
     val imageUrl: String?,
+    @SerialName("identityDocumentImageUrl")
+    val identityDocumentImageUrl: String? = null,
     @SerialName("job")
     val job: String?,
     @SerialName("buildingNo")
@@ -82,6 +84,7 @@ fun RegisterRequest.toDto(deviceToken: String? = null) = RegisterRequestDto(
     email = email?.ifEmpty { null },
     password = password?.ifEmpty { null },
     imageUrl = imageUrl?.ifEmpty { null },
+    identityDocumentImageUrl = identityDocumentImageUrl?.ifEmpty { null },
     job = job?.ifEmpty { null },
     buildingNo = buildingNo,
     street = street,
@@ -94,7 +97,7 @@ fun RegisterRequest.toDto(deviceToken: String? = null) = RegisterRequestDto(
     confessionPriestId = confessionPriestId?.ifEmpty { null },
     externalConfessionPriestName = externalConfessionPriestName?.ifEmpty { null },
     externalConfessionChurch = externalConfessionChurch?.ifEmpty { null },
-    externalConfessionPhone = externalConfessionPhone?.ifEmpty { null },
+    externalConfessionPhone = externalConfessionPhone?.ifEmpty { null }?.normalizeEgyptPhone(),
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
     parentProfile = parentProfile?.toDto(),

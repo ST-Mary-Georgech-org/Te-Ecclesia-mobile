@@ -17,4 +17,6 @@ interface AttendanceRegisterInteractionListener {
     fun onLoadMore()
     fun onSelectSuggestedUser(user: AttendeeUserPreview)
     fun onDismissSuggestions()
+    fun onClickAttendee(attendee: EventAttendee)
 }
+

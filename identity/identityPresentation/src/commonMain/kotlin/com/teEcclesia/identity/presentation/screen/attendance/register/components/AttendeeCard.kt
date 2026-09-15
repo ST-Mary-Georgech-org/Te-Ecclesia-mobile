@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.register.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -30,12 +31,15 @@ import teecclesia.designsystem.generated.resources.ic_close
 @Composable
 fun AttendeeCard(
     attendee: EventAttendee,
+    onClick: () -> Unit,
     onRemove: () -> Unit,
     modifier: Modifier = Modifier,
     isResponsible: Boolean = true
 ) {
     Surface(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = Theme.colorScheme.surfaceContainerHighest
     ) {
@@ -101,6 +105,8 @@ private fun AttendeeCardPreview() = Theme {
             yearName = "السادسة",
             registeredAt = getNow()
         ),
+        onClick = {},
         onRemove = {}
     )
 }
+

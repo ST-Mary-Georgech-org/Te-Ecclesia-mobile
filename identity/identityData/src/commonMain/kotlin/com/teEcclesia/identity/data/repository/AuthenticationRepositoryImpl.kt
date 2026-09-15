@@ -129,9 +129,11 @@ class AuthenticationRepositoryImpl(
                 settings.accessToken
             } catch (e: UnAuthorizedException) {
                 clearAuthState()
+                sessionManager.onSessionExpired()
                 throw e
             } catch (e: UserIsBlockedException) {
                 clearAuthState()
+                sessionManager.onUserBlocked()
                 throw e
             }
         }
@@ -167,7 +169,7 @@ class AuthenticationRepositoryImpl(
         }
     }
 
-    override suspend fun getAccessToken(): String = settings.accessToken
+    override fun getAccessToken(): String = settings.accessToken
 
     override suspend fun getAuthTokens(): AuthenticationTokens? =
         createAuthTokensIfValid(settings.accessToken, settings.refreshToken)

@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.lookups.domain.model.LookupResponse
@@ -42,6 +43,9 @@ fun EducationalStageFields(
         EducationalStageSelectField(
             selectedStage = selectedStage,
             educationalStages = educationalStages,
+            itemTitle = { it.name },
+            itemId = { it.id },
+            isSelected = { it.id == selectedStage?.id },
             isSheetVisible = isStageSheetVisible,
             onToggleSheet = onToggleStageSheet,
             onSelectStage = onSelectEducationalStage,

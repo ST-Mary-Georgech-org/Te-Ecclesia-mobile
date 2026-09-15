@@ -14,7 +14,7 @@ interface AuthenticationRepository {
     suspend fun refreshAccessToken(): String
     suspend fun refreshRegistrationToken(): String
     suspend fun upgradeRegistrationToken(): String
-    suspend fun getAccessToken(): String
+    fun getAccessToken(): String
     suspend fun getAuthTokens(): AuthenticationTokens?
     suspend fun saveAuthTokens(authTokens: AuthenticationTokens, syncDeviceToken: Boolean = true)
     suspend fun saveRegistrationToken(token: String, refreshToken: String = "", syncDeviceToken: Boolean = true)

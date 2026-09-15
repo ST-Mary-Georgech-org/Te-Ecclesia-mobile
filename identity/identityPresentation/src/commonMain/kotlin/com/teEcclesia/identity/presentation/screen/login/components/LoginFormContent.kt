@@ -64,6 +64,7 @@ fun LoginFormContent(
         ) {
             val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
             val isPhoneInput = isValidPhoneInput(state.username)
+            val isEgyptPhoneInput = isPhoneInput && !state.username.startsWith("+")
 
             Box(modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp)) {
                 CustomTextField(
@@ -78,8 +79,8 @@ fun LoginFormContent(
                     } else {
                         Theme.typography.bodyLarge
                     },
-                    prefixText = if (isPhoneInput && !isRtl) { "+2" } else null,
-                    suffixText = if (isPhoneInput && isRtl) { "+2" } else null,
+                    prefixText = if (isEgyptPhoneInput && !isRtl) { "+2" } else null,
+                    suffixText = if (isEgyptPhoneInput && isRtl) { "+2" } else null,
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Ascii,

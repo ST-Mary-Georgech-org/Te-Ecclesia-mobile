@@ -110,13 +110,13 @@ fun EmbeddedBarcodeScannerCard(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(140.dp)
+                        .height(200.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Theme.colorScheme.surfaceVariant)
                         .border(1.dp, Theme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
                 ) {
                     QrScanner(
-                        modifier = Modifier.fillMaxWidth().height(140.dp),
+                        modifier = Modifier.fillMaxWidth().height(200.dp),
                         flashlightOn = false,
                         cameraLens = CameraLens.Back,
                         overlayShape = OverlayShape.Square,

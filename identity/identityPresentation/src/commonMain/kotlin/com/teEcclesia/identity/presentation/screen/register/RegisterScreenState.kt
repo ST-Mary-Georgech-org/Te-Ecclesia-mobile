@@ -5,6 +5,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.lookups.domain.model.LookupResponse
 
@@ -15,7 +16,7 @@ data class RegisterScreenState(
     val isRefreshing: Boolean = false,
     
     // Step 1: Personal Info
-    val imageBytes: ByteArray? = null,
+    val imageBytes: SafeByteArray? = null,
     val imageUrl: String? = null,
     val firstName: String = "",
     val firstNameError: UiText? = null,
@@ -93,7 +94,7 @@ data class RegisterScreenState(
     val ordinationYearError: UiText? = null,
     val bishopName: String = "",
     val ordinationPlace: String = "",
-    val ordinationCertificateBytes: ByteArray? = null,
+    val ordinationCertificateBytes: SafeByteArray? = null,
     val ordinationCertificateFileName: String? = null,
 
     // Deacons School / Student, Servant & Kahen Info
@@ -135,11 +136,12 @@ data class RegisterScreenState(
     val motherWhatsapp: String = "",
     val motherWhatsappError: UiText? = null,
     val isMotherWhatsappSameAsPhone: Boolean = true,
-    val identityCertificateBytes: ByteArray? = null,
+    val identityCertificateBytes: SafeByteArray? = null,
     val identityCertificateFileName: String? = null,
     val identityCertificateError: UiText? = null,
 
     // Parent Info
+    val isAlsoParent: Boolean = false,
     val isPartnerLoading: Boolean = false,
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
@@ -154,271 +156,12 @@ data class RegisterScreenState(
     val isImageViewerVisible: Boolean = false,
     val activeImageViewerModel: Any? = null,
     val isPdfViewerVisible: Boolean = false,
-    val activePdfBytes: ByteArray? = null,
+    val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
     
     // Step 5: WhatsApp Verify Link
     val whatsAppDeepLink: String? = null
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as RegisterScreenState
-
-        if (currentStep != other.currentStep) return false
-        if (isLoading != other.isLoading) return false
-        if (isRefreshing != other.isRefreshing) return false
-        if (isMale != other.isMale) return false
-        if (isPriestLoading != other.isPriestLoading) return false
-        if (isPriestLoadFailed != other.isPriestLoadFailed) return false
-        if (isPriestEndReached != other.isPriestEndReached) return false
-        if (isFromAnotherChurch != other.isFromAnotherChurch) return false
-        if (isPriestSheetVisible != other.isPriestSheetVisible) return false
-        if (isPasswordVisible != other.isPasswordVisible) return false
-        if (isAreaLoading != other.isAreaLoading) return false
-        if (isAreaLoadFailed != other.isAreaLoadFailed) return false
-        if (isAreaSheetVisible != other.isAreaSheetVisible) return false
-        if (isOrdained != other.isOrdained) return false
-        if (isRankLoading != other.isRankLoading) return false
-        if (isRankLoadFailed != other.isRankLoadFailed) return false
-        if (isRankEndReached != other.isRankEndReached) return false
-        if (isRankSheetVisible != other.isRankSheetVisible) return false
-        if (isOrdainedInThisChurch != other.isOrdainedInThisChurch) return false
-        if (isStageLoading != other.isStageLoading) return false
-        if (isStageLoadFailed != other.isStageLoadFailed) return false
-        if (isStageEndReached != other.isStageEndReached) return false
-        if (isStagesSheetVisible != other.isStagesSheetVisible) return false
-        if (isStageSheetVisible != other.isStageSheetVisible) return false
-        if (isYearSheetVisible != other.isYearSheetVisible) return false
-        if (isFatherDeceased != other.isFatherDeceased) return false
-        if (isMotherDeceased != other.isMotherDeceased) return false
-        if (isFatherWhatsappSameAsPhone != other.isFatherWhatsappSameAsPhone) return false
-        if (isMotherWhatsappSameAsPhone != other.isMotherWhatsappSameAsPhone) return false
-        if (isUploadBottomSheetVisible != other.isUploadBottomSheetVisible) return false
-        if (actionButtonState != other.actionButtonState) return false
-        if (!imageBytes.contentEquals(other.imageBytes)) return false
-        if (imageUrl != other.imageUrl) return false
-        if (firstName != other.firstName) return false
-        if (firstNameError != other.firstNameError) return false
-        if (secondName != other.secondName) return false
-        if (secondNameError != other.secondNameError) return false
-        if (thirdName != other.thirdName) return false
-        if (thirdNameError != other.thirdNameError) return false
-        if (lastName != other.lastName) return false
-        if (lastNameError != other.lastNameError) return false
-        if (displayName != other.displayName) return false
-        if (displayNameError != other.displayNameError) return false
-        if (nationalId != other.nationalId) return false
-        if (nationalIdError != other.nationalIdError) return false
-        if (job != other.job) return false
-        if (confessionPriests != other.confessionPriests) return false
-        if (selectedConfessionPriest != other.selectedConfessionPriest) return false
-        if (confessionPriestError != other.confessionPriestError) return false
-        if (externalPriestName != other.externalPriestName) return false
-        if (externalPriestNameError != other.externalPriestNameError) return false
-        if (externalPriestChurch != other.externalPriestChurch) return false
-        if (externalPriestChurchError != other.externalPriestChurchError) return false
-        if (externalPriestPhone != other.externalPriestPhone) return false
-        if (externalPriestPhoneError != other.externalPriestPhoneError) return false
-        if (phone != other.phone) return false
-        if (phoneError != other.phoneError) return false
-        if (homePhone != other.homePhone) return false
-        if (homePhoneError != other.homePhoneError) return false
-        if (email != other.email) return false
-        if (emailError != other.emailError) return false
-        if (password != other.password) return false
-        if (passwordError != other.passwordError) return false
-        if (buildingNo != other.buildingNo) return false
-        if (buildingNoError != other.buildingNoError) return false
-        if (street != other.street) return false
-        if (streetError != other.streetError) return false
-        if (streetBranch != other.streetBranch) return false
-        if (areas != other.areas) return false
-        if (selectedArea != other.selectedArea) return false
-        if (areaError != other.areaError) return false
-        if (floor != other.floor) return false
-        if (floorError != other.floorError) return false
-        if (apartment != other.apartment) return false
-        if (specialMark != other.specialMark) return false
-        if (specialMarkError != other.specialMarkError) return false
-        if (selectedRole != other.selectedRole) return false
-        if (ranks != other.ranks) return false
-        if (selectedRank != other.selectedRank) return false
-        if (rankError != other.rankError) return false
-        if (ordinationYear != other.ordinationYear) return false
-        if (ordinationYearError != other.ordinationYearError) return false
-        if (bishopName != other.bishopName) return false
-        if (ordinationPlace != other.ordinationPlace) return false
-        if (!ordinationCertificateBytes.contentEquals(other.ordinationCertificateBytes)) return false
-        if (ordinationCertificateFileName != other.ordinationCertificateFileName) return false
-        if (shamamsaStatus != other.shamamsaStatus) return false
-        if (educationalStages != other.educationalStages) return false
-        if (studentEducationalStage != other.studentEducationalStage) return false
-        if (studentEducationalYear != other.studentEducationalYear) return false
-        if (servantEducationalStage != other.servantEducationalStage) return false
-        if (servantEducationalYear != other.servantEducationalYear) return false
-        if (kahenEducationalStages != other.kahenEducationalStages) return false
-        if (stagesError != other.stagesError) return false
-        if (stageError != other.stageError) return false
-        if (yearError != other.yearError) return false
-        if (fatherPhone != other.fatherPhone) return false
-        if (fatherPhoneError != other.fatherPhoneError) return false
-        if (fatherWhatsapp != other.fatherWhatsapp) return false
-        if (fatherWhatsappError != other.fatherWhatsappError) return false
-        if (motherPhone != other.motherPhone) return false
-        if (motherPhoneError != other.motherPhoneError) return false
-        if (motherWhatsapp != other.motherWhatsapp) return false
-        if (motherWhatsappError != other.motherWhatsappError) return false
-        if (!identityCertificateBytes.contentEquals(other.identityCertificateBytes)) return false
-        if (identityCertificateFileName != other.identityCertificateFileName) return false
-        if (identityCertificateError != other.identityCertificateError) return false
-        if (isPartnerLoading != other.isPartnerLoading) return false
-        if (partnerQuery != other.partnerQuery) return false
-        if (selectedPartner != other.selectedPartner) return false
-        if (partnerError != other.partnerError) return false
-        if (isChildLoading != other.isChildLoading) return false
-        if (childQuery != other.childQuery) return false
-        if (selectedChildren != other.selectedChildren) return false
-        if (childError != other.childError) return false
-        if (isUploadBottomSheetVisible != other.isUploadBottomSheetVisible) return false
-        if (isImageViewerVisible != other.isImageViewerVisible) return false
-        if (activeImageViewerModel != other.activeImageViewerModel) return false
-        if (isPdfViewerVisible != other.isPdfViewerVisible) return false
-        if (!activePdfBytes.contentEquals(other.activePdfBytes)) return false
-        if (activeUploadTarget != other.activeUploadTarget) return false
-        if (whatsAppDeepLink != other.whatsAppDeepLink) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = currentStep
-        result = 31 * result + isLoading.hashCode()
-        result = 31 * result + isRefreshing.hashCode()
-        result = 31 * result + (isMale?.hashCode() ?: 0)
-        result = 31 * result + isPriestLoading.hashCode()
-        result = 31 * result + isPriestLoadFailed.hashCode()
-        result = 31 * result + isPriestEndReached.hashCode()
-        result = 31 * result + isFromAnotherChurch.hashCode()
-        result = 31 * result + isPriestSheetVisible.hashCode()
-        result = 31 * result + isPasswordVisible.hashCode()
-        result = 31 * result + isAreaLoading.hashCode()
-        result = 31 * result + isAreaLoadFailed.hashCode()
-        result = 31 * result + isAreaSheetVisible.hashCode()
-        result = 31 * result + isOrdained.hashCode()
-        result = 31 * result + isRankLoading.hashCode()
-        result = 31 * result + isRankLoadFailed.hashCode()
-        result = 31 * result + isRankEndReached.hashCode()
-        result = 31 * result + isRankSheetVisible.hashCode()
-        result = 31 * result + isOrdainedInThisChurch.hashCode()
-        result = 31 * result + isStageLoading.hashCode()
-        result = 31 * result + isStageLoadFailed.hashCode()
-        result = 31 * result + isStageEndReached.hashCode()
-        result = 31 * result + isStagesSheetVisible.hashCode()
-        result = 31 * result + isStageSheetVisible.hashCode()
-        result = 31 * result + isYearSheetVisible.hashCode()
-        result = 31 * result + isFatherDeceased.hashCode()
-        result = 31 * result + isMotherDeceased.hashCode()
-        result = 31 * result + isFatherWhatsappSameAsPhone.hashCode()
-        result = 31 * result + isMotherWhatsappSameAsPhone.hashCode()
-        result = 31 * result + isUploadBottomSheetVisible.hashCode()
-        result = 31 * result + actionButtonState.hashCode()
-        result = 31 * result + (imageBytes?.contentHashCode() ?: 0)
-        result = 31 * result + (imageUrl?.hashCode() ?: 0)
-        result = 31 * result + firstName.hashCode()
-        result = 31 * result + (firstNameError?.hashCode() ?: 0)
-        result = 31 * result + secondName.hashCode()
-        result = 31 * result + (secondNameError?.hashCode() ?: 0)
-        result = 31 * result + thirdName.hashCode()
-        result = 31 * result + (thirdNameError?.hashCode() ?: 0)
-        result = 31 * result + lastName.hashCode()
-        result = 31 * result + (lastNameError?.hashCode() ?: 0)
-        result = 31 * result + displayName.hashCode()
-        result = 31 * result + (displayNameError?.hashCode() ?: 0)
-        result = 31 * result + nationalId.hashCode()
-        result = 31 * result + (nationalIdError?.hashCode() ?: 0)
-        result = 31 * result + job.hashCode()
-        result = 31 * result + confessionPriests.hashCode()
-        result = 31 * result + (selectedConfessionPriest?.hashCode() ?: 0)
-        result = 31 * result + (confessionPriestError?.hashCode() ?: 0)
-        result = 31 * result + externalPriestName.hashCode()
-        result = 31 * result + (externalPriestNameError?.hashCode() ?: 0)
-        result = 31 * result + externalPriestChurch.hashCode()
-        result = 31 * result + (externalPriestChurchError?.hashCode() ?: 0)
-        result = 31 * result + externalPriestPhone.hashCode()
-        result = 31 * result + (externalPriestPhoneError?.hashCode() ?: 0)
-        result = 31 * result + phone.hashCode()
-        result = 31 * result + (phoneError?.hashCode() ?: 0)
-        result = 31 * result + homePhone.hashCode()
-        result = 31 * result + (homePhoneError?.hashCode() ?: 0)
-        result = 31 * result + email.hashCode()
-        result = 31 * result + (emailError?.hashCode() ?: 0)
-        result = 31 * result + password.hashCode()
-        result = 31 * result + (passwordError?.hashCode() ?: 0)
-        result = 31 * result + buildingNo.hashCode()
-        result = 31 * result + (buildingNoError?.hashCode() ?: 0)
-        result = 31 * result + street.hashCode()
-        result = 31 * result + (streetError?.hashCode() ?: 0)
-        result = 31 * result + streetBranch.hashCode()
-        result = 31 * result + areas.hashCode()
-        result = 31 * result + (selectedArea?.hashCode() ?: 0)
-        result = 31 * result + (areaError?.hashCode() ?: 0)
-        result = 31 * result + floor.hashCode()
-        result = 31 * result + (floorError?.hashCode() ?: 0)
-        result = 31 * result + apartment.hashCode()
-        result = 31 * result + specialMark.hashCode()
-        result = 31 * result + (specialMarkError?.hashCode() ?: 0)
-        result = 31 * result + (selectedRole?.hashCode() ?: 0)
-        result = 31 * result + ranks.hashCode()
-        result = 31 * result + (selectedRank?.hashCode() ?: 0)
-        result = 31 * result + (rankError?.hashCode() ?: 0)
-        result = 31 * result + ordinationYear.hashCode()
-        result = 31 * result + (ordinationYearError?.hashCode() ?: 0)
-        result = 31 * result + bishopName.hashCode()
-        result = 31 * result + ordinationPlace.hashCode()
-        result = 31 * result + (ordinationCertificateBytes?.contentHashCode() ?: 0)
-        result = 31 * result + (ordinationCertificateFileName?.hashCode() ?: 0)
-        result = 31 * result + shamamsaStatus.hashCode()
-        result = 31 * result + educationalStages.hashCode()
-        result = 31 * result + (studentEducationalStage?.hashCode() ?: 0)
-        result = 31 * result + (studentEducationalYear?.hashCode() ?: 0)
-        result = 31 * result + (servantEducationalStage?.hashCode() ?: 0)
-        result = 31 * result + (servantEducationalYear?.hashCode() ?: 0)
-        result = 31 * result + kahenEducationalStages.hashCode()
-        result = 31 * result + (stagesError?.hashCode() ?: 0)
-        result = 31 * result + (stageError?.hashCode() ?: 0)
-        result = 31 * result + (yearError?.hashCode() ?: 0)
-        result = 31 * result + fatherPhone.hashCode()
-        result = 31 * result + (fatherPhoneError?.hashCode() ?: 0)
-        result = 31 * result + fatherWhatsapp.hashCode()
-        result = 31 * result + (fatherWhatsappError?.hashCode() ?: 0)
-        result = 31 * result + motherPhone.hashCode()
-        result = 31 * result + (motherPhoneError?.hashCode() ?: 0)
-        result = 31 * result + motherWhatsapp.hashCode()
-        result = 31 * result + (motherWhatsappError?.hashCode() ?: 0)
-        result = 31 * result + (identityCertificateBytes?.contentHashCode() ?: 0)
-        result = 31 * result + (identityCertificateFileName?.hashCode() ?: 0)
-        result = 31 * result + (identityCertificateError?.hashCode() ?: 0)
-        result = 31 * result + isPartnerLoading.hashCode()
-        result = 31 * result + partnerQuery.hashCode()
-        result = 31 * result + (selectedPartner?.hashCode() ?: 0)
-        result = 31 * result + (partnerError?.hashCode() ?: 0)
-        result = 31 * result + isChildLoading.hashCode()
-        result = 31 * result + childQuery.hashCode()
-        result = 31 * result + selectedChildren.hashCode()
-        result = 31 * result + (childError?.hashCode() ?: 0)
-        result = 31 * result + isUploadBottomSheetVisible.hashCode()
-        result = 31 * result + isImageViewerVisible.hashCode()
-        result = 31 * result + (activeImageViewerModel?.hashCode() ?: 0)
-        result = 31 * result + isPdfViewerVisible.hashCode()
-        result = 31 * result + (activePdfBytes?.contentHashCode() ?: 0)
-        result = 31 * result + (activeUploadTarget?.hashCode() ?: 0)
-        result = 31 * result + (whatsAppDeepLink?.hashCode() ?: 0)
-        return result
-    }
-
-}
+)
 
 enum class UploadTarget {
     PROFILE_PHOTO,

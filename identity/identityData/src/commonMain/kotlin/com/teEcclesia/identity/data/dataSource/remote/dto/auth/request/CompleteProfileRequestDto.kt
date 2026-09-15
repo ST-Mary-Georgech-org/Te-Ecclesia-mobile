@@ -9,6 +9,8 @@ import com.teEcclesia.shared.domain.model.UserRole
 data class CompleteProfileRequestDto(
     @SerialName("role")
     val role: UserRole,
+    @SerialName("identityDocumentImageUrl")
+    val identityDocumentImageUrl: String? = null,
     @SerialName("ordinationProfile")
     val ordinationProfile: OrdinationProfileRequestDto? = null,
     @SerialName("makhdoomProfile")
@@ -25,6 +27,7 @@ data class CompleteProfileRequestDto(
 
 fun CompleteProfileRequest.toDto(deviceToken: String? = null) = CompleteProfileRequestDto(
     role = role,
+    identityDocumentImageUrl = identityDocumentImageUrl?.ifEmpty { null },
     ordinationProfile = ordinationProfile?.toDto(),
     makhdoomProfile = makhdoomProfile?.toDto(),
     khademProfile = khademProfile?.toDto(),

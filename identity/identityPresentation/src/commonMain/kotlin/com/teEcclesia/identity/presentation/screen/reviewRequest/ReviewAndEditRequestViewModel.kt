@@ -2,9 +2,11 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
+import com.teEcclesia.identity.domain.model.Gender
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
@@ -13,15 +15,18 @@ import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
+import com.teEcclesia.shared.domain.model.toSafeByteArray
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
+import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
 import com.teEcclesia.shared.domain.utils.validation.isValidApartmentInput
 import com.teEcclesia.shared.domain.utils.validation.isValidBuildingNoInput
 import com.teEcclesia.shared.domain.utils.validation.isValidCodeFormat
@@ -41,18 +46,17 @@ import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
+import com.teEcclesia.designsystem.utils.compressImage
+import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
-import teecclesia.designsystem.generated.resources.failed_to_load_areas
-import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
-import teecclesia.designsystem.generated.resources.failed_to_load_priests
-import teecclesia.designsystem.generated.resources.failed_to_load_ranks
 import teecclesia.designsystem.generated.resources.failed_to_load_request
 import teecclesia.designsystem.generated.resources.failed_to_reject_request
+import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.failed_to_search_child
 import teecclesia.designsystem.generated.resources.failed_to_search_partner
 import teecclesia.designsystem.generated.resources.field_required
@@ -227,35 +231,33 @@ class ReviewAndEditRequestViewModel(
     }
 
     private fun loadCallerProfile() {
-            callerRole = authorizationService.getUserRole()
-            callerCanApproveRequests = authorizationService.canApproveRequests()
-            callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
-            callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
-            filterAndApplyEducationalStages()
-            val isAdmin = callerRole == UserRole.ADMIN
-            updateState {
-                it.copy(
-                    isLoading = false,
-                    isAdmin = isAdmin,
-                    isRoleEditable = if (it.isUpdateMode) isAdmin else it.isRoleEditable
-                ) 
-            }
+        callerRole = authorizationService.getUserRole()
+        callerCanApproveRequests = authorizationService.canApproveRequests()
+        callerResponsibleStageIds = authorizationService.getResponsibleStageIds()
+        callerResponsibleYearIds = authorizationService.getResponsibleYearIds()
+        filterAndApplyEducationalStages()
+        val isAdmin = callerRole == UserRole.ADMIN
+        updateState {
+            it.copy(
+                isLoading = if (userId.isNullOrBlank()) false else it.isLoading,
+                isAdmin = isAdmin,
+                isRoleEditable = if (it.isUpdateMode) isAdmin else it.isRoleEditable
+            )
+        }
     }
 
     init {
         updateState { it.copy(isUpdateMode = isFromSearch && userId.isNotBlank()) }
-        
+
         if (!userId.isNullOrBlank()) {
             loadRequestDetails()
         } else {
             updateState {
                 it.copy(
-                    isLoading = true,
                     selectedRole = UserRole.MAKHDOOM,
                     isRoleEditable = false
                 )
             }
-            loadCallerProfile()
         }
         loadCallerProfile()
         loadConfessionPriests()
@@ -269,13 +271,16 @@ class ReviewAndEditRequestViewModel(
         tryToCall(
             block = { profileRepository.getUserProfile(uid) },
             onSuccess = { profile ->
-                val preloadedFatherPhone = profile.makhdoomProfile?.fatherPhone?.removePrefix("+2") ?: ""
-                val preloadedFatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                val preloadedFatherPhone = profile.makhdoomProfile?.fatherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                val preloadedFatherWhatsapp = profile.makhdoomProfile?.fatherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                 val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
 
-                val preloadedMotherPhone = profile.makhdoomProfile?.motherPhone?.removePrefix("+2") ?: ""
-                val preloadedMotherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.removePrefix("+2") ?: ""
+                val preloadedMotherPhone = profile.makhdoomProfile?.motherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                val preloadedMotherWhatsapp = profile.makhdoomProfile?.motherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                 val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
+                val cleanedExternalPriestPhone = if (profile.externalConfessionPhone.startsWith("+201")) profile.externalConfessionPhone.removePrefix("+2") else profile.externalConfessionPhone
+                val cleanedPhone = if (profile.phone.startsWith("+201")) profile.phone.removePrefix("+2") else profile.phone
+                val isMale = if (profile.gender == Gender.FEMALE) false else isMaleFromEgyptianNationalId(profile.nationalId) ?: (profile.gender == Gender.MALE)
 
                 updateState {
                     it.copy(
@@ -291,12 +296,13 @@ class ReviewAndEditRequestViewModel(
                         displayName = profile.displayName,
                         nationalId = profile.nationalId,
                         job = profile.job,
+                        isMale = isMale,
                         isFromAnotherChurch = profile.confessionPriest == null && profile.externalConfessionPriestName.isNotBlank(),
                         confessionPriestId = profile.confessionPriest?.id,
                         confessionPriestName = profile.confessionPriest?.name ?: profile.externalConfessionPriestName,
                         confessionPriestChurch = profile.externalConfessionChurch,
-                        confessionPriestPhone = profile.externalConfessionPhone,
-                        phone = profile.phone.removePrefix("+2"),
+                        confessionPriestPhone = cleanedExternalPriestPhone,
+                        phone = cleanedPhone,
                         homePhone = profile.homePhone.removePrefix("02"),
                         email = profile.email,
                         buildingNo = profile.buildingNo,
@@ -322,6 +328,7 @@ class ReviewAndEditRequestViewModel(
                         selectedChildren = profile.parentProfile?.children?.map { c ->
                             UserSummary(id = c.id, name = c.name, imageUrl = c.imageUrl, code = c.code ?: "")
                         } ?: emptyList(),
+                        isAlsoParent = (profile.role == UserRole.KHADEM || profile.role == UserRole.KAHEN) && profile.parentProfile != null,
 
                         kahenEducationalStages = profile.kahenProfile?.educationalStages ?: emptyList(),
 
@@ -337,14 +344,14 @@ class ReviewAndEditRequestViewModel(
                         isFatherDeceased = profile.makhdoomProfile?.isFatherDeceased ?: false,
                         isMotherDeceased = profile.makhdoomProfile?.isMotherDeceased ?: false,
 
-                        isOrdained = profile.ordinationProfile != null,
-                        selectedRank = profile.ordinationProfile?.rank,
-                        isOrdainedInThisChurch = !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false),
-                        ordinationYear = profile.ordinationProfile?.ordinationYear?.toString() ?: "",
-                        bishopName = profile.ordinationProfile?.bishopName ?: "",
-                        ordinationPlace = profile.ordinationProfile?.ordinationPlace ?: "",
-                        ordinationCertificateFileName = profile.ordinationProfile?.certificateImageUrl,
-                        identityCertificateFileName = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
+                        isOrdained = if (isMale != false) profile.ordinationProfile != null else false,
+                        selectedRank = if (isMale != false) profile.ordinationProfile?.rank else null,
+                        isOrdainedInThisChurch = if (isMale != false) !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false) else false,
+                        ordinationYear = if (isMale != false) profile.ordinationProfile?.ordinationYear?.toString() ?: "" else "",
+                        bishopName = if (isMale != false) profile.ordinationProfile?.bishopName ?: "" else "",
+                        ordinationPlace = if (isMale != false) profile.ordinationProfile?.ordinationPlace ?: "" else "",
+                        ordinationCertificateFileName = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null,
+                        identityCertificateFileName = profile.identityDocumentImageUrl,
 
                         actionTakenAt = profile.actionTakenAt?.replace("T", " ")?.take(16),
                         actionTakenByName = profile.actionTakenBy?.name.orEmpty(),
@@ -357,22 +364,22 @@ class ReviewAndEditRequestViewModel(
                         deaconSchoolStatus = profile.deaconsSchoolRecord?.status ?: DeaconsSchoolStatus.PENDING
                     ).let { state -> updateDerivedProperties(state) }
                 }
-                val ordinationUrl = profile.ordinationProfile?.certificateImageUrl
+                val ordinationUrl = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null
                 if (!ordinationUrl.isNullOrBlank() && ordinationUrl.endsWith(".pdf", ignoreCase = true)) {
                     tryToCall(
                         block = { profileRepository.downloadFile(ordinationUrl) },
                         onSuccess = { bytes ->
-                            updateState { it.copy(ordinationCertificateBytes = bytes) }
+                            updateState { it.copy(ordinationCertificateBytes = bytes.toSafeByteArray()) }
                         },
                         onError = {}
                     )
                 }
-                val identityUrl = profile.makhdoomProfile?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl
+                val identityUrl = profile.identityDocumentImageUrl
                 if (!identityUrl.isNullOrBlank() && identityUrl.endsWith(".pdf", ignoreCase = true)) {
                     tryToCall(
                         block = { profileRepository.downloadFile(identityUrl) },
                         onSuccess = { bytes ->
-                            updateState { it.copy(identityCertificateBytes = bytes) }
+                            updateState { it.copy(identityCertificateBytes = bytes.toSafeByteArray()) }
                         },
                         onError = {}
                     )
@@ -452,6 +459,7 @@ class ReviewAndEditRequestViewModel(
         } else null
 
         val nationalIdError = getNationalIdValidationError(s.nationalId)?.toUiText()
+        val isMale = isMaleFromEgyptianNationalId(s.nationalId)
 
         val confessionPriestErr =
             if (!s.isFromAnotherChurch && s.selectedConfessionPriest == null && s.confessionPriestName.isBlank()) UiText.StringRes(Res.string.field_required) else null
@@ -505,6 +513,8 @@ class ReviewAndEditRequestViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                isMale = isMale,
+                isOrdained = if (isMale == false) false else it.isOrdained,
                 confessionPriestError = confessionPriestErr,
                 externalPriestNameError = externalNameErr,
                 externalPriestChurchError = externalChurchErr,
@@ -526,7 +536,7 @@ class ReviewAndEditRequestViewModel(
 
     fun validateStep2(): Boolean {
         val s = state.value
-        return when (s.selectedRole) {
+        val isValid = when (s.selectedRole) {
             UserRole.KHADEM -> {
                 val stageErr = if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr = if (s.servantEducationalStage?.subItems?.isNotEmpty() == true && s.servantEducationalYear == null) UiText.StringRes(Res.string.field_required) else null
@@ -597,34 +607,44 @@ class ReviewAndEditRequestViewModel(
                 stageErr == null
             }
 
-            UserRole.PARENT -> {
-                if (s.isPartnerLoading || s.isChildLoading) return false
-                if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
-                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
-                        isSuccess = false
-                    )
-                    return false
-                }
-                if (s.childQuery.isNotBlank()) {
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
-                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
-                        isSuccess = false
-                    )
-                    return false
-                }
-                true
-            }
-
-            else -> true
+            UserRole.PARENT, UserRole.ADMIN, UserRole.GUEST -> true
         }
+
+        if (!isValid) return false
+
+        val shouldCheckFamily = s.selectedRole == UserRole.PARENT || ((s.selectedRole == UserRole.KHADEM || s.selectedRole == UserRole.KAHEN) && s.isAlsoParent)
+        if (shouldCheckFamily) {
+            if (s.isPartnerLoading || s.isChildLoading) return false
+            if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    isSuccess = false
+                )
+                return false
+            }
+            if (s.childQuery.isNotBlank()) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    isSuccess = false
+                )
+                return false
+            }
+        }
+
+        return true
     }
 
     override fun onClickBack() {
         popBackStack()
     }
+
+    override fun onClickViewAttendanceHistory() {
+        val name = state.value.fullName
+        navigate(AttendanceHistoryRoute(userId = state.value.userId, userName = name))
+    }
+
 
     override fun onNextStep() {
         if (state.value.currentStep == 1 && !validateStep1()) return
@@ -684,24 +704,27 @@ class ReviewAndEditRequestViewModel(
                                 paidAmount = s.deaconSchoolPaidAmount.toDoubleOrNull() ?: 0.0,
                                 status = s.deaconSchoolStatus
                             )
-                        } else null
+                        } else null,
+                        deleteImage = s.imageBytes == null && s.imageUrl.isNullOrBlank(),
+                        deleteIdentityDocument = s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank(),
+                        deleteOrdinationCertificate = if (s.isMale == false) true else (s.ordinationCertificateBytes == null && s.ordinationCertificateFileName.isNullOrBlank())
                     )
                     
                     if (isFromSearch) {
                         profileRepository.updateUser(
                             userId = userId,
                             request = request,
-                            imageBytes = s.imageBytes,
-                            identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                            imageBytes = s.imageBytes?.bytes,
+                            identityDocumentBytes = s.identityCertificateBytes?.bytes,
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null
                         )
                     } else {
                         profileRepository.approveUser(
                             userId = userId,
                             request = request,
-                            imageBytes = s.imageBytes,
-                            identityDocumentBytes = s.identityCertificateBytes,
-                            ordinationCertificateBytes = s.ordinationCertificateBytes
+                            imageBytes = s.imageBytes?.bytes,
+                            identityDocumentBytes = s.identityCertificateBytes?.bytes,
+                            ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null
                         )
                     }
                 },
@@ -723,8 +746,8 @@ class ReviewAndEditRequestViewModel(
                 block = {
                     profileRepository.createMakhdoomDirectly(
                         request = registerRequest,
-                        imageBytes = s.imageBytes,
-                        identityDocumentBytes = s.identityCertificateBytes
+                        imageBytes = s.imageBytes?.bytes,
+                        identityDocumentBytes = s.identityCertificateBytes?.bytes
                     )
                 },
                 onSuccess = {
@@ -822,11 +845,12 @@ class ReviewAndEditRequestViewModel(
                 tryToCall(
                     block = { profileRepository.downloadFile(fileName) },
                     onSuccess = { downloadedBytes ->
+                        val safeBytes = downloadedBytes.toSafeByteArray()
                         updateState {
                             it.copy(
-                                ordinationCertificateBytes = downloadedBytes,
+                                ordinationCertificateBytes = safeBytes,
                                 isPdfViewerVisible = true,
-                                activePdfBytes = downloadedBytes
+                                activePdfBytes = safeBytes
                             )
                         }
                     },
@@ -859,11 +883,12 @@ class ReviewAndEditRequestViewModel(
                 tryToCall(
                     block = { profileRepository.downloadFile(fileName) },
                     onSuccess = { downloadedBytes ->
+                        val safeBytes = downloadedBytes.toSafeByteArray()
                         updateState {
                             it.copy(
-                                identityCertificateBytes = downloadedBytes,
+                                identityCertificateBytes = safeBytes,
                                 isPdfViewerVisible = true,
-                                activePdfBytes = downloadedBytes
+                                activePdfBytes = safeBytes
                             )
                         }
                     },
@@ -887,6 +912,24 @@ class ReviewAndEditRequestViewModel(
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
             return
         }
+        if (option == FilePickOption.DELETE) {
+            when (target) {
+                UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = null, imageUrl = null) }
+                UploadTarget.ORDINATION_CERTIFICATE -> updateState {
+                    copy(
+                        ordinationCertificateBytes = null,
+                        ordinationCertificateFileName = null
+                    )
+                }
+                UploadTarget.IDENTITY_CERTIFICATE -> updateState {
+                    copy(
+                        identityCertificateBytes = null,
+                        identityCertificateFileName = null
+                    )
+                }
+            }
+            return
+        }
         launch {
             val file = when (option) {
                 FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
@@ -901,15 +944,26 @@ class ReviewAndEditRequestViewModel(
                     ),
                     mode = FileKitMode.Single
                 )
+
+                FilePickOption.VIEW, FilePickOption.DELETE -> null
             }
             if (file == null) return@launch
-            val bytes = file.readBytes()
+            val rawBytes = file.readBytes()
             val fileName = file.name
-            onSelectImageBytes(target, bytes, fileName)
+            val processedBytes = compressImage(rawBytes)
+            if (!validateFileSizes(processedBytes)) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_occurred),
+                    message = UiText.StringRes(Res.string.file_size_exceeded_limit),
+                    isSuccess = false
+                )
+                return@launch
+            }
+            onSelectImageBytes(target, processedBytes.toSafeByteArray(), fileName)
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {
+    override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {
@@ -971,7 +1025,15 @@ class ReviewAndEditRequestViewModel(
             val error = if (trimmed.length == 14) {
                 getNationalIdValidationError(trimmed)?.toUiText()
             } else null
-            updateState { it.copy(nationalId = trimmed, nationalIdError = error) }
+            val isMale = isMaleFromEgyptianNationalId(trimmed)
+            updateState {
+                it.copy(
+                    nationalId = trimmed,
+                    nationalIdError = error,
+                    isMale = isMale,
+                    isOrdained = if (isMale == false) false else it.isOrdained
+                )
+            }
         }
     }
 
@@ -1368,7 +1430,6 @@ class ReviewAndEditRequestViewModel(
                     updateState { it.copy(isChildLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_child),
-                        message = getLocalizedErrorMessage(throwable),
                         isSuccess = false
                     )
                 }
@@ -1378,6 +1439,10 @@ class ReviewAndEditRequestViewModel(
 
     override fun onRemoveChild(child: UserSummary) {
         updateState { it.copy(selectedChildren = it.selectedChildren - child) }
+    }
+
+    override fun onToggleAlsoParent(enabled: Boolean) {
+        updateState { it.copy(isAlsoParent = enabled) }
     }
 
     override fun onToggleEducationalStageSelection(stage: LookupResponse) {

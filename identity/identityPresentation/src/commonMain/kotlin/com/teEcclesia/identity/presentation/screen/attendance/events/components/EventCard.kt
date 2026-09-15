@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -27,8 +28,10 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.allowed_period
+import teecclesia.designsystem.generated.resources.attendance
 import teecclesia.designsystem.generated.resources.ic_arrow_right
 import teecclesia.designsystem.generated.resources.ic_close
+import teecclesia.designsystem.generated.resources.ic_profile
 import teecclesia.designsystem.generated.resources.ic_user_settings
 
 @Composable
@@ -78,6 +81,31 @@ fun EventCard(
                     style = Theme.typography.bodySmall,
                     color = Theme.colorScheme.primary
                 )
+
+                Spacer(modifier = Modifier.height(6.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = Theme.colorScheme.primaryContainer
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(Res.drawable.ic_profile),
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                            tint = Theme.colorScheme.onPrimaryContainer
+                        )
+                        Text(
+                            text = "${stringResource(Res.string.attendance)}: ${event.attendeeCount}",
+                            style = Theme.typography.labelSmall,
+                            color = Theme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                }
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -120,6 +148,7 @@ private fun EventCardPreview() = Theme {
             eventDate = LocalDate.parse("2026-07-30"),
             startTime = LocalTime(18, 0),
             endTime = LocalTime(20, 0),
+            attendeeCount = 25,
             createdAt = getNow()
         ),
         onClick = {},

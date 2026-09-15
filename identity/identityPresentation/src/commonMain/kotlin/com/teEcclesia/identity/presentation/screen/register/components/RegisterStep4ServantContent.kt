@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +28,7 @@ import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.shared.components.EducationalStageFields
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
@@ -35,6 +37,19 @@ import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.servant_info
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import com.teEcclesia.designsystem.components.checkbox.Checkbox
+import com.teEcclesia.designsystem.modifier.clickableNoRipple
+import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
+import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
+import teecclesia.designsystem.generated.resources.children
+import teecclesia.designsystem.generated.resources.i_am_also_a_parent
+import teecclesia.designsystem.generated.resources.partner
 
 @Composable
 fun RegisterStep4ServantContent(
@@ -72,6 +87,65 @@ fun RegisterStep4ServantContent(
                 onSelectEducationalYear = listener::onSelectEducationalYear,
                 yearError = state.yearError?.asString()
             )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp)
+            ) {
+                Checkbox(
+                    checked = state.isAlsoParent,
+                    onCheckedChange = listener::onToggleAlsoParent
+                )
+                Text(
+                    text = stringResource(Res.string.i_am_also_a_parent),
+                    style = Theme.typography.bodyMedium,
+                    color = Theme.colorScheme.onBackground,
+                    modifier = Modifier.clickableNoRipple { listener.onToggleAlsoParent(!state.isAlsoParent) }
+                )
+            }
+
+            AnimatedVisibility(
+                visible = state.isAlsoParent,
+                enter = fadeIn() + expandVertically(),
+                exit = fadeOut() + shrinkVertically()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(Res.string.partner),
+                        style = Theme.typography.headlineMedium,
+                        color = Theme.colorScheme.onBackground
+                    )
+
+                    PartnerSelectionFields(
+                        selectedPartner = state.selectedPartner,
+                        partnerQuery = state.partnerQuery,
+                        onPartnerQueryChange = listener::onPartnerQueryChange,
+                        onSearchPartner = listener::onSearchPartner,
+                        onRemovePartner = listener::onRemovePartner,
+                        isLoading = state.isPartnerLoading,
+                        errorText = state.partnerError?.asString()
+                    )
+
+                    Text(
+                        text = stringResource(Res.string.children),
+                        style = Theme.typography.headlineMedium,
+                        color = Theme.colorScheme.onBackground
+                    )
+
+                    ChildrenSelectionFields(
+                        childQuery = state.childQuery,
+                        onChildQueryChange = listener::onChildQueryChange,
+                        onSearchChild = listener::onSearchChild,
+                        selectedChildren = state.selectedChildren,
+                        onRemoveChild = listener::onRemoveChild,
+                        isLoading = state.isChildLoading,
+                        errorText = state.childError?.asString()
+                    )
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -176,7 +250,7 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onDismissUploadBottomSheet() {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
-                bytes: ByteArray?,
+                bytes: SafeByteArray?,
                 fileName: String?
             ) {
             }

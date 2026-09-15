@@ -23,16 +23,19 @@ import teecclesia.designsystem.generated.resources.ic_camera
 import teecclesia.designsystem.generated.resources.ic_eye_opened
 import teecclesia.designsystem.generated.resources.ic_gallery
 import teecclesia.designsystem.generated.resources.ic_folder
+import teecclesia.designsystem.generated.resources.ic_trash
 import teecclesia.designsystem.generated.resources.take_photo
 import teecclesia.designsystem.generated.resources.from_gallery
 import teecclesia.designsystem.generated.resources.from_files
 import teecclesia.designsystem.generated.resources.view_photo
+import teecclesia.designsystem.generated.resources.delete_photo
 
 enum class FilePickOption {
     CAMERA,
     GALLERY,
     FILES,
-    VIEW
+    VIEW,
+    DELETE
 }
 
 @Composable
@@ -41,7 +44,8 @@ fun FilePickerBottomSheet(
     onDismiss: () -> Unit,
     onOptionSelected: (FilePickOption) -> Unit,
     target: UploadTarget?,
-    canViewPhoto: Boolean = false
+    canViewPhoto: Boolean = false,
+    canDeletePhoto: Boolean = canViewPhoto
 ) {
     BottomSheet(
         isVisible = isVisible,
@@ -73,6 +77,30 @@ fun FilePickerBottomSheet(
                         text = stringResource(Res.string.view_photo),
                         style = Theme.typography.bodyLarge,
                         color = Theme.colorScheme.onSurface
+                    )
+                }
+            }
+            if (canDeletePhoto) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickableNoRipple {
+                            onOptionSelected(FilePickOption.DELETE)
+                            onDismiss()
+                        }
+                        .padding(vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_trash),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.error
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = stringResource(Res.string.delete_photo),
+                        style = Theme.typography.bodyLarge,
+                        color = Theme.colorScheme.error
                     )
                 }
             }

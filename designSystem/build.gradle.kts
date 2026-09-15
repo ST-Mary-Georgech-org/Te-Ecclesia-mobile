@@ -37,6 +37,7 @@ kotlin {
                 implementation(libs.moko.permissions)
                 implementation(libs.moko.permissions.compose)
                 implementation(libs.moko.permissions.camera)
+                implementation(projects.shared.sharedDomain)
             }
         }
 
@@ -45,6 +46,7 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.poolingcontainer)
                 implementation(libs.firebase.crashlytics)
+                implementation(libs.androidx.exifinterface)
             }
         }
     }

@@ -65,6 +65,7 @@ import teecclesia.designsystem.generated.resources.select_theme
 import teecclesia.designsystem.generated.resources.join_whatsapp_group
 import teecclesia.designsystem.generated.resources.academic_year
 import teecclesia.designsystem.generated.resources.edit
+import teecclesia.designsystem.generated.resources.send_notification
 
 @Composable
 fun ProfileScreen(
@@ -76,7 +77,6 @@ fun ProfileScreen(
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.checkNotificationPermission()
-            viewModel.loadAcademicYear()
         }
     }
 
@@ -91,7 +91,8 @@ fun ProfileScreen(
         onClickLogout = viewModel::onClickLogout,
         onRefresh = viewModel::onRefresh,
         onClickEnableNotifications = viewModel::openNotificationSettings,
-        onClickEditAcademicYear = viewModel::onClickEditAcademicYear
+        onClickEditAcademicYear = viewModel::onClickEditAcademicYear,
+        onClickSendNotification = viewModel::onClickSendNotification
     )
 }
 
@@ -108,6 +109,7 @@ private fun ProfileContent(
     onRefresh: () -> Unit,
     onClickEnableNotifications: () -> Unit,
     onClickEditAcademicYear: () -> Unit,
+    onClickSendNotification: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -327,6 +329,16 @@ private fun ProfileContent(
             )
         }
 
+        if (state.userRole == UserRole.ADMIN) {
+            Spacer(modifier = Modifier.height(12.dp))
+            AppButton(
+                type = AppButtonType.Primary,
+                onClick = onClickSendNotification,
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.send_notification)
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         AppButton(
@@ -401,7 +413,8 @@ private fun ProfileContentPreview() = Theme {
         onClickLogout = {},
         onRefresh = {},
         onClickEnableNotifications = {},
-        onClickEditAcademicYear = {}
+        onClickEditAcademicYear = {},
+        onClickSendNotification = {}
     )
 }
 

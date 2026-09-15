@@ -1,18 +1,20 @@
-package com.teEcclesia.identity.presentation.util
+package com.teEcclesia.designsystem.utils
 
-import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.shared.domain.exception.DuplicatePhoneException
 import com.teEcclesia.shared.domain.exception.EmailNotVerifiedException
 import com.teEcclesia.shared.domain.exception.InternetException
 import com.teEcclesia.shared.domain.exception.InvalidCredentialsException
 import com.teEcclesia.shared.domain.exception.InvalidRequestException
 import com.teEcclesia.shared.domain.exception.NoNetworkException
 import com.teEcclesia.shared.domain.exception.PhoneNotVerifiedException
+import com.teEcclesia.shared.domain.exception.ServerErrorException
 import com.teEcclesia.shared.domain.exception.TooManyRequestsException
 import com.teEcclesia.shared.domain.exception.UnAuthorizedException
 import com.teEcclesia.shared.domain.exception.UserIsBlockedException
 import com.teEcclesia.shared.domain.exception.UsernameOrPhoneNumberAlreadyExistsException
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_account_already_exists
+import teecclesia.designsystem.generated.resources.error_duplicate_phone_forgot_password
 import teecclesia.designsystem.generated.resources.error_email_not_verified
 import teecclesia.designsystem.generated.resources.error_invalid_credentials
 import teecclesia.designsystem.generated.resources.error_invalid_request
@@ -21,9 +23,6 @@ import teecclesia.designsystem.generated.resources.error_phone_not_verified
 import teecclesia.designsystem.generated.resources.error_too_many_requests
 import teecclesia.designsystem.generated.resources.error_unauthorized
 import teecclesia.designsystem.generated.resources.error_user_not_verified
-import com.teEcclesia.shared.domain.exception.DuplicatePhoneException
-import com.teEcclesia.shared.domain.exception.ServerErrorException
-import teecclesia.designsystem.generated.resources.error_duplicate_phone_forgot_password
 import teecclesia.designsystem.generated.resources.server_error
 import teecclesia.designsystem.generated.resources.unknown_error
 
