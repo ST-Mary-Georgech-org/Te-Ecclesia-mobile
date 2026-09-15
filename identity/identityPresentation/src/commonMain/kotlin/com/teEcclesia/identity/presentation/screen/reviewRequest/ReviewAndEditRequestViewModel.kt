@@ -326,6 +326,7 @@ class ReviewAndEditRequestViewModel(
                         selectedChildren = profile.parentProfile?.children?.map { c ->
                             UserSummary(id = c.id, name = c.name, imageUrl = c.imageUrl, code = c.code ?: "")
                         } ?: emptyList(),
+                        isAlsoParent = (profile.role == UserRole.KHADEM || profile.role == UserRole.KAHEN) && profile.parentProfile != null,
 
                         kahenEducationalStages = profile.kahenProfile?.educationalStages ?: emptyList(),
 
@@ -533,7 +534,7 @@ class ReviewAndEditRequestViewModel(
 
     fun validateStep2(): Boolean {
         val s = state.value
-        return when (s.selectedRole) {
+        val isValid = when (s.selectedRole) {
             UserRole.KHADEM -> {
                 val stageErr = if (s.servantEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr = if (s.servantEducationalStage?.subItems?.isNotEmpty() == true && s.servantEducationalYear == null) UiText.StringRes(Res.string.field_required) else null
@@ -604,29 +605,33 @@ class ReviewAndEditRequestViewModel(
                 stageErr == null
             }
 
-            UserRole.PARENT -> {
-                if (s.isPartnerLoading || s.isChildLoading) return false
-                if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
-                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
-                        isSuccess = false
-                    )
-                    return false
-                }
-                if (s.childQuery.isNotBlank()) {
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
-                        message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
-                        isSuccess = false
-                    )
-                    return false
-                }
-                true
-            }
-
-            else -> true
+            UserRole.PARENT, UserRole.ADMIN, UserRole.GUEST -> true
         }
+
+        if (!isValid) return false
+
+        val shouldCheckFamily = s.selectedRole == UserRole.PARENT || ((s.selectedRole == UserRole.KHADEM || s.selectedRole == UserRole.KAHEN) && s.isAlsoParent)
+        if (shouldCheckFamily) {
+            if (s.isPartnerLoading || s.isChildLoading) return false
+            if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    isSuccess = false
+                )
+                return false
+            }
+            if (s.childQuery.isNotBlank()) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    isSuccess = false
+                )
+                return false
+            }
+        }
+
+        return true
     }
 
     override fun onClickBack() {
@@ -1421,7 +1426,6 @@ class ReviewAndEditRequestViewModel(
                     updateState { it.copy(isChildLoading = false) }
                     showSnackBar(
                         title = UiText.StringRes(Res.string.failed_to_search_child),
-                        message = getLocalizedErrorMessage(throwable),
                         isSuccess = false
                     )
                 }
@@ -1431,6 +1435,10 @@ class ReviewAndEditRequestViewModel(
 
     override fun onRemoveChild(child: UserSummary) {
         updateState { it.copy(selectedChildren = it.selectedChildren - child) }
+    }
+
+    override fun onToggleAlsoParent(enabled: Boolean) {
+        updateState { it.copy(isAlsoParent = enabled) }
     }
 
     override fun onToggleEducationalStageSelection(stage: LookupResponse) {

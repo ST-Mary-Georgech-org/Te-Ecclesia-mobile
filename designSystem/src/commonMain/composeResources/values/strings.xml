@@ -227,6 +227,8 @@
     <string name="can_approve_new_requests">Can approve new requests?</string>
     <string name="responsible_stages_optional">Responsible stages (optional)</string>
     <string name="responsible_years_optional">Responsible years (optional)</string>
+    <string name="i_am_also_a_parent">I am also a parent</string>
+    <string name="family_information">Family Information</string>
     <string name="add_your_child">Add your child</string>
     <string name="partner_optional">Partner (optional)</string>
     <string name="partner_search_hint">partner phone/national id/code/verified email</string>

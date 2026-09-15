@@ -100,6 +100,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onChildQueryChange(query: String)
     fun onSearchChild()
     fun onRemoveChild(child: UserSummary)
+    fun onToggleAlsoParent(enabled: Boolean)
 
     fun onToggleEducationalStageSelection(stage: LookupResponse)
     fun onToggleStagesSheet(visible: Boolean)

@@ -177,6 +177,7 @@ data class ReviewAndEditRequestUiState(
     val childQuery: String = "",
     val selectedChildren: List<UserSummary> = emptyList(),
     val childError: UiText? = null,
+    val isAlsoParent: Boolean = false,
 
     val kahenEducationalStages: List<LookupResponse> = emptyList(),
     val isStagesSheetVisible: Boolean = false,
@@ -352,6 +353,7 @@ data class ReviewAndEditRequestUiState(
         if (childQuery != other.childQuery) return false
         if (selectedChildren != other.selectedChildren) return false
         if (childError != other.childError) return false
+        if (isAlsoParent != other.isAlsoParent) return false
         if (kahenEducationalStages != other.kahenEducationalStages) return false
         if (stagesError != other.stagesError) return false
         if (notes != other.notes) return false
@@ -512,6 +514,7 @@ data class ReviewAndEditRequestUiState(
         result = 31 * result + childQuery.hashCode()
         result = 31 * result + selectedChildren.hashCode()
         result = 31 * result + (childError?.hashCode() ?: 0)
+        result = 31 * result + isAlsoParent.hashCode()
         result = 31 * result + kahenEducationalStages.hashCode()
         result = 31 * result + (stagesError?.hashCode() ?: 0)
         result = 31 * result + notes.hashCode()
@@ -648,7 +651,8 @@ private fun ReviewAndEditRequestUiState.toKhademProfileRequest(): KhademProfileR
 }
 
 private fun ReviewAndEditRequestUiState.toParentProfileRequest(): ParentProfileRequest? {
-    return if (selectedRole == UserRole.PARENT) {
+    val shouldInclude = selectedRole == UserRole.PARENT || ((selectedRole == UserRole.KHADEM || selectedRole == UserRole.KAHEN) && isAlsoParent)
+    return if (shouldInclude) {
         ParentProfileRequest(
             partnerCode = selectedPartner?.code,
             childrenCodes = selectedChildren.mapNotNull { it.code }

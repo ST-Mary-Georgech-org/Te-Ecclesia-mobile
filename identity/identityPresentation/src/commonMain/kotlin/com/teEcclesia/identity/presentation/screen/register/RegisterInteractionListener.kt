@@ -71,6 +71,7 @@ interface RegisterInteractionListener {
     fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
     
     // Parent search
+    fun onToggleAlsoParent(enabled: Boolean) {}
     fun onPartnerQueryChange(query: String)
     fun onSearchPartner()
     fun onRemovePartner()

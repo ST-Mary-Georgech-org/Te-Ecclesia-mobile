@@ -258,6 +258,9 @@ class RegisterViewModel(
 
                             kahenEducationalStages = profile.kahenProfile?.educationalStages
                                 ?: emptyList(),
+                            isAlsoParent = (profile.role == UserRole.KHADEM || profile.role == UserRole.KAHEN) && profile.parentProfile != null,
+                            selectedPartner = profile.parentProfile?.partner,
+                            selectedChildren = profile.parentProfile?.children ?: emptyList(),
                             currentStep = targetStep
                         )
                     }
@@ -892,6 +895,26 @@ class RegisterViewModel(
             else -> {}
         }
 
+        if ((role == UserRole.KHADEM || role == UserRole.KAHEN) && s.isAlsoParent) {
+            if (s.isPartnerLoading || s.isChildLoading) return
+            if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    isSuccess = false
+                )
+                return
+            }
+            if (s.childQuery.isNotBlank()) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    isSuccess = false
+                )
+                return
+            }
+        }
+
         val request = CompleteProfileRequest(
             role = role,
             identityDocumentImageUrl = s.identityCertificateFileName,
@@ -920,7 +943,7 @@ class RegisterViewModel(
                 motherPhone = s.motherPhone.ifBlank { null },
                 motherWhatsapp = (if (s.isMotherWhatsappSameAsPhone) s.motherPhone else s.motherWhatsapp).ifBlank { null }
             ) else null,
-            parentProfile = if (role == UserRole.PARENT) ParentProfileRequest(
+            parentProfile = if (role == UserRole.PARENT || ((role == UserRole.KHADEM || role == UserRole.KAHEN) && s.isAlsoParent)) ParentProfileRequest(
                 partnerCode = s.selectedPartner?.code,
                 childrenCodes = s.selectedChildren.mapNotNull { it.code }
             ) else null
@@ -1128,6 +1151,10 @@ class RegisterViewModel(
                 motherWhatsappError = if (isSame) null else motherWhatsappError
             )
         }
+    }
+
+    override fun onToggleAlsoParent(enabled: Boolean) {
+        updateState { copy(isAlsoParent = enabled) }
     }
 
     override fun onPartnerQueryChange(query: String) {

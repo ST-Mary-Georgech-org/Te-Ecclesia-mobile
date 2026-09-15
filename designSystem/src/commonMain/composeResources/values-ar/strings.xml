@@ -227,6 +227,8 @@
     <string name="can_approve_new_requests">هل يمكنه الموافقة على الطلبات الجديدة؟</string>
     <string name="responsible_stages_optional">المراحل المسئول عنها (اختياري)</string>
     <string name="responsible_years_optional">السنوات المسئول عنها (اختياري)</string>
+    <string name="i_am_also_a_parent">أنا ولي أمر أيضاً</string>
+    <string name="family_information">بيانات الأسرة</string>
     <string name="add_your_child">أضف ابنك</string>
     <string name="partner_optional">الشريك (اختياري)</string>
     <string name="partner_search_hint">رقم الهاتف / الرقم القومي / الكود / البريد الإلكتروني للشريك</string>

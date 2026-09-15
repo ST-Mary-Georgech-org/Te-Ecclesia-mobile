@@ -140,6 +140,7 @@ data class RegisterScreenState(
     val identityCertificateError: UiText? = null,
 
     // Parent Info
+    val isAlsoParent: Boolean = false,
     val isPartnerLoading: Boolean = false,
     val partnerQuery: String = "",
     val selectedPartner: UserSummary? = null,
@@ -273,6 +274,7 @@ data class RegisterScreenState(
         if (!identityCertificateBytes.contentEquals(other.identityCertificateBytes)) return false
         if (identityCertificateFileName != other.identityCertificateFileName) return false
         if (identityCertificateError != other.identityCertificateError) return false
+        if (isAlsoParent != other.isAlsoParent) return false
         if (isPartnerLoading != other.isPartnerLoading) return false
         if (partnerQuery != other.partnerQuery) return false
         if (selectedPartner != other.selectedPartner) return false
@@ -400,6 +402,7 @@ data class RegisterScreenState(
         result = 31 * result + (identityCertificateBytes?.contentHashCode() ?: 0)
         result = 31 * result + (identityCertificateFileName?.hashCode() ?: 0)
         result = 31 * result + (identityCertificateError?.hashCode() ?: 0)
+        result = 31 * result + isAlsoParent.hashCode()
         result = 31 * result + isPartnerLoading.hashCode()
         result = 31 * result + partnerQuery.hashCode()
         result = 31 * result + (selectedPartner?.hashCode() ?: 0)

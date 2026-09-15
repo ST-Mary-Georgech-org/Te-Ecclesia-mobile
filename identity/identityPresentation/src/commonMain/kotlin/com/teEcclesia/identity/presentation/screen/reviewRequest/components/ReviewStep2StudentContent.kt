@@ -388,6 +388,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onChildQueryChange(query: String) {}
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
+        override fun onToggleAlsoParent(enabled: Boolean) {}
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}

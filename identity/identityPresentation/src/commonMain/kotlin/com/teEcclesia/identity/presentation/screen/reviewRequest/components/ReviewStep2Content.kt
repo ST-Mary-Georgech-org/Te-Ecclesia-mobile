@@ -124,11 +124,7 @@ fun ReviewStep2Content(
                     listener = listener
                 )
                 UserRole.KAHEN -> ReviewStep2KahenContent(state = state, listener = listener)
-                else -> ReviewStep2StudentContent(
-                    state = state,
-                    listener = listener,
-                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
-                )
+                UserRole.ADMIN, UserRole.GUEST -> {}
             }
         }
 
