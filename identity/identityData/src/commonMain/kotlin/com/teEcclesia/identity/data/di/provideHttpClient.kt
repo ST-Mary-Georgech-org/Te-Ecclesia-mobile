@@ -113,9 +113,10 @@ internal fun provideHttpClient(
                         } else {
                             authorizationService().getNewAccessToken()
                         }
+                        val newRefreshToken = authorizationService().getRefreshToken()
                         BearerTokens(
                             accessToken = newAccessToken,
-                            refreshToken = currentRefreshToken,
+                            refreshToken = newRefreshToken.ifBlank { currentRefreshToken },
                         )
                     } catch (e: CancellationException) {
                         throw e
