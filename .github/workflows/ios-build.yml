@@ -77,9 +77,12 @@ jobs:
         if: needs.detect.outputs.has_ios_changes != 'true'
         run: ./gradlew :teEcclesiaApp:assembleTeEcclesiaAppDebugXCFramework --parallel --build-cache
 
-      - name: Prepare KMP Framework for iOS
+      - name: Generate SwiftPM Linkage Package
         if: needs.detect.outputs.has_ios_changes == 'true'
-        run: ./gradlew :teEcclesiaApp:embedAndSignAppleFrameworkForXcode --parallel --build-cache
+        run: |
+          ./gradlew :teEcclesiaApp:generateSyntheticLinkageSwiftPMImportProjectForEmbedAndSignLinkage || true
+          mkdir -p iosApp/KotlinMultiplatformLinkedPackage
+          cp -R teEcclesiaApp/build/kotlin/swiftImport/ iosApp/KotlinMultiplatformLinkedPackage/
 
       - name: Build iOS app
         if: needs.detect.outputs.has_ios_changes == 'true'
