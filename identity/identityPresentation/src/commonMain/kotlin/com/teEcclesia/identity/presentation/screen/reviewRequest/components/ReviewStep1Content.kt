@@ -364,6 +364,7 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onRefresh() {}
         override fun onClickViewAttendanceHistory() {}
         override fun onDocumentScannerOpened() {}
+        override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
 

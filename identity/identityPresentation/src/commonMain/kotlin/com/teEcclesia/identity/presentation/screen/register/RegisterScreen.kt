@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
 import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
+import com.teEcclesia.designsystem.components.scanner.DocumentScannerLauncher
 import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import androidx.compose.animation.AnimatedContent
@@ -88,6 +89,12 @@ fun RegisterScreenContent(
     BackHandler(enabled = state.currentStep > 1) {
         listener.onClickPreviousStep()
     }
+
+    DocumentScannerLauncher(
+        shouldOpen = state.shouldOpenDocumentScanner,
+        onScannerOpened = listener::onDocumentScannerOpened,
+        onResult = listener::onDocumentScanned
+    )
 
     FilePickerBottomSheet(
         isVisible = state.isUploadBottomSheetVisible,

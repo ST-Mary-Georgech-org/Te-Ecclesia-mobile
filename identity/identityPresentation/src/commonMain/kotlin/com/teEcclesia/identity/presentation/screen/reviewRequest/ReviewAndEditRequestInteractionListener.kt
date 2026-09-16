@@ -22,6 +22,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onClickViewAttendanceHistory()
 
     fun onDocumentScannerOpened()
+    fun onDocumentScanned(bytes: ByteArray?)
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
     fun onDismissImageViewer()

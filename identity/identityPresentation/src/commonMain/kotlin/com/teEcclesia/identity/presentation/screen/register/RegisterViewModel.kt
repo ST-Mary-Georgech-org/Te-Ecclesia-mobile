@@ -51,6 +51,7 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
 import com.teEcclesia.designsystem.utils.compressImage
+import com.teEcclesia.identity.presentation.util.generateScannedFileName
 import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_child_already_added
@@ -1284,10 +1285,43 @@ class RegisterViewModel(
         }
     }
 
+    private suspend fun processFile(
+        rawBytes: ByteArray,
+        defaultFileName: String? = null,
+        onProcessed: (SafeByteArray, String) -> Unit
+    ) {
+        val processedBytes = compressImage(rawBytes)
+        if (!validateFileSizes(processedBytes)) {
+            showSnackBar(
+                title = UiText.StringRes(Res.string.error_occurred),
+                message = UiText.StringRes(Res.string.file_size_exceeded_limit),
+                isSuccess = false
+            )
+            return
+        }
+        val fileName = defaultFileName ?: generateScannedFileName(processedBytes)
+        onProcessed(processedBytes.toSafeByteArray(), fileName)
+    }
+
     fun onFileOptionPicked(option: FilePickOption) {
         val target = state.value.activeUploadTarget ?: return
         if (option == FilePickOption.VIEW) {
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
+            return
+        }
+        if (option == FilePickOption.CAMERA) {
+            if (target == UploadTarget.PROFILE_PHOTO) {
+                launch {
+                    val file = FileKit.openCameraPicker(type = FileKitCameraType.Photo) ?: return@launch
+                    processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                        onSelectImageBytes(target, safeBytes, fileName)
+                    }
+                }
+            } else {
+                updateState {
+                    copy(shouldOpenDocumentScanner = true)
+                }
+            }
             return
         }
         if (option == FilePickOption.DELETE) {
@@ -1311,7 +1345,6 @@ class RegisterViewModel(
         }
         launch {
             val file = when (option) {
-                FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
                 FilePickOption.GALLERY -> FileKit.openFilePicker(
                     type = FileKitType.Image,
                     mode = FileKitMode.Single
@@ -1324,21 +1357,26 @@ class RegisterViewModel(
                     mode = FileKitMode.Single
                 )
 
-                FilePickOption.VIEW, FilePickOption.DELETE -> null
+                FilePickOption.CAMERA, FilePickOption.VIEW, FilePickOption.DELETE -> null
             }
             if (file == null) return@launch
-            val rawBytes = file.readBytes()
-            val fileName = file.name
-            val processedBytes = compressImage(rawBytes)
-            if (!validateFileSizes(processedBytes)) {
-                showSnackBar(
-                    title = UiText.StringRes(Res.string.error_occurred),
-                    message = UiText.StringRes(Res.string.file_size_exceeded_limit),
-                    isSuccess = false
-                )
-                return@launch
+            processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
             }
-            onSelectImageBytes(target, processedBytes.toSafeByteArray(), fileName)
+        }
+    }
+
+    override fun onDocumentScannerOpened() {
+        updateState { copy(shouldOpenDocumentScanner = false) }
+    }
+
+    override fun onDocumentScanned(bytes: ByteArray?) {
+        val target = state.value.activeUploadTarget ?: return
+        if (bytes == null) return
+        launch {
+            processFile(bytes) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
+            }
         }
     }
 

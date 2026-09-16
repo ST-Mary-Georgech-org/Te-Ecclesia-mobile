@@ -47,7 +47,6 @@ import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
-import com.teEcclesia.shared.domain.model.toSafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -85,13 +84,7 @@ private fun ReviewAndEditRequestContent(
     DocumentScannerLauncher(
         shouldOpen = state.shouldOpenDocumentScanner,
         onScannerOpened = listener::onDocumentScannerOpened,
-        onResult = { bytes ->
-            listener.onSelectImageBytes(
-                state.activeUploadTarget,
-                bytes?.toSafeByteArray(),
-                "test"
-            )
-        }
+        onResult = listener::onDocumentScanned
     )
 
     FilePickerBottomSheet(
@@ -217,6 +210,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onRefresh() {}
         override fun onClickViewAttendanceHistory() {}
         override fun onDocumentScannerOpened() {}
+        override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
