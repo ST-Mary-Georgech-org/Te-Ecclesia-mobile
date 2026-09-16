@@ -29,6 +29,7 @@ import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_document
 import teecclesia.designsystem.generated.resources.replace
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import com.teEcclesia.identity.presentation.util.getDisplayFileName
 
@@ -40,9 +41,11 @@ fun ReviewFilePickerRow(
     onClearClick: () -> Unit,
     modifier: Modifier = Modifier,
     fileTitle: String? = null,
+    fileBytes: SafeByteArray? = null,
+    fileSizeBytes: Long? = null,
     onFileClick: (() -> Unit)? = null
 ) {
-    val displayFileName = getDisplayFileName(fileTitle, fileName)
+    val displayFileName = getDisplayFileName(fileTitle, fileName, fileBytes, fileSizeBytes)
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(4.dp)

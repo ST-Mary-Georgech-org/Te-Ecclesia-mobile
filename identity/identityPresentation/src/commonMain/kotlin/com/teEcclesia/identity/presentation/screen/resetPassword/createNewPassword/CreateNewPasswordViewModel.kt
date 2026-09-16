@@ -6,7 +6,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.domain.model.VerificationMethod
 import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import teecclesia.designsystem.generated.resources.Res

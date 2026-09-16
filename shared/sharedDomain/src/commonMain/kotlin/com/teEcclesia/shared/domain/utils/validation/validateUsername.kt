@@ -4,9 +4,10 @@ fun validateUsername(username: String): Boolean {
     val trimmed = username.trim()
     if (trimmed.isEmpty()) return false
 
-    // Phone: 11 digits starting with 01
+    // Phone: 11 digits starting with 01 OR international starting with +
     val phoneRegex = "^01[0125][0-9]{8}$".toRegex()
-    if (phoneRegex.matches(trimmed)) return true
+    val internationalPhoneRegex = "^\\+[1-9]\\d{6,14}$".toRegex()
+    if (phoneRegex.matches(trimmed) || internationalPhoneRegex.matches(trimmed)) return true
 
     // National ID: 14 digits
     val nationalIdRegex = "^[0-9]{14}$".toRegex()

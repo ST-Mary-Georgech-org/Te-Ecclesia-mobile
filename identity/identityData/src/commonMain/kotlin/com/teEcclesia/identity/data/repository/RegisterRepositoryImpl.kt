@@ -40,10 +40,13 @@ import com.teEcclesia.shared.domain.utils.PagedData
 
 import com.teEcclesia.shared.domain.push.PushTokenProvider
 
+import io.ktor.client.plugins.timeout
+import com.teEcclesia.identity.data.utils.calculateUploadTimeoutMillis
+
 class RegisterRepositoryImpl(
     client: HttpClient,
     private val authenticationRepository: AuthenticationRepository,
-    private val pushTokenProvider: PushTokenProvider,
+    private val pushTokenProvider: PushTokenProvider
 ) : BaseRepository(client), RegisterRepository {
 
     override suspend fun register(
@@ -53,9 +56,14 @@ class RegisterRepositoryImpl(
     ): TokenResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, certificateImageBytes)
         
         val response = tryToExecute<TokenResponseDto> {
             post(REGISTER) {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -92,9 +100,14 @@ class RegisterRepositoryImpl(
     ): RegisterResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
+        val uploadTimeout = calculateUploadTimeoutMillis(ordinationCertificateBytes, identityDocumentBytes)
         
         val response = tryToExecute<RegisterResponseDto> {
             post(COMPLETE_PROFILE) {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {

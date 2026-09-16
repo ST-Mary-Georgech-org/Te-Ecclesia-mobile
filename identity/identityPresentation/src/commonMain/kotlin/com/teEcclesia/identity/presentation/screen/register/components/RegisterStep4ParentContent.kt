@@ -28,6 +28,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
 import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
@@ -35,15 +36,13 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.children
-import teecclesia.designsystem.generated.resources.upload_identity_card
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
 
 @Composable
 fun RegisterStep4ParentContent(
     state: RegisterScreenState,
-    listener: RegisterInteractionListener,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    listener: RegisterInteractionListener
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -85,16 +84,6 @@ fun RegisterStep4ParentContent(
                 onRemoveChild = listener::onRemoveChild,
                 isLoading = state.isChildLoading,
                 errorText = state.childError?.asString()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            FilePickerCard(
-                title = stringResource(Res.string.upload_identity_card),
-                fileName = state.identityCertificateFileName,
-                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearClick = { listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null) },
-                onFileClick = onFileClickIdentityCertificate
             )
         }
 
@@ -185,7 +174,7 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) { state = state.copy(selectedChildren = state.selectedChildren - child) }
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}

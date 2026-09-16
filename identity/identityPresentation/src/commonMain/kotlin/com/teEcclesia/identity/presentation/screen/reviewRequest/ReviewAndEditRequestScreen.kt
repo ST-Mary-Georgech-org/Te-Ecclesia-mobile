@@ -40,11 +40,14 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
+import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewAndEditRequestShimmer
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep1Content
 import com.teEcclesia.identity.presentation.screen.reviewRequest.components.ReviewStep2Content
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.toSafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -85,7 +88,7 @@ private fun ReviewAndEditRequestContent(
         onResult = { bytes ->
             listener.onSelectImageBytes(
                 state.activeUploadTarget,
-                bytes,
+                bytes?.toSafeByteArray(),
                 "test"
             )
         }
@@ -124,12 +127,7 @@ private fun ReviewAndEditRequestContent(
                 .navigationBarsPadding()
         ) {
             if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = Theme.colorScheme.primary)
-                }
+                ReviewAndEditRequestShimmer()
             } else {
                 Row(
                     modifier = Modifier
@@ -182,12 +180,15 @@ private fun ReviewAndEditRequestContent(
                     label = "StepTransition"
                 ) { step ->
                     when (step) {
-                        1 -> ReviewStep1Content(state = state, listener = listener)
+                        1 -> ReviewStep1Content(
+                            state = state,
+                            listener = listener,
+                            onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                        )
                         2 -> ReviewStep2Content(
                             state = state,
                             listener = listener,
-                            onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
-                            onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                            onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                         )
                     }
                 }
@@ -214,6 +215,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onClickViewAttendanceHistory() {}
         override fun onDocumentScannerOpened() {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
@@ -257,7 +259,7 @@ private fun ReviewAndEditRequestScreenPreview() {
 
         override fun onSelectImageBytes(
             target: UploadTarget?,
-            bytes: ByteArray?,
+            bytes: SafeByteArray?,
             fileName: String?
         ) {
         }
@@ -301,6 +303,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onChildQueryChange(query: String) {}
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
+        override fun onToggleAlsoParent(enabled: Boolean) {}
 
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}

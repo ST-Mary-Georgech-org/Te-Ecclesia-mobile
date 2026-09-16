@@ -36,6 +36,7 @@ object PushNotificationsInitializer : PushTokenProvider {
 
         KMPNotifier.addListener(object : KMPNotifier.Listener {
             override fun onNotificationClicked(data: PayloadData) {
+                println("PushNotificationsInitializer -> onNotificationClicked: $data")
                 NotificationClickState.onNotificationClicked(data)
             }
         })

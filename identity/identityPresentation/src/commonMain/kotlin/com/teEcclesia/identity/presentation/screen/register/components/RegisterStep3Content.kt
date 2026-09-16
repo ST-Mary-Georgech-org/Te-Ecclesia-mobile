@@ -28,6 +28,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -189,7 +190,7 @@ private fun RegisterStep3ContentPreviewLightDark() {
             override fun onRemoveChild(child: UserSummary) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}

@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
 import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
+import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -179,24 +180,32 @@ fun RegisterScreenContent(
                         label = "RegisterStepTransition"
                     ) { targetStep ->
                         when (targetStep) {
-                            1 -> RegisterStep1Content(state = state, listener = listener)
+                            1 -> RegisterStep1Content(
+                                state = state,
+                                listener = listener,
+                                onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                            )
                             2 -> RegisterStep2Content(state = state, listener = listener)
                             3 -> RegisterStep3Content(state = state, listener = listener)
                             4 -> when (state.selectedRole) {
                                 UserRole.MAKHDOOM -> RegisterStep4StudentContent(
                                     state = state,
                                     listener = listener,
-                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate,
-                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
-                                UserRole.KHADEM -> RegisterStep4ServantContent(state = state, listener = listener)
+                                UserRole.KHADEM -> RegisterStep4ServantContent(
+                                    state = state,
+                                    listener = listener
+                                )
                                 UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
                                 UserRole.PARENT -> RegisterStep4ParentContent(
                                     state = state,
-                                    listener = listener,
-                                    onFileClickIdentityCertificate = listener::onClickIdentityCertificate
+                                    listener = listener
                                 )
-                                else -> RegisterStep4ServantContent(state = state, listener = listener)
+                                else -> RegisterStep4ServantContent(
+                                    state = state,
+                                    listener = listener
+                                )
                             }
                             5 -> RegisterStep5VerifyContent(state = state, listener = listener)
                         }
@@ -277,7 +286,7 @@ private fun RegisterScreenPreview() {
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
             override fun onDismissImageViewer() { state = state.copy(isImageViewerVisible = false) }
-            override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+            override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
             override fun onLoadNextPriests() {}

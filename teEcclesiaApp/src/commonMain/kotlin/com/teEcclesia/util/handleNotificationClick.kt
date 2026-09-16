@@ -3,6 +3,7 @@ package com.teEcclesia.util
 import com.mmk.kmpnotifier.notification.PayloadData
 import com.teEcclesia.AppEnvironment
 import com.teEcclesia.designsystem.navigation.effector.Effector
+import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.notifications.api.NotificationsRoute
@@ -53,7 +54,13 @@ fun handleNotificationClick(
             }
 
             else -> {
-                effector.resetTo(NotificationsRoute, forceNavigate = true)
+                effector.resetTo(
+                    listOf(
+                        ProfileRoute,
+                        NotificationsRoute
+                    ),
+                    forceNavigate = true
+                )
             }
         }
     }

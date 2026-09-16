@@ -7,11 +7,13 @@ import com.teEcclesia.identity.data.model.attendance.CreateEventDto
 import com.teEcclesia.identity.data.model.attendance.CreateServiceDto
 import com.teEcclesia.identity.data.model.attendance.EventAttendeeDto
 import com.teEcclesia.identity.data.model.attendance.ServiceEventDto
+import com.teEcclesia.identity.data.model.attendance.UserAttendanceHistoryDto
 import com.teEcclesia.identity.data.model.attendance.toDomain
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
+import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
@@ -202,4 +204,23 @@ class AttendanceRepositoryImpl(
             delete("/api/v1/attendance/events/$eventId/attendees/$userId")
         }
     }
+
+    override suspend fun getUserAttendanceHistory(
+        userId: String,
+        serviceId: Long?,
+        page: Int,
+        size: Int
+    ): PagedData<UserAttendanceHistory> {
+        val response = tryToExecute<BasePagedData<UserAttendanceHistoryDto>> {
+            get("/api/v1/attendance/users/$userId/history") {
+                parameter("page", page)
+                parameter("size", size)
+                if (serviceId != null) {
+                    parameter("serviceId", serviceId)
+                }
+            }
+        }
+        return response.toPagedData { it.toDomain() }
+    }
 }
+

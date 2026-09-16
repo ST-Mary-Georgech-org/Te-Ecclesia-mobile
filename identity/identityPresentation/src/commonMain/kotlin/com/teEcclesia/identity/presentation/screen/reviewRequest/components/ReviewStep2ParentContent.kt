@@ -29,8 +29,7 @@ import teecclesia.designsystem.generated.resources.partner
 fun ReviewStep2ParentContent(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
-    modifier: Modifier = Modifier,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -68,19 +67,6 @@ fun ReviewStep2ParentContent(
                     onRemoveChild = listener::onRemoveChild,
                     isLoading = state.isChildLoading,
                     errorText = state.childError?.asString()
-                )
-
-                Spacer(modifier = Modifier.height(4.dp))
-
-                ReviewFilePickerRow(
-                    label = stringResource(Res.string.identity_card_certificate_optional),
-                    fileTitle = stringResource(Res.string.file_identity_card),
-                    fileName = state.identityCertificateFileName,
-                    onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                    onClearClick = {
-                        listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                    },
-                    onFileClick = onFileClickIdentityCertificate
                 )
             }
         }

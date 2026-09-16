@@ -41,7 +41,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.teEcclesia.identity.presentation.shared.components.LookupContentContainer
+import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
 import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType

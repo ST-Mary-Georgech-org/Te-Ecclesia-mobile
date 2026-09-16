@@ -2,13 +2,13 @@ package com.teEcclesia.notifications.presentation.screen
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.notifications.domain.repository.NotificationRepository
 import com.teEcclesia.notifications.domain.util.NotificationReceiveState
 import com.teEcclesia.notifications.presentation.util.toPagedData
 import com.teEcclesia.shared.domain.utils.PageQuery
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.error_occurred
-import teecclesia.designsystem.generated.resources.unknown_error
+import teecclesia.designsystem.generated.resources.failed_to_load_notifications
 
 class NotificationsViewModel(
     private val notificationRepository: NotificationRepository
@@ -22,10 +22,24 @@ class NotificationsViewModel(
             notificationRepository.getAllNotifications(PageQuery(page = page, size = pageSize)).toPagedData()
         },
         onSuccess = { items ->
-            updateState { copy(notifications = notifications + items.data) }
+            updateState {
+                copy(
+                    notifications = notifications + items.data,
+                    isLoading = false,
+                    isRefreshing = false,
+                    isError = false,
+                    errorMessage = null
+                )
+            }
         },
-        onLoadUpdated = { isLoadingMore ->
-            updateState { copy(isLoadingMore = isLoadingMore) }
+        onLoadUpdated = { loading ->
+            updateState {
+                if (notifications.isEmpty()) {
+                    copy(isLoading = loading)
+                } else {
+                    copy(isLoadingMore = loading)
+                }
+            }
         },
         onReset = {
             updateState { copy(notifications = emptyList()) }
@@ -53,10 +67,17 @@ class NotificationsViewModel(
         )
     }
 
-    private fun loadNotifications() {
-        updateState { copy(isLoading = true, isRefreshing = true) }
+    private fun loadNotifications(isPullToRefresh: Boolean = false) {
+        updateState {
+            copy(
+                isLoading = !isPullToRefresh && notifications.isEmpty(),
+                isRefreshing = isPullToRefresh,
+                isError = false,
+                errorMessage = null
+            )
+        }
         notificationsPaginator.reset()
-        updateState { copy(isLoading = false, isRefreshing = false) }
+        updateState { copy(isRefreshing = false) }
 
         tryToCall(
             block = { notificationRepository.markAllAsRead() },
@@ -66,12 +87,22 @@ class NotificationsViewModel(
     }
 
     private fun handleError(throwable: Throwable?) {
-        showSnackBar(
-            title = UiText.StringRes(Res.string.error_occurred),
-            message = throwable?.message?.let(UiText::DynamicString)
-                ?: UiText.StringRes(Res.string.unknown_error),
-            isSuccess = false
-        )
+        updateState {
+            copy(
+                isLoading = false,
+                isRefreshing = false,
+                isLoadingMore = false,
+                isError = notifications.isEmpty(),
+                errorMessage = UiText.StringRes(Res.string.failed_to_load_notifications)
+            )
+        }
+        if (state.value.notifications.isNotEmpty()) {
+            showSnackBar(
+                title = UiText.StringRes(Res.string.failed_to_load_notifications),
+                message = getLocalizedErrorMessage(throwable),
+                isSuccess = false
+            )
+        }
     }
 
     override fun onClickBack() {
@@ -79,12 +110,10 @@ class NotificationsViewModel(
     }
 
     override fun onLoadMoreNotifications() {
-        updateState { copy(isLoadingMore = true) }
         notificationsPaginator.loadNextItems()
-        updateState { copy(isLoadingMore = false) }
     }
 
     override fun onReload() {
-        loadNotifications()
+        loadNotifications(isPullToRefresh = state.value.notifications.isNotEmpty())
     }
 }

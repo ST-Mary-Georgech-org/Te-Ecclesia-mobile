@@ -6,7 +6,7 @@ import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
@@ -253,7 +253,6 @@ class UsersSearchViewModel(
 
     override fun onRefresh() {
         updateState { it.copy(isRefreshing = true) }
-        stagesPaginator.reset()
         initializeFiltersAndLoadUsers()
     }
 

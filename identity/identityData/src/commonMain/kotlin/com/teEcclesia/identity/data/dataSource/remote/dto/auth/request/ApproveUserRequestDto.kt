@@ -8,11 +8,17 @@ import kotlinx.serialization.Serializable
 data class ApproveUserRequestDto(
     @SerialName("customCode") val customCode: String? = null,
     @SerialName("updateProfileData") val updateProfileData: RegisterRequestDto? = null,
-    @SerialName("deaconsSchoolRecord") val deaconsSchoolRecord: DeaconsSchoolRecordRequestDto? = null
+    @SerialName("deaconsSchoolRecord") val deaconsSchoolRecord: DeaconsSchoolRecordRequestDto? = null,
+    @SerialName("deleteImage") val deleteImage: Boolean = false,
+    @SerialName("deleteIdentityDocument") val deleteIdentityDocument: Boolean = false,
+    @SerialName("deleteOrdinationCertificate") val deleteOrdinationCertificate: Boolean = false
 )
 
 fun ApproveUserRequest.toDto(): ApproveUserRequestDto = ApproveUserRequestDto(
     customCode = customCode,
     updateProfileData = updateProfileData?.toDto(),
-    deaconsSchoolRecord = deaconsSchoolRecord?.toDto()
+    deaconsSchoolRecord = deaconsSchoolRecord?.toDto(),
+    deleteImage = deleteImage,
+    deleteIdentityDocument = deleteIdentityDocument,
+    deleteOrdinationCertificate = deleteOrdinationCertificate
 )

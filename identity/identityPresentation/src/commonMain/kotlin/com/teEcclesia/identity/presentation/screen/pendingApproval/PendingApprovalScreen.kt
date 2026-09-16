@@ -32,7 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.account_under_review
-import teecclesia.designsystem.generated.resources.back_to_login
+import teecclesia.designsystem.generated.resources.logout
 import teecclesia.designsystem.generated.resources.edit_registration
 import teecclesia.designsystem.generated.resources.pending_approval_description
 
@@ -104,11 +104,12 @@ fun PendingApprovalContent(
                 Spacer(modifier = Modifier.height(12.dp))
 
                 AppButton(
-                    type = AppButtonType.Secondary,
+                    type = AppButtonType.Primary,
                     onClick = listener::onClickLogout,
                     modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.back_to_login),
-                    state = state.actionButtonState
+                    text = stringResource(Res.string.logout),
+                    state = state.actionButtonState,
+                    enablePrimaryBackgroundColor = Theme.colorScheme.error
                 )
             }
         }

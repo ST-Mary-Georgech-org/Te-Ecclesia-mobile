@@ -23,19 +23,16 @@ import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
-import com.teEcclesia.identity.presentation.screen.register.components.FilePickerCard
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.father_deceased
 import teecclesia.designsystem.generated.resources.father_info
 import teecclesia.designsystem.generated.resources.father_phone
 import teecclesia.designsystem.generated.resources.father_whatsapp
-import teecclesia.designsystem.generated.resources.file_identity_card
 import teecclesia.designsystem.generated.resources.mother_deceased
 import teecclesia.designsystem.generated.resources.mother_info
 import teecclesia.designsystem.generated.resources.mother_phone
 import teecclesia.designsystem.generated.resources.mother_whatsapp
-import teecclesia.designsystem.generated.resources.upload_identity_card
 import teecclesia.designsystem.generated.resources.whatsapp
 
 @Composable
@@ -60,12 +57,6 @@ fun ParentsContactFields(
     motherWhatsappError: String?,
     isMotherWhatsappSameAsPhone: Boolean = true,
     onToggleMotherWhatsappSameAsPhone: (Boolean) -> Unit = {},
-    identityCertificateFileName: String? = null,
-    identityCertificateError: String? = null,
-    onUploadIdentityCertificate: () -> Unit = {},
-    onClearIdentityCertificate: () -> Unit = {},
-    onFileClickIdentityCertificate: (() -> Unit)? = null,
-    filePickerContent: (@Composable () -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
@@ -108,8 +99,8 @@ fun ParentsContactFields(
                         onValueChange = onFatherPhoneChange,
                         labelText = stringResource(Res.string.father_phone),
                         modifier = Modifier.weight(1f),
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !fatherPhone.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !fatherPhone.startsWith("+")) { "+2" } else null,
                         errorText = fatherPhoneError,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -143,8 +134,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.father_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
                         errorText = fatherWhatsappError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !fatherWhatsapp.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !fatherWhatsapp.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -196,8 +187,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.mother_phone),
                         modifier = Modifier.weight(1f),
                         errorText = motherPhoneError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !motherPhone.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !motherPhone.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -230,8 +221,8 @@ fun ParentsContactFields(
                         labelText = stringResource(Res.string.mother_whatsapp),
                         modifier = Modifier.fillMaxWidth(),
                         errorText = motherWhatsappError,
-                        prefixText = if (!isRtl) { "+2" } else null,
-                        suffixText = if (isRtl) { "+2" } else null,
+                        prefixText = if (!isRtl && !motherWhatsapp.startsWith("+")) { "+2" } else null,
+                        suffixText = if (isRtl && !motherWhatsapp.startsWith("+")) { "+2" } else null,
                         singleLine = true,
                         textStyle = Theme.typography.bodyLarge.copy(
                             textDirection = TextDirection.Ltr
@@ -240,21 +231,6 @@ fun ParentsContactFields(
                     )
                 }
             }
-        }
-
-        if (filePickerContent != null) {
-            filePickerContent()
-        } else {
-            FilePickerCard(
-                modifier = Modifier.padding(top = 8.dp),
-                title = stringResource(Res.string.upload_identity_card),
-                fileTitle = stringResource(Res.string.file_identity_card),
-                fileName = identityCertificateFileName,
-                onUploadClick = onUploadIdentityCertificate,
-                onClearClick = onClearIdentityCertificate,
-                onFileClick = onFileClickIdentityCertificate,
-                errorText = identityCertificateError
-            )
         }
     }
 }
@@ -284,10 +260,7 @@ private fun ParentsContactFieldsPreview() {
                 onMotherWhatsappChange = {},
                 motherWhatsappError = null,
                 isMotherWhatsappSameAsPhone = true,
-                onToggleMotherWhatsappSameAsPhone = {},
-                identityCertificateFileName = null,
-                onUploadIdentityCertificate = {},
-                onClearIdentityCertificate = {}
+                onToggleMotherWhatsappSameAsPhone = {}
             )
         }
     }

@@ -28,6 +28,7 @@ import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.identity.presentation.screen.register.RegisterScreenState
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.shared.components.DeaconSchoolFields
 import com.teEcclesia.identity.presentation.shared.components.EducationalStageFields
@@ -46,8 +47,7 @@ import teecclesia.designsystem.generated.resources.personal_info
 fun RegisterStep4StudentContent(
     state: RegisterScreenState,
     listener: RegisterInteractionListener,
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth().animateContentSize(),
@@ -98,6 +98,7 @@ fun RegisterStep4StudentContent(
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
                     ordinationCertificateFileName = state.ordinationCertificateFileName,
+                    ordinationCertificateBytes = state.ordinationCertificateBytes,
                     onUploadOrdinationCertificate = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
                     onClearOrdinationCertificate = {
                         listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
@@ -153,14 +154,7 @@ fun RegisterStep4StudentContent(
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
                 isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
-                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
-                identityCertificateFileName = state.identityCertificateFileName,
-                identityCertificateError = state.identityCertificateError?.asString(),
-                onUploadIdentityCertificate = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearIdentityCertificate = {
-                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                },
-                onFileClickIdentityCertificate = onFileClickIdentityCertificate
+                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone
             )
         }
 
@@ -343,7 +337,7 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onDismissUploadBottomSheet() {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
-                bytes: ByteArray?,
+                bytes: SafeByteArray?,
                 fileName: String?
             ) {
             }

@@ -1,6 +1,7 @@
 package com.teEcclesia.appEntryPoint
 
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -30,7 +30,6 @@ import com.teEcclesia.designsystem.navigation.effector.EffectHandler
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.home.api.HomeRoute
 import com.teEcclesia.identity.api.AttendanceServicesRoute
-import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.RegistrationRequestsRoute
 import com.teEcclesia.identity.domain.service.AuthorizationService
@@ -52,8 +51,6 @@ fun EntryPoint(
     permissionHandler: NotificationPermissionHandler = koinInject(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val authState by authorizationService.observeAuthState().collectAsStateWithLifecycle()
-    val accessToken by authorizationService.observeAccessToken().collectAsStateWithLifecycle()
 
     var isNotificationPermissionGranted by remember { mutableStateOf(true) }
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -86,8 +83,7 @@ fun EntryPoint(
     }
 
     val navigationSerializerConfig = remember { buildNavigationSerializerConfig() }
-    val backStack = rememberNavBackStack(navigationSerializerConfig,
-        viewModel.getStaticInitialRoute(authState))
+    val backStack = rememberNavBackStack(navigationSerializerConfig, viewModel.startDestination)
     val currentRoute = backStack.lastOrNull()
 
     LaunchedEffect(currentRoute) {
@@ -101,7 +97,7 @@ fun EntryPoint(
     EffectHandler(effector.effect) { effect ->
         when (effect) {
             is Effect.Navigate -> {
-                if (effect.route != currentRoute) backStack.add(effect.route)
+                if (effect.route != backStack.lastOrNull()) backStack.add(effect.route)
             }
 
             is Effect.PopBackStack -> {
@@ -125,10 +121,6 @@ fun EntryPoint(
             || currentRoute is RegistrationRequestsRoute
             || currentRoute is AttendanceServicesRoute
 
-    LaunchedEffect(authState, accessToken) {
-        viewModel.handleAuthState(authState, currentRoute)
-    }
-
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -150,11 +142,11 @@ fun EntryPoint(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .pointerInput(Unit) {
-                    detectTapGestures(onTap = {
-                        focusManager.clearFocus()
-                    })
-                }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    onClick = { focusManager.clearFocus() }
+                )
         ) {
             NavigationRoot(backStack)
 
