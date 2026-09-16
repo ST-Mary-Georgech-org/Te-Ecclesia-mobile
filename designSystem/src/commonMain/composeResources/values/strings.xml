@@ -393,4 +393,13 @@
     <string name="no_notifications">No notifications yet</string>
     <string name="failed_to_load_notifications">Failed to load notifications</string>
     <string name="file_size_exceeded_limit">The selected file exceeds the maximum allowed size of 10 MB</string>
+
+    <!-- Admin Edit Area Suggestions Strings -->
+    <string name="edit_area_suggestions">Edit area suggestions</string>
+    <string name="failed_to_load_area_suggestions">Failed to load ares suggestions</string>
+    <string name="no_area_suggestions_found">No areas found</string>
+    <string name="add_area">Add area</string>
+    <string name="edit_area">Edit area</string>
+    <string name="delete_area_confirmation_title">Confirm Delete This Area</string>
+    <string name="delete_area_confirmation_message">Are you sure you want to delete this area?</string>
 </resources>

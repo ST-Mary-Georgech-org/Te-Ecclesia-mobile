@@ -71,3 +71,6 @@ data class AttendanceHistoryRoute(
     val userId: String,
     val userName: String = ""
 ) : NavKey
+
+@Serializable
+data object EditSuggestionsRoute : NavKey

@@ -65,6 +65,7 @@ import teecclesia.designsystem.generated.resources.select_theme
 import teecclesia.designsystem.generated.resources.join_whatsapp_group
 import teecclesia.designsystem.generated.resources.academic_year
 import teecclesia.designsystem.generated.resources.edit
+import teecclesia.designsystem.generated.resources.edit_area_suggestions
 import teecclesia.designsystem.generated.resources.send_notification
 
 @Composable
@@ -92,7 +93,8 @@ fun ProfileScreen(
         onRefresh = viewModel::onRefresh,
         onClickEnableNotifications = viewModel::openNotificationSettings,
         onClickEditAcademicYear = viewModel::onClickEditAcademicYear,
-        onClickSendNotification = viewModel::onClickSendNotification
+        onClickSendNotification = viewModel::onClickSendNotification,
+        onClickEditSuggestions = viewModel::onClickEditSuggestions
     )
 }
 
@@ -110,6 +112,7 @@ private fun ProfileContent(
     onClickEnableNotifications: () -> Unit,
     onClickEditAcademicYear: () -> Unit,
     onClickSendNotification: () -> Unit,
+    onClickEditSuggestions: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -339,6 +342,16 @@ private fun ProfileContent(
             )
         }
 
+        if (state.userRole == UserRole.ADMIN) {
+            Spacer(modifier = Modifier.height(12.dp))
+            AppButton(
+                type = AppButtonType.Primary,
+                onClick = onClickEditSuggestions,
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.edit_area_suggestions)
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         AppButton(
@@ -414,7 +427,8 @@ private fun ProfileContentPreview() = Theme {
         onRefresh = {},
         onClickEnableNotifications = {},
         onClickEditAcademicYear = {},
-        onClickSendNotification = {}
+        onClickSendNotification = {},
+        onClickEditSuggestions = {}
     )
 }
 

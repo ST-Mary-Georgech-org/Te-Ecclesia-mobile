@@ -393,4 +393,13 @@
     <string name="no_notifications">لا توجد إشعارات حتى الآن</string>
     <string name="failed_to_load_notifications">فشل في تحميل الإشعارات</string>
     <string name="file_size_exceeded_limit">حجم الملف المحدد يتجاوز الحد الأقصى المسموح به (10 ميجابايت)</string>
+
+    <!-- Admin Edit Suggestions Strings -->
+    <string name="edit_area_suggestions">تعديل اقتراحات المنطقة</string>
+    <string name="failed_to_load_area_suggestions">فشل تحميل اقتراحات المنطقة</string>
+    <string name="no_area_suggestions_found">لا توجد مناطق</string>
+    <string name="add_area">أضف منطقة</string>
+    <string name="edit_area">تعديل منطقة</string>
+    <string name="delete_area_confirmation_title">تأكيد حذف هذه المنطقة</string>
+    <string name="deleta_area_confirmation_message">هل أنت متأكد من حذف هذه المنطقة؟</string>
 </resources>

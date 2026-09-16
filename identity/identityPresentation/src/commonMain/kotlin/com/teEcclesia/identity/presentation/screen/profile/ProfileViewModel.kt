@@ -5,6 +5,7 @@ import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.AddUserRoute
+import com.teEcclesia.identity.api.EditSuggestionsRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
@@ -144,6 +145,10 @@ class ProfileViewModel(
 
     fun onClickSendNotification() {
         navigate(SendNotificationRoute)
+    }
+
+    fun onClickEditSuggestions(){
+        navigate(EditSuggestionsRoute)
     }
 
     fun onClickLogout() {
