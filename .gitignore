@@ -40,3 +40,4 @@ debug.log
 DerivedData/
 **/DerivedData/
 /iosApp/KotlinMultiplatformLinkedPackage/.swiftpm/
+iosApp/KotlinMultiplatformLinkedPackage/
