@@ -158,6 +158,7 @@ data class RegisterScreenState(
     val isPdfViewerVisible: Boolean = false,
     val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
+    val shouldOpenDocumentScanner: Boolean = false,
     
     // Step 5: WhatsApp Verify Link
     val whatsAppDeepLink: String? = null

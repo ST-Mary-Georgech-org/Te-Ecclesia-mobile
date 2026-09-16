@@ -87,6 +87,8 @@ interface RegisterInteractionListener {
     fun onDismissPdfViewer() {}
     fun onClickOrdinationCertificate() {}
     fun onClickIdentityCertificate() {}
+    fun onDocumentScannerOpened() {}
+    fun onDocumentScanned(bytes: ByteArray?) {}
     fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
     
     // Step 5: Verify

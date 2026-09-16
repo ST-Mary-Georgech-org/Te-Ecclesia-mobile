@@ -34,6 +34,8 @@ kotlin {
                 implementation(projects.logging)
 
                 implementation(libs.qr.kit)
+                implementation(libs.easydocumentscanner.compose)
+                implementation(libs.easydocumentscanner.core)
                 implementation(libs.moko.permissions)
                 implementation(libs.moko.permissions.compose)
                 implementation(libs.moko.permissions.camera)

@@ -40,6 +40,7 @@ data class ReviewAndEditRequestUiState(
 
     val code: String = "",
     val imageBytes: SafeByteArray? = null,
+    val shouldOpenDocumentScanner: Boolean = false,
     val imageUrl: String? = null,
     val firstName: String = "",
     val secondName: String = "",

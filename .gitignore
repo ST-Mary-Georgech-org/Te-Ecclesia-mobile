@@ -39,4 +39,4 @@ debug.log
 /.artifacts
 DerivedData/
 **/DerivedData/
-/iosApp/KotlinMultiplatformLinkedPackage/.swiftpm/
+iosApp/KotlinMultiplatformLinkedPackage/

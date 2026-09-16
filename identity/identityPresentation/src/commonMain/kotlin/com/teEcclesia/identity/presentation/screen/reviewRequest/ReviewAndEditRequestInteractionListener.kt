@@ -21,6 +21,8 @@ interface ReviewAndEditRequestInteractionListener {
     fun onRefresh()
     fun onClickViewAttendanceHistory()
 
+    fun onDocumentScannerOpened()
+    fun onDocumentScanned(bytes: ByteArray?)
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
     fun onDismissImageViewer()
@@ -60,7 +62,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onTogglePriestSheet(visible: Boolean)
     fun onLoadNextPriests()
     fun onFileOptionPicked(option: FilePickOption)
-    fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
+    fun onSelectImageBytes(target: UploadTarget?, bytes: SafeByteArray?, fileName: String?)
 
     fun onRoleSelected(role: UserRole)
     fun onToggleRoleSheet(visible: Boolean)

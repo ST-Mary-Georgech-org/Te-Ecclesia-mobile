@@ -313,6 +313,8 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
         override fun onClickViewAttendanceHistory() {}
+        override fun onDocumentScannerOpened() {}
+        override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
@@ -351,7 +353,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
-        override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
+        override fun onSelectImageBytes(target: UploadTarget?, bytes: SafeByteArray?, fileName: String?) {}
         override fun onRoleSelected(role: UserRole) {}
         override fun onToggleRoleSheet(visible: Boolean) {}
         override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}

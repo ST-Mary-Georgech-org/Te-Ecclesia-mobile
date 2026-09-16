@@ -49,7 +49,7 @@ jobs:
           path: |
             ~/Library/Caches/org.swift.swiftpm
             iosApp/DerivedData/SourcePackages
-          key: ${{ runner.os }}-spm-${{ hashFiles('iosApp/iosApp.xcodeproj/project.pbxproj', 'iosApp/KotlinMultiplatformLinkedPackage/Package.swift') }}
+          key: ${{ runner.os }}-spm-${{ hashFiles('iosApp/iosApp.xcodeproj/project.pbxproj') }}
           restore-keys: |
             ${{ runner.os }}-spm-
 
@@ -76,6 +76,13 @@ jobs:
       - name: Build KMP XCFramework
         if: needs.detect.outputs.has_ios_changes != 'true'
         run: ./gradlew :teEcclesiaApp:assembleTeEcclesiaAppDebugXCFramework --parallel --build-cache
+
+      - name: Generate SwiftPM Linkage Package
+        if: needs.detect.outputs.has_ios_changes == 'true'
+        run: |
+          ./gradlew :teEcclesiaApp:generateSyntheticLinkageSwiftPMImportProjectForEmbedAndSignLinkage || true
+          mkdir -p iosApp/KotlinMultiplatformLinkedPackage
+          cp -R teEcclesiaApp/build/kotlin/swiftImport/ iosApp/KotlinMultiplatformLinkedPackage/
 
       - name: Build iOS app
         if: needs.detect.outputs.has_ios_changes == 'true'

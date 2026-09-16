@@ -115,26 +115,38 @@ class AuthenticationRepositoryImpl(
         }
     }
 
+    private val refreshMutex = Mutex()
+
     override suspend fun refreshAccessToken(): String {
-        return withContext(NonCancellable) {
-            try {
-                val deviceToken = pushTokenProvider.getToken().orEmpty()
-                val response = tryToExecute<AuthenticationResponse> {
-                    post(REFRESH_ENDPOINT) {
-                        setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
+        val tokenBeforeLock = settings.accessToken
+        return refreshMutex.withLock {
+            if (settings.accessToken.isNotBlank() && settings.accessToken != tokenBeforeLock) {
+                return@withLock settings.accessToken
+            }
+            withContext(NonCancellable) {
+                try {
+                    val currentRefreshToken = settings.refreshToken
+                    if (currentRefreshToken.isBlank()) {
+                        throw UnAuthorizedException()
                     }
+                    val deviceToken = pushTokenProvider.getToken().orEmpty()
+                    val response = tryToExecute<AuthenticationResponse> {
+                        post(REFRESH_ENDPOINT) {
+                            setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                        }
+                    }
+                    saveTokens(response.toDomain(), syncDeviceToken = false)
+                    client.invalidateAuthTokens()
+                    settings.accessToken
+                } catch (e: UnAuthorizedException) {
+                    clearAuthState()
+                    sessionManager.onSessionExpired()
+                    throw e
+                } catch (e: UserIsBlockedException) {
+                    clearAuthState()
+                    sessionManager.onUserBlocked()
+                    throw e
                 }
-                saveTokens(response.toDomain(), syncDeviceToken = false)
-                client.invalidateAuthTokens()
-                settings.accessToken
-            } catch (e: UnAuthorizedException) {
-                clearAuthState()
-                sessionManager.onSessionExpired()
-                throw e
-            } catch (e: UserIsBlockedException) {
-                clearAuthState()
-                sessionManager.onUserBlocked()
-                throw e
             }
         }
     }
@@ -148,14 +160,26 @@ class AuthenticationRepositoryImpl(
 
 
     override suspend fun refreshRegistrationToken(): String {
-        val deviceToken = pushTokenProvider.getToken().orEmpty()
-        val response = tryToExecute<AuthenticationResponse> {
-            post(REFRESH_REGISTRATION_ENDPOINT) {
-                setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
+        val tokenBeforeLock = settings.accessToken
+        return refreshMutex.withLock {
+            if (settings.accessToken.isNotBlank() && settings.accessToken != tokenBeforeLock) {
+                return@withLock settings.accessToken
+            }
+            withContext(NonCancellable) {
+                val currentRefreshToken = settings.refreshToken
+                if (currentRefreshToken.isBlank()) {
+                    throw UnAuthorizedException()
+                }
+                val deviceToken = pushTokenProvider.getToken().orEmpty()
+                val response = tryToExecute<AuthenticationResponse> {
+                    post(REFRESH_REGISTRATION_ENDPOINT) {
+                        setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                    }
+                }
+                saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
+                response.accessToken
             }
         }
-        saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
-        return response.accessToken
     }
 
     override suspend fun upgradeRegistrationToken(): String {
