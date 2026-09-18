@@ -16,12 +16,14 @@ class VerifyPhoneResetPasswordViewModel(
     phone: String,
     token: String,
     link: String,
+    isDeletedAccount: Boolean,
     private val resetPasswordRepository: ResetPasswordRepository
 ) : BaseViewModel<VerifyPhoneResetPasswordUiState>(
     VerifyPhoneResetPasswordUiState(
         phone = phone,
         token = token,
-        link = link
+        link = link,
+        isDeletedAccount = isDeletedAccount
     )
 ), VerifyPhoneResetPasswordInteractionListener {
 
@@ -45,7 +47,8 @@ class VerifyPhoneResetPasswordViewModel(
                     CreateNewPasswordRoute(
                         key = state.value.phone,
                         otp = state.value.token,
-                        isPhone = true
+                        isPhone = true,
+                        isDeletedAccount = state.value.isDeletedAccount
                     )
                 )
             },

@@ -32,3 +32,6 @@ class EmailNotVerifiedException : BaseException("User email is not verified")
 
 class AccountPendingApprovalException(val token: String? = null, val refreshToken: String? = null) : BaseException("Account pending approval")
 
+class AccountDeletedException(message: String = "Account has been deleted and can be reactivated") : BaseException(message)
+
+

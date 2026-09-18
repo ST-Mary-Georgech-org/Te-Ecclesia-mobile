@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.domain.repository
 
+import com.teEcclesia.identity.domain.model.AccountDeletionRequest
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.ProfileResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
@@ -43,12 +44,20 @@ interface ProfileRepository {
         yearId: Long?,
         role: UserRole?,
         page: Int,
-        size: Int = 20,
+        size: Int,
         sortBy: String = "createdAt",
         sortOrder: String = "DESC"
     ): PagedData<ProfileResponse>
     suspend fun downloadFile(url: String): ByteArray
     suspend fun getCurrentAcademicYear(): Int
     suspend fun updateCurrentAcademicYear(year: Int)
+    suspend fun requestAccountDeletion(reason: String, password: String)
+    suspend fun getDeletionRequests(
+        page: Int,
+        size: Int
+    ): PagedData<AccountDeletionRequest>
+    suspend fun getDeletionRequestCount(): Long
+    suspend fun approveDeletion(requestId: String)
+    suspend fun rejectDeletion(requestId: String)
 }
 

@@ -81,7 +81,7 @@ fun CustomSnackBar(
             ) {
                 Text(
                     text = data.title,
-                    style = Theme.typography.headlineSmall,
+                    style = Theme.typography.titleMedium,
                     color = Theme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis

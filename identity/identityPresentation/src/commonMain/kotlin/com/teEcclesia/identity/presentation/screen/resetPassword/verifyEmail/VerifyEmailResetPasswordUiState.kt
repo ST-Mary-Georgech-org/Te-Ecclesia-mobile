@@ -7,5 +7,6 @@ data class VerifyEmailResetPasswordUiState(
     val email: String = "",
     val otpCode: String = "",
     val otpError: UiText? = null,
+    val isDeletedAccount: Boolean = false,
     val actionButtonState: AppButtonState = AppButtonState.Enabled
 )

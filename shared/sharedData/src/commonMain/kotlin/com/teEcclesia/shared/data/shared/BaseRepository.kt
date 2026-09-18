@@ -2,6 +2,7 @@ package com.teEcclesia.shared.data.shared
 
 import com.teEcclesia.shared.data.dataSource.remote.dto.IncompleteProfileResponse
 import com.teEcclesia.shared.domain.exception.AccountPendingApprovalException
+import com.teEcclesia.shared.domain.exception.AccountDeletedException
 import com.teEcclesia.shared.domain.exception.EmailNotVerifiedException
 import com.teEcclesia.shared.domain.exception.IncompleteProfileException
 import com.teEcclesia.shared.domain.exception.PhoneNotVerifiedException
@@ -46,7 +47,8 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
                     path.startsWith("api/v1/identity/auth/signup") ||
                     path.startsWith("api/v1/identity/auth/forgot-password") ||
                     path.startsWith("api/v1/identity/auth/verify-otp") ||
-                    path.startsWith("api/v1/identity/auth/reset-password")
+                    path.startsWith("api/v1/identity/auth/reset-password") ||
+                    path.startsWith("api/v1/identity/auth/reactivate")
 
             if (!isAuthEndpoint) {
                 if (status == HttpStatusCode.Unauthorized) {
@@ -69,6 +71,7 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
                     val body = runCatching { e.response.body<IncompleteProfileResponse>() }.getOrNull()
                     AccountPendingApprovalException(token = body?.token, refreshToken = body?.refreshToken)
                 }
+                status == HttpStatusCode.Gone -> AccountDeletedException(serverMessage ?: "Account has been deleted and can be reactivated")
                 status == HttpStatusCode.UnprocessableEntity -> EmailNotVerifiedException()
                 status == HttpStatusCode.PaymentRequired -> PaymentRequiredException()
                 status == HttpStatusCode.Unauthorized -> UnAuthorizedException()

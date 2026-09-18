@@ -17,6 +17,11 @@ data class ProfileScreenState(
     val currentLanguage: AppLanguage = AppLanguage.ENGLISH,
     val isRefreshing: Boolean = false,
     val isNotificationPermissionGranted: Boolean = true,
-    val currentAcademicYear: String = ""
+    val currentAcademicYear: String = "",
+    val isDeleteAccountSheetVisible: Boolean = false,
+    val deleteAccountReason: String = "",
+    val deleteAccountPassword: String = "",
+    val isDeleteAccountPasswordVisible: Boolean = false,
+    val deleteAccountButtonState: AppButtonState = AppButtonState.Enabled,
+    val deletionRequestsCount: Long = 0
 )
-

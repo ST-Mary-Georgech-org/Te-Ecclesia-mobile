@@ -3,8 +3,11 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.ForgotPasswordRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.api.ProfileRoute
+import com.teEcclesia.shared.domain.exception.AccountDeletedException
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
@@ -54,11 +57,13 @@ import com.teEcclesia.designsystem.utils.compressImage
 import com.teEcclesia.identity.presentation.util.generateScannedFileName
 import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.account_reactivated_successfully
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
 import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_complete_profile
+import teecclesia.designsystem.generated.resources.failed_to_reactivate_account
 import teecclesia.designsystem.generated.resources.failed_to_register
 import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.failed_to_search_child
@@ -628,7 +633,8 @@ class RegisterViewModel(
                     val tokenResponse = registerRepository.register(
                         request = registerRequest,
                         imageBytes = s.imageBytes?.bytes,
-                        certificateImageBytes = s.identityCertificateBytes?.bytes
+                        identityDocumentBytes = s.identityCertificateBytes?.bytes,
+                        certificateImageBytes = null
                     )
                     authenticationRepository.saveRegistrationToken(
                         tokenResponse.token,
@@ -641,11 +647,21 @@ class RegisterViewModel(
                     updateState { copy(currentStep = 3) }
                 },
                 onError = { throwable ->
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.failed_to_register),
-                        message = getLocalizedErrorMessage(throwable),
-                        isSuccess = false
-                    )
+                    if (throwable is AccountDeletedException) {
+                        updateState {
+                            copy(
+                                isReactivateSheetVisible = true,
+                                reactivatePassword = "",
+                                reactivateButtonState = AppButtonState.Enabled
+                            )
+                        }
+                    } else {
+                        showSnackBar(
+                            title = UiText.StringRes(Res.string.failed_to_register),
+                            message = getLocalizedErrorMessage(throwable),
+                            isSuccess = false
+                        )
+                    }
                 },
                 onEnd = { updateState { copy(isLoading = false, actionButtonState = AppButtonState.Enabled) } }
             )
@@ -957,7 +973,6 @@ class RegisterViewModel(
                 registerRepository.completeProfile(
                     request = request,
                     ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null,
-                    identityDocumentBytes = s.identityCertificateBytes?.bytes
                 )
             },
             onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
@@ -1249,7 +1264,7 @@ class RegisterViewModel(
     }
 
     override fun onDismissUploadBottomSheet() {
-        updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
+        updateState { copy(isUploadBottomSheetVisible = false) }
     }
 
     override fun onDismissImageViewer() {
@@ -1371,8 +1386,9 @@ class RegisterViewModel(
     }
 
     override fun onDocumentScanned(bytes: ByteArray?) {
-        val target = state.value.activeUploadTarget ?: return
-        if (bytes == null) return
+        val target = state.value.activeUploadTarget
+        updateState { copy(activeUploadTarget = null) }
+        if (bytes == null || target == null) return
         launch {
             processFile(bytes) { safeBytes, fileName ->
                 onSelectImageBytes(target, safeBytes, fileName)
@@ -1454,5 +1470,61 @@ class RegisterViewModel(
         ranksPaginator.reset()
         stagesPaginator.reset()
         checkAndLoadPendingRegistration()
+    }
+
+    override fun onReactivatePasswordChange(value: String) {
+        updateState { copy(reactivatePassword = value) }
+    }
+
+    override fun onToggleReactivatePasswordVisibility() {
+        updateState { copy(isReactivatePasswordVisible = !isReactivatePasswordVisible) }
+    }
+
+    override fun onDismissReactivateSheet() {
+        updateState { copy(isReactivateSheetVisible = false) }
+    }
+
+    override fun onConfirmReactivate() {
+        val nationalId = state.value.nationalId.trim()
+        val password = state.value.reactivatePassword.trim()
+        if (password.isBlank() || nationalId.isBlank()) return
+
+        tryToCall(
+            onStart = { updateState { copy(reactivateButtonState = AppButtonState.Loading) } },
+            block = {
+                authenticationRepository.reactivateAccount(nationalId, password)
+                profileRepository.getRegistrationProfile()
+            },
+            onSuccess = { profile ->
+                updateState {
+                    copy(
+                        isReactivateSheetVisible = false,
+                        reactivateButtonState = AppButtonState.Enabled
+                    )
+                }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.account_reactivated_successfully),
+                    isSuccess = true
+                )
+                when (profile.status) {
+                    UserStatus.PENDING_APPROVAL -> resetTo(PendingApprovalRoute, forceNavigate = true)
+                    UserStatus.APPROVED -> resetTo(ProfileRoute, forceNavigate = true)
+                    else -> resetTo(ProfileRoute, forceNavigate = true)
+                }
+            },
+            onError = { throwable ->
+                updateState { copy(reactivateButtonState = AppButtonState.Enabled) }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_reactivate_account),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            }
+        )
+    }
+
+    override fun onClickForgotPasswordFromReactivate() {
+        updateState { copy(isReactivateSheetVisible = false) }
+        navigate(ForgotPasswordRoute(key = state.value.nationalId))
     }
 }

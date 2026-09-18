@@ -11,18 +11,21 @@ import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_reset_password
+import teecclesia.designsystem.generated.resources.password_reset_and_account_reactivated_successfully
 import teecclesia.designsystem.generated.resources.password_reset_successfully
 
 class CreateNewPasswordViewModel(
     key: String,
     otp: String,
     isPhone: Boolean,
+    isDeletedAccount: Boolean,
     private val resetPasswordRepository: ResetPasswordRepository
 ) : BaseViewModel<CreateNewPasswordUiState>(
     CreateNewPasswordUiState(
         key = key,
         otp = otp,
-        method = if (isPhone) VerificationMethod.PHONE else VerificationMethod.EMAIL
+        method = if (isPhone) VerificationMethod.PHONE else VerificationMethod.EMAIL,
+        isDeletedAccount = isDeletedAccount
     )
 ), CreateNewPasswordInteractionListener {
 
@@ -55,8 +58,13 @@ class CreateNewPasswordViewModel(
                 )
             },
             onSuccess = {
+                val successMessage = if (state.value.isDeletedAccount) {
+                    Res.string.password_reset_and_account_reactivated_successfully
+                } else {
+                    Res.string.password_reset_successfully
+                }
                 showSnackBar(
-                    title = UiText.StringRes(Res.string.password_reset_successfully),
+                    title = UiText.StringRes(successMessage),
                     isSuccess = true
                 )
                 resetTo(LoginRoute)

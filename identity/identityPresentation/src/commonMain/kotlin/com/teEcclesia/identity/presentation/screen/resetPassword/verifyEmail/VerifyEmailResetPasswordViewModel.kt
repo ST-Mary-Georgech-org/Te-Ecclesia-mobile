@@ -14,9 +14,13 @@ import teecclesia.designsystem.generated.resources.otp_must_be_5_digits
 
 class VerifyEmailResetPasswordViewModel(
     email: String,
+    isDeletedAccount: Boolean,
     private val resetPasswordRepository: ResetPasswordRepository
 ) : BaseViewModel<VerifyEmailResetPasswordUiState>(
-    VerifyEmailResetPasswordUiState(email = email)
+    VerifyEmailResetPasswordUiState(
+        email = email,
+        isDeletedAccount = isDeletedAccount
+    )
 ), VerifyEmailResetPasswordInteractionListener {
 
     override fun onOtpChange(value: String) {
@@ -46,7 +50,8 @@ class VerifyEmailResetPasswordViewModel(
                     CreateNewPasswordRoute(
                         key = state.value.email,
                         otp = otp,
-                        isPhone = false
+                        isPhone = false,
+                        isDeletedAccount = state.value.isDeletedAccount
                     )
                 )
             },

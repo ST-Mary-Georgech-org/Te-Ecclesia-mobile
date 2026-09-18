@@ -47,6 +47,7 @@ import com.teEcclesia.designsystem.utils.preview.PreviewThemes
 import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.login.getName
+import com.teEcclesia.identity.presentation.screen.profile.components.DeleteAccountSheet
 import com.teEcclesia.shared.domain.model.UserRole
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -54,6 +55,8 @@ import org.koin.compose.viewmodel.koinViewModel
 import qrgenerator.qrkitpainter.rememberQrKitPainter
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.add_new_user
+import teecclesia.designsystem.generated.resources.delete_account
+import teecclesia.designsystem.generated.resources.deletion_requests
 import teecclesia.designsystem.generated.resources.enable_notifications
 import teecclesia.designsystem.generated.resources.ic_bell
 import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
@@ -92,7 +95,14 @@ fun ProfileScreen(
         onRefresh = viewModel::onRefresh,
         onClickEnableNotifications = viewModel::openNotificationSettings,
         onClickEditAcademicYear = viewModel::onClickEditAcademicYear,
-        onClickSendNotification = viewModel::onClickSendNotification
+        onClickSendNotification = viewModel::onClickSendNotification,
+        onClickDeletionRequests = viewModel::onClickDeletionRequests,
+        onClickDeleteAccount = viewModel::onClickDeleteAccount,
+        onDeleteAccountReasonChange = viewModel::onDeleteAccountReasonChange,
+        onDeleteAccountPasswordChange = viewModel::onDeleteAccountPasswordChange,
+        onToggleDeleteAccountPasswordVisibility = viewModel::onToggleDeleteAccountPasswordVisibility,
+        onConfirmDeleteAccount = viewModel::onConfirmDeleteAccount,
+        onDismissDeleteAccountSheet = viewModel::onDismissDeleteAccountSheet
     )
 }
 
@@ -110,6 +120,13 @@ private fun ProfileContent(
     onClickEnableNotifications: () -> Unit,
     onClickEditAcademicYear: () -> Unit,
     onClickSendNotification: () -> Unit,
+    onClickDeletionRequests: () -> Unit,
+    onClickDeleteAccount: () -> Unit,
+    onDeleteAccountReasonChange: (String) -> Unit,
+    onDeleteAccountPasswordChange: (String) -> Unit,
+    onToggleDeleteAccountPasswordVisibility: () -> Unit,
+    onConfirmDeleteAccount: () -> Unit,
+    onDismissDeleteAccountSheet: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -339,6 +356,21 @@ private fun ProfileContent(
             )
         }
 
+        if (state.userRole == UserRole.ADMIN) {
+            Spacer(modifier = Modifier.height(12.dp))
+            val deletionRequestsText = if (state.deletionRequestsCount > 0) {
+                "${stringResource(Res.string.deletion_requests)} (${state.deletionRequestsCount})"
+            } else {
+                stringResource(Res.string.deletion_requests)
+            }
+            AppButton(
+                type = AppButtonType.Primary,
+                onClick = onClickDeletionRequests,
+                modifier = Modifier.fillMaxWidth(),
+                text = deletionRequestsText
+            )
+        }
+
         Spacer(modifier = Modifier.height(12.dp))
 
         AppButton(
@@ -350,9 +382,32 @@ private fun ProfileContent(
             enablePrimaryBackgroundColor = Theme.colorScheme.error
         )
 
+        Spacer(modifier = Modifier.height(12.dp))
+
+        AppButton(
+            type = AppButtonType.Secondary,
+            onClick = onClickDeleteAccount,
+            modifier = Modifier.fillMaxWidth(),
+            text = stringResource(Res.string.delete_account),
+            enableSecondaryBackgroundColor = Theme.colorScheme.error.copy(alpha = 0.12f)
+        )
+
         Spacer(modifier = Modifier.height(80.dp))
     }
     }
+
+    DeleteAccountSheet(
+        isVisible = state.isDeleteAccountSheetVisible,
+        reason = state.deleteAccountReason,
+        password = state.deleteAccountPassword,
+        isPasswordVisible = state.isDeleteAccountPasswordVisible,
+        buttonState = state.deleteAccountButtonState,
+        onReasonChange = onDeleteAccountReasonChange,
+        onPasswordChange = onDeleteAccountPasswordChange,
+        onTogglePasswordVisibility = onToggleDeleteAccountPasswordVisibility,
+        onConfirmDelete = onConfirmDeleteAccount,
+        onDismiss = onDismissDeleteAccountSheet
+    )
 }
 
 @Composable
@@ -402,7 +457,8 @@ private fun ProfileContentPreview() = Theme {
             canSearchUsers = true,
             canAddUser = true,
             userRole = UserRole.ADMIN,
-            whatsAppLink = "https://chat.whatsapp.com/EXAMPLE"
+            whatsAppLink = "https://chat.whatsapp.com/EXAMPLE",
+            deletionRequestsCount = 2
         ),
         onClickNotifications = {},
         onLanguageSelected = {},
@@ -414,7 +470,15 @@ private fun ProfileContentPreview() = Theme {
         onRefresh = {},
         onClickEnableNotifications = {},
         onClickEditAcademicYear = {},
-        onClickSendNotification = {}
+        onClickSendNotification = {},
+        onClickDeletionRequests = {},
+        onClickDeleteAccount = {},
+        onDeleteAccountReasonChange = {},
+        onDeleteAccountPasswordChange = {},
+        onToggleDeleteAccountPasswordVisibility = {},
+        onConfirmDeleteAccount = {},
+        onDismissDeleteAccountSheet = {}
     )
 }
+
 

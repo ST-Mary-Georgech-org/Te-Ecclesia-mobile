@@ -95,6 +95,13 @@ interface RegisterInteractionListener {
     fun onClickVerifyWhatsApp()
     fun onClickCheckWhatsAppStatus()
 
+    // Reactivation
+    fun onReactivatePasswordChange(value: String) {}
+    fun onToggleReactivatePasswordVisibility() {}
+    fun onDismissReactivateSheet() {}
+    fun onConfirmReactivate() {}
+    fun onClickForgotPasswordFromReactivate() {}
+
     // Pagination & Retry
     fun onLoadNextPriests()
     fun onRetryLoadPriests()
@@ -106,3 +113,4 @@ interface RegisterInteractionListener {
 
     fun onRefresh() {}
 }
+

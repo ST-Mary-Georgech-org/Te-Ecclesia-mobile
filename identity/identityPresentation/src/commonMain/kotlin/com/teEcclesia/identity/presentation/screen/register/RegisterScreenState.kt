@@ -161,7 +161,13 @@ data class RegisterScreenState(
     val shouldOpenDocumentScanner: Boolean = false,
     
     // Step 5: WhatsApp Verify Link
-    val whatsAppDeepLink: String? = null
+    val whatsAppDeepLink: String? = null,
+
+    // Reactivation
+    val isReactivateSheetVisible: Boolean = false,
+    val reactivatePassword: String = "",
+    val isReactivatePasswordVisible: Boolean = false,
+    val reactivateButtonState: AppButtonState = AppButtonState.Enabled
 )
 
 enum class UploadTarget {
