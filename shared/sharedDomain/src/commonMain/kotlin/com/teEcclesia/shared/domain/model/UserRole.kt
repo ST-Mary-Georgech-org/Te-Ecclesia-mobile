@@ -6,5 +6,11 @@ enum class UserRole {
     MAKHDOOM,
     PARENT,
     GUEST,
-    KAHEN
+    KAHEN;
+
+    companion object {
+        fun fromStringOrDefault(value: String?): UserRole {
+            return entries.find { it.name.equals(value, ignoreCase = true) } ?: MAKHDOOM
+        }
+    }
 }

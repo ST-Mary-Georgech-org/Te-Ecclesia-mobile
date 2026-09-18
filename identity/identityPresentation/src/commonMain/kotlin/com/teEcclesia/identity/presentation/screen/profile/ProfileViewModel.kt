@@ -3,8 +3,10 @@ package com.teEcclesia.identity.presentation.screen.profile
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.AddUserRoute
+import com.teEcclesia.identity.api.DeletionRequestsRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
@@ -20,7 +22,9 @@ import com.teEcclesia.notifications.api.SendNotificationRoute
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.account_deleted_successfully
 import teecclesia.designsystem.generated.resources.couldnt_refresh_profile
+import teecclesia.designsystem.generated.resources.failed_to_delete_account
 import teecclesia.designsystem.generated.resources.not_implemented_yet
 
 class ProfileViewModel(
@@ -54,8 +58,11 @@ class ProfileViewModel(
                             whatsAppLink =  cached.whatsAppLink
                         )
                     }
-                    if (cached.role == UserRole.ADMIN && state.value.currentAcademicYear.isBlank()) {
-                        loadAcademicYear()
+                    if (cached.role == UserRole.ADMIN) {
+                        if (state.value.currentAcademicYear.isBlank()) {
+                            loadAcademicYear()
+                        }
+                        loadDeletionRequestsCount()
                     }
                 }
             },
@@ -162,6 +169,7 @@ class ProfileViewModel(
             updateState { copy(isRefreshing = true) }
             if (state.value.userRole == UserRole.ADMIN) {
                 loadAcademicYear()
+                loadDeletionRequestsCount()
             }
             tryToCall(
                 block = {
@@ -221,6 +229,87 @@ class ProfileViewModel(
 
     fun onClickEditAcademicYear() {
         navigate(AcademicYearSettingsRoute)
+    }
+
+    private fun loadDeletionRequestsCount() {
+        if (state.value.userRole == UserRole.ADMIN) {
+            tryToCall(
+                block = { profileRepository.getDeletionRequestCount() },
+                onSuccess = { count ->
+                    updateState { copy(deletionRequestsCount = count) }
+                },
+                onError = { }
+            )
+        }
+    }
+
+    fun onClickDeletionRequests() {
+        navigate(DeletionRequestsRoute)
+    }
+
+    fun onClickDeleteAccount() {
+        updateState {
+            copy(
+                isDeleteAccountSheetVisible = true,
+                deleteAccountReason = "",
+                deleteAccountPassword = "",
+                isDeleteAccountPasswordVisible = false,
+                deleteAccountButtonState = AppButtonState.Enabled
+            )
+        }
+    }
+
+    fun onDeleteAccountReasonChange(reason: String) {
+        updateState { copy(deleteAccountReason = reason) }
+    }
+
+    fun onDeleteAccountPasswordChange(password: String) {
+        updateState { copy(deleteAccountPassword = password) }
+    }
+
+    fun onToggleDeleteAccountPasswordVisibility() {
+        updateState { copy(isDeleteAccountPasswordVisible = !isDeleteAccountPasswordVisible) }
+    }
+
+    fun onDismissDeleteAccountSheet() {
+        updateState { copy(isDeleteAccountSheetVisible = false) }
+    }
+
+    fun onConfirmDeleteAccount() {
+        val reason = state.value.deleteAccountReason.trim()
+        val password = state.value.deleteAccountPassword.trim()
+        if (reason.isBlank() || password.isBlank()) {
+            return
+        }
+
+        tryToCall(
+            onStart = { updateState { copy(deleteAccountButtonState = AppButtonState.Loading) } },
+            block = {
+                profileRepository.requestAccountDeletion(reason = reason, password = password)
+                authenticationRepository.clearAuthTokens()
+            },
+            onSuccess = {
+                updateState {
+                    copy(
+                        isDeleteAccountSheetVisible = false,
+                        deleteAccountButtonState = AppButtonState.Enabled
+                    )
+                }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.account_deleted_successfully),
+                    isSuccess = true
+                )
+                resetTo(LoginRoute)
+            },
+            onError = { throwable ->
+                updateState { copy(deleteAccountButtonState = AppButtonState.Enabled) }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_delete_account),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            }
+        )
     }
 }
 

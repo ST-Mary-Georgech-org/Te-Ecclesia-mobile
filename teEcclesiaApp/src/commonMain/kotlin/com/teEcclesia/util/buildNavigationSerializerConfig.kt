@@ -22,6 +22,8 @@ import com.teEcclesia.identity.api.UsersSearchRoute
 import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
+import com.teEcclesia.identity.api.DeletionRequestsRoute
+import com.teEcclesia.identity.api.ReviewDeletionRequestRoute
 import com.teEcclesia.notifications.api.NotificationsRoute
 import com.teEcclesia.notifications.api.SendNotificationRoute
 import kotlinx.serialization.modules.SerializersModule
@@ -38,6 +40,8 @@ fun buildNavigationSerializerConfig(): SavedStateConfiguration = SavedStateConfi
             subclass(NotificationsRoute::class, NotificationsRoute.serializer())
             subclass(SendNotificationRoute::class, SendNotificationRoute.serializer())
             subclass(RegistrationRequestsRoute::class, RegistrationRequestsRoute.serializer())
+            subclass(DeletionRequestsRoute::class, DeletionRequestsRoute.serializer())
+            subclass(ReviewDeletionRequestRoute::class, ReviewDeletionRequestRoute.serializer())
             subclass(PendingApprovalRoute::class, PendingApprovalRoute.serializer())
             subclass(ReviewAndEditRequestRoute::class, ReviewAndEditRequestRoute.serializer())
             subclass(AddUserRoute::class, AddUserRoute.serializer())

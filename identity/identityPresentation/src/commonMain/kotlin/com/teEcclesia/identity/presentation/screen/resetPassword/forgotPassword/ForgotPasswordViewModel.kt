@@ -52,16 +52,23 @@ class ForgotPasswordViewModel(
                 resetPasswordRepository.requestOTP(key = input, method = method)
             },
             onSuccess = { response ->
+                val isDeletedAccount = response?.isDeletedAccount ?: false
                 if (isPhone || isNationalId || isCode) {
                     navigate(
                         VerifyPhoneResetPasswordRoute(
                             phone = input,
                             token = response?.token ?: "",
-                            link = response?.link ?: ""
+                            link = response?.link ?: "",
+                            isDeletedAccount = isDeletedAccount
                         )
                     )
                 } else {
-                    navigate(VerifyEmailResetPasswordRoute(email = input))
+                    navigate(
+                        VerifyEmailResetPasswordRoute(
+                            email = input,
+                            isDeletedAccount = isDeletedAccount
+                        )
+                    )
                 }
             },
             onError = { error ->

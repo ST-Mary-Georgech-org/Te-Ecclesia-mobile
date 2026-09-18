@@ -11,5 +11,6 @@ data class CreateNewPasswordUiState(
     val password: String = "",
     val passwordError: UiText? = null,
     val isPasswordVisible: Boolean = false,
+    val isDeletedAccount: Boolean = false,
     val actionButtonState: AppButtonState = AppButtonState.Enabled
 )

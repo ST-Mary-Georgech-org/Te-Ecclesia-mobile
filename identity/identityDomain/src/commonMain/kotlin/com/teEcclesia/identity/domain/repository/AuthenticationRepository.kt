@@ -10,6 +10,7 @@ import com.teEcclesia.identity.domain.model.UserStatus
 
 interface AuthenticationRepository {
     suspend fun login(request: LoginRequest)
+    suspend fun reactivateAccount(nationalId: String, password: String)
     suspend fun logout()
     suspend fun refreshAccessToken(): String
     suspend fun refreshRegistrationToken(): String

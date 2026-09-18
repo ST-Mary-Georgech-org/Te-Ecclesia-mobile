@@ -10,6 +10,7 @@ import com.teEcclesia.identity.data.dataSource.local.setting.responsibleStageIds
 import com.teEcclesia.identity.data.dataSource.local.setting.responsibleYearIds
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.ReactivateAccountRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -95,6 +96,25 @@ class AuthenticationRepositoryImpl(
         val response = tryToExecute<AuthenticationResponse> {
             post(LOGIN_ENDPOINT) {
                 setBody(request.toDto(deviceToken))
+            }
+        }
+
+        settingsRepository.clearCachedProfile()
+        saveTokens(response.toDomain(), syncDeviceToken = false)
+        client.invalidateAuthTokens()
+    }
+
+    override suspend fun reactivateAccount(nationalId: String, password: String) {
+        val deviceToken = pushTokenProvider.getToken().orEmpty()
+        val response = tryToExecute<AuthenticationResponse> {
+            post(REACTIVATE_ENDPOINT) {
+                setBody(
+                    ReactivateAccountRequestDto(
+                        nationalId = nationalId,
+                        password = password,
+                        deviceToken = deviceToken.ifEmpty { null }
+                    )
+                )
             }
         }
 
@@ -391,6 +411,7 @@ class AuthenticationRepositoryImpl(
 
     companion object {
         const val LOGIN_ENDPOINT = "api/v1/identity/auth/login"
+        const val REACTIVATE_ENDPOINT = "api/v1/identity/auth/reactivate"
         const val REFRESH_ENDPOINT = "api/v1/identity/auth/refresh"
         const val REFRESH_REGISTRATION_ENDPOINT = "api/v1/identity/auth/refresh-registration"
         const val UPGRADE_REGISTRATION_TOKEN_ENDPOINT = "api/v1/identity/auth/upgrade-registration-token"

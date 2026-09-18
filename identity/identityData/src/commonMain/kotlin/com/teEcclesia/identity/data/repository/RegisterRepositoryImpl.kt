@@ -52,11 +52,12 @@ class RegisterRepositoryImpl(
     override suspend fun register(
         request: RegisterRequest,
         imageBytes: ByteArray?,
-        certificateImageBytes: ByteArray?
+        certificateImageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?
     ): TokenResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
-        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, certificateImageBytes)
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, certificateImageBytes, identityDocumentBytes)
         
         val response = tryToExecute<TokenResponseDto> {
             post(REGISTER) {
@@ -84,6 +85,13 @@ class RegisterRepositoryImpl(
                                     append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
                             }
+                            if (identityDocumentBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
+                                append("identityDocument", identityDocumentBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
                         }
                     )
                 )
@@ -96,11 +104,10 @@ class RegisterRepositoryImpl(
     override suspend fun completeProfile(
         request: CompleteProfileRequest,
         ordinationCertificateBytes: ByteArray?,
-        identityDocumentBytes: ByteArray?
     ): RegisterResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
-        val uploadTimeout = calculateUploadTimeoutMillis(ordinationCertificateBytes, identityDocumentBytes)
+        val uploadTimeout = calculateUploadTimeoutMillis(ordinationCertificateBytes)
         
         val response = tryToExecute<RegisterResponseDto> {
             post(COMPLETE_PROFILE) {
@@ -117,13 +124,6 @@ class RegisterRepositoryImpl(
                             if (ordinationCertificateBytes != null) {
                                 val (contentType, filename) = getContentTypeAndFilename(ordinationCertificateBytes, "certificate")
                                 append("certificateImage", ordinationCertificateBytes, Headers.build {
-                                    append(HttpHeaders.ContentType, contentType)
-                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
-                                })
-                            }
-                            if (identityDocumentBytes != null) {
-                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
-                                append("identityDocument", identityDocumentBytes, Headers.build {
                                     append(HttpHeaders.ContentType, contentType)
                                     append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
