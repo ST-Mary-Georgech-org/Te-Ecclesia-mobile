@@ -73,6 +73,7 @@ private fun ForgotPasswordContent(
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val isPhoneInput = isValidPhoneInput(state.identifier)
+    val isEgyptPhoneInput = isPhoneInput && !state.identifier.startsWith("+")
 
     LazyColumn(
         modifier = Modifier
@@ -134,8 +135,8 @@ private fun ForgotPasswordContent(
                         } else {
                             Theme.typography.bodyLarge
                         },
-                        prefixText = if (isPhoneInput && !isRtl) "+2" else null,
-                        suffixText = if (isPhoneInput && isRtl) "+2" else null,
+                        prefixText = if (isEgyptPhoneInput && !isRtl) "+2" else null,
+                        suffixText = if (isEgyptPhoneInput && isRtl) "+2" else null,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Ascii,

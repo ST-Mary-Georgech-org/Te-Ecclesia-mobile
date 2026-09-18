@@ -140,6 +140,8 @@
     <string name="error_child_already_added">Child has already been added</string>
     <string name="upload_ordination_certificate">Upload Ordination Certificate (Optional)</string>
     <string name="upload_identity_card">Upload National ID Card (Optional)</string>
+    <string name="upload_national_id_card">Upload National ID Card</string>
+    <string name="national_id_card_required">Please upload National ID or Birth Certificate</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>
     <string name="file_identity_card">National ID Card</string>
 
@@ -149,6 +151,7 @@
     <string name="from_gallery">From Gallery</string>
     <string name="from_files">From Files</string>
     <string name="view_photo">View Photo</string>
+    <string name="delete_photo">Delete Photo</string>
     <string name="account_and_contact">Account &amp; Contact</string>
 
     <!-- Operation Error Titles & Messages -->
@@ -224,6 +227,8 @@
     <string name="can_approve_new_requests">Can approve new requests?</string>
     <string name="responsible_stages_optional">Responsible stages (optional)</string>
     <string name="responsible_years_optional">Responsible years (optional)</string>
+    <string name="i_am_also_a_parent">I am also a parent</string>
+    <string name="family_information">Family Information</string>
     <string name="add_your_child">Add your child</string>
     <string name="partner_optional">Partner (optional)</string>
     <string name="partner_search_hint">partner phone/national id/code/verified email</string>
@@ -359,4 +364,62 @@
     <string name="no_stage">None</string>
     <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
     <string name="maximum_stages_reached">Cannot select more than 10 educational stages</string>
+    <string name="view_attendance_history">View Attendance History</string>
+    <string name="attendance_history">Attendance History</string>
+    <string name="failed_to_load_attendance_history">Failed to load attendance history</string>
+    <string name="no_attendance_history_found">No attendance history recorded</string>
+    <string name="total_attended_sessions">Total Attended Sessions</string>
+    <string name="attended_at">Recorded at</string>
+
+    <!-- Admin Send Notification Strings -->
+    <string name="send_notification">Send Notification</string>
+    <string name="notification_title">Notification Title</string>
+    <string name="notification_title_hint">Enter a clear, concise title</string>
+    <string name="notification_body">Notification Message</string>
+    <string name="notification_body_hint">Write the notification content here...</string>
+    <string name="target_recipients">Target Recipients</string>
+    <string name="specific_users">Specific Users</string>
+    <string name="target_group">Target Group</string>
+    <string name="add_payload_field">Add Custom Data (Payload)</string>
+    <string name="payload_key">Key</string>
+    <string name="payload_value">Value</string>
+    <string name="send">Send</string>
+    <string name="notification_sent_successfully">Notification sent successfully</string>
+    <string name="failed_to_send_notification">Failed to send notification</string>
+    <string name="please_enter_notification_title">Please enter a title for the notification</string>
+    <string name="please_enter_notification_body">Please enter the notification message</string>
+    <string name="please_select_recipients">Please select at least one recipient</string>
+    <string name="custom_payload">Custom Payload (Optional)</string>
+    <string name="no_notifications">No notifications yet</string>
+    <string name="failed_to_load_notifications">Failed to load notifications</string>
+    <string name="file_size_exceeded_limit">The selected file exceeds the maximum allowed size of 10 MB</string>
+
+    <!-- Account Deletion & Reactivation Strings -->
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_title">Delete Your Account</string>
+    <string name="delete_account_warning">Warning: Deleting your account will submit a deletion request. You will be logged out immediately. You can reactivate your account at any time using your national ID and password.</string>
+    <string name="delete_account_reason_hint">Enter reason for deletion...</string>
+    <string name="delete_account_password_hint">Enter your password to confirm</string>
+    <string name="confirm_delete_account">Confirm Deletion</string>
+    <string name="account_deleted_successfully">Account deletion requested successfully</string>
+    <string name="failed_to_delete_account">Failed to request account deletion</string>
+    <string name="deletion_requests">Account Deletion Requests</string>
+    <string name="no_deletion_requests_found">No deletion requests available</string>
+    <string name="approve_deletion">Approve Deletion</string>
+    <string name="reject_deletion">Restore Account</string>
+    <string name="deletion_approved_successfully">Deletion request approved</string>
+    <string name="account_restored_successfully">Account restored successfully</string>
+    <string name="failed_to_approve_deletion">Failed to approve deletion</string>
+    <string name="failed_to_restore_account">Failed to restore account</string>
+    <string name="failed_to_load_deletion_requests">Failed to load deletion requests</string>
+    <string name="reactivate_account">Reactivate Account</string>
+    <string name="deleted_account_found">A previously deleted account with this National ID was found.</string>
+    <string name="reactivate_account_prompt">Enter your password to restore your account, or reset your password if you forgot it.</string>
+    <string name="failed_to_reactivate_account">Failed to reactivate account</string>
+    <string name="account_reactivated_successfully">Account reactivated successfully</string>
+    <string name="deletion_reason">Deletion Reason</string>
+    <string name="requested_at">Requested At</string>
+    <string name="review_deletion_request">Review Deletion Request</string>
+    <string name="reactivate_account_reset_password_notice">This account was previously deleted. Setting a new password will automatically reactivate and restore your account.</string>
+    <string name="password_reset_and_account_reactivated_successfully">Password reset and account reactivated successfully</string>
 </resources>

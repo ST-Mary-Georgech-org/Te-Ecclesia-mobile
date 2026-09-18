@@ -252,7 +252,7 @@ fun CustomTextField(
             isError = showError,
             textStyle = textStyle.copy(
                 color = textColor,
-                textAlign = TextAlign.Start
+                textAlign = textStyle.textAlign.takeIf { it != TextAlign.Unspecified } ?: TextAlign.Start
             ),
             prefix = rememberedPrefix,
             suffix = rememberedSuffix,

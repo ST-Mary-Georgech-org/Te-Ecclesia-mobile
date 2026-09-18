@@ -52,8 +52,8 @@ fun ContactInfoFields(
             errorText = phoneError,
             supportingText = supportingTextPhone,
             textStyle = Theme.typography.bodyLarge.copy(textDirection = TextDirection.Ltr),
-            prefixText = if (!isRtl) { "+2" } else null,
-            suffixText = if (isRtl) { "+2" } else null,
+            prefixText = if (!isRtl && !phone.startsWith("+")) { "+2" } else null,
+            suffixText = if (isRtl && !phone.startsWith("+")) { "+2" } else null,
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Next)
         )

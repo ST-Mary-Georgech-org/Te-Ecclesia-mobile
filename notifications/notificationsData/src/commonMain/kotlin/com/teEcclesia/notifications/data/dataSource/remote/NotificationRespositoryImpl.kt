@@ -15,6 +15,10 @@ import io.ktor.client.HttpClient
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
+import com.teEcclesia.notifications.data.dataSource.remote.dto.toDto
+import com.teEcclesia.notifications.domain.model.AdminSendNotificationParam
 
 class NotificationRespositoryImpl(
     client: HttpClient
@@ -38,6 +42,14 @@ class NotificationRespositoryImpl(
     override suspend fun markAllAsRead() {
         tryToExecute<Unit> {
             patch("/api/v1/notifications/mark-all-read")
+        }
+    }
+
+    override suspend fun sendAdminNotification(param: AdminSendNotificationParam) {
+        tryToExecute<Unit> {
+            post("/api/v1/admin/notifications/send") {
+                setBody(param.toDto())
+            }
         }
     }
 }

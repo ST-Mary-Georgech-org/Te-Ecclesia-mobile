@@ -31,6 +31,7 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.screen.register.components.AvatarPicker
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestInteractionListener
@@ -68,13 +69,17 @@ import teecclesia.designsystem.generated.resources.next_step
 import teecclesia.designsystem.generated.resources.optional_password_hint
 import teecclesia.designsystem.generated.resources.password
 import teecclesia.designsystem.generated.resources.personal_info
+import teecclesia.designsystem.generated.resources.upload_national_id_card
+import teecclesia.designsystem.generated.resources.file_identity_card
 import teecclesia.designsystem.generated.resources.should_have_whatsapp
+import teecclesia.designsystem.generated.resources.view_attendance_history
 
 @Composable
 fun ReviewStep1Content(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier,
+    onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
     val scrollState = rememberScrollState()
 
@@ -125,6 +130,15 @@ fun ReviewStep1Content(
                     )
                 }
             }
+        }
+
+        if (state.isUpdateMode && state.userId.isNotBlank()) {
+            AppButton(
+                text = stringResource(Res.string.view_attendance_history),
+                onClick = listener::onClickViewAttendanceHistory,
+                type = AppButtonType.Secondary,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
 
         ReviewSectionCard(
@@ -191,6 +205,18 @@ fun ReviewStep1Content(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
                 )
+            )
+
+            ReviewFilePickerRow(
+                label = stringResource(Res.string.upload_national_id_card),
+                fileTitle = stringResource(Res.string.file_identity_card),
+                fileName = state.identityCertificateFileName,
+                fileBytes = state.identityCertificateBytes,
+                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                onClearClick = {
+                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                },
+                onFileClick = onFileClickIdentityCertificate
             )
 
             CustomTextField(
@@ -336,6 +362,9 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onClickViewAttendanceHistory() {}
+        override fun onDocumentScannerOpened() {}
+        override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
 
@@ -377,8 +406,8 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onClickIdentityCertificate() {}
 
         override fun onSelectImageBytes(
-            target: UploadTarget,
-            bytes: ByteArray?,
+            target: UploadTarget?,
+            bytes: SafeByteArray?,
             fileName: String?
         ) {
         }
@@ -422,6 +451,7 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onChildQueryChange(query: String) {}
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
+        override fun onToggleAlsoParent(enabled: Boolean) {}
 
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}

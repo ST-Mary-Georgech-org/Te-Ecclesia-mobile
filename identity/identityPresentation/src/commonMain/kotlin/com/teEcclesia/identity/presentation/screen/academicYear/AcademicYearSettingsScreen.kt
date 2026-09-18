@@ -68,10 +68,9 @@ fun AcademicYearSettingsScreen(
 private fun AcademicYearSettingsContent(
     state: AcademicYearSettingsUiState,
     listener: AcademicYearSettingsInteractionListener,
-    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(Theme.colorScheme.background)
             .statusBarsPadding()

@@ -40,22 +40,31 @@ import com.teEcclesia.shared.domain.utils.PagedData
 
 import com.teEcclesia.shared.domain.push.PushTokenProvider
 
+import io.ktor.client.plugins.timeout
+import com.teEcclesia.identity.data.utils.calculateUploadTimeoutMillis
+
 class RegisterRepositoryImpl(
     client: HttpClient,
     private val authenticationRepository: AuthenticationRepository,
-    private val pushTokenProvider: PushTokenProvider,
+    private val pushTokenProvider: PushTokenProvider
 ) : BaseRepository(client), RegisterRepository {
 
     override suspend fun register(
         request: RegisterRequest,
         imageBytes: ByteArray?,
-        certificateImageBytes: ByteArray?
+        certificateImageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?
     ): TokenResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, certificateImageBytes, identityDocumentBytes)
         
         val response = tryToExecute<TokenResponseDto> {
             post(REGISTER) {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -76,6 +85,13 @@ class RegisterRepositoryImpl(
                                     append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })
                             }
+                            if (identityDocumentBytes != null) {
+                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
+                                append("identityDocument", identityDocumentBytes, Headers.build {
+                                    append(HttpHeaders.ContentType, contentType)
+                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
+                                })
+                            }
                         }
                     )
                 )
@@ -88,13 +104,17 @@ class RegisterRepositoryImpl(
     override suspend fun completeProfile(
         request: CompleteProfileRequest,
         ordinationCertificateBytes: ByteArray?,
-        identityDocumentBytes: ByteArray?
     ): RegisterResponse {
         val deviceToken = pushTokenProvider.getToken()
         val requestJson = Json.encodeToString(request.toDto(deviceToken))
+        val uploadTimeout = calculateUploadTimeoutMillis(ordinationCertificateBytes)
         
         val response = tryToExecute<RegisterResponseDto> {
             post(COMPLETE_PROFILE) {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -104,13 +124,6 @@ class RegisterRepositoryImpl(
                             if (ordinationCertificateBytes != null) {
                                 val (contentType, filename) = getContentTypeAndFilename(ordinationCertificateBytes, "certificate")
                                 append("certificateImage", ordinationCertificateBytes, Headers.build {
-                                    append(HttpHeaders.ContentType, contentType)
-                                    append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
-                                })
-                            }
-                            if (identityDocumentBytes != null) {
-                                val (contentType, filename) = getContentTypeAndFilename(identityDocumentBytes, "identityDocument")
-                                append("identityDocument", identityDocumentBytes, Headers.build {
                                     append(HttpHeaders.ContentType, contentType)
                                     append(HttpHeaders.ContentDisposition, "filename=\"$filename\"")
                                 })

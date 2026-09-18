@@ -1,6 +1,8 @@
 package com.teEcclesia.identity.presentation.di
 
+import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListViewModel
+import com.teEcclesia.identity.presentation.screen.attendance.history.AttendanceHistoryViewModel
 import com.teEcclesia.identity.presentation.screen.attendance.register.AttendanceRegisterViewModel
 import com.teEcclesia.identity.presentation.screen.attendance.services.ServicesListViewModel
 import com.teEcclesia.identity.presentation.screen.login.LoginViewModel
@@ -14,7 +16,8 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.verifyEmail.Ver
 import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.VerifyPhoneResetPasswordViewModel
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestViewModel
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchViewModel
-import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel
+import com.teEcclesia.identity.presentation.screen.deletionRequests.DeletionRequestsViewModel
+import com.teEcclesia.identity.presentation.screen.reviewDeletionRequest.ReviewDeletionRequestViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -35,6 +38,13 @@ val identityScreensModule = module {
     viewModelOf(::PendingApprovalViewModel)
     viewModelOf(::ProfileViewModel)
     viewModelOf(::RegistrationRequestsViewModel)
+    viewModelOf(::DeletionRequestsViewModel)
+    viewModel { parameters ->
+        ReviewDeletionRequestViewModel(
+            route = parameters.get(),
+            profileRepository = get()
+        )
+    }
     viewModelOf(::UsersSearchViewModel)
     viewModel {
         ServicesListViewModel(
@@ -61,6 +71,14 @@ val identityScreensModule = module {
         )
     }
     viewModel { parameters ->
+        AttendanceHistoryViewModel(
+            userId = parameters.get(),
+            userName = parameters.getOrNull<String>() ?: "",
+            attendanceRepository = get()
+        )
+    }
+
+    viewModel { parameters ->
         ReviewAndEditRequestViewModel(
             userId = parameters.getOrNull<String>(),
             isFromSearch = parameters.getOrNull<Boolean>() ?: false,
@@ -81,12 +99,14 @@ val identityScreensModule = module {
             phone = parameters.get(),
             token = parameters.get(),
             link = parameters.get(),
+            isDeletedAccount = parameters.getOrNull<Boolean>() ?: false,
             resetPasswordRepository = get()
         )
     }
     viewModel { parameters ->
         VerifyEmailResetPasswordViewModel(
             email = parameters.get(),
+            isDeletedAccount = parameters.getOrNull<Boolean>() ?: false,
             resetPasswordRepository = get()
         )
     }
@@ -95,6 +115,7 @@ val identityScreensModule = module {
             key = parameters.get(),
             otp = parameters.get(),
             isPhone = parameters.get(),
+            isDeletedAccount = parameters.getOrNull<Boolean>() ?: false,
             resetPasswordRepository = get()
         )
     }

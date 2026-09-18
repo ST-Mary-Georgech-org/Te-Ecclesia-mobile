@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.lookups.domain.model.LookupResponse
 
@@ -71,6 +72,7 @@ interface RegisterInteractionListener {
     fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
     
     // Parent search
+    fun onToggleAlsoParent(enabled: Boolean) {}
     fun onPartnerQueryChange(query: String)
     fun onSearchPartner()
     fun onRemovePartner()
@@ -85,11 +87,20 @@ interface RegisterInteractionListener {
     fun onDismissPdfViewer() {}
     fun onClickOrdinationCertificate() {}
     fun onClickIdentityCertificate() {}
-    fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?)
+    fun onDocumentScannerOpened() {}
+    fun onDocumentScanned(bytes: ByteArray?) {}
+    fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
     
     // Step 5: Verify
     fun onClickVerifyWhatsApp()
     fun onClickCheckWhatsAppStatus()
+
+    // Reactivation
+    fun onReactivatePasswordChange(value: String) {}
+    fun onToggleReactivatePasswordVisibility() {}
+    fun onDismissReactivateSheet() {}
+    fun onConfirmReactivate() {}
+    fun onClickForgotPasswordFromReactivate() {}
 
     // Pagination & Retry
     fun onLoadNextPriests()
@@ -102,3 +113,4 @@ interface RegisterInteractionListener {
 
     fun onRefresh() {}
 }
+

@@ -38,6 +38,7 @@ import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRe
 import com.teEcclesia.identity.presentation.screen.reviewRequest.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.presentation.shared.components.DeaconSchoolFields
 import com.teEcclesia.identity.presentation.shared.components.EducationalStageFields
 import com.teEcclesia.identity.presentation.shared.components.OrdinationInfoFields
@@ -68,8 +69,7 @@ fun ReviewStep2StudentContent(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
     modifier: Modifier = Modifier,
-    onFileClickOrdinationCertificate: (() -> Unit)? = null,
-    onFileClickIdentityCertificate: (() -> Unit)? = null
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -232,6 +232,7 @@ fun ReviewStep2StudentContent(
                             label = stringResource(Res.string.ordination_certificate_optional),
                             fileTitle = stringResource(Res.string.file_ordination_certificate),
                             fileName = state.ordinationCertificateFileName,
+                            fileBytes = state.ordinationCertificateBytes,
                             onUploadClick = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
                             onClearClick = {
                                 listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
@@ -285,19 +286,7 @@ fun ReviewStep2StudentContent(
                 onMotherWhatsappChange = listener::onMotherWhatsappChange,
                 motherWhatsappError = state.motherWhatsappError?.asString(),
                 isMotherWhatsappSameAsPhone = state.isMotherWhatsappSameAsPhone,
-                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone,
-                filePickerContent = {
-                    ReviewFilePickerRow(
-                        label = stringResource(Res.string.identity_card_certificate_optional),
-                        fileTitle = stringResource(Res.string.file_identity_card),
-                        fileName = state.identityCertificateFileName,
-                        onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                        onClearClick = {
-                            listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                        },
-                        onFileClick = onFileClickIdentityCertificate
-                    )
-                }
+                onToggleMotherWhatsappSameAsPhone = listener::onToggleMotherWhatsappSameAsPhone
             )
         }
     }
@@ -310,6 +299,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         userId = "123",
         isLoading = false,
         isAdmin = true,
+        isMale = true,
         isEnrolledInDeaconSchool = true,
         deaconSchoolPaidAmount = "500"
     )
@@ -322,6 +312,9 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onRejectRequest(reason: String) {}
         override fun onToggleRejectDialog(isVisible: Boolean) {}
         override fun onRefresh() {}
+        override fun onClickViewAttendanceHistory() {}
+        override fun onDocumentScannerOpened() {}
+        override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
@@ -360,7 +353,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
-        override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {}
+        override fun onSelectImageBytes(target: UploadTarget?, bytes: SafeByteArray?, fileName: String?) {}
         override fun onRoleSelected(role: UserRole) {}
         override fun onToggleRoleSheet(visible: Boolean) {}
         override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
@@ -398,6 +391,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onChildQueryChange(query: String) {}
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
+        override fun onToggleAlsoParent(enabled: Boolean) {}
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}

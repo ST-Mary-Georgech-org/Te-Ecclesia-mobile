@@ -49,7 +49,7 @@ import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.TextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
-import com.teEcclesia.identity.presentation.shared.components.EducationalStageSelectField
+import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.UserSummary
@@ -268,6 +268,9 @@ private fun ServicesListContent(
                 EducationalStageSelectField(
                     selectedStages = state.selectedStages,
                     educationalStages = state.educationalStages,
+                    itemTitle = { it.name },
+                    itemId = { it.id },
+                    isSelected = { stage -> state.selectedStages.any { it.id == stage.id } },
                     isSheetVisible = state.isStageSheetVisible,
                     onToggleSheet = listener::onToggleStageSheet,
                     onSelectStage = listener::onToggleStageSelection,

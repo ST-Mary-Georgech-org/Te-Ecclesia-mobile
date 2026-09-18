@@ -15,6 +15,10 @@ import io.ktor.client.request.setBody
 import io.ktor.client.request.parameter
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.DeleteAccountRequestDto
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.AccountDeletionRequestResponseDto
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.DeletionRequestCountDto
+import com.teEcclesia.identity.domain.model.AccountDeletionRequest
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.AcademicYearResponseDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateAcademicYearRequestDto
 import com.teEcclesia.shared.domain.model.UserRole
@@ -37,6 +41,9 @@ import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toCachedProfile
 
+import io.ktor.client.plugins.timeout
+import com.teEcclesia.identity.data.utils.calculateUploadTimeoutMillis
+
 class ProfileRepositoryImpl(
     client: HttpClient,
     private val settingsRepository: SettingsRepository,
@@ -53,6 +60,10 @@ class ProfileRepositoryImpl(
         val domainProfile = response.toDomain()
         val wasRegistrationPending = authorizationService.isRegistrationPending()
         saveUserAuthorizationDetails(domainProfile)
+
+        if (domainProfile.status == UserStatus.BANNED || domainProfile.status == UserStatus.REJECTED) {
+            sessionManager.onUserBlocked()
+        }
 
         if (wasRegistrationPending && domainProfile.status == UserStatus.APPROVED) {
             try {
@@ -124,8 +135,13 @@ class ProfileRepositoryImpl(
         ordinationCertificateBytes: ByteArray?
     ) {
         val requestJson = request?.let { Json.encodeToString(it.toDto()) }
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes, ordinationCertificateBytes)
         tryToExecute<Unit> {
             post("api/v1/users/$userId/approve") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 if (requestJson != null || imageBytes != null || identityDocumentBytes != null || ordinationCertificateBytes != null) {
                     setBody(
                         MultiPartFormDataContent(
@@ -172,8 +188,13 @@ class ProfileRepositoryImpl(
         ordinationCertificateBytes: ByteArray?
     ) {
         val requestJson = Json.encodeToString(request.toDto())
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes, ordinationCertificateBytes)
         tryToExecute<Unit> {
             patch("api/v1/users/$userId") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -222,8 +243,13 @@ class ProfileRepositoryImpl(
         identityDocumentBytes: ByteArray?
     ) {
         val requestJson = Json.encodeToString(request.toDto())
+        val uploadTimeout = calculateUploadTimeoutMillis(imageBytes, identityDocumentBytes)
         tryToExecute<ProfileResponseDto> {
             post("api/v1/users/makhdoom") {
+                timeout {
+                    requestTimeoutMillis = uploadTimeout
+                    socketTimeoutMillis = uploadTimeout
+                }
                 setBody(
                     MultiPartFormDataContent(
                         formData {
@@ -297,9 +323,53 @@ class ProfileRepositoryImpl(
         }
     }
 
+    override suspend fun requestAccountDeletion(reason: String, password: String) {
+        tryToExecute<Unit> {
+            post(DELETE_ACCOUNT_ENDPOINT) {
+                contentType(ContentType.Application.Json)
+                setBody(DeleteAccountRequestDto(reason = reason, password = password))
+            }
+        }
+    }
+
+    override suspend fun getDeletionRequests(
+        page: Int,
+        size: Int
+    ): PagedData<AccountDeletionRequest> {
+        val response = tryToExecute<BasePagedData<AccountDeletionRequestResponseDto>> {
+            get(DELETION_REQUESTS_ENDPOINT) {
+                parameter("page", page)
+                parameter("size", size)
+            }
+        }
+        return response.toPagedData { it.toDomain() }
+    }
+
+    override suspend fun getDeletionRequestCount(): Long {
+        val response = tryToExecute<DeletionRequestCountDto> {
+            get(DELETION_REQUESTS_COUNT_ENDPOINT)
+        }
+        return response.count
+    }
+
+    override suspend fun approveDeletion(requestId: String) {
+        tryToExecute<Unit> {
+            post("$DELETION_REQUESTS_ENDPOINT/$requestId/approve")
+        }
+    }
+
+    override suspend fun rejectDeletion(requestId: String) {
+        tryToExecute<Unit> {
+            post("$DELETION_REQUESTS_ENDPOINT/$requestId/reject")
+        }
+    }
+
     companion object {
         const val GET_ME_ENDPOINT = "api/v1/identity/auth/me"
         const val GET_REGISTRATION_REQUESTS_ENDPOINT = "api/v1/users/status/PENDING_APPROVAL"
         const val ACADEMIC_YEAR_ENDPOINT = "api/v1/settings/academic-year"
+        const val DELETE_ACCOUNT_ENDPOINT = "api/v1/identity/account/delete"
+        const val DELETION_REQUESTS_ENDPOINT = "api/v1/identity/admin/deletion-requests"
+        const val DELETION_REQUESTS_COUNT_ENDPOINT = "api/v1/identity/admin/deletion-requests/count"
     }
 }

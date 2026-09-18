@@ -3,8 +3,11 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.identity.api.ForgotPasswordRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
+import com.teEcclesia.identity.api.ProfileRoute
+import com.teEcclesia.shared.domain.exception.AccountDeletedException
 import com.teEcclesia.identity.domain.model.CompleteProfileRequest
 import com.teEcclesia.identity.domain.model.KahenProfileRequest
 import com.teEcclesia.identity.domain.model.KhademProfileRequest
@@ -15,6 +18,8 @@ import com.teEcclesia.identity.domain.model.Priest
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
+import com.teEcclesia.shared.domain.model.SafeByteArray
+import com.teEcclesia.shared.domain.model.toSafeByteArray
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
@@ -22,7 +27,7 @@ import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
@@ -48,16 +53,19 @@ import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
+import com.teEcclesia.designsystem.utils.compressImage
+import com.teEcclesia.identity.presentation.util.generateScannedFileName
+import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.account_reactivated_successfully
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_complete_profile
-import teecclesia.designsystem.generated.resources.failed_to_load_areas
-import teecclesia.designsystem.generated.resources.failed_to_load_priests
-import teecclesia.designsystem.generated.resources.failed_to_load_ranks
-import teecclesia.designsystem.generated.resources.failed_to_load_educational_stages
+import teecclesia.designsystem.generated.resources.failed_to_reactivate_account
 import teecclesia.designsystem.generated.resources.failed_to_register
+import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.failed_to_search_child
 import teecclesia.designsystem.generated.resources.failed_to_search_partner
 import teecclesia.designsystem.generated.resources.failed_to_verify_whatsapp
@@ -67,6 +75,7 @@ import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
+import teecclesia.designsystem.generated.resources.national_id_card_required
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -185,17 +194,18 @@ class RegisterViewModel(
                         profile.firstName.isNotBlank() && profile.lastName.isNotBlank() -> 2
                         else -> 1
                     }
-                    val cleanedPhone = profile.phone.removePrefix("+2")
+                    val cleanedPhone = if (profile.phone.startsWith("+201")) profile.phone.removePrefix("+2") else profile.phone
                     val cleanedHomePhone = profile.homePhone.removePrefix("02")
+                    val cleanedExternalPriestPhone = if (profile.externalConfessionPhone.startsWith("+201")) profile.externalConfessionPhone.removePrefix("+2") else profile.externalConfessionPhone
                     val makhdoom = profile.makhdoomProfile
                     val ordination = profile.ordinationProfile
                     val khadem = profile.khademProfile
-                    val preloadedFatherPhone = makhdoom?.fatherPhone?.removePrefix("+2") ?: ""
-                    val preloadedFatherWhatsapp = makhdoom?.fatherWhatsapp?.removePrefix("+2") ?: ""
+                    val preloadedFatherPhone = makhdoom?.fatherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                    val preloadedFatherWhatsapp = makhdoom?.fatherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                     val isFatherSame = preloadedFatherWhatsapp.isBlank() || preloadedFatherWhatsapp == preloadedFatherPhone
 
-                    val preloadedMotherPhone = makhdoom?.motherPhone?.removePrefix("+2") ?: ""
-                    val preloadedMotherWhatsapp = makhdoom?.motherWhatsapp?.removePrefix("+2") ?: ""
+                    val preloadedMotherPhone = makhdoom?.motherPhone?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
+                    val preloadedMotherWhatsapp = makhdoom?.motherWhatsapp?.let { if (it.startsWith("+201")) it.removePrefix("+2") else it } ?: ""
                     val isMotherSame = preloadedMotherWhatsapp.isBlank() || preloadedMotherWhatsapp == preloadedMotherPhone
                     updateState {
                         copy(
@@ -211,7 +221,7 @@ class RegisterViewModel(
                             isFromAnotherChurch = profile.confessionPriest == null && profile.externalConfessionPriestName.isNotBlank(),
                             externalPriestName = profile.externalConfessionPriestName,
                             externalPriestChurch = profile.externalConfessionChurch,
-                            externalPriestPhone = profile.externalConfessionPhone,
+                            externalPriestPhone = cleanedExternalPriestPhone,
                             phone = cleanedPhone,
                             homePhone = cleanedHomePhone,
                             email = profile.email,
@@ -252,10 +262,13 @@ class RegisterViewModel(
                             bishopName = ordination?.bishopName ?: "",
                             ordinationPlace = ordination?.ordinationPlace ?: "",
                             ordinationCertificateFileName = ordination?.certificateImageUrl,
-                            identityCertificateFileName = makhdoom?.identityDocumentImageUrl ?: profile.parentProfile?.nationalIdImageUrl,
+                            identityCertificateFileName = profile.identityDocumentImageUrl,
 
                             kahenEducationalStages = profile.kahenProfile?.educationalStages
                                 ?: emptyList(),
+                            isAlsoParent = (profile.role == UserRole.KHADEM || profile.role == UserRole.KAHEN) && profile.parentProfile != null,
+                            selectedPartner = profile.parentProfile?.partner,
+                            selectedChildren = profile.parentProfile?.children ?: emptyList(),
                             currentStep = targetStep
                         )
                     }
@@ -385,6 +398,10 @@ class RegisterViewModel(
         val externalPhoneErr =
             if (s.isFromAnotherChurch && !validatePhone(s.externalPriestPhone)) UiText.StringRes(Res.string.invalid_phone_format) else null
 
+        val identityCertificateError = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
+            UiText.StringRes(Res.string.national_id_card_required)
+        } else null
+
         val hasError = listOfNotNull(
             firstNameError,
             secondNameError,
@@ -392,6 +409,7 @@ class RegisterViewModel(
             lastNameError,
             displayNameError,
             nationalIdError,
+            identityCertificateError,
             confessionPriestErr,
             externalNameErr,
             externalChurchErr,
@@ -406,6 +424,7 @@ class RegisterViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                identityCertificateError = identityCertificateError,
                 isMale = isMale,
                 confessionPriestError = confessionPriestErr,
                 externalPriestNameError = externalNameErr,
@@ -595,6 +614,7 @@ class RegisterViewModel(
                 email = s.email.ifBlank { null },
                 password = s.password,
                 imageUrl = null,
+                identityDocumentImageUrl = s.identityCertificateFileName,
                 buildingNo = s.buildingNo,
                 street = s.street,
                 streetBranch = s.streetBranch.ifBlank { null },
@@ -612,7 +632,8 @@ class RegisterViewModel(
                 block = {
                     val tokenResponse = registerRepository.register(
                         request = registerRequest,
-                        imageBytes = s.imageBytes,
+                        imageBytes = s.imageBytes?.bytes,
+                        identityDocumentBytes = s.identityCertificateBytes?.bytes,
                         certificateImageBytes = null
                     )
                     authenticationRepository.saveRegistrationToken(
@@ -626,11 +647,21 @@ class RegisterViewModel(
                     updateState { copy(currentStep = 3) }
                 },
                 onError = { throwable ->
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.failed_to_register),
-                        message = getLocalizedErrorMessage(throwable),
-                        isSuccess = false
-                    )
+                    if (throwable is AccountDeletedException) {
+                        updateState {
+                            copy(
+                                isReactivateSheetVisible = true,
+                                reactivatePassword = "",
+                                reactivateButtonState = AppButtonState.Enabled
+                            )
+                        }
+                    } else {
+                        showSnackBar(
+                            title = UiText.StringRes(Res.string.failed_to_register),
+                            message = getLocalizedErrorMessage(throwable),
+                            isSuccess = false
+                        )
+                    }
                 },
                 onEnd = { updateState { copy(isLoading = false, actionButtonState = AppButtonState.Enabled) } }
             )
@@ -831,14 +862,9 @@ class RegisterViewModel(
                     } else null
                 } else null
 
-                val identityCertificateErr = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
-                    UiText.StringRes(Res.string.field_required)
-                } else null
-
                 val hasError = listOfNotNull(
                     rankErr, stageErr, yearErr, ordinationYearErr,
-                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr,
-                    identityCertificateErr
+                    fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr
                 ).isNotEmpty()
                 updateState {
                     copy(
@@ -849,8 +875,7 @@ class RegisterViewModel(
                         fatherPhoneError = fatherPhoneErr,
                         fatherWhatsappError = fatherWhatsappErr,
                         motherPhoneError = motherPhoneErr,
-                        motherWhatsappError = motherWhatsappErr,
-                        identityCertificateError = identityCertificateErr
+                        motherWhatsappError = motherWhatsappErr
                     )
                 }
                 if (hasError) return
@@ -889,8 +914,29 @@ class RegisterViewModel(
             else -> {}
         }
 
+        if ((role == UserRole.KHADEM || role == UserRole.KAHEN) && s.isAlsoParent) {
+            if (s.isPartnerLoading || s.isChildLoading) return
+            if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_partner),
+                    isSuccess = false
+                )
+                return
+            }
+            if (s.childQuery.isNotBlank()) {
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    message = UiText.StringRes(Res.string.error_forgot_to_click_plus_child),
+                    isSuccess = false
+                )
+                return
+            }
+        }
+
         val request = CompleteProfileRequest(
             role = role,
+            identityDocumentImageUrl = s.identityCertificateFileName,
             khademProfile = if (role == UserRole.KHADEM) KhademProfileRequest(
                 educationalStageId = s.servantEducationalStage?.id ?: 1L,
                 educationalYearId = s.servantEducationalYear?.id
@@ -916,7 +962,7 @@ class RegisterViewModel(
                 motherPhone = s.motherPhone.ifBlank { null },
                 motherWhatsapp = (if (s.isMotherWhatsappSameAsPhone) s.motherPhone else s.motherWhatsapp).ifBlank { null }
             ) else null,
-            parentProfile = if (role == UserRole.PARENT) ParentProfileRequest(
+            parentProfile = if (role == UserRole.PARENT || ((role == UserRole.KHADEM || role == UserRole.KAHEN) && s.isAlsoParent)) ParentProfileRequest(
                 partnerCode = s.selectedPartner?.code,
                 childrenCodes = s.selectedChildren.mapNotNull { it.code }
             ) else null
@@ -926,8 +972,7 @@ class RegisterViewModel(
             block = {
                 registerRepository.completeProfile(
                     request = request,
-                    ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes else null,
-                    identityDocumentBytes = s.identityCertificateBytes
+                    ordinationCertificateBytes = if (s.isMale != false) s.ordinationCertificateBytes?.bytes else null,
                 )
             },
             onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
@@ -1126,6 +1171,10 @@ class RegisterViewModel(
         }
     }
 
+    override fun onToggleAlsoParent(enabled: Boolean) {
+        updateState { copy(isAlsoParent = enabled) }
+    }
+
     override fun onPartnerQueryChange(query: String) {
         updateState { copy(partnerQuery = query, partnerError = null) }
     }
@@ -1215,7 +1264,7 @@ class RegisterViewModel(
     }
 
     override fun onDismissUploadBottomSheet() {
-        updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
+        updateState { copy(isUploadBottomSheetVisible = false) }
     }
 
     override fun onDismissImageViewer() {
@@ -1237,13 +1286,36 @@ class RegisterViewModel(
     }
 
     override fun onClickIdentityCertificate() {
-        val bytes = state.value.identityCertificateBytes ?: return
-        val isPdf = state.value.identityCertificateFileName?.endsWith(".pdf", ignoreCase = true) == true
-        if (isPdf) {
-            updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
-        } else {
-            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+        val bytes = state.value.identityCertificateBytes
+        val fileName = state.value.identityCertificateFileName
+        val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (bytes != null) {
+            if (isPdf) {
+                updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+            } else {
+                updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+            }
+        } else if (!fileName.isNullOrBlank() && !isPdf) {
+            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
         }
+    }
+
+    private suspend fun processFile(
+        rawBytes: ByteArray,
+        defaultFileName: String? = null,
+        onProcessed: (SafeByteArray, String) -> Unit
+    ) {
+        val processedBytes = compressImage(rawBytes)
+        if (!validateFileSizes(processedBytes)) {
+            showSnackBar(
+                title = UiText.StringRes(Res.string.error_occurred),
+                message = UiText.StringRes(Res.string.file_size_exceeded_limit),
+                isSuccess = false
+            )
+            return
+        }
+        val fileName = defaultFileName ?: generateScannedFileName(processedBytes)
+        onProcessed(processedBytes.toSafeByteArray(), fileName)
     }
 
     fun onFileOptionPicked(option: FilePickOption) {
@@ -1252,9 +1324,42 @@ class RegisterViewModel(
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
             return
         }
+        if (option == FilePickOption.CAMERA) {
+            if (target == UploadTarget.PROFILE_PHOTO) {
+                launch {
+                    val file = FileKit.openCameraPicker(type = FileKitCameraType.Photo) ?: return@launch
+                    processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                        onSelectImageBytes(target, safeBytes, fileName)
+                    }
+                }
+            } else {
+                updateState {
+                    copy(shouldOpenDocumentScanner = true)
+                }
+            }
+            return
+        }
+        if (option == FilePickOption.DELETE) {
+            when (target) {
+                UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = null, imageUrl = null) }
+                UploadTarget.ORDINATION_CERTIFICATE -> updateState {
+                    copy(
+                        ordinationCertificateBytes = null,
+                        ordinationCertificateFileName = null
+                    )
+                }
+                UploadTarget.IDENTITY_CERTIFICATE -> updateState {
+                    copy(
+                        identityCertificateBytes = null,
+                        identityCertificateFileName = null,
+                        identityCertificateError = null
+                    )
+                }
+            }
+            return
+        }
         launch {
             val file = when (option) {
-                FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
                 FilePickOption.GALLERY -> FileKit.openFilePicker(
                     type = FileKitType.Image,
                     mode = FileKitMode.Single
@@ -1267,16 +1372,31 @@ class RegisterViewModel(
                     mode = FileKitMode.Single
                 )
 
-                FilePickOption.VIEW -> null
+                FilePickOption.CAMERA, FilePickOption.VIEW, FilePickOption.DELETE -> null
             }
             if (file == null) return@launch
-            val bytes = file.readBytes()
-            val fileName = file.name
-            onSelectImageBytes(target, bytes, fileName)
+            processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
+            }
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: ByteArray?, fileName: String?) {
+    override fun onDocumentScannerOpened() {
+        updateState { copy(shouldOpenDocumentScanner = false) }
+    }
+
+    override fun onDocumentScanned(bytes: ByteArray?) {
+        val target = state.value.activeUploadTarget
+        updateState { copy(activeUploadTarget = null) }
+        if (bytes == null || target == null) return
+        launch {
+            processFile(bytes) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
+            }
+        }
+    }
+
+    override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {
@@ -1350,5 +1470,61 @@ class RegisterViewModel(
         ranksPaginator.reset()
         stagesPaginator.reset()
         checkAndLoadPendingRegistration()
+    }
+
+    override fun onReactivatePasswordChange(value: String) {
+        updateState { copy(reactivatePassword = value) }
+    }
+
+    override fun onToggleReactivatePasswordVisibility() {
+        updateState { copy(isReactivatePasswordVisible = !isReactivatePasswordVisible) }
+    }
+
+    override fun onDismissReactivateSheet() {
+        updateState { copy(isReactivateSheetVisible = false) }
+    }
+
+    override fun onConfirmReactivate() {
+        val nationalId = state.value.nationalId.trim()
+        val password = state.value.reactivatePassword.trim()
+        if (password.isBlank() || nationalId.isBlank()) return
+
+        tryToCall(
+            onStart = { updateState { copy(reactivateButtonState = AppButtonState.Loading) } },
+            block = {
+                authenticationRepository.reactivateAccount(nationalId, password)
+                profileRepository.getRegistrationProfile()
+            },
+            onSuccess = { profile ->
+                updateState {
+                    copy(
+                        isReactivateSheetVisible = false,
+                        reactivateButtonState = AppButtonState.Enabled
+                    )
+                }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.account_reactivated_successfully),
+                    isSuccess = true
+                )
+                when (profile.status) {
+                    UserStatus.PENDING_APPROVAL -> resetTo(PendingApprovalRoute, forceNavigate = true)
+                    UserStatus.APPROVED -> resetTo(ProfileRoute, forceNavigate = true)
+                    else -> resetTo(ProfileRoute, forceNavigate = true)
+                }
+            },
+            onError = { throwable ->
+                updateState { copy(reactivateButtonState = AppButtonState.Enabled) }
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_reactivate_account),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            }
+        )
+    }
+
+    override fun onClickForgotPasswordFromReactivate() {
+        updateState { copy(isReactivateSheetVisible = false) }
+        navigate(ForgotPasswordRoute(key = state.value.nationalId))
     }
 }

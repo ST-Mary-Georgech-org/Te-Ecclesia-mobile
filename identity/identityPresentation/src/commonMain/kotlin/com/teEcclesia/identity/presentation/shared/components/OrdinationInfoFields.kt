@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.menu.DropdownMenu
 import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
 import com.teEcclesia.designsystem.components.radioButton.RadioButton
+import com.teEcclesia.designsystem.components.sheet.LookupContentContainer
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
@@ -26,6 +27,7 @@ import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerCard
 import com.teEcclesia.lookups.domain.model.LookupResponse
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
@@ -63,6 +65,7 @@ fun OrdinationInfoFields(
     ordinationPlace: String,
     onOrdinationPlaceChange: (String) -> Unit,
     ordinationCertificateFileName: String? = null,
+    ordinationCertificateBytes: SafeByteArray? = null,
     onUploadOrdinationCertificate: () -> Unit = {},
     onClearOrdinationCertificate: () -> Unit = {},
     isRankLoading: Boolean = false,
@@ -241,6 +244,7 @@ fun OrdinationInfoFields(
                         title = stringResource(Res.string.upload_ordination_certificate),
                         fileTitle = stringResource(Res.string.file_ordination_certificate),
                         fileName = ordinationCertificateFileName,
+                        fileBytes = ordinationCertificateBytes,
                         onUploadClick = onUploadOrdinationCertificate,
                         onClearClick = onClearOrdinationCertificate,
                         onFileClick = onFileClickOrdinationCertificate

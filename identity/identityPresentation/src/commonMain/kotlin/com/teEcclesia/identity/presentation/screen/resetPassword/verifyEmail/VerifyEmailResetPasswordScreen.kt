@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.resetPassword.verifyEmail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -11,8 +12,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,15 +27,20 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.OtpInputField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.asString
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.deleted_account_found
 import teecclesia.designsystem.generated.resources.didnt_receive_code
+import teecclesia.designsystem.generated.resources.ic_profile
+import teecclesia.designsystem.generated.resources.reactivate_account_reset_password_notice
 import teecclesia.designsystem.generated.resources.resend
 import teecclesia.designsystem.generated.resources.verify_code
 import teecclesia.designsystem.generated.resources.verify_email_reset_subtitle
@@ -40,7 +49,10 @@ import teecclesia.designsystem.generated.resources.verify_email_title
 @Composable
 fun VerifyEmailResetPasswordScreen(
     email: String,
-    viewModel: VerifyEmailResetPasswordViewModel = koinViewModel(parameters = { parametersOf(email) })
+    isDeletedAccount: Boolean,
+    viewModel: VerifyEmailResetPasswordViewModel = koinViewModel(
+        parameters = { parametersOf(email, isDeletedAccount) }
+    )
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     VerifyEmailResetPasswordContent(
@@ -77,8 +89,50 @@ fun VerifyEmailResetPasswordContent(
                 text = stringResource(Res.string.verify_email_reset_subtitle),
                 style = Theme.typography.bodyMedium,
                 color = Theme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = if (state.isDeletedAccount) 16.dp else 32.dp)
             )
+        }
+
+        if (state.isDeletedAccount) {
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Theme.colorScheme.surfaceContainerHighest,
+                    border = BorderStroke(1.dp, Theme.colorScheme.outlineVariant)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_profile),
+                                contentDescription = null,
+                                tint = Theme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(Res.string.deleted_account_found),
+                                style = Theme.typography.titleMedium,
+                                color = Theme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = stringResource(Res.string.reactivate_account_reset_password_notice),
+                            style = Theme.typography.bodyMedium,
+                            color = Theme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
 
         item {
@@ -132,7 +186,8 @@ private fun VerifyEmailResetPasswordScreenPreview() = Theme {
     VerifyEmailResetPasswordContent(
         state = VerifyEmailResetPasswordUiState(
             email = "test@example.com",
-            otpCode = "1810"
+            otpCode = "1810",
+            isDeletedAccount = true
         ),
         interactionListener = object : VerifyEmailResetPasswordInteractionListener {
             override fun onOtpChange(value: String) {}

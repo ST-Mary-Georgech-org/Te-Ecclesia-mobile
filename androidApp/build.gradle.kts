@@ -1,4 +1,5 @@
 import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.util.Properties
 
 plugins {
@@ -70,6 +71,8 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            isDebuggable = false
+            isJniDebuggable = false
             configure<CrashlyticsExtension> {
                 mappingFileUploadEnabled = true
             }
@@ -79,7 +82,6 @@ android {
 
             ndk {
                 debugSymbolLevel = "FULL"
-                abiFilters.addAll(setOf("armeabi-v7a", "arm64-v8a"))
             }
 
             proguardFiles(
@@ -92,7 +94,7 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        jvmTarget.set(JvmTarget.JVM_11)
     }
 }
 

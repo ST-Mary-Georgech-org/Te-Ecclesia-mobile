@@ -34,9 +34,12 @@ kotlin {
                 implementation(projects.logging)
 
                 implementation(libs.qr.kit)
+                implementation(libs.easydocumentscanner.compose)
+                implementation(libs.easydocumentscanner.core)
                 implementation(libs.moko.permissions)
                 implementation(libs.moko.permissions.compose)
                 implementation(libs.moko.permissions.camera)
+                implementation(projects.shared.sharedDomain)
             }
         }
 
@@ -45,6 +48,7 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.poolingcontainer)
                 implementation(libs.firebase.crashlytics)
+                implementation(libs.androidx.exifinterface)
             }
         }
     }

@@ -8,7 +8,7 @@ import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
 import com.teEcclesia.identity.domain.model.VerificationMethod
 import com.teEcclesia.identity.domain.repository.ResetPasswordRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.shared.domain.utils.validation.isValidEgyptianNationalId
 import com.teEcclesia.shared.domain.utils.validation.isValidFinalEmail
 import com.teEcclesia.shared.domain.utils.validation.validatePhone
@@ -52,16 +52,23 @@ class ForgotPasswordViewModel(
                 resetPasswordRepository.requestOTP(key = input, method = method)
             },
             onSuccess = { response ->
+                val isDeletedAccount = response?.isDeletedAccount ?: false
                 if (isPhone || isNationalId || isCode) {
                     navigate(
                         VerifyPhoneResetPasswordRoute(
                             phone = input,
                             token = response?.token ?: "",
-                            link = response?.link ?: ""
+                            link = response?.link ?: "",
+                            isDeletedAccount = isDeletedAccount
                         )
                     )
                 } else {
-                    navigate(VerifyEmailResetPasswordRoute(email = input))
+                    navigate(
+                        VerifyEmailResetPasswordRoute(
+                            email = input,
+                            isDeletedAccount = isDeletedAccount
+                        )
+                    )
                 }
             },
             onError = { error ->

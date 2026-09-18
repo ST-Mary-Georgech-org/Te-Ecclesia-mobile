@@ -10,14 +10,11 @@ import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.PendingApprovalRoute
 import com.teEcclesia.identity.api.ProfileRoute
 import com.teEcclesia.identity.api.SignUpRoute
-import com.teEcclesia.identity.api.VerifyPhoneRoute
-import com.teEcclesia.identity.domain.model.AuthState
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.shared.domain.push.PushTokenProvider
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 
 class MainEntryViewModel(
@@ -27,6 +24,20 @@ class MainEntryViewModel(
     private val pushTokenProvider: PushTokenProvider,
 ) : BaseViewModel<MainEntryState>(MainEntryState()),
     MainEntryInteractionListener {
+
+    val startDestination: NavKey = getInitialRoute()
+
+    private fun getInitialRoute(): NavKey {
+        val accessToken = authorizationService.getAccessToken()
+        if (accessToken.isBlank()) return LoginRoute
+        return when (authorizationService.getUserStatus()) {
+            UserStatus.PENDING_APPROVAL -> PendingApprovalRoute
+            UserStatus.APPROVED -> ProfileRoute
+            UserStatus.PROFILE_INCOMPLETE, UserStatus.UNVERIFIED -> SignUpRoute()
+            UserStatus.REJECTED, UserStatus.BANNED -> LoginRoute
+            null -> ProfileRoute
+        }
+    }
 
     init {
         launch {
@@ -50,11 +61,8 @@ class MainEntryViewModel(
         }
     }
 
-    private var lastHandledAuthState: AuthState? = null
-    private var job: Job? = null
-
     fun syncPushTokenIfLoggedIn() {
-        if (authorizationService.observeAuthState().value == AuthState.AUTHENTICATED) {
+        if (authorizationService.getAccessToken().isNotBlank()) {
             launch {
                 try {
                     val token = pushTokenProvider.getToken()
@@ -63,96 +71,6 @@ class MainEntryViewModel(
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
-                }
-            }
-        }
-    }
-
-
-    fun handleAuthState(authState: AuthState, currentRoute: NavKey?) {
-        job?.cancel()
-        job = launch {
-            val isStateChanged = lastHandledAuthState != authState
-            lastHandledAuthState = authState
-
-            val isUnauthRoute = currentRoute == LoginRoute
-                    || currentRoute is SignUpRoute
-                    || currentRoute is VerifyPhoneRoute
-
-            when (authState) {
-
-                AuthState.AUTHENTICATED -> {
-                    val previousStatus = authorizationService.getUserStatus()
-                    navigateByState(previousStatus, currentRoute, isUnauthRoute)
-
-                    if (isStateChanged || isUnauthRoute) {
-                        tryToCall(
-                            block = {
-                                profileRepository.getRegistrationProfile()
-                            },
-                            onSuccess = { profile ->
-                                authorizationService.saveUserStatus(profile.status)
-                                if (profile.status != previousStatus) {
-                                    navigateByState(profile.status, currentRoute, isUnauthRoute)
-                                }
-                            },
-                            onError = {
-                                // Failures silently handled without UI thread locks
-                            }
-                        )
-                    }
-                }
-
-                AuthState.REGISTRATION_PENDING -> {
-                    if (isStateChanged) {
-                        val userStatus = authorizationService.getUserStatus()
-                        if (userStatus == UserStatus.PENDING_APPROVAL) {
-                            if (currentRoute !is PendingApprovalRoute) {
-                                resetTo(PendingApprovalRoute, true)
-                            }
-                        } else {
-                            if (isUnauthRoute) {
-                                resetTo(listOf(LoginRoute, SignUpRoute()), true)
-                            }
-                        }
-                    }
-                }
-
-                AuthState.UNAUTHENTICATED -> {
-                    if (!isUnauthRoute) {
-                        resetTo(LoginRoute, true)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun navigateByState(
-        status: UserStatus?,
-        currentRoute: NavKey?,
-        isUnauthRoute: Boolean
-    ) {
-        when (status) {
-            UserStatus.PENDING_APPROVAL -> {
-                if (currentRoute !is PendingApprovalRoute) {
-                    resetTo(PendingApprovalRoute, true)
-                }
-            }
-
-            UserStatus.APPROVED -> {
-                if (isUnauthRoute || currentRoute is PendingApprovalRoute) {
-                    resetTo(ProfileRoute, true)
-                }
-            }
-
-            UserStatus.REJECTED, UserStatus.BANNED, null -> {
-                authorizationService.clearAuthTokens()
-                resetTo(LoginRoute, true)
-            }
-
-            else -> {
-                if (isUnauthRoute) {
-                    resetTo(ProfileRoute, true)
                 }
             }
         }
@@ -195,30 +113,5 @@ class MainEntryViewModel(
 
     override fun navigateToRoute(route: NavKey, forceNavigate: Boolean) {
         navigate(route, forceNavigate)
-    }
-
-    fun getStaticInitialRoute(authState: AuthState): NavKey {
-        return when (authState) {
-            AuthState.AUTHENTICATED -> {
-                val status = authorizationService.getUserStatus()
-                when (status) {
-                    UserStatus.PENDING_APPROVAL -> PendingApprovalRoute
-                    UserStatus.APPROVED -> ProfileRoute
-                    UserStatus.REJECTED, UserStatus.BANNED, null -> LoginRoute
-                    else -> ProfileRoute
-                }
-            }
-
-            AuthState.REGISTRATION_PENDING -> {
-                val status = authorizationService.getUserStatus()
-                if (status == UserStatus.PENDING_APPROVAL) {
-                    PendingApprovalRoute
-                } else {
-                    SignUpRoute()
-                }
-            }
-
-            AuthState.UNAUTHENTICATED -> LoginRoute
-        }
     }
 }

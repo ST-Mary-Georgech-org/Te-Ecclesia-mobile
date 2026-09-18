@@ -7,6 +7,8 @@ import com.teEcclesia.designsystem.navigation.SnackBarManager
 import com.teEcclesia.designsystem.navigation.effector.Effector
 import com.teEcclesia.designsystem.navigation.effector.EffectorImpl
 import com.teEcclesia.designsystem.navigation.getDispatcherProvider
+import com.teEcclesia.manager.SessionManagerImpl
+import com.teEcclesia.shared.domain.manager.SessionManager
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
@@ -20,5 +22,6 @@ val appModule = module {
     single { getDispatcherProvider() }
     viewModelOf(::MainEntryViewModel)
     singleOf(::EffectorImpl) bind Effector::class
+    singleOf(::SessionManagerImpl) bind SessionManager::class
     singleOf(::ResultStore)
 }

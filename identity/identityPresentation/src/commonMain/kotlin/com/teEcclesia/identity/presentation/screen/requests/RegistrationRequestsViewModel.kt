@@ -6,7 +6,7 @@ import com.teEcclesia.identity.api.ReviewAndEditRequestRoute
 import com.teEcclesia.shared.domain.model.UserRole
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
-import com.teEcclesia.identity.presentation.util.getLocalizedErrorMessage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

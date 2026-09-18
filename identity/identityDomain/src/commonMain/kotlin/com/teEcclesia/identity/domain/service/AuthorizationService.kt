@@ -9,9 +9,7 @@ import com.teEcclesia.identity.domain.model.UserStatus
 
 class AuthorizationService(private val authenticationRepository: AuthenticationRepository) {
 
-    suspend fun getAccessToken(): String {
-        return authenticationRepository.getAccessToken()
-    }
+    fun getAccessToken(): String = authenticationRepository.getAccessToken()
 
     suspend fun getNewAccessToken(): String {
         return authenticationRepository.refreshAccessToken()

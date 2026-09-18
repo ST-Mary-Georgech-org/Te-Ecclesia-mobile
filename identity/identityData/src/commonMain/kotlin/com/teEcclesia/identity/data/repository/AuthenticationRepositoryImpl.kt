@@ -10,6 +10,7 @@ import com.teEcclesia.identity.data.dataSource.local.setting.responsibleStageIds
 import com.teEcclesia.identity.data.dataSource.local.setting.responsibleYearIds
 import com.teEcclesia.identity.data.dataSource.local.setting.userRole
 import com.teEcclesia.identity.data.dataSource.local.setting.userStatus
+import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.ReactivateAccountRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.RefreshRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.UpdateDeviceTokenRequestDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.request.toDto
@@ -103,6 +104,25 @@ class AuthenticationRepositoryImpl(
         client.invalidateAuthTokens()
     }
 
+    override suspend fun reactivateAccount(nationalId: String, password: String) {
+        val deviceToken = pushTokenProvider.getToken().orEmpty()
+        val response = tryToExecute<AuthenticationResponse> {
+            post(REACTIVATE_ENDPOINT) {
+                setBody(
+                    ReactivateAccountRequestDto(
+                        nationalId = nationalId,
+                        password = password,
+                        deviceToken = deviceToken.ifEmpty { null }
+                    )
+                )
+            }
+        }
+
+        settingsRepository.clearCachedProfile()
+        saveTokens(response.toDomain(), syncDeviceToken = false)
+        client.invalidateAuthTokens()
+    }
+
     override suspend fun logout() {
         val deviceToken = pushTokenProvider.getToken().orEmpty()
         withContext(NonCancellable) {
@@ -115,24 +135,38 @@ class AuthenticationRepositoryImpl(
         }
     }
 
+    private val refreshMutex = Mutex()
+
     override suspend fun refreshAccessToken(): String {
-        return withContext(NonCancellable) {
-            try {
-                val deviceToken = pushTokenProvider.getToken().orEmpty()
-                val response = tryToExecute<AuthenticationResponse> {
-                    post(REFRESH_ENDPOINT) {
-                        setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
+        val tokenBeforeLock = settings.accessToken
+        return refreshMutex.withLock {
+            if (settings.accessToken.isNotBlank() && settings.accessToken != tokenBeforeLock) {
+                return@withLock settings.accessToken
+            }
+            withContext(NonCancellable) {
+                try {
+                    val currentRefreshToken = settings.refreshToken
+                    if (currentRefreshToken.isBlank()) {
+                        throw UnAuthorizedException()
                     }
+                    val deviceToken = pushTokenProvider.getToken().orEmpty()
+                    val response = tryToExecute<AuthenticationResponse> {
+                        post(REFRESH_ENDPOINT) {
+                            setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                        }
+                    }
+                    saveTokens(response.toDomain(), syncDeviceToken = false)
+                    client.invalidateAuthTokens()
+                    settings.accessToken
+                } catch (e: UnAuthorizedException) {
+                    clearAuthState()
+                    sessionManager.onSessionExpired()
+                    throw e
+                } catch (e: UserIsBlockedException) {
+                    clearAuthState()
+                    sessionManager.onUserBlocked()
+                    throw e
                 }
-                saveTokens(response.toDomain(), syncDeviceToken = false)
-                client.invalidateAuthTokens()
-                settings.accessToken
-            } catch (e: UnAuthorizedException) {
-                clearAuthState()
-                throw e
-            } catch (e: UserIsBlockedException) {
-                clearAuthState()
-                throw e
             }
         }
     }
@@ -146,14 +180,26 @@ class AuthenticationRepositoryImpl(
 
 
     override suspend fun refreshRegistrationToken(): String {
-        val deviceToken = pushTokenProvider.getToken().orEmpty()
-        val response = tryToExecute<AuthenticationResponse> {
-            post(REFRESH_REGISTRATION_ENDPOINT) {
-                setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
+        val tokenBeforeLock = settings.accessToken
+        return refreshMutex.withLock {
+            if (settings.accessToken.isNotBlank() && settings.accessToken != tokenBeforeLock) {
+                return@withLock settings.accessToken
+            }
+            withContext(NonCancellable) {
+                val currentRefreshToken = settings.refreshToken
+                if (currentRefreshToken.isBlank()) {
+                    throw UnAuthorizedException()
+                }
+                val deviceToken = pushTokenProvider.getToken().orEmpty()
+                val response = tryToExecute<AuthenticationResponse> {
+                    post(REFRESH_REGISTRATION_ENDPOINT) {
+                        setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                    }
+                }
+                saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
+                response.accessToken
             }
         }
-        saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
-        return response.accessToken
     }
 
     override suspend fun upgradeRegistrationToken(): String {
@@ -167,7 +213,7 @@ class AuthenticationRepositoryImpl(
         }
     }
 
-    override suspend fun getAccessToken(): String = settings.accessToken
+    override fun getAccessToken(): String = settings.accessToken
 
     override suspend fun getAuthTokens(): AuthenticationTokens? =
         createAuthTokensIfValid(settings.accessToken, settings.refreshToken)
@@ -365,6 +411,7 @@ class AuthenticationRepositoryImpl(
 
     companion object {
         const val LOGIN_ENDPOINT = "api/v1/identity/auth/login"
+        const val REACTIVATE_ENDPOINT = "api/v1/identity/auth/reactivate"
         const val REFRESH_ENDPOINT = "api/v1/identity/auth/refresh"
         const val REFRESH_REGISTRATION_ENDPOINT = "api/v1/identity/auth/refresh-registration"
         const val UPGRADE_REGISTRATION_TOKEN_ENDPOINT = "api/v1/identity/auth/upgrade-registration-token"

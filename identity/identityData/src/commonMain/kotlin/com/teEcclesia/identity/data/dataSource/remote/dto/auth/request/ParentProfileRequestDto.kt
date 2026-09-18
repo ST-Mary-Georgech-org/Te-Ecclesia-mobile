@@ -9,13 +9,10 @@ data class ParentProfileRequestDto(
     @SerialName("partnerCode")
     val partnerCode: String? = null,
     @SerialName("childrenCodes")
-    val childrenCodes: List<String>? = emptyList(),
-    @SerialName("nationalIdImageUrl")
-    val nationalIdImageUrl: String? = null
+    val childrenCodes: List<String>? = emptyList()
 )
 
 fun ParentProfileRequest.toDto() = ParentProfileRequestDto(
     partnerCode = partnerCode?.ifEmpty { null },
-    childrenCodes = childrenCodes?.takeIf { it.isNotEmpty() },
-    nationalIdImageUrl = nationalIdImageUrl?.ifEmpty { null }
+    childrenCodes = childrenCodes?.takeIf { it.isNotEmpty() }
 )

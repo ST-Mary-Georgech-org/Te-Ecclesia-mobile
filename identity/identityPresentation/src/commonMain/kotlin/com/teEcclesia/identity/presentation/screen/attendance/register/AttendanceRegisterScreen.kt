@@ -261,6 +261,7 @@ private fun AttendanceRegisterContent(
                     items(state.attendees, key = { it.id }) { attendee ->
                         AttendeeCard(
                             attendee = attendee,
+                            onClick = { listener.onClickAttendee(attendee) },
                             isResponsible = state.isResponsible,
                             onRemove = { listener.onClickRemoveAttendee(attendee) }
                         )
@@ -327,6 +328,7 @@ private fun AttendanceRegisterPreview() = Theme {
             override fun onLoadMore() {}
             override fun onSelectSuggestedUser(user: AttendeeUserPreview) {}
             override fun onDismissSuggestions() {}
+            override fun onClickAttendee(attendee: EventAttendee) {}
         }
     )
 }

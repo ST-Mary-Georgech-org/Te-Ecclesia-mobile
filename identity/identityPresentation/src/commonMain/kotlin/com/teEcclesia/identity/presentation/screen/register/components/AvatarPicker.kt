@@ -19,6 +19,7 @@ import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.modifier.dashedBorder
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.shared.domain.model.SafeByteArray
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
@@ -26,7 +27,7 @@ import teecclesia.designsystem.generated.resources.ic_plus
 
 @Composable
 fun AvatarPicker(
-    imageBytes: ByteArray?,
+    imageBytes: SafeByteArray?,
     imageUrl: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -49,7 +50,7 @@ fun AvatarPicker(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            val model: Any? = imageBytes ?: imageUrl?.ifBlank { null }
+            val model: Any? = imageBytes?.bytes ?: imageUrl?.ifBlank { null }
             if (model != null) {
                 AsyncImage(
                     model = model,
