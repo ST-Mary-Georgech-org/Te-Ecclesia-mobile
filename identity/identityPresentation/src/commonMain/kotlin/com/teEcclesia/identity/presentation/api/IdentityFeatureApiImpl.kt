@@ -20,9 +20,11 @@ import com.teEcclesia.identity.api.EditUserRoute
 import com.teEcclesia.identity.api.SignUpRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
 import com.teEcclesia.identity.api.AcademicYearSettingsRoute
+import com.teEcclesia.identity.api.EditSuggestionsRoute
 import com.teEcclesia.identity.api.VerifyEmailResetPasswordRoute
 import com.teEcclesia.identity.api.VerifyPhoneResetPasswordRoute
 import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsScreen
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.AreaSuggestionsSettingScreen
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListScreen
 import com.teEcclesia.identity.presentation.screen.attendance.history.AttendanceHistoryScreen
 import com.teEcclesia.identity.presentation.screen.attendance.register.AttendanceRegisterScreen
@@ -96,6 +98,9 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
                     userId = route.userId,
                     userName = route.userName
                 )
+            }
+            entry<EditSuggestionsRoute> {
+                AreaSuggestionsSettingScreen()
             }
         }
     }

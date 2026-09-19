@@ -36,7 +36,7 @@ import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.TextField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.lookups.domain.model.AreaResponse
@@ -97,24 +97,25 @@ private fun AreaSuggestionsSettingContent(
                 item {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        IconButton(onClick = listener::onClickBack) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_arrow_back),
-                                contentDescription = "Back",
-                                tint = Theme.colorScheme.onBackground
+                        Row(){
+                            IconButton(onClick = listener::onClickBack) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_arrow_back),
+                                    contentDescription = "Back",
+                                    tint = Theme.colorScheme.onBackground
+                                )
+                            }
+
+                            Text(
+                                text = stringResource(Res.string.edit_area_suggestions),
+                                style = Theme.typography.headlineSmall,
+                                color = Theme.colorScheme.onBackground,
+                                modifier = Modifier.padding(start = 8.dp),
                             )
                         }
-
-                        Text(
-                            text = stringResource(Res.string.edit_area_suggestions),
-                            style = Theme.typography.headlineSmall,
-                            color = Theme.colorScheme.onBackground,
-                            modifier = Modifier.padding(start = 8.dp),
-                        )
-
-                        Spacer(Modifier.width(20.dp))
 
                         IconButton(
                             onClick = { listener.onClickAddArea() }
@@ -219,16 +220,10 @@ private fun AreaSuggestionsSettingContent(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TextField(
+                CustomTextField(
                     value = state.areaNameInput,
                     onValueChange = listener::onAreaNameChanged,
-                    placeholder = {
-                        Text(
-                            text = stringResource(Res.string.area),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onSurfaceVariant
-                        )
-                    },
+                    labelText = stringResource(Res.string.area),
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -279,7 +274,8 @@ private fun AreaSuggestionsSettingContent(
                     type = AppButtonType.Primary,
                     onClick = listener::onConfirmAreaDelete,
                     modifier = Modifier.weight(1f),
-                    text = stringResource(Res.string.confirm)
+                    text = stringResource(Res.string.confirm),
+                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled
                 )
             }
         }
@@ -337,7 +333,7 @@ private fun AreaCard(
 
 @Preview
 @Composable
-private fun AcademicYearSettingsScreenPreview() = Theme {
+private fun AreaSuggestionsSettingsScreenPreview() = Theme {
     Preview {
         AreaSuggestionsSettingContent(
             state = AreaSuggestionsSettingsUiState(),

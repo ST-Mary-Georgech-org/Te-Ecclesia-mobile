@@ -131,7 +131,10 @@ class AreaSuggestionsSettingsViewModel(
                     isSuccess = false
                 )
             },
-            onEnd = { updateState { copy(isActionLoading = false) } }
+            onEnd = { updateState { copy(
+                isActionLoading = false,
+                isDeleteConfirmSheetOpen = false
+            ) } }
         )
     }
 

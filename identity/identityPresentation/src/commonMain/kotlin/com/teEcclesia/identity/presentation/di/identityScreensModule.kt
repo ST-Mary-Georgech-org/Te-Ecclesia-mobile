@@ -16,12 +16,14 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.Ver
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestViewModel
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchViewModel
 import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.AreaSuggestionsSettingsViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val identityScreensModule = module {
     viewModelOf(::AcademicYearSettingsViewModel)
+    viewModelOf(::AreaSuggestionsSettingsViewModel)
     viewModelOf(::LoginViewModel)
     viewModel { parameters ->
         RegisterViewModel(
