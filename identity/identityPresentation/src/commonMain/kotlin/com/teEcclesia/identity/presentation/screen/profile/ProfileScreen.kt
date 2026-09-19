@@ -35,6 +35,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
 import coil3.compose.AsyncImage
+import com.teEcclesia.designsystem.components.badge.Badge
+import com.teEcclesia.designsystem.components.badge.BadgedBox
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.button.AppSegmentedControl
@@ -80,6 +82,7 @@ fun ProfileScreen(
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.RESUMED) {
             viewModel.checkNotificationPermission()
+            viewModel.loadUnreadNotificationsCount()
         }
     }
 
@@ -157,11 +160,25 @@ private fun ProfileContent(
             )
 
             IconButton(onClick = onClickNotifications) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_bell),
-                    contentDescription = "Notifications",
-                    tint = Theme.colorScheme.onBackground
-                )
+                BadgedBox(
+                    badge = {
+                        if (state.unreadNotificationsCount > 0) {
+                            Badge {
+                                Text(
+                                    text = if (state.unreadNotificationsCount > 99) "99+" else state.unreadNotificationsCount.toString(),
+                                    style = Theme.typography.labelSmall,
+                                    color = Theme.colorScheme.onError
+                                )
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_bell),
+                        contentDescription = "Notifications",
+                        tint = Theme.colorScheme.onBackground
+                    )
+                }
             }
         }
 
@@ -458,7 +475,8 @@ private fun ProfileContentPreview() = Theme {
             canAddUser = true,
             userRole = UserRole.ADMIN,
             whatsAppLink = "https://chat.whatsapp.com/EXAMPLE",
-            deletionRequestsCount = 2
+            deletionRequestsCount = 2,
+            unreadNotificationsCount = 5
         ),
         onClickNotifications = {},
         onLanguageSelected = {},

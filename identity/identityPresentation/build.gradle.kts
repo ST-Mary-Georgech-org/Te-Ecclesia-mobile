@@ -15,6 +15,7 @@ kotlin {
                 implementation(projects.lookups.lookupsDomain)
                 implementation(projects.home.homeApi)
                 implementation(projects.notifications.notificationsApi)
+                implementation(projects.notifications.notificationsDomain)
                 implementation(projects.shared.sharedDomain)
                 implementation(libs.filekit.compose)
                 implementation(libs.filekit.dialogs)

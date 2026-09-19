@@ -19,6 +19,7 @@ import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel.Companion.KEY_UPDATED_ACADEMIC_YEAR
 import com.teEcclesia.notifications.api.NotificationsRoute
 import com.teEcclesia.notifications.api.SendNotificationRoute
+import com.teEcclesia.notifications.domain.repository.NotificationRepository
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
 import teecclesia.designsystem.generated.resources.Res
@@ -33,13 +34,15 @@ class ProfileViewModel(
     private val authorizationService: AuthorizationService,
     private val settingsRepository: SettingsRepository,
     private val appLocalizer: AppLocalizer,
-    private val notificationPermissionHandler: NotificationPermissionHandler
+    private val notificationPermissionHandler: NotificationPermissionHandler,
+    private val notificationRepository: NotificationRepository
 ) : BaseViewModel<ProfileScreenState>(ProfileScreenState()) {
 
     init {
         observeCachedProfile()
         loadUserProfile()
         checkNotificationPermission()
+        loadUnreadNotificationsCount()
         listenForUpdatedAcademicYear()
     }
 
@@ -167,6 +170,7 @@ class ProfileViewModel(
     fun onRefresh() {
         if (!state.value.isRefreshing) {
             updateState { copy(isRefreshing = true) }
+            loadUnreadNotificationsCount()
             if (state.value.userRole == UserRole.ADMIN) {
                 loadAcademicYear()
                 loadDeletionRequestsCount()
@@ -195,6 +199,16 @@ class ProfileViewModel(
                 onEnd = { updateState { copy(isRefreshing = false) } }
             )
         }
+    }
+
+    fun loadUnreadNotificationsCount() {
+        tryToCall(
+            block = { notificationRepository.getUnreadCount() },
+            onSuccess = { count ->
+                updateState { copy(unreadNotificationsCount = count) }
+            },
+            onError = { }
+        )
     }
 
     fun checkNotificationPermission() {

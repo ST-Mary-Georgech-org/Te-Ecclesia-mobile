@@ -3,8 +3,9 @@ package com.teEcclesia.notifications.data.dataSource.remote
 import com.teEcclesia.notifications.data.dataSource.remote.dto.NotificationResponseDto
 import com.teEcclesia.notifications.data.dataSource.remote.dto.UnreadCountResponseDto
 import com.teEcclesia.notifications.data.dataSource.remote.dto.toDomain
+import com.teEcclesia.notifications.data.dataSource.remote.dto.toDto
+import com.teEcclesia.notifications.domain.model.AdminSendNotificationParam
 import com.teEcclesia.notifications.domain.model.NotificationResponse
-import com.teEcclesia.notifications.domain.model.UnreadCountResponse
 import com.teEcclesia.notifications.domain.repository.NotificationRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
 import com.teEcclesia.shared.data.dataSource.remote.dto.toPagedData
@@ -17,8 +18,6 @@ import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import com.teEcclesia.notifications.data.dataSource.remote.dto.toDto
-import com.teEcclesia.notifications.domain.model.AdminSendNotificationParam
 
 class NotificationRespositoryImpl(
     client: HttpClient
@@ -33,10 +32,10 @@ class NotificationRespositoryImpl(
         }.toPagedData { it.toDomain() }
     }
 
-    override suspend fun getUnreadCount(): UnreadCountResponse {
+    override suspend fun getUnreadCount(): Long {
         return tryToExecute<UnreadCountResponseDto> {
             get("/api/v1/notifications/unread-count")
-        }.toDomain()
+        }.unreadCount
     }
 
     override suspend fun markAllAsRead() {
