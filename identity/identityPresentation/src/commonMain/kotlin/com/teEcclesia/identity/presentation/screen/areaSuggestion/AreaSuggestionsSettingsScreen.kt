@@ -1,6 +1,7 @@
 package com.teEcclesia.identity.presentation.screen.areaSuggestion
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -298,6 +299,9 @@ private fun AreaCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable(
+                    onClick = onEdit
+                )
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween

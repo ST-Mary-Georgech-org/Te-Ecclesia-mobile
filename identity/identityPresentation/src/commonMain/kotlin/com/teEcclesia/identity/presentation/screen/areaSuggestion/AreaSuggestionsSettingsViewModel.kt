@@ -84,7 +84,14 @@ class AreaSuggestionsSettingsViewModel(
                         AreaResponse(id = 0, name = input)
                     )
                 } else {
-                    state.value.editingArea?.let { lookupRepository.updateArea(state.value.editingArea!!) }
+                    state.value.editingArea?.let { area ->
+                        lookupRepository.updateArea(
+                            AreaResponse(
+                                id = area.id,
+                                name = input
+                            )
+                        )
+                    }
                 }
             },
             onSuccess = {

@@ -68,7 +68,7 @@ class LookupRepositoryImpl(
 
     override suspend fun createArea(area : AreaResponse) : LookupResponse{
         val dto = tryToExecute<LookupResponseDto> {
-            post("/api/v1/lookups/areas") {
+            post("/api/v1/manage-lookups/areas") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     LookupRequest(area.name)
@@ -80,7 +80,7 @@ class LookupRepositoryImpl(
 
     override suspend fun updateArea(area: AreaResponse) : LookupResponse {
         val dto = tryToExecute<LookupResponseDto> {
-            put("/api/v1/lookups/areas/${area.id}") {
+            put("/api/v1/manage-lookups/areas/${area.id}") {
                 contentType(ContentType.Application.Json)
                 setBody(
                     LookupRequest(area.name)
@@ -92,7 +92,7 @@ class LookupRepositoryImpl(
 
     override suspend fun deleteArea(id : Long) {
         tryToExecute<Unit> {
-            delete("/api/v1/lookups/areas/$id")
+            delete("/api/v1/manage-lookups/areas/$id")
         }
     }
 }
