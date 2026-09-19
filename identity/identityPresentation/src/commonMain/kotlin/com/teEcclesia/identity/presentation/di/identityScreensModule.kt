@@ -16,7 +16,6 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.verifyEmail.Ver
 import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.VerifyPhoneResetPasswordViewModel
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestViewModel
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchViewModel
-import com.teEcclesia.identity.presentation.screen.academicYear.AcademicYearSettingsViewModel
 import com.teEcclesia.identity.presentation.screen.areaSuggestion.AreaSuggestionsSettingsViewModel
 import com.teEcclesia.identity.presentation.screen.deletionRequests.DeletionRequestsViewModel
 import com.teEcclesia.identity.presentation.screen.reviewDeletionRequest.ReviewDeletionRequestViewModel
