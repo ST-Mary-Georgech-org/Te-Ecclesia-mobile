@@ -6,6 +6,7 @@ import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.api.AcademicYearSettingsRoute
 import com.teEcclesia.identity.api.AddUserRoute
+import com.teEcclesia.identity.api.EditSuggestionsRoute
 import com.teEcclesia.identity.api.DeletionRequestsRoute
 import com.teEcclesia.identity.api.LoginRoute
 import com.teEcclesia.identity.api.UsersSearchRoute
@@ -151,6 +152,10 @@ class ProfileViewModel(
 
     fun onClickSendNotification() {
         navigate(SendNotificationRoute)
+    }
+
+    fun onClickEditSuggestions(){
+        navigate(EditSuggestionsRoute)
     }
 
     fun onClickLogout() {
