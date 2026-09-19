@@ -2,6 +2,8 @@ package com.teEcclesia.identity.presentation.screen.reviewRequest
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.designsystem.utils.compressImage
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.api.AttendanceHistoryRoute
 import com.teEcclesia.identity.domain.model.ApproveUserRequest
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
@@ -15,13 +17,13 @@ import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
-import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
+import com.teEcclesia.identity.presentation.util.generateScannedFileName
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.identity.presentation.util.toUiText
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
-import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.model.SafeByteArray
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.model.toSafeByteArray
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
@@ -37,6 +39,7 @@ import com.teEcclesia.shared.domain.utils.validation.isValidFloorInput
 import com.teEcclesia.shared.domain.utils.validation.isValidNationalIdInput
 import com.teEcclesia.shared.domain.utils.validation.isValidPhoneInput
 import com.teEcclesia.shared.domain.utils.validation.validateArabicNameWithSpaces
+import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import com.teEcclesia.shared.domain.utils.validation.validatePhone
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitCameraType
@@ -46,8 +49,6 @@ import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.name
 import io.github.vinceglb.filekit.readBytes
-import com.teEcclesia.designsystem.utils.compressImage
-import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
@@ -56,10 +57,10 @@ import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.failed_to_approve_request
 import teecclesia.designsystem.generated.resources.failed_to_load_request
 import teecclesia.designsystem.generated.resources.failed_to_reject_request
-import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.failed_to_search_child
 import teecclesia.designsystem.generated.resources.failed_to_search_partner
 import teecclesia.designsystem.generated.resources.field_required
+import teecclesia.designsystem.generated.resources.file_size_exceeded_limit
 import teecclesia.designsystem.generated.resources.invalid_arabic_name
 import teecclesia.designsystem.generated.resources.invalid_code_format
 import teecclesia.designsystem.generated.resources.invalid_email_format
@@ -344,13 +345,13 @@ class ReviewAndEditRequestViewModel(
                         isFatherDeceased = profile.makhdoomProfile?.isFatherDeceased ?: false,
                         isMotherDeceased = profile.makhdoomProfile?.isMotherDeceased ?: false,
 
-                        isOrdained = if (isMale != false) profile.ordinationProfile != null else false,
-                        selectedRank = if (isMale != false) profile.ordinationProfile?.rank else null,
-                        isOrdainedInThisChurch = if (isMale != false) !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false) else false,
-                        ordinationYear = if (isMale != false) profile.ordinationProfile?.ordinationYear?.toString() ?: "" else "",
-                        bishopName = if (isMale != false) profile.ordinationProfile?.bishopName ?: "" else "",
-                        ordinationPlace = if (isMale != false) profile.ordinationProfile?.ordinationPlace ?: "" else "",
-                        ordinationCertificateFileName = if (isMale != false) profile.ordinationProfile?.certificateImageUrl else null,
+                        isOrdained = if (isMale) profile.ordinationProfile != null else false,
+                        selectedRank = if (isMale) profile.ordinationProfile?.rank else null,
+                        isOrdainedInThisChurch = if (isMale) !(profile.ordinationProfile?.isOrdinationInAnotherChurch ?: false) else false,
+                        ordinationYear = if (isMale) profile.ordinationProfile?.ordinationYear?.toString() ?: "" else "",
+                        bishopName = if (isMale) profile.ordinationProfile?.bishopName ?: "" else "",
+                        ordinationPlace = if (isMale) profile.ordinationProfile?.ordinationPlace ?: "" else "",
+                        ordinationCertificateFileName = if (isMale) profile.ordinationProfile?.certificateImageUrl else null,
                         identityCertificateFileName = profile.identityDocumentImageUrl,
 
                         actionTakenAt = profile.actionTakenAt?.replace("T", " ")?.take(16),
@@ -819,7 +820,7 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onDismissUploadBottomSheet() {
-        updateState { copy(isUploadBottomSheetVisible = false, activeUploadTarget = null) }
+        updateState { copy(isUploadBottomSheetVisible = false) }
     }
 
     override fun onDismissImageViewer() {
@@ -906,25 +907,65 @@ class ReviewAndEditRequestViewModel(
         }
     }
 
+    private suspend fun processFile(
+        rawBytes: ByteArray,
+        defaultFileName: String? = null,
+        onProcessed: (SafeByteArray, String) -> Unit
+    ) {
+        val processedBytes = compressImage(rawBytes)
+        if (!validateFileSizes(processedBytes)) {
+            showSnackBar(
+                title = UiText.StringRes(Res.string.error_occurred),
+                message = UiText.StringRes(Res.string.file_size_exceeded_limit),
+                isSuccess = false
+            )
+            return
+        }
+        val fileName = defaultFileName ?: generateScannedFileName(processedBytes)
+        onProcessed(processedBytes.toSafeByteArray(), fileName)
+    }
+
     override fun onFileOptionPicked(option: FilePickOption) {
         val target = state.value.activeUploadTarget ?: return
         if (option == FilePickOption.VIEW) {
             updateState { copy(isImageViewerVisible = true, activeImageViewerModel = imageBytes ?: imageUrl) }
             return
         }
+        if (option == FilePickOption.CAMERA) {
+            if (target == UploadTarget.PROFILE_PHOTO) {
+                launch {
+                    val file = FileKit.openCameraPicker(type = FileKitCameraType.Photo)
+                    if (file == null) {
+                        updateState { copy(activeUploadTarget = null) }
+                        return@launch
+                    }
+                    processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                        onSelectImageBytes(target, safeBytes, fileName)
+                    }
+                    updateState { copy(activeUploadTarget = null) }
+                }
+            } else {
+                updateState {
+                    copy(shouldOpenDocumentScanner = true)
+                }
+            }
+            return
+        }
         if (option == FilePickOption.DELETE) {
             when (target) {
-                UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = null, imageUrl = null) }
+                UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = null, imageUrl = null, activeUploadTarget = null) }
                 UploadTarget.ORDINATION_CERTIFICATE -> updateState {
                     copy(
                         ordinationCertificateBytes = null,
-                        ordinationCertificateFileName = null
+                        ordinationCertificateFileName = null,
+                        activeUploadTarget = null
                     )
                 }
                 UploadTarget.IDENTITY_CERTIFICATE -> updateState {
                     copy(
                         identityCertificateBytes = null,
-                        identityCertificateFileName = null
+                        identityCertificateFileName = null,
+                        activeUploadTarget = null
                     )
                 }
             }
@@ -932,7 +973,6 @@ class ReviewAndEditRequestViewModel(
         }
         launch {
             val file = when (option) {
-                FilePickOption.CAMERA -> FileKit.openCameraPicker(type = FileKitCameraType.Photo)
                 FilePickOption.GALLERY -> FileKit.openFilePicker(
                     type = FileKitType.Image,
                     mode = FileKitMode.Single
@@ -945,25 +985,38 @@ class ReviewAndEditRequestViewModel(
                     mode = FileKitMode.Single
                 )
 
-                FilePickOption.VIEW, FilePickOption.DELETE -> null
+                FilePickOption.CAMERA, FilePickOption.VIEW, FilePickOption.DELETE -> null
             }
-            if (file == null) return@launch
-            val rawBytes = file.readBytes()
-            val fileName = file.name
-            val processedBytes = compressImage(rawBytes)
-            if (!validateFileSizes(processedBytes)) {
-                showSnackBar(
-                    title = UiText.StringRes(Res.string.error_occurred),
-                    message = UiText.StringRes(Res.string.file_size_exceeded_limit),
-                    isSuccess = false
-                )
+            if (file == null) {
+                updateState { copy(activeUploadTarget = null) }
                 return@launch
             }
-            onSelectImageBytes(target, processedBytes.toSafeByteArray(), fileName)
+            processFile(file.readBytes(), file.name) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
+            }
+            updateState { copy(activeUploadTarget = null) }
         }
     }
 
-    override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {
+    override fun onDocumentScannerOpened() {
+        updateState {
+            copy(shouldOpenDocumentScanner = false)
+        }
+    }
+
+    override fun onDocumentScanned(bytes: ByteArray?) {
+        val target = state.value.activeUploadTarget
+        updateState { copy(activeUploadTarget = null) }
+        if (bytes == null || target == null) return
+
+        launch {
+            processFile(bytes) { safeBytes, fileName ->
+                onSelectImageBytes(target, safeBytes, fileName)
+            }
+        }
+    }
+
+    override fun onSelectImageBytes(target: UploadTarget?, bytes: SafeByteArray?, fileName: String?) {
         when (target) {
             UploadTarget.PROFILE_PHOTO -> updateState { copy(imageBytes = bytes) }
             UploadTarget.ORDINATION_CERTIFICATE -> updateState {
@@ -979,6 +1032,8 @@ class ReviewAndEditRequestViewModel(
                     identityCertificateFileName = fileName
                 )
             }
+
+            null -> Unit
         }
     }
 

@@ -402,4 +402,33 @@
     <string name="edit_area">تعديل منطقة</string>
     <string name="delete_area_confirmation_title">تأكيد حذف هذه المنطقة</string>
     <string name="deleta_area_confirmation_message">هل أنت متأكد من حذف هذه المنطقة؟</string>
+
+    <!-- Account Deletion & Reactivation Strings -->
+    <string name="delete_account">حذف الحساب</string>
+    <string name="delete_account_title">طلب حذف الحساب</string>
+    <string name="delete_account_warning">تحذير: طلب حذف الحساب سيؤدي إلى إرسال طلب حذف وتسجيل خروجك فوراً. يمكنك استعادة حسابك في أي وقت لاحقاً باستخدام رقمك القومي وكلمة المرور.</string>
+    <string name="delete_account_reason_hint">اكتب سبب طلب الحذف...</string>
+    <string name="delete_account_password_hint">أدخل كلمة المرور للتأكيد</string>
+    <string name="confirm_delete_account">تأكيد طلب الحذف</string>
+    <string name="account_deleted_successfully">تم إرسال طلب حذف الحساب بنجاح</string>
+    <string name="failed_to_delete_account">فشل في إرسال طلب حذف الحساب</string>
+    <string name="deletion_requests">طلبات حذف الحسابات</string>
+    <string name="no_deletion_requests_found">لا توجد طلبات حذف حالياً</string>
+    <string name="approve_deletion">تأكيد الحذف</string>
+    <string name="reject_deletion">إعادة تفعيل الحساب</string>
+    <string name="deletion_approved_successfully">تمت الموافقة على الحذف بنجاح</string>
+    <string name="account_restored_successfully">تمت استعادة الحساب بنجاح</string>
+    <string name="failed_to_approve_deletion">فشل تأكيد الحذف</string>
+    <string name="failed_to_restore_account">فشل إعادة تفعيل الحساب</string>
+    <string name="failed_to_load_deletion_requests">فشل تحميل طلبات الحذف</string>
+    <string name="reactivate_account">استعادة الحساب</string>
+    <string name="deleted_account_found">تم العثور على حساب محذوف مسبقاً بنفس الرقم القومي</string>
+    <string name="reactivate_account_prompt">أدخل كلمة المرور الخاصة بحسابك لاستعادته، أو قم بإعادة تعيينها إذا نسيتها.</string>
+    <string name="failed_to_reactivate_account">فشل استعادة الحساب</string>
+    <string name="account_reactivated_successfully">تمت استعادة الحساب بنجاح</string>
+    <string name="deletion_reason">سبب الحذف</string>
+    <string name="requested_at">تاريخ الطلب</string>
+    <string name="review_deletion_request">مراجعة طلب الحذف</string>
+    <string name="reactivate_account_reset_password_notice">هذا الحساب كان محذوفاً مسبقاً، وإتمام تعيين كلمة المرور الجديدة سيعيد تفعيله واستعادته تلقائياً.</string>
+    <string name="password_reset_and_account_reactivated_successfully">تم تعيين كلمة المرور واستعادة الحساب بنجاح</string>
 </resources>

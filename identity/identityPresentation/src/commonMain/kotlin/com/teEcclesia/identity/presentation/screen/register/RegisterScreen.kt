@@ -3,6 +3,7 @@ package com.teEcclesia.identity.presentation.screen.register
 import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
 import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
+import com.teEcclesia.designsystem.components.scanner.DocumentScannerLauncher
 import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import androidx.compose.animation.AnimatedContent
@@ -49,6 +50,7 @@ import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickerBottomSheet
+import com.teEcclesia.identity.presentation.screen.register.components.ReactivateAccountSheet
 import com.teEcclesia.identity.presentation.screen.register.components.RegisterStep1Content
 import com.teEcclesia.identity.presentation.screen.register.components.RegisterStep2Content
 import com.teEcclesia.identity.presentation.screen.register.components.RegisterStep3Content
@@ -89,10 +91,17 @@ fun RegisterScreenContent(
         listener.onClickPreviousStep()
     }
 
+    DocumentScannerLauncher(
+        shouldOpen = state.shouldOpenDocumentScanner,
+        onScannerOpened = listener::onDocumentScannerOpened,
+        onResult = listener::onDocumentScanned
+    )
+
     FilePickerBottomSheet(
         isVisible = state.isUploadBottomSheetVisible,
         target = state.activeUploadTarget,
         canViewPhoto = state.activeUploadTarget == UploadTarget.PROFILE_PHOTO && (state.imageBytes != null || !state.imageUrl.isNullOrBlank()),
+        showGallery = state.activeUploadTarget != UploadTarget.IDENTITY_CERTIFICATE,
         onDismiss = listener::onDismissUploadBottomSheet,
         onOptionSelected = onFileOptionPicked
     )
@@ -107,6 +116,18 @@ fun RegisterScreenContent(
         isVisible = state.isPdfViewerVisible,
         pdf = state.activePdfBytes,
         onDismiss = listener::onDismissPdfViewer
+    )
+
+    ReactivateAccountSheet(
+        isVisible = state.isReactivateSheetVisible,
+        password = state.reactivatePassword,
+        isPasswordVisible = state.isReactivatePasswordVisible,
+        buttonState = state.reactivateButtonState,
+        onPasswordChange = listener::onReactivatePasswordChange,
+        onTogglePasswordVisibility = listener::onToggleReactivatePasswordVisibility,
+        onConfirmReactivate = listener::onConfirmReactivate,
+        onForgotPasswordClick = listener::onClickForgotPasswordFromReactivate,
+        onDismiss = listener::onDismissReactivateSheet
     )
 
     PullToRefresh(
@@ -289,6 +310,11 @@ private fun RegisterScreenPreview() {
             override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
+            override fun onReactivatePasswordChange(value: String) {}
+            override fun onToggleReactivatePasswordVisibility() { state = state.copy(isReactivatePasswordVisible = !state.isReactivatePasswordVisible) }
+            override fun onDismissReactivateSheet() {}
+            override fun onConfirmReactivate() {}
+            override fun onClickForgotPasswordFromReactivate() {}
             override fun onLoadNextPriests() {}
             override fun onRetryLoadPriests() {}
             override fun onRetryLoadAreas() {}

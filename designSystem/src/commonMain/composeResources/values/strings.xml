@@ -402,4 +402,33 @@
     <string name="edit_area">Edit area</string>
     <string name="delete_area_confirmation_title">Confirm Delete This Area</string>
     <string name="delete_area_confirmation_message">Are you sure you want to delete this area?</string>
+
+    <!-- Account Deletion & Reactivation Strings -->
+    <string name="delete_account">Delete Account</string>
+    <string name="delete_account_title">Delete Your Account</string>
+    <string name="delete_account_warning">Warning: Deleting your account will submit a deletion request. You will be logged out immediately. You can reactivate your account at any time using your national ID and password.</string>
+    <string name="delete_account_reason_hint">Enter reason for deletion...</string>
+    <string name="delete_account_password_hint">Enter your password to confirm</string>
+    <string name="confirm_delete_account">Confirm Deletion</string>
+    <string name="account_deleted_successfully">Account deletion requested successfully</string>
+    <string name="failed_to_delete_account">Failed to request account deletion</string>
+    <string name="deletion_requests">Account Deletion Requests</string>
+    <string name="no_deletion_requests_found">No deletion requests available</string>
+    <string name="approve_deletion">Approve Deletion</string>
+    <string name="reject_deletion">Restore Account</string>
+    <string name="deletion_approved_successfully">Deletion request approved</string>
+    <string name="account_restored_successfully">Account restored successfully</string>
+    <string name="failed_to_approve_deletion">Failed to approve deletion</string>
+    <string name="failed_to_restore_account">Failed to restore account</string>
+    <string name="failed_to_load_deletion_requests">Failed to load deletion requests</string>
+    <string name="reactivate_account">Reactivate Account</string>
+    <string name="deleted_account_found">A previously deleted account with this National ID was found.</string>
+    <string name="reactivate_account_prompt">Enter your password to restore your account, or reset your password if you forgot it.</string>
+    <string name="failed_to_reactivate_account">Failed to reactivate account</string>
+    <string name="account_reactivated_successfully">Account reactivated successfully</string>
+    <string name="deletion_reason">Deletion Reason</string>
+    <string name="requested_at">Requested At</string>
+    <string name="review_deletion_request">Review Deletion Request</string>
+    <string name="reactivate_account_reset_password_notice">This account was previously deleted. Setting a new password will automatically reactivate and restore your account.</string>
+    <string name="password_reset_and_account_reactivated_successfully">Password reset and account reactivated successfully</string>
 </resources>

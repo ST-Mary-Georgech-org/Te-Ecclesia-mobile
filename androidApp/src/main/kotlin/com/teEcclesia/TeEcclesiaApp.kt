@@ -14,10 +14,7 @@ class TeEcclesiaApp : Application() {
 
         try {
             MMKV.initialize(this)
-        } catch (t: Throwable) {
-            android.util.Log.e("TeEcclesiaApp", "Failed to initialize MMKV native library", t)
-            FirebaseCrashlytics.getInstance().recordException(t)
-        }
+        } catch (_: Throwable) { }
 
         val is32BitOS = !android.os.Process.is64Bit()
         val activityManager = getSystemService(ACTIVITY_SERVICE) as? android.app.ActivityManager

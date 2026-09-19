@@ -45,7 +45,8 @@ fun FilePickerBottomSheet(
     onOptionSelected: (FilePickOption) -> Unit,
     target: UploadTarget?,
     canViewPhoto: Boolean = false,
-    canDeletePhoto: Boolean = canViewPhoto
+    canDeletePhoto: Boolean = canViewPhoto,
+    showGallery: Boolean = true
 ) {
     BottomSheet(
         isVisible = isVisible,
@@ -127,27 +128,29 @@ fun FilePickerBottomSheet(
                 )
             }
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickableNoRipple {
-                        onOptionSelected(FilePickOption.GALLERY)
-                        onDismiss()
-                    }
-                    .padding(vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_gallery),
-                    contentDescription = null,
-                    tint = Theme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = stringResource(Res.string.from_gallery),
-                    style = Theme.typography.bodyLarge,
-                    color = Theme.colorScheme.onSurface
-                )
+            if (showGallery) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickableNoRipple {
+                            onOptionSelected(FilePickOption.GALLERY)
+                            onDismiss()
+                        }
+                        .padding(vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_gallery),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = stringResource(Res.string.from_gallery),
+                        style = Theme.typography.bodyLarge,
+                        color = Theme.colorScheme.onSurface
+                    )
+                }
             }
             if (target != UploadTarget.PROFILE_PHOTO) {
                 Row(

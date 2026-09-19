@@ -41,6 +41,11 @@ import com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone.Ver
 import com.teEcclesia.identity.presentation.screen.reviewRequest.ReviewAndEditRequestScreen
 import com.teEcclesia.identity.presentation.screen.usersSearch.UsersSearchScreen
 
+import com.teEcclesia.identity.api.DeletionRequestsRoute
+import com.teEcclesia.identity.api.ReviewDeletionRequestRoute
+import com.teEcclesia.identity.presentation.screen.deletionRequests.DeletionRequestsScreen
+import com.teEcclesia.identity.presentation.screen.reviewDeletionRequest.ReviewDeletionRequestScreen
+
 class IdentityFeatureApiImpl : IdentityFeatureApi {
 
     override fun invoke(): (NavKey) -> NavEntry<NavKey> {
@@ -50,6 +55,8 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
             entry<PendingApprovalRoute> { PendingApprovalScreen() }
             entry<ProfileRoute> { ProfileScreen() }
             entry<RegistrationRequestsRoute> { RegistrationRequestsScreen() }
+            entry<DeletionRequestsRoute> { DeletionRequestsScreen() }
+            entry<ReviewDeletionRequestRoute> { route -> ReviewDeletionRequestScreen(route = route) }
             entry<ReviewAndEditRequestRoute> { route -> ReviewAndEditRequestScreen(userId = route.userId, isFromSearch = false) }
             entry<EditUserRoute> { route -> ReviewAndEditRequestScreen(userId = route.userId, isFromSearch = true) }
             entry<AddUserRoute> { ReviewAndEditRequestScreen(userId = null, isFromSearch = false) }
@@ -59,17 +66,22 @@ class IdentityFeatureApiImpl : IdentityFeatureApi {
                 VerifyPhoneResetPasswordScreen(
                     phone = route.phone,
                     token = route.token,
-                    link = route.link
+                    link = route.link,
+                    isDeletedAccount = route.isDeletedAccount
                 )
             }
             entry<VerifyEmailResetPasswordRoute> { route ->
-                VerifyEmailResetPasswordScreen(email = route.email)
+                VerifyEmailResetPasswordScreen(
+                    email = route.email,
+                    isDeletedAccount = route.isDeletedAccount
+                )
             }
             entry<CreateNewPasswordRoute> { route ->
                 CreateNewPasswordScreen(
                     key = route.key,
                     otp = route.otp,
-                    isPhone = route.isPhone
+                    isPhone = route.isPhone,
+                    isDeletedAccount = route.isDeletedAccount
                 )
             }
             entry<AttendanceServicesRoute> {

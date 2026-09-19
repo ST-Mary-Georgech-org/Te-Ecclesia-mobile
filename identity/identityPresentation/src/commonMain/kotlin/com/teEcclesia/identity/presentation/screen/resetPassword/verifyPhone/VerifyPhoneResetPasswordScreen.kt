@@ -1,18 +1,24 @@
 package com.teEcclesia.identity.presentation.screen.resetPassword.verifyPhone
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
@@ -22,13 +28,18 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.deleted_account_found
+import teecclesia.designsystem.generated.resources.ic_profile
 import teecclesia.designsystem.generated.resources.next
+import teecclesia.designsystem.generated.resources.reactivate_account_reset_password_notice
 import teecclesia.designsystem.generated.resources.verify_button
 import teecclesia.designsystem.generated.resources.verify_phone_reset_subtitle
 import teecclesia.designsystem.generated.resources.verify_your_phone
@@ -38,7 +49,10 @@ fun VerifyPhoneResetPasswordScreen(
     phone: String,
     token: String,
     link: String,
-    viewModel: VerifyPhoneResetPasswordViewModel = koinViewModel(parameters = { parametersOf(phone, token, link) })
+    isDeletedAccount: Boolean,
+    viewModel: VerifyPhoneResetPasswordViewModel = koinViewModel(
+        parameters = { parametersOf(phone, token, link, isDeletedAccount) }
+    )
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val uriHandler = LocalUriHandler.current
@@ -88,8 +102,50 @@ fun VerifyPhoneResetPasswordContent(
                 text = stringResource(Res.string.verify_phone_reset_subtitle),
                 style = Theme.typography.bodyMedium,
                 color = Theme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 32.dp)
+                modifier = Modifier.padding(bottom = if (state.isDeletedAccount) 16.dp else 32.dp)
             )
+        }
+
+        if (state.isDeletedAccount) {
+            item {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = Theme.colorScheme.surfaceContainerHighest,
+                    border = BorderStroke(1.dp, Theme.colorScheme.outlineVariant)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_profile),
+                                contentDescription = null,
+                                tint = Theme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Text(
+                                text = stringResource(Res.string.deleted_account_found),
+                                style = Theme.typography.titleMedium,
+                                color = Theme.colorScheme.primary
+                            )
+                        }
+                        Text(
+                            text = stringResource(Res.string.reactivate_account_reset_password_notice),
+                            style = Theme.typography.bodyMedium,
+                            color = Theme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
         }
 
         item {
@@ -124,7 +180,8 @@ private fun VerifyPhoneResetPasswordScreenPreview() = Theme {
         state = VerifyPhoneResetPasswordUiState(
             phone = "01000000000",
             token = "1234",
-            link = "https://wa.me/..."
+            link = "https://wa.me/...",
+            isDeletedAccount = true
         ),
         interactionListener = object : VerifyPhoneResetPasswordInteractionListener {
             override fun onVerifyClicked() {}

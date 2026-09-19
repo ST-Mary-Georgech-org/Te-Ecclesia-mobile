@@ -158,9 +158,16 @@ data class RegisterScreenState(
     val isPdfViewerVisible: Boolean = false,
     val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
+    val shouldOpenDocumentScanner: Boolean = false,
     
     // Step 5: WhatsApp Verify Link
-    val whatsAppDeepLink: String? = null
+    val whatsAppDeepLink: String? = null,
+
+    // Reactivation
+    val isReactivateSheetVisible: Boolean = false,
+    val reactivatePassword: String = "",
+    val isReactivatePasswordVisible: Boolean = false,
+    val reactivateButtonState: AppButtonState = AppButtonState.Enabled
 )
 
 enum class UploadTarget {

@@ -11,11 +11,15 @@ import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 
 interface RegisterRepository {
-    suspend fun register(request: RegisterRequest, imageBytes: ByteArray?, certificateImageBytes: ByteArray?): TokenResponse
+    suspend fun register(
+        request: RegisterRequest,
+        imageBytes: ByteArray?,
+        certificateImageBytes: ByteArray?,
+        identityDocumentBytes: ByteArray?
+    ): TokenResponse
     suspend fun completeProfile(
         request: CompleteProfileRequest,
-        ordinationCertificateBytes: ByteArray? = null,
-        identityDocumentBytes: ByteArray? = null
+        ordinationCertificateBytes: ByteArray? = null
     ): RegisterResponse
     suspend fun verifyEmail(email: String, otp: String)
     suspend fun initiateWhatsAppVerification(phone: String): InitiateWhatsAppVerificationResponse
