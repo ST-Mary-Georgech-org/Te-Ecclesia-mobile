@@ -14,8 +14,11 @@ import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.utils.PageQuery
+import com.teEcclesia.shared.domain.utils.formatTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_delete_service
 import teecclesia.designsystem.generated.resources.failed_to_load_services
@@ -353,6 +356,63 @@ class ServicesListViewModel(
         )
     }
 
+    override fun onToggleAddRepeatedEvent() {
+         updateState {
+             copy(
+                 addRepeatedEvent = !addRepeatedEvent,
+                 eventNameInput = "",
+                 eventDateInput = "",
+                 repeatEvery = "",
+                 startTimeInput = "",
+                 endTimeInput = ""
+             )
+         }
+    }
+
+    override fun onEventNameChanged(name: String) {
+        updateState { copy(eventNameInput = name) }
+    }
+
+    override fun onClickDatePicker() {
+        updateState { copy(isDatePickerOpen = true) }
+    }
+
+    override fun onDismissDatePicker() {
+        updateState { copy(isDatePickerOpen = false) }
+    }
+
+    override fun onDateSelected(date: LocalDate) {
+        updateState { copy(eventDateInput = date.toString(), isDatePickerOpen = false) }
+    }
+
+    override fun onRepeatEveryChanged(duration: String) {
+        updateState { copy(repeatEvery = duration) }
+    }
+
+    override fun onClickStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = true) }
+    }
+
+    override fun onDismissStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = false) }
+    }
+
+    override fun onStartTimeSelected(time: LocalTime) {
+        updateState { copy(startTimeInput = time.formatTime(), isStartTimePickerOpen = false) }
+    }
+
+    override fun onClickEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = true) }
+    }
+
+    override fun onDismissEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = false) }
+    }
+
+    override fun onEndTimeSelected(time: LocalTime) {
+        updateState { copy(endTimeInput = time.formatTime(), isEndTimePickerOpen = false) }
+    }
+
     override fun onDismissSheet() {
         updateState {
             copy(
@@ -365,7 +425,13 @@ class ServicesListViewModel(
                 suggestedServants = emptyList(),
                 selectedServants = emptyList(),
                 isDeleteConfirmSheetOpen = false,
-                deletingService = null
+                deletingService = null,
+                addRepeatedEvent = false,
+                eventNameInput = "",
+                eventDateInput = "",
+                repeatEvery = "",
+                startTimeInput = "",
+                endTimeInput = ""
             )
         }
     }

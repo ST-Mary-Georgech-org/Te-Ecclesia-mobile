@@ -364,6 +364,9 @@
     <string name="no_stage">None</string>
     <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
     <string name="maximum_stages_reached">Cannot select more than 10 educational stages</string>
+    <string name="add_repeated_event">Add repeated event</string>
+    <string name="event_start_date">Event Start Date (YYYY-MM-DD)</string>
+    <string name="repeat_every">Repeat every (number of days)</string>
     <string name="view_attendance_history">View Attendance History</string>
     <string name="attendance_history">Attendance History</string>
     <string name="failed_to_load_attendance_history">Failed to load attendance history</string>

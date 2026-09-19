@@ -364,6 +364,9 @@
     <string name="no_stage">بدون مرحلة</string>
     <string name="maximum_servants_reached">لا يمكن إضافة أكثر من 30 خادم مسؤول</string>
     <string name="maximum_stages_reached">لا يمكن اختيار أكثر من 10 مراحل</string>
+    <string name="add_repeated_event">إضافة حدث متكرر</string>
+    <string name="event_start_date">تاريخ بدا الحدث (YYYY-MM-DD)</string>
+    <string name="repeat_every">يتكرر كل (عدد ألأيام)</string>
     <string name="view_attendance_history">عرض سجل الحضور</string>
     <string name="attendance_history">سجل الحضور</string>
     <string name="failed_to_load_attendance_history">فشل تحميل سجل الحضور</string>

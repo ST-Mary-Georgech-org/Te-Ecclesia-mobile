@@ -1,8 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.services
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,15 +21,20 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.PopupProperties
@@ -40,6 +43,9 @@ import coil3.compose.AsyncImage
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.checkbox.Checkbox
+import com.teEcclesia.designsystem.components.dialog.DatePicker
+import com.teEcclesia.designsystem.components.dialog.TimePickerDialog
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
@@ -48,41 +54,53 @@ import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.TextField
-import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
+import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
+import com.teEcclesia.identity.presentation.screen.attendance.events.components.AddEditEventSheet
 import com.teEcclesia.identity.presentation.screen.register.components.UserChip
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.utils.getNow
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.add_event
+import teecclesia.designsystem.generated.resources.add_repeated_event
 import teecclesia.designsystem.generated.resources.add_service
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.confirm
 import teecclesia.designsystem.generated.resources.confirm_delete_service
 import teecclesia.designsystem.generated.resources.delete
+import teecclesia.designsystem.generated.resources.edit_event
 import teecclesia.designsystem.generated.resources.edit_service
 import teecclesia.designsystem.generated.resources.educational_stage
+import teecclesia.designsystem.generated.resources.end_time
+import teecclesia.designsystem.generated.resources.event_date
+import teecclesia.designsystem.generated.resources.event_name_optional
+import teecclesia.designsystem.generated.resources.event_start_date
 import teecclesia.designsystem.generated.resources.ic_arrow_right
-import teecclesia.designsystem.generated.resources.ic_chevron_down
+import teecclesia.designsystem.generated.resources.ic_calendar
+import teecclesia.designsystem.generated.resources.ic_clock
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_plus
 import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
 import teecclesia.designsystem.generated.resources.ic_user_settings
 import teecclesia.designsystem.generated.resources.no_services_found
-import teecclesia.designsystem.generated.resources.no_stage
+import teecclesia.designsystem.generated.resources.repeat_every
 import teecclesia.designsystem.generated.resources.responsible_servants
 import teecclesia.designsystem.generated.resources.search_servants_hint
 import teecclesia.designsystem.generated.resources.select_educational_stage_optional
 import teecclesia.designsystem.generated.resources.service_name
 import teecclesia.designsystem.generated.resources.services
+import teecclesia.designsystem.generated.resources.start_time
 
 @Composable
 fun ServicesListScreen(
@@ -100,6 +118,29 @@ fun ServicesListScreen(
             listener = viewModel
         )
     }
+
+    DatePicker(
+        showDialog = state.isDatePickerOpen,
+        selectedDate = runCatching { LocalDate.parse(state.eventDateInput) }.getOrNull(),
+        onDateSelected = viewModel::onDateSelected,
+        onDismiss = viewModel::onDismissDatePicker
+    )
+
+    TimePickerDialog(
+        showDialog = state.isStartTimePickerOpen,
+        initialTime = runCatching { LocalTime.parse(state.startTimeInput) }.getOrNull(),
+        title = stringResource(Res.string.start_time),
+        onTimeSelected = viewModel::onStartTimeSelected,
+        onDismiss = viewModel::onDismissStartTimePicker
+    )
+
+    TimePickerDialog(
+        showDialog = state.isEndTimePickerOpen,
+        initialTime = runCatching { LocalTime.parse(state.endTimeInput) }.getOrNull(),
+        title = stringResource(Res.string.end_time),
+        onTimeSelected = viewModel::onEndTimeSelected,
+        onDismiss = viewModel::onDismissEndTimePicker
+    )
 }
 
 @Composable
@@ -410,6 +451,93 @@ private fun ServicesListContent(
                     }
                 }
 
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+
+                    Checkbox(
+                        checked = state.addRepeatedEvent,
+                        onCheckedChange = { listener.onToggleAddRepeatedEvent() }
+                    )
+
+                    Text(
+                        text = stringResource(Res.string.add_repeated_event),
+                        style = Theme.typography.bodyMedium,
+                        color = Theme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                if (state.addRepeatedEvent){
+                    Text(
+                        text = stringResource(Res.string.add_repeated_event),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onBackground
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    CustomTextField(
+                        value = state.eventNameInput,
+                        onValueChange = listener::onEventNameChanged,
+                        labelText = stringResource(Res.string.event_name_optional),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CustomTextField(
+                        value = state.eventDateInput,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        labelText = stringResource(Res.string.event_start_date),
+                        trailingIcon = painterResource(Res.drawable.ic_calendar),
+                        onClick = listener::onClickDatePicker,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    CustomTextField(
+                        value = state.repeatEvery,
+                        onValueChange = listener::onRepeatEveryChanged,
+                        labelText = stringResource(Res.string.repeat_every),
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        CustomTextField(
+                            value = state.startTimeInput,
+                            onValueChange = {},
+                            readOnly = true,
+                            enabled = false,
+                            labelText = stringResource(Res.string.start_time),
+                            trailingIcon = painterResource(Res.drawable.ic_clock),
+                            onClick = listener::onClickStartTimePicker,
+                            modifier = Modifier.weight(1f)
+                        )
+
+                        CustomTextField(
+                            value = state.endTimeInput,
+                            onValueChange = {},
+                            readOnly = true,
+                            enabled = false,
+                            labelText = stringResource(Res.string.end_time),
+                            trailingIcon = painterResource(Res.drawable.ic_clock),
+                            onClick = listener::onClickEndTimePicker,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 AppButton(
@@ -417,7 +545,14 @@ private fun ServicesListContent(
                     onClick = listener::onConfirmSaveService,
                     modifier = Modifier.fillMaxWidth(),
                     text = stringResource(Res.string.confirm),
-                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled
+                    state = when {
+                        state.isActionLoading -> AppButtonState.Loading
+                        state.addRepeatedEvent &&
+                                (state.eventDateInput.isBlank() ||
+                                    (state.repeatEvery.toIntOrNull() ?: 0) <= 0
+                                )-> AppButtonState.Disabled
+                        else -> AppButtonState.Enabled
+                    }
                 )
             }
         }
@@ -578,6 +713,18 @@ private fun ServicesListPreview() = Theme {
             override fun onDismissServantSuggestions() {}
             override fun onConfirmSaveService() {}
             override fun onConfirmDeleteService() {}
+            override fun onToggleAddRepeatedEvent() {}
+            override fun onEventNameChanged(name: String) {}
+            override fun onClickDatePicker() {}
+            override fun onDismissDatePicker() {}
+            override fun onDateSelected(date: LocalDate) {}
+            override fun onRepeatEveryChanged(duration: String) {}
+            override fun onClickStartTimePicker() {}
+            override fun onDismissStartTimePicker() {}
+            override fun onStartTimeSelected(time: LocalTime) {}
+            override fun onClickEndTimePicker() {}
+            override fun onDismissEndTimePicker() {}
+            override fun onEndTimeSelected(time: LocalTime) {}
             override fun onDismissSheet() {}
             override fun onClickService(service: ChurchService) {}
             override fun onRefresh() {}
