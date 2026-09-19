@@ -256,6 +256,7 @@ private fun RegisterScreenPreview() {
             override fun onLastNameChange(value: String) { state = state.copy(lastName = value) }
             override fun onDisplayNameChange(value: String) { state = state.copy(displayName = value) }
             override fun onNationalIdChange(value: String) { state = state.copy(nationalId = value) }
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onJobChange(value: String) { state = state.copy(job = value) }
             override fun onSelectConfessionPriest(priest: Priest?) { state = state.copy(selectedConfessionPriest = priest) }
             override fun onSelectFromAnotherChurch() { state = state.copy(isFromAnotherChurch = true) }

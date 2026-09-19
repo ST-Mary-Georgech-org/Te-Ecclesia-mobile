@@ -30,6 +30,9 @@ data class RegisterScreenState(
     val displayNameError: UiText? = null,
     val nationalId: String = "",
     val nationalIdError: UiText? = null,
+    val isUnder13: Boolean = false,
+    val isParentConsentAgreed: Boolean = false,
+    val parentConsentError: UiText? = null,
     val isMale: Boolean? = null,
     val job: String = "",
 

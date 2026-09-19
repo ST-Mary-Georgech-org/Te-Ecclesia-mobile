@@ -193,6 +193,7 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onThirdNameChange(value: String) {}
             override fun onLastNameChange(value: String) {}
             override fun onDisplayNameChange(value: String) {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onNationalIdChange(value: String) {}
             override fun onJobChange(value: String) {}
             override fun onSelectConfessionPriest(priest: Priest?) {}

@@ -136,6 +136,7 @@ private fun RegisterStep3ContentPreviewLightDark() {
             override fun onClickNextStep() {}
             override fun onClickPreviousStep() {}
             override fun onClickLogin() {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onFirstNameChange(value: String) {}
             override fun onSecondNameChange(value: String) {}
             override fun onThirdNameChange(value: String) {}
