@@ -60,7 +60,7 @@ import teecclesia.designsystem.generated.resources.upload_birth_certificate
 import teecclesia.designsystem.generated.resources.file_birth_certificate
 import teecclesia.designsystem.generated.resources.parent_consent_declaration
 import teecclesia.designsystem.generated.resources.privacy_policy
-import teecclesia.designsystem.generated.resources.privacy_policy_url
+import com.teEcclesia.shared.domain.utils.AppUrls
 import teecclesia.designsystem.generated.resources.personal_info
 
 @Composable
@@ -70,7 +70,7 @@ fun RegisterStep1Content(
     onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
     val uriHandler = LocalUriHandler.current
-    val privacyPolicyUrl = stringResource(Res.string.privacy_policy_url)
+    val privacyPolicyUrl = AppUrls.PRIVACY_POLICY
 
     Column(
         modifier = Modifier

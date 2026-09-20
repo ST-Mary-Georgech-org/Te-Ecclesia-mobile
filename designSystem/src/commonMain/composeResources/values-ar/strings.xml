@@ -148,7 +148,6 @@
     <string name="file_birth_certificate">شهادة الميلاد</string>
     <string name="parent_consent_declaration">أقر بأنني ولي أمر الطفل/أملك الموافقة لرفع هذه البيانات التنظيمية</string>
     <string name="privacy_policy">سياسة الخصوصية</string>
-    <string name="privacy_policy_url">https://example.com/privacy-policy</string>
     <string name="parent_consent_required">يجب موافقة ولي الأمر ورفع شهادة الميلاد للمتابعة</string>
     <string name="birth_certificate_required">يرجى رفع صورة شهادة الميلاد للمتابعة</string>
 
