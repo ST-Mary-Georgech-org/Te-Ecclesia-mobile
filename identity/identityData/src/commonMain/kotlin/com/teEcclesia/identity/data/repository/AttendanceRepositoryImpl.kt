@@ -4,15 +4,18 @@ import com.teEcclesia.identity.data.model.attendance.AddAttendeeDto
 import com.teEcclesia.identity.data.model.attendance.AttendeeUserPreviewDto
 import com.teEcclesia.identity.data.model.attendance.ChurchServiceDto
 import com.teEcclesia.identity.data.model.attendance.CreateEventDto
+import com.teEcclesia.identity.data.model.attendance.CreateRepeatedEventDto
 import com.teEcclesia.identity.data.model.attendance.CreateServiceDto
 import com.teEcclesia.identity.data.model.attendance.EventAttendeeDto
 import com.teEcclesia.identity.data.model.attendance.ServiceEventDto
+import com.teEcclesia.identity.data.model.attendance.ServiceRepeatedEventDto
 import com.teEcclesia.identity.data.model.attendance.UserAttendanceHistoryDto
 import com.teEcclesia.identity.data.model.attendance.toDomain
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEvent
 import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
@@ -118,6 +121,33 @@ class AttendanceRepositoryImpl(
                         eventDate = date.toString(),
                         startTime = startTime.toString(),
                         endTime = endTime.toString()
+                    )
+                )
+            }
+        }
+        return dto.toDomain()
+    }
+
+    override suspend fun createRepeatedEvent(
+        serviceId: Long,
+        name: String?,
+        startDate: LocalDate,
+        nextCreationDate : LocalDate,
+        startTime: LocalTime,
+        endTime: LocalTime,
+        repeatEvery : Int
+    ): ServiceRepeatedEvent {
+        val dto = tryToExecute<ServiceRepeatedEventDto> {
+            post("/api/v1/attendance/services/$serviceId/repeated-events") {
+                contentType(ContentType.Application.Json)
+                setBody(
+                    CreateRepeatedEventDto(
+                        name = name,
+                        startDate = startDate.toString(),
+                        nextCreationDate = nextCreationDate.toString(),
+                        startTime = startTime.toString(),
+                        endTime = endTime.toString(),
+                        repeatEvery = repeatEvery
                     )
                 )
             }

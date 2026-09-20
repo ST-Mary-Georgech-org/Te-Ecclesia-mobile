@@ -17,14 +17,20 @@ import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.formatTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.plus
+import kotlinx.datetime.toLocalDateTime
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_delete_service
 import teecclesia.designsystem.generated.resources.failed_to_load_services
+import teecclesia.designsystem.generated.resources.failed_to_save_event
 import teecclesia.designsystem.generated.resources.failed_to_save_service
 import teecclesia.designsystem.generated.resources.maximum_servants_reached
 import teecclesia.designsystem.generated.resources.maximum_stages_reached
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 
 class ServicesListViewModel(
@@ -303,36 +309,114 @@ class ServicesListViewModel(
         val stageIds = state.value.selectedStages.map { it.id }
         val servantIds = state.value.selectedServants.map { it.id }
 
+        if (state.value.addRepeatedEvent){
+            var createdServiceId: Long? = null
+            tryToCall(
+                onStart = { updateState { copy(isActionLoading = true) } },
+                block = {
+                    val createdService = attendanceRepository.createService(
+                        name = input,
+                        educationalStageIds = stageIds,
+                        responsibleServantIds = servantIds
+                    )
+                    createdServiceId = createdService.id
+                },
+                onSuccess = {
+                    createRepeatedEvent(createdServiceId)
+                    onDismissSheet()
+                    loadServices()
+                },
+                onError = { throwable ->
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.failed_to_save_service),
+                        message = getLocalizedErrorMessage(throwable),
+                        isSuccess = false
+                    )
+                },
+                onEnd = { updateState { copy(isActionLoading = false) } }
+            )
+        }
+        else{
+            tryToCall(
+                onStart = { updateState { copy(isActionLoading = true) } },
+                block = {
+                    if (editing == null) {
+                        attendanceRepository.createService(
+                            name = input,
+                            educationalStageIds = stageIds,
+                            responsibleServantIds = servantIds
+                        )
+                    } else {
+                        attendanceRepository.updateService(
+                            id = editing.id,
+                            name = input,
+                            educationalStageIds = stageIds,
+                            responsibleServantIds = servantIds
+                        )
+                    }
+                },
+                onSuccess = {
+                    onDismissSheet()
+                    loadServices()
+                },
+                onError = { throwable ->
+                    showSnackBar(
+                        title = UiText.StringRes(Res.string.failed_to_save_service),
+                        message = getLocalizedErrorMessage(throwable),
+                        isSuccess = false
+                    )
+                },
+                onEnd = { updateState { copy(isActionLoading = false) } }
+            )
+        }
+    }
+    private fun createRepeatedEvent(serviceId : Long?){
+        if (serviceId == null) return
+        val dateStr = state.value.eventDateInput.trim()
+        val start = state.value.startTimeInput.trim()
+        val end = state.value.endTimeInput.trim()
+        val date = runCatching { LocalDate.parse(dateStr) }.getOrNull() ?: return
+        val startTime = runCatching { LocalTime.parse(start) }.getOrNull() ?: return
+        val endTime = runCatching { LocalTime.parse(end) }.getOrNull() ?: return
+        val name = state.value.eventNameInput.trim()
+        val repeatEvery = state.value.repeatEvery.toIntOrNull() ?.takeIf { it > 0 } ?: return
         tryToCall(
             onStart = { updateState { copy(isActionLoading = true) } },
             block = {
-                if (editing == null) {
-                    attendanceRepository.createService(
-                        name = input,
-                        educationalStageIds = stageIds,
-                        responsibleServantIds = servantIds
-                    )
-                } else {
-                    attendanceRepository.updateService(
-                        id = editing.id,
-                        name = input,
-                        educationalStageIds = stageIds,
-                        responsibleServantIds = servantIds
+                attendanceRepository.createRepeatedEvent(
+                    serviceId = serviceId,
+                    name = name.ifBlank { null },
+                    startDate = date,
+                    nextCreationDate = date.plus(DatePeriod(days = repeatEvery)),
+                    startTime = startTime,
+                    endTime = endTime,
+                    repeatEvery = repeatEvery
+                )
+            },
+            onSuccess = {
+                val now = Clock.System.now()
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+
+                val today = now.date
+                val currentTime = now.time
+
+                if (date == today && currentTime < startTime) {
+                    attendanceRepository.createEvent(
+                        serviceId = serviceId,
+                        name = name.ifBlank { null },
+                        date = date,
+                        startTime = startTime,
+                        endTime = endTime
                     )
                 }
             },
-            onSuccess = {
-                onDismissSheet()
-                loadServices()
-            },
             onError = { throwable ->
                 showSnackBar(
-                    title = UiText.StringRes(Res.string.failed_to_save_service),
+                    title = UiText.StringRes(Res.string.failed_to_save_event),
                     message = getLocalizedErrorMessage(throwable),
                     isSuccess = false
                 )
-            },
-            onEnd = { updateState { copy(isActionLoading = false) } }
+            }
         )
     }
 

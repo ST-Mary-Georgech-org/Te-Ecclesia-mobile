@@ -4,6 +4,7 @@ import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEvent
 import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.shared.domain.utils.PagedData
 import kotlinx.datetime.LocalDate
@@ -23,6 +24,16 @@ interface AttendanceRepository {
         startTime: LocalTime,
         endTime: LocalTime
     ): ServiceEvent
+
+    suspend fun createRepeatedEvent(
+        serviceId: Long,
+        name: String?,
+        startDate: LocalDate,
+        nextCreationDate: LocalDate,
+        startTime: LocalTime,
+        endTime: LocalTime,
+        repeatEvery : Int
+    ): ServiceRepeatedEvent
 
     suspend fun updateEvent(
         eventId: Long,

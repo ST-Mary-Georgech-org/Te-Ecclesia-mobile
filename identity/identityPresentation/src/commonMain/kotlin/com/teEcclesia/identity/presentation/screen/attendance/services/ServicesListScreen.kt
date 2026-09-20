@@ -27,9 +27,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -62,7 +59,6 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
-import com.teEcclesia.identity.presentation.screen.attendance.events.components.AddEditEventSheet
 import com.teEcclesia.identity.presentation.screen.register.components.UserChip
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.utils.getNow
@@ -72,18 +68,15 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.add_event
 import teecclesia.designsystem.generated.resources.add_repeated_event
 import teecclesia.designsystem.generated.resources.add_service
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.confirm
 import teecclesia.designsystem.generated.resources.confirm_delete_service
 import teecclesia.designsystem.generated.resources.delete
-import teecclesia.designsystem.generated.resources.edit_event
 import teecclesia.designsystem.generated.resources.edit_service
 import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.end_time
-import teecclesia.designsystem.generated.resources.event_date
 import teecclesia.designsystem.generated.resources.event_name_optional
 import teecclesia.designsystem.generated.resources.event_start_date
 import teecclesia.designsystem.generated.resources.ic_arrow_right
@@ -500,7 +493,13 @@ private fun ServicesListContent(
 
                     CustomTextField(
                         value = state.repeatEvery,
-                        onValueChange = listener::onRepeatEveryChanged,
+                        onValueChange = { value ->
+                            val numbersOnly = value.filter { it.isDigit() }
+
+                            if (numbersOnly.isEmpty() || numbersOnly.toIntOrNull()?.let { it > 0 } == true) {
+                                listener.onRepeatEveryChanged(numbersOnly)
+                            }
+                        },
                         labelText = stringResource(Res.string.repeat_every),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -549,7 +548,9 @@ private fun ServicesListContent(
                         state.isActionLoading -> AppButtonState.Loading
                         state.addRepeatedEvent &&
                                 (state.eventDateInput.isBlank() ||
-                                    (state.repeatEvery.toIntOrNull() ?: 0) <= 0
+                                    (state.repeatEvery.toIntOrNull() ?: 0) <= 0 ||
+                                        state.startTimeInput.isBlank() ||
+                                        state.endTimeInput.isBlank()
                                 )-> AppButtonState.Disabled
                         else -> AppButtonState.Enabled
                     }
