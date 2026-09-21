@@ -15,6 +15,8 @@ data class AreaSuggestionsSettingsUiState(
     val isLoading: Boolean = true,
     val isLoadFailed: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isPagingLoading: Boolean = false,
+    val isLastPage: Boolean = false,
     val isEditAreaSheetVisible : Boolean = false,
     val isDeleteConfirmSheetOpen: Boolean = false,
     val deletingArea: AreaResponse? = null,

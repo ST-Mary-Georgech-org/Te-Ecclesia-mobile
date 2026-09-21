@@ -4,6 +4,7 @@ import com.teEcclesia.lookups.domain.model.AreaResponse
 
 interface AreaSuggestionsSettingsInteractionListener {
 
+    fun onLoadMore()
     fun onClickAddArea()
     fun onAreaNameChanged(name: String)
     fun onClickEditArea(areaResponse: AreaResponse)

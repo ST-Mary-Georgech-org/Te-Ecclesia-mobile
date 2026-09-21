@@ -12,13 +12,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -30,28 +29,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.text.style.TextAlign
 import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.AddEditAreaSheet
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.AreaSuggestionsCardShimmer
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.DeleteAreaConfirmSheet
 import com.teEcclesia.lookups.domain.model.AreaResponse
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.add_area
-import teecclesia.designsystem.generated.resources.area
-import teecclesia.designsystem.generated.resources.cancel
-import teecclesia.designsystem.generated.resources.confirm
-import teecclesia.designsystem.generated.resources.deleta_area_confirmation_message
-import teecclesia.designsystem.generated.resources.delete_area_confirmation_title
-import teecclesia.designsystem.generated.resources.edit_area
 import teecclesia.designsystem.generated.resources.edit_area_suggestions
 import teecclesia.designsystem.generated.resources.failed_to_load_area_suggestions
 import teecclesia.designsystem.generated.resources.ic_arrow_back
@@ -78,6 +71,8 @@ private fun AreaSuggestionsSettingContent(
     state: AreaSuggestionsSettingsUiState,
     listener: AreaSuggestionsSettingsInteractionListener,
 ) {
+    val listState = rememberLazyListState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +96,7 @@ private fun AreaSuggestionsSettingContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(){
+                        Row{
                             IconButton(onClick = listener::onClickBack) {
                                 Icon(
                                     painter = painterResource(Res.drawable.ic_arrow_back),
@@ -134,13 +129,8 @@ private fun AreaSuggestionsSettingContent(
 
 
                 if (state.isLoading) {
-                    item {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().height(200.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(color = Theme.colorScheme.primary)
-                        }
+                    items(6) {
+                        AreaSuggestionsCardShimmer()
                     }
                 } else if (state.isLoadFailed) {
                     item {
@@ -198,88 +188,39 @@ private fun AreaSuggestionsSettingContent(
 
                         Spacer(modifier = Modifier.height(12.dp))
                     }
+                    if (state.isPagingLoading) {
+                        item(key = "paging_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Theme.colorScheme.primary,
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
+                    }
+                }
+                item{
+
                 }
             }
         }
 
-        BottomSheet(
-            isVisible = state.isAddEditSheetOpen,
-            onDismiss = listener::onDismissSheet
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = stringResource(
-                        if (state.editingArea == null) Res.string.add_area else Res.string.edit_area
-                    ),
-                    style = Theme.typography.headlineSmall,
-                    color = Theme.colorScheme.onBackground
-                )
+        AddEditAreaSheet(state, listener)
 
-                Spacer(modifier = Modifier.height(16.dp))
+        DeleteAreaConfirmSheet(state, listener)
 
-                CustomTextField(
-                    value = state.areaNameInput,
-                    onValueChange = listener::onAreaNameChanged,
-                    labelText = stringResource(Res.string.area),
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                AppButton(
-                    type = AppButtonType.Primary,
-                    onClick = listener::onClickSaveArea,
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.confirm),
-                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled
-                )
-            }
-        }
-
-        BottomSheet(
-            isVisible = state.isDeleteConfirmSheetOpen,
-            onDismiss = listener::onDismissConfirmDialog
-        ) {
-            Text(
-                text = stringResource(Res.string.delete_area_confirmation_title),
-                style = Theme.typography.headlineSmall,
-                color = Theme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = stringResource(Res.string.deleta_area_confirmation_message),
-                style = Theme.typography.bodyMedium,
-                color = Theme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                AppButton(
-                    type = AppButtonType.Secondary,
-                    onClick = listener::onDismissConfirmDialog,
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(Res.string.cancel)
-                )
-
-                AppButton(
-                    type = AppButtonType.Primary,
-                    onClick = listener::onConfirmAreaDelete,
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(Res.string.confirm),
-                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled
-                )
-            }
-        }
+        PaginationTrigger(
+            list = state.areas,
+            listState = listState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadMore
+        )
     }
 }
 
@@ -342,6 +283,7 @@ private fun AreaSuggestionsSettingsScreenPreview() = Theme {
         AreaSuggestionsSettingContent(
             state = AreaSuggestionsSettingsUiState(),
             listener = object : AreaSuggestionsSettingsInteractionListener {
+                override fun onLoadMore() {}
                 override fun onClickAddArea() {}
                 override fun onAreaNameChanged(name: String) {}
                 override fun onClickEditArea(areaResponse: AreaResponse) {}

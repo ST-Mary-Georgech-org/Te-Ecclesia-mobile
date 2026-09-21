@@ -9,34 +9,79 @@ import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_delete_service
+import teecclesia.designsystem.generated.resources.failed_to_load_areas
 import teecclesia.designsystem.generated.resources.failed_to_save_service
+import kotlin.collections.plus
 
 class AreaSuggestionsSettingsViewModel(
     private val lookupRepository: LookupRepository
     ) : BaseViewModel<AreaSuggestionsSettingsUiState>(AreaSuggestionsSettingsUiState()),
     AreaSuggestionsSettingsInteractionListener {
 
+    private val pageSize = 20
+
+    private val areasPaginator = createPaginator(
+        loadPage = { page ->
+            lookupRepository.getAreasForSuggestions(
+                query = "",
+                pageQuery = PageQuery(page = page, size = pageSize)
+            ).toPagedData()
+        },
+        onSuccess = { items ->
+            updateState { current ->
+                current.copy(
+                    isLoading = false,
+                    isPagingLoading = false,
+                    isRefreshing = false,
+                    areas = current.areas + items.data,
+                    isLastPage = items.isLastPage
+                )
+            }
+        },
+        onLoadUpdated = { loading ->
+            updateState { current ->
+                if (current.areas.isEmpty() && !current.isRefreshing) {
+                    current.copy(isLoading = loading)
+                } else if (!current.isRefreshing) {
+                    current.copy(isPagingLoading = loading)
+                } else {
+                    current
+                }
+            }
+        },
+        onReset = {
+            updateState { it.copy(areas = emptyList(), isLastPage = false) }
+        },
+        onError = { throwable ->
+            updateState { current ->
+                current.copy(
+                    isLoading = false,
+                    isPagingLoading = false,
+                    isRefreshing = false
+                )
+            }
+            throwable?.let { t ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_load_areas),
+                    message = getLocalizedErrorMessage(t),
+                    isSuccess = false
+                )
+            }
+        }
+    )
+
     init {
         searchAreas()
     }
 
     private fun searchAreas() {
-        tryToCall(
-            block = {
-                lookupRepository.getAreasForSuggestions(query = "", pageQuery = PageQuery(page = 0, size = 20))
-                    .toPagedData()
-            },
-            onStart = { updateState { copy(isLoading = true, isLoadFailed = false) } },
-            onSuccess = { items ->
-                updateState {
-                    copy(areas = items.data, isEditAreaSheetVisible = true, isLoadFailed = false)
-                }
-            },
-            onError = { _ ->
-                updateState { copy(isLoadFailed = true, isEditAreaSheetVisible = true) }
-            },
-            onEnd = { updateState { copy(isLoading = false) } }
-        )
+        areasPaginator.reset()
+    }
+
+    override fun onLoadMore() {
+        if (!state.value.isLastPage && !state.value.isPagingLoading && !state.value.isLoading) {
+            areasPaginator.loadNextItems()
+        }
     }
 
     override fun onClickAddArea() {
@@ -150,6 +195,7 @@ class AreaSuggestionsSettingsViewModel(
     }
 
     override fun onRefresh() {
+        updateState { copy(isRefreshing = true) }
         searchAreas()
     }
 
