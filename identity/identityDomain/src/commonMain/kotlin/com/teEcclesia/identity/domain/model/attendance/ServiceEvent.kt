@@ -12,5 +12,6 @@ data class ServiceEvent(
     val startTime: LocalTime,
     val endTime: LocalTime,
     val attendeeCount: Long,
+    val repeated : Boolean,
     val createdAt: LocalDateTime
 )

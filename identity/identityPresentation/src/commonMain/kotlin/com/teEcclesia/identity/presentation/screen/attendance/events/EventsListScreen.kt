@@ -211,7 +211,14 @@ private fun EventsListPreview() = Theme {
         state = EventsListUiState(
             serviceName = "خدمة ابتدائي",
             events = listOf(
-                ServiceEvent(1, 1, "اجتماع الجمعه", LocalDate.parse("2026-07-30"), LocalTime(18, 0), LocalTime(20, 0), 12, getNow())
+                ServiceEvent(1, 1,
+                    "اجتماع الجمعه",
+                    LocalDate.parse("2026-07-30"),
+                    LocalTime(18, 0),
+                    LocalTime(20, 0),
+                    12,
+                    true,
+                    getNow())
             )
         ),
         listener = object : EventsListInteractionListener {

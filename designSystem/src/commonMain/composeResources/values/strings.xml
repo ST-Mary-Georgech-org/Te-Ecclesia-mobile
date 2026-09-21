@@ -271,6 +271,7 @@
 
     <!-- Attendance Keys -->
     <string name="attendance">Attendance</string>
+    <string name="repeated">Repeated</string>
     <string name="services">Services</string>
     <string name="add_service">Add Service</string>
     <string name="edit_service">Edit Service</string>

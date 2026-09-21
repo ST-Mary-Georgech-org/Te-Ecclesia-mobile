@@ -10,5 +10,7 @@ data class CreateServiceDto(
     @SerialName("educationalStageIds")
     val educationalStageIds: List<Long>,
     @SerialName("responsibleServantIds")
-    val responsibleServantIds: List<String>
+    val responsibleServantIds: List<String>,
+    @SerialName("repeatedEvent")
+    val repeatedEventDto: CreateRepeatedEventDto? = null
 )

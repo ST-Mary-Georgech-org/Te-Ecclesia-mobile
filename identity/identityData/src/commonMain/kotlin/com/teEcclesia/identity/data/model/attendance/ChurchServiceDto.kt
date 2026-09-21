@@ -20,7 +20,9 @@ data class ChurchServiceDto(
     @SerialName("educationalStages")
     val educationalStages: List<LookupResponseDto> = emptyList(),
     @SerialName("responsibleServants")
-    val responsibleServants: List<ResponsibleServantDto>
+    val responsibleServants: List<ResponsibleServantDto>,
+    @SerialName("repeatedEvent")
+    val repeatedEvent: ServiceRepeatedEventDto? = null
 )
 
 fun ChurchServiceDto.toDomain(): ChurchService {
@@ -30,6 +32,7 @@ fun ChurchServiceDto.toDomain(): ChurchService {
         createdAt = createdAt.toLocalDateTimeOrDefault(),
         isResponsible = isResponsible,
         educationalStages = educationalStages.map { it.toDomain() },
-        responsibleServants = responsibleServants.map { it.toDomain() }
+        responsibleServants = responsibleServants.map { it.toDomain() },
+        repeatedEvent = repeatedEvent?.toDomain()
     )
 }

@@ -16,6 +16,7 @@ import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEvent
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEventRequest
 import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.shared.data.dataSource.remote.dto.BasePagedData
@@ -51,7 +52,8 @@ class AttendanceRepositoryImpl(
     override suspend fun createService(
         name: String,
         educationalStageIds: List<Long>,
-        responsibleServantIds: List<String>
+        responsibleServantIds: List<String>,
+        repeatedEvent : ServiceRepeatedEventRequest?
     ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
             post("/api/v1/attendance/services") {
@@ -60,7 +62,17 @@ class AttendanceRepositoryImpl(
                     CreateServiceDto(
                         name = name,
                         educationalStageIds = educationalStageIds,
-                        responsibleServantIds = responsibleServantIds
+                        responsibleServantIds = responsibleServantIds,
+                        repeatedEventDto = repeatedEvent?.let {
+                            CreateRepeatedEventDto(
+                                name = it.name ?: "",
+                                startDate = it.startDate.toString(),
+                                nextCreationDate = it.nextCreationDate.toString(),
+                                startTime = it.startTime.toString(),
+                                endTime = it.endTime.toString(),
+                                repeatEvery = it.repeatEvery
+                            )
+                        }
                     )
                 )
             }
@@ -72,7 +84,8 @@ class AttendanceRepositoryImpl(
         id: Long,
         name: String,
         educationalStageIds: List<Long>,
-        responsibleServantIds: List<String>
+        responsibleServantIds: List<String>,
+        repeatedEvent : ServiceRepeatedEventRequest?
     ): ChurchService {
         val dto = tryToExecute<ChurchServiceDto> {
             put("/api/v1/attendance/services/$id") {
@@ -81,7 +94,17 @@ class AttendanceRepositoryImpl(
                     CreateServiceDto(
                         name = name,
                         educationalStageIds = educationalStageIds,
-                        responsibleServantIds = responsibleServantIds
+                        responsibleServantIds = responsibleServantIds,
+                        repeatedEventDto = repeatedEvent?.let {
+                            CreateRepeatedEventDto(
+                                name = it.name ?: "",
+                                startDate = it.startDate.toString(),
+                                nextCreationDate = it.nextCreationDate.toString(),
+                                startTime = it.startTime.toString(),
+                                endTime = it.endTime.toString(),
+                                repeatEvery = it.repeatEvery
+                            )
+                        }
                     )
                 )
             }

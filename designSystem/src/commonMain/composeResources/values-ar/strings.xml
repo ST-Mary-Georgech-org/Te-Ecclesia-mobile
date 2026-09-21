@@ -271,6 +271,7 @@
 
     <!-- Attendance Keys -->
     <string name="attendance">الحضور</string>
+    <string name="repeated">متكرر</string>
     <string name="services">الخدمات</string>
     <string name="add_service">إضافة خدمة جديدة</string>
     <string name="edit_service">تعديل الخدمة</string>

@@ -681,7 +681,8 @@ private fun ServicesListPreview() = Theme {
                     createdAt = getNow(),
                     isResponsible = true,
                     educationalStages = emptyList(),
-                    responsibleServants = emptyList()
+                    responsibleServants = emptyList(),
+                    repeatedEvent = null
                 ),
                 ChurchService(
                     id = 2,
@@ -695,7 +696,8 @@ private fun ServicesListPreview() = Theme {
                             subItems = emptyList()
                         )
                     ),
-                    responsibleServants = emptyList()
+                    responsibleServants = emptyList(),
+                    repeatedEvent = null
                 )
             )
         ),

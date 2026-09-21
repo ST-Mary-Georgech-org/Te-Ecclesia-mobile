@@ -9,6 +9,7 @@ import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEventRequest
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
@@ -173,7 +174,12 @@ class ServicesListViewModel(
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
-                selectedServants = emptyList()
+                selectedServants = emptyList(),
+                eventNameInput = "",
+                eventDateInput = "",
+                repeatEvery = "",
+                startTimeInput = "",
+                endTimeInput = ""
             )
         }
     }
@@ -188,7 +194,13 @@ class ServicesListViewModel(
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
-                selectedServants = service.responsibleServants
+                selectedServants = service.responsibleServants,
+                addRepeatedEvent = service.repeatedEvent != null,
+                eventNameInput = service.repeatedEvent?.name ?: "" ,
+                eventDateInput = service.repeatedEvent?.startDate.toString(),
+                repeatEvery = service.repeatedEvent?.repeatEvery.toString(),
+                startTimeInput = service.repeatedEvent?.startTime.toString(),
+                endTimeInput = service.repeatedEvent?.endTime.toString()
             )
         }
     }
@@ -309,67 +321,60 @@ class ServicesListViewModel(
         val stageIds = state.value.selectedStages.map { it.id }
         val servantIds = state.value.selectedServants.map { it.id }
 
-        if (state.value.addRepeatedEvent){
-            var createdServiceId: Long? = null
-            tryToCall(
-                onStart = { updateState { copy(isActionLoading = true) } },
-                block = {
-                    val createdService = attendanceRepository.createService(
+        val repeatedEvent = if (state.value.addRepeatedEvent) {
+            val dateStr = state.value.eventDateInput.trim()
+            val start = state.value.startTimeInput.trim()
+            val end = state.value.endTimeInput.trim()
+            val date = runCatching { LocalDate.parse(dateStr) }.getOrNull() ?: return
+            val startTime = runCatching { LocalTime.parse(start) }.getOrNull() ?: return
+            val endTime = runCatching { LocalTime.parse(end) }.getOrNull() ?: return
+            val name = state.value.eventNameInput.trim()
+            val repeatEvery = state.value.repeatEvery .toIntOrNull() ?.takeIf { it > 0 } ?: return
+            ServiceRepeatedEventRequest(
+                name = name.ifBlank { null },
+                startDate = date,
+                nextCreationDate = date.plus( DatePeriod(days = repeatEvery) ),
+                startTime = startTime,
+                endTime = endTime,
+                repeatEvery = repeatEvery
+            )
+
+        } else { null }
+        tryToCall(
+            onStart = { updateState { copy(isActionLoading = true) } },
+            block = {
+                if (editing == null) {
+                    attendanceRepository.createService(
                         name = input,
                         educationalStageIds = stageIds,
-                        responsibleServantIds = servantIds
+                        responsibleServantIds = servantIds,
+                        repeatedEvent = repeatedEvent
                     )
-                    createdServiceId = createdService.id
-                },
-                onSuccess = {
-                    createRepeatedEvent(createdServiceId)
-                    onDismissSheet()
-                    loadServices()
-                },
-                onError = { throwable ->
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.failed_to_save_service),
-                        message = getLocalizedErrorMessage(throwable),
-                        isSuccess = false
+                } else {
+                    attendanceRepository.updateService(
+                        id = editing.id,
+                        name = input,
+                        educationalStageIds = stageIds,
+                        responsibleServantIds = servantIds,
+                        repeatedEvent = repeatedEvent
                     )
-                },
-                onEnd = { updateState { copy(isActionLoading = false) } }
-            )
-        }
-        else{
-            tryToCall(
-                onStart = { updateState { copy(isActionLoading = true) } },
-                block = {
-                    if (editing == null) {
-                        attendanceRepository.createService(
-                            name = input,
-                            educationalStageIds = stageIds,
-                            responsibleServantIds = servantIds
-                        )
-                    } else {
-                        attendanceRepository.updateService(
-                            id = editing.id,
-                            name = input,
-                            educationalStageIds = stageIds,
-                            responsibleServantIds = servantIds
-                        )
-                    }
-                },
-                onSuccess = {
-                    onDismissSheet()
-                    loadServices()
-                },
-                onError = { throwable ->
-                    showSnackBar(
-                        title = UiText.StringRes(Res.string.failed_to_save_service),
-                        message = getLocalizedErrorMessage(throwable),
-                        isSuccess = false
-                    )
-                },
-                onEnd = { updateState { copy(isActionLoading = false) } }
-            )
-        }
+                }
+            },
+            onSuccess = {
+                onDismissSheet()
+                loadServices()
+            },
+            onError = { throwable ->
+                showSnackBar(
+                    title = UiText.StringRes(Res.string.failed_to_save_service),
+                    message = getLocalizedErrorMessage(throwable),
+                    isSuccess = false
+                )
+            },
+            onEnd = { updateState { copy(isActionLoading = false) } }
+        )
     }
+
     private fun createRepeatedEvent(serviceId : Long?){
         if (serviceId == null) return
         val dateStr = state.value.eventDateInput.trim()
@@ -393,23 +398,7 @@ class ServicesListViewModel(
                     repeatEvery = repeatEvery
                 )
             },
-            onSuccess = {
-                val now = Clock.System.now()
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-
-                val today = now.date
-                val currentTime = now.time
-
-                if (date == today && currentTime < startTime) {
-                    attendanceRepository.createEvent(
-                        serviceId = serviceId,
-                        name = name.ifBlank { null },
-                        date = date,
-                        startTime = startTime,
-                        endTime = endTime
-                    )
-                }
-            },
+            onSuccess = {},
             onError = { throwable ->
                 showSnackBar(
                     title = UiText.StringRes(Res.string.failed_to_save_event),

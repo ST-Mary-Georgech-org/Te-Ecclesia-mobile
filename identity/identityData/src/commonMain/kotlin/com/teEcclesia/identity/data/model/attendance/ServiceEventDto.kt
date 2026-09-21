@@ -23,6 +23,8 @@ data class ServiceEventDto(
     val endTime: String,
     @SerialName("attendeeCount")
     val attendeeCount: Long? = 0L,
+    @SerialName("repeated")
+    val repeated: Boolean = false,
     @SerialName("createdAt")
     val createdAt: String? = null
 )
@@ -36,6 +38,7 @@ fun ServiceEventDto.toDomain(): ServiceEvent {
         startTime = runCatching { LocalTime.parse(startTime) }.getOrDefault(LocalTime(0, 0)),
         endTime = runCatching { LocalTime.parse(endTime) }.getOrDefault(LocalTime(0, 0)),
         attendeeCount = attendeeCount ?: 0L,
+        repeated = repeated,
         createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow()
     )
 }

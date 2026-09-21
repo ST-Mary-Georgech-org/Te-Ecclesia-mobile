@@ -5,6 +5,7 @@ import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.EventAttendee
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEvent
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEventRequest
 import com.teEcclesia.identity.domain.model.attendance.UserAttendanceHistory
 import com.teEcclesia.shared.domain.utils.PagedData
 import kotlinx.datetime.LocalDate
@@ -12,8 +13,19 @@ import kotlinx.datetime.LocalTime
 
 interface AttendanceRepository {
     suspend fun getServices(page: Int, size: Int = 20): PagedData<ChurchService>
-    suspend fun createService(name: String, educationalStageIds: List<Long>, responsibleServantIds: List<String>): ChurchService
-    suspend fun updateService(id: Long, name: String, educationalStageIds: List<Long>, responsibleServantIds: List<String>): ChurchService
+    suspend fun createService(
+        name: String,
+        educationalStageIds: List<Long>,
+        responsibleServantIds: List<String>,
+        repeatedEvent : ServiceRepeatedEventRequest?
+    ): ChurchService
+    suspend fun updateService(
+        id: Long,
+        name: String,
+        educationalStageIds: List<Long>,
+        responsibleServantIds: List<String>,
+        repeatedEvent : ServiceRepeatedEventRequest?
+    ): ChurchService
     suspend fun deleteService(id: Long)
 
     suspend fun getEvents(serviceId: Long, page: Int, size: Int = 20): PagedData<ServiceEvent>
