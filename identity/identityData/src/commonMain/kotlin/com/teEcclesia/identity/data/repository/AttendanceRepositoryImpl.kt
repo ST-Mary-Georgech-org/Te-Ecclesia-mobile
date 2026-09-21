@@ -10,6 +10,7 @@ import com.teEcclesia.identity.data.model.attendance.EventAttendeeDto
 import com.teEcclesia.identity.data.model.attendance.ServiceEventDto
 import com.teEcclesia.identity.data.model.attendance.ServiceRepeatedEventDto
 import com.teEcclesia.identity.data.model.attendance.UserAttendanceHistoryDto
+import com.teEcclesia.identity.data.model.attendance.toCreateRepeatedEventDto
 import com.teEcclesia.identity.data.model.attendance.toDomain
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
@@ -63,16 +64,7 @@ class AttendanceRepositoryImpl(
                         name = name,
                         educationalStageIds = educationalStageIds,
                         responsibleServantIds = responsibleServantIds,
-                        repeatedEventDto = repeatedEvent?.let {
-                            CreateRepeatedEventDto(
-                                name = it.name ?: "",
-                                startDate = it.startDate.toString(),
-                                nextCreationDate = it.nextCreationDate.toString(),
-                                startTime = it.startTime.toString(),
-                                endTime = it.endTime.toString(),
-                                repeatEvery = it.repeatEvery
-                            )
-                        }
+                        repeatedEventDto = repeatedEvent?.toCreateRepeatedEventDto()
                     )
                 )
             }
@@ -95,16 +87,7 @@ class AttendanceRepositoryImpl(
                         name = name,
                         educationalStageIds = educationalStageIds,
                         responsibleServantIds = responsibleServantIds,
-                        repeatedEventDto = repeatedEvent?.let {
-                            CreateRepeatedEventDto(
-                                name = it.name ?: "",
-                                startDate = it.startDate.toString(),
-                                nextCreationDate = it.nextCreationDate.toString(),
-                                startTime = it.startTime.toString(),
-                                endTime = it.endTime.toString(),
-                                repeatEvery = it.repeatEvery
-                            )
-                        }
+                        repeatedEventDto = repeatedEvent?.toCreateRepeatedEventDto()
                     )
                 )
             }
@@ -155,7 +138,6 @@ class AttendanceRepositoryImpl(
         serviceId: Long,
         name: String?,
         startDate: LocalDate,
-        nextCreationDate : LocalDate,
         startTime: LocalTime,
         endTime: LocalTime,
         repeatEvery : Int
@@ -167,7 +149,6 @@ class AttendanceRepositoryImpl(
                     CreateRepeatedEventDto(
                         name = name,
                         startDate = startDate.toString(),
-                        nextCreationDate = nextCreationDate.toString(),
                         startTime = startTime.toString(),
                         endTime = endTime.toString(),
                         repeatEvery = repeatEvery

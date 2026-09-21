@@ -41,7 +41,6 @@ interface AttendanceRepository {
         serviceId: Long,
         name: String?,
         startDate: LocalDate,
-        nextCreationDate: LocalDate,
         startTime: LocalTime,
         endTime: LocalTime,
         repeatEvery : Int

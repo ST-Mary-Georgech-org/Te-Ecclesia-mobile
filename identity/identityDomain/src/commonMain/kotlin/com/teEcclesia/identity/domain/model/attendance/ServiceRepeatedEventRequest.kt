@@ -6,7 +6,6 @@ import kotlinx.datetime.LocalTime
 data class ServiceRepeatedEventRequest(
     val name: String?,
     val startDate: LocalDate,
-    val nextCreationDate: LocalDate,
     val startTime: LocalTime,
     val endTime: LocalTime,
     val repeatEvery: Int,

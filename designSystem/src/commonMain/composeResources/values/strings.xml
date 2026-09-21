@@ -426,4 +426,7 @@
     <string name="review_deletion_request">Review Deletion Request</string>
     <string name="reactivate_account_reset_password_notice">This account was previously deleted. Setting a new password will automatically reactivate and restore your account.</string>
     <string name="password_reset_and_account_reactivated_successfully">Password reset and account reactivated successfully</string>
+
+    <string name="end_time_must_be_after_start_time">End time must be after start time</string>
+    <string name="repeat_every_must_be_greater_than_zero">Value must be greater than zero</string>
 </resources>

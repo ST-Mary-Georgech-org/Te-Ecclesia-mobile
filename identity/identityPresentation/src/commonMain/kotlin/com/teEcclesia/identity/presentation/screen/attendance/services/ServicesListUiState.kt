@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.services
 
+import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
@@ -16,6 +17,7 @@ data class ServicesListUiState(
     val isAddEditSheetOpen: Boolean = false,
     val editingService: ChurchService? = null,
     val serviceNameInput: String = "",
+    val serviceNameError: UiText? = null,
     val educationalStages: List<LookupResponse> = emptyList(),
     val selectedStages: List<LookupResponse> = emptyList(),
     val isStageSheetVisible: Boolean = false,
@@ -32,9 +34,13 @@ data class ServicesListUiState(
     val isDatePickerOpen : Boolean = false,
     val eventNameInput : String = "",
     val eventDateInput : String = "",
+    val eventDateError: UiText? = null,
     val repeatEvery : String = "",
+    val repeatEveryError: UiText? = null,
     val startTimeInput: String = "",
+    val startTimeError: UiText? = null,
     val endTimeInput: String = "",
+    val endTimeError: UiText? = null,
     val isStartTimePickerOpen: Boolean = false,
     val isEndTimePickerOpen: Boolean = false,
     val isDeleteConfirmSheetOpen: Boolean = false,

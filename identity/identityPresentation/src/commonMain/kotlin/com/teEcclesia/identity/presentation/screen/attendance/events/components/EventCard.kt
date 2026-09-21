@@ -91,7 +91,7 @@ fun EventCard(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     Surface(
                         shape = RoundedCornerShape(8.dp),
                         color = Theme.colorScheme.primaryContainer
@@ -115,7 +115,6 @@ fun EventCard(
                         }
                     }
                     if (event.repeated) {
-                        Spacer(modifier = Modifier.height(4.dp))
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = Theme.colorScheme.primaryContainer
