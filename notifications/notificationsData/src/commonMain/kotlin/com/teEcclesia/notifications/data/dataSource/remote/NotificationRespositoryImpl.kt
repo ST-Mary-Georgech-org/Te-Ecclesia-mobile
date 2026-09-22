@@ -13,6 +13,7 @@ import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.PagedData
 import io.ktor.client.HttpClient
+import io.ktor.client.request.delete
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.request.patch
@@ -49,6 +50,12 @@ class NotificationRespositoryImpl(
             post("/api/v1/admin/notifications/send") {
                 setBody(param.toDto())
             }
+        }
+    }
+
+    override suspend fun deleteNotification(id: String) {
+        tryToExecute<Unit> {
+            delete("/api/v1/notifications/$id")
         }
     }
 }
