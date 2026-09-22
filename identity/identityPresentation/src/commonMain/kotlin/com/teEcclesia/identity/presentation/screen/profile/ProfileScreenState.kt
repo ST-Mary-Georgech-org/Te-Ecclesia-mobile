@@ -23,5 +23,6 @@ data class ProfileScreenState(
     val deleteAccountPassword: String = "",
     val isDeleteAccountPasswordVisible: Boolean = false,
     val deleteAccountButtonState: AppButtonState = AppButtonState.Enabled,
-    val deletionRequestsCount: Long = 0
+    val deletionRequestsCount: Long = 0,
+    val unreadNotificationsCount: Long = 0
 )

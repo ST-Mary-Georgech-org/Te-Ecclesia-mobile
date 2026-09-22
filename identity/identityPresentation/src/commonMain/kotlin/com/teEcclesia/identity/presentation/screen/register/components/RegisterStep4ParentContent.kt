@@ -123,6 +123,7 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onFirstNameChange(value: String) {}
             override fun onSecondNameChange(value: String) {}
             override fun onThirdNameChange(value: String) {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onLastNameChange(value: String) {}
             override fun onDisplayNameChange(value: String) {}
             override fun onNationalIdChange(value: String) {}

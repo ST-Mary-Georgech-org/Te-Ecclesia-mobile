@@ -144,6 +144,12 @@
     <string name="national_id_card_required">Please upload National ID or Birth Certificate</string>
     <string name="file_ordination_certificate">Ordination Certificate</string>
     <string name="file_identity_card">National ID Card</string>
+    <string name="upload_birth_certificate">Upload Birth Certificate</string>
+    <string name="file_birth_certificate">Birth Certificate</string>
+    <string name="parent_consent_declaration">I confirm that I am the child&apos;s parent/guardian and have consent to upload these administrative records</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="parent_consent_required">Parent consent and document upload are required to continue</string>
+    <string name="birth_certificate_required">Birth certificate is required to continue</string>
 
     <string name="verify_whatsapp">Verify via WhatsApp</string>
     <string name="check_verification_status">Check Status</string>
@@ -271,6 +277,7 @@
 
     <!-- Attendance Keys -->
     <string name="attendance">Attendance</string>
+    <string name="repeated">Repeated</string>
     <string name="services">Services</string>
     <string name="add_service">Add Service</string>
     <string name="edit_service">Edit Service</string>
@@ -364,6 +371,9 @@
     <string name="no_stage">None</string>
     <string name="maximum_servants_reached">Cannot add more than 30 responsible servants</string>
     <string name="maximum_stages_reached">Cannot select more than 10 educational stages</string>
+    <string name="add_repeated_event">Add repeated event</string>
+    <string name="event_start_date">Event Start Date (YYYY-MM-DD)</string>
+    <string name="repeat_every">Repeat every (number of days)</string>
     <string name="view_attendance_history">View Attendance History</string>
     <string name="attendance_history">Attendance History</string>
     <string name="failed_to_load_attendance_history">Failed to load attendance history</string>
@@ -394,6 +404,15 @@
     <string name="failed_to_load_notifications">Failed to load notifications</string>
     <string name="file_size_exceeded_limit">The selected file exceeds the maximum allowed size of 10 MB</string>
 
+    <!-- Admin Edit Area Suggestions Strings -->
+    <string name="edit_area_suggestions">Edit area suggestions</string>
+    <string name="failed_to_load_area_suggestions">Failed to load ares suggestions</string>
+    <string name="no_area_suggestions_found">No areas found</string>
+    <string name="add_area">Add area</string>
+    <string name="edit_area">Edit area</string>
+    <string name="delete_area_confirmation_title">Confirm Delete This Area</string>
+    <string name="delete_area_confirmation_message">Are you sure you want to delete this area?</string>
+
     <!-- Account Deletion & Reactivation Strings -->
     <string name="delete_account">Delete Account</string>
     <string name="delete_account_title">Delete Your Account</string>
@@ -422,4 +441,7 @@
     <string name="review_deletion_request">Review Deletion Request</string>
     <string name="reactivate_account_reset_password_notice">This account was previously deleted. Setting a new password will automatically reactivate and restore your account.</string>
     <string name="password_reset_and_account_reactivated_successfully">Password reset and account reactivated successfully</string>
+
+    <string name="end_time_must_be_after_start_time">End time must be after start time</string>
+    <string name="repeat_every_must_be_greater_than_zero">Value must be greater than zero</string>
 </resources>

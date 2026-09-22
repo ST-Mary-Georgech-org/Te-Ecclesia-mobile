@@ -9,6 +9,9 @@ import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.shared.domain.utils.formatTime
 import com.teEcclesia.shared.domain.utils.getNow
+import com.teEcclesia.shared.domain.utils.parseDate
+import com.teEcclesia.shared.domain.utils.parseTime
+import kotlinx.coroutines.NonCancellable.start
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import teecclesia.designsystem.generated.resources.Res
@@ -188,9 +191,9 @@ class EventsListViewModel(
         val dateStr = state.value.eventDateInput.trim()
         val start = state.value.startTimeInput.trim()
         val end = state.value.endTimeInput.trim()
-        val date = runCatching { LocalDate.parse(dateStr) }.getOrNull() ?: return
-        val startTime = runCatching { LocalTime.parse(start) }.getOrNull() ?: return
-        val endTime = runCatching { LocalTime.parse(end) }.getOrNull() ?: return
+        val date = parseDate(dateStr) ?: return
+        val startTime = parseTime(start) ?: return
+        val endTime = parseTime(end) ?: return
 
         val editing = state.value.editingEvent
         val name = state.value.eventNameInput.trim()

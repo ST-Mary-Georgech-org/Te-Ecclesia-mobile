@@ -9,5 +9,6 @@ data class ChurchService(
     val createdAt: LocalDateTime,
     val isResponsible: Boolean,
     val educationalStages: List<LookupResponse>,
-    val responsibleServants: List<ResponsibleServant>
+    val responsibleServants: List<ResponsibleServant>,
+    val repeatedEvent: ServiceRepeatedEvent?
 )

@@ -20,6 +20,7 @@ interface RegisterInteractionListener {
     fun onLastNameChange(value: String)
     fun onDisplayNameChange(value: String)
     fun onNationalIdChange(value: String)
+    fun onParentConsentAgreedChange(isAgreed: Boolean)
     fun onJobChange(value: String)
     fun onSelectConfessionPriest(priest: Priest?)
     fun onSelectFromAnotherChurch()

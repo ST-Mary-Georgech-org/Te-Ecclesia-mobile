@@ -1,0 +1,315 @@
+package com.teEcclesia.identity.presentation.screen.areaSuggestion
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.icon.Icon
+import com.teEcclesia.designsystem.components.icon.IconButton
+import com.teEcclesia.designsystem.components.indicator.PullToRefresh
+import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.designsystem.utils.Preview
+import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.AddEditAreaSheet
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.AreaSuggestionsCardShimmer
+import com.teEcclesia.identity.presentation.screen.areaSuggestion.components.DeleteAreaConfirmSheet
+import com.teEcclesia.lookups.domain.model.AreaResponse
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
+import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.area
+import teecclesia.designsystem.generated.resources.edit_area_suggestions
+import teecclesia.designsystem.generated.resources.failed_to_load_area_suggestions
+import teecclesia.designsystem.generated.resources.ic_arrow_back
+import teecclesia.designsystem.generated.resources.ic_close
+import teecclesia.designsystem.generated.resources.ic_edit
+import teecclesia.designsystem.generated.resources.ic_plus
+import teecclesia.designsystem.generated.resources.no_area_suggestions_found
+import teecclesia.designsystem.generated.resources.retry
+
+@Composable
+fun AreaSuggestionsSettingScreen(
+    viewModel: AreaSuggestionsSettingsViewModel = koinViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    AreaSuggestionsSettingContent(
+        state = state,
+        listener = viewModel
+    )
+}
+
+@Composable
+private fun AreaSuggestionsSettingContent(
+    state: AreaSuggestionsSettingsUiState,
+    listener: AreaSuggestionsSettingsInteractionListener,
+) {
+    val listState = rememberLazyListState()
+
+    Column (
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Theme.colorScheme.background)
+            .statusBarsPadding()
+            .navigationBarsPadding()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row{
+                IconButton(onClick = listener::onClickBack) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_back),
+                        contentDescription = "Back",
+                        tint = Theme.colorScheme.onBackground
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = stringResource(Res.string.edit_area_suggestions),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onBackground,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                    Text(
+                        text = "${state.totalSize} ${stringResource(Res.string.area)}",
+                        style = Theme.typography.bodySmall,
+                        color = Theme.colorScheme.onBackground,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = { listener.onClickAddArea() }
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_plus),
+                    contentDescription = "Add area",
+                    tint = Theme.colorScheme.primary
+                )
+            }
+        }
+
+        PullToRefresh(
+            isRefreshing = state.isRefreshing,
+            onRefresh = listener::onRefresh,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
+            ) {
+                if (state.isLoading) {
+                    items(6) {
+                        AreaSuggestionsCardShimmer()
+                    }
+                } else if (state.isLoadFailed) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 32.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.failed_to_load_area_suggestions),
+                                style = Theme.typography.bodyLarge,
+                                color = Theme.colorScheme.error,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            AppButton(
+                                type = AppButtonType.Primary,
+                                text = stringResource(Res.string.retry),
+                                onClick = listener::onRetryLoad
+                            )
+                        }
+                    }
+                }else if (state.areas.isEmpty()){
+                    item {
+                        Spacer(Modifier.height(300.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.no_area_suggestions_found),
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+                else {
+                    items(
+                        state.areas
+                    ){ area ->
+                        AreaCard(
+                            area = area,
+                            onEdit = { listener.onClickEditArea(area) },
+                            onDelete = { listener.onClickDeleteArea(area) }
+                        )
+                    }
+                    if (state.isPagingLoading) {
+                        item(key = "paging_loading") {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Theme.colorScheme.primary,
+                                    strokeWidth = 2.dp
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        AddEditAreaSheet(state, listener)
+
+        DeleteAreaConfirmSheet(state, listener)
+
+        PaginationTrigger(
+            list = state.areas,
+            listState = listState,
+            remainingItemsToLoadNextPage = 5,
+            loadNextItems = listener::onLoadMore
+        )
+    }
+}
+
+@Composable
+private fun AreaCard(
+    area: AreaResponse,
+    onEdit: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = Theme.colorScheme.surfaceContainerHighest
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    onClick = onEdit
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = area.name,
+                    style = Theme.typography.titleMedium,
+                    color = Theme.colorScheme.onSurface
+                )
+            }
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_edit),
+                        contentDescription = "Edit service",
+                        tint = Theme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                IconButton(onClick = onDelete) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_close),
+                        contentDescription = "Delete service",
+                        tint = Theme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun AreaSuggestionsSettingsScreenPreview() = Theme {
+    Preview {
+        AreaSuggestionsSettingContent(
+            state = AreaSuggestionsSettingsUiState(
+                areas = listOf(
+                    AreaResponse(1, "Area 1"),
+                    AreaResponse(2, "Area 2"),
+                    AreaResponse(3, "Area 3"),
+                    AreaResponse(4, "Area 4"),
+                    AreaResponse(5, "Area 5"),
+                ),
+                isLoading = false,
+                isPagingLoading = true
+            ),
+            listener = object : AreaSuggestionsSettingsInteractionListener {
+                override fun onLoadMore() {}
+                override fun onClickAddArea() {}
+                override fun onAreaNameChanged(name: String) {}
+                override fun onClickEditArea(areaResponse: AreaResponse) {}
+                override fun onClickDeleteArea(areaResponse: AreaResponse) {}
+                override fun onClickSaveArea() {}
+                override fun onConfirmAreaDelete() {}
+                override fun onDismissSheet() {}
+                override fun onDismissConfirmDialog() {}
+                override fun onClickBack() {}
+                override fun onRetryLoad() {}
+                override fun onRefresh() {}
+            }
+        )
+    }
+}

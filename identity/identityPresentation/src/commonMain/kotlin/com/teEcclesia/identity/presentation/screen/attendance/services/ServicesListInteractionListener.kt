@@ -4,6 +4,8 @@ import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
 import com.teEcclesia.lookups.domain.model.LookupResponse
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 
 interface ServicesListInteractionListener {
     fun onClickAddService()
@@ -20,6 +22,18 @@ interface ServicesListInteractionListener {
     fun onDismissServantSuggestions()
     fun onConfirmSaveService()
     fun onConfirmDeleteService()
+    fun onToggleAddRepeatedEvent()
+    fun onEventNameChanged(name: String)
+    fun onClickDatePicker()
+    fun onDismissDatePicker()
+    fun onDateSelected(date: LocalDate)
+    fun onRepeatEveryChanged(duration: String)
+    fun onClickStartTimePicker()
+    fun onDismissStartTimePicker()
+    fun onStartTimeSelected(time: LocalTime)
+    fun onClickEndTimePicker()
+    fun onDismissEndTimePicker()
+    fun onEndTimeSelected(time: LocalTime)
     fun onDismissSheet()
     fun onClickService(service: ChurchService)
     fun onRefresh()

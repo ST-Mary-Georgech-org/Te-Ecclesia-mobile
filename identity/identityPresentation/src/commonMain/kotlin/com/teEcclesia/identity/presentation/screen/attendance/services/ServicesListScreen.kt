@@ -1,8 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.services
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,12 +14,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,59 +26,48 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.PopupProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.dialog.DatePicker
+import com.teEcclesia.designsystem.components.dialog.TimePickerDialog
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
-import com.teEcclesia.designsystem.components.menu.DropdownMenu
-import com.teEcclesia.designsystem.components.menu.DropdownMenuItem
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
-import com.teEcclesia.designsystem.components.textField.TextField
-import com.teEcclesia.designsystem.modifier.clickableNoRipple
-import com.teEcclesia.designsystem.components.sheet.EducationalStageSelectField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
-import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
-import com.teEcclesia.identity.presentation.screen.register.components.UserChip
+import com.teEcclesia.identity.presentation.screen.attendance.services.components.AddEditServiceSheet
+import com.teEcclesia.identity.presentation.screen.attendance.services.components.DeleteServiceSheet
+import com.teEcclesia.identity.presentation.screen.attendance.services.components.ServiceCard
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.shared.domain.utils.getNow
+import com.teEcclesia.shared.domain.utils.parseDate
+import com.teEcclesia.shared.domain.utils.parseTime
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.add_service
 import teecclesia.designsystem.generated.resources.cancel
-import teecclesia.designsystem.generated.resources.confirm
 import teecclesia.designsystem.generated.resources.confirm_delete_service
 import teecclesia.designsystem.generated.resources.delete
-import teecclesia.designsystem.generated.resources.edit_service
-import teecclesia.designsystem.generated.resources.educational_stage
+import teecclesia.designsystem.generated.resources.end_time
 import teecclesia.designsystem.generated.resources.ic_arrow_right
-import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_plus
-import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
 import teecclesia.designsystem.generated.resources.ic_user_settings
 import teecclesia.designsystem.generated.resources.no_services_found
-import teecclesia.designsystem.generated.resources.no_stage
-import teecclesia.designsystem.generated.resources.responsible_servants
-import teecclesia.designsystem.generated.resources.search_servants_hint
-import teecclesia.designsystem.generated.resources.select_educational_stage_optional
-import teecclesia.designsystem.generated.resources.service_name
 import teecclesia.designsystem.generated.resources.services
+import teecclesia.designsystem.generated.resources.start_time
 
 @Composable
 fun ServicesListScreen(
@@ -100,6 +85,29 @@ fun ServicesListScreen(
             listener = viewModel
         )
     }
+
+    DatePicker(
+        showDialog = state.isDatePickerOpen,
+        selectedDate = parseDate(state.eventDateInput),
+        onDateSelected = viewModel::onDateSelected,
+        onDismiss = viewModel::onDismissDatePicker
+    )
+
+    TimePickerDialog(
+        showDialog = state.isStartTimePickerOpen,
+        initialTime = parseTime(state.startTimeInput),
+        title = stringResource(Res.string.start_time),
+        onTimeSelected = viewModel::onStartTimeSelected,
+        onDismiss = viewModel::onDismissStartTimePicker
+    )
+
+    TimePickerDialog(
+        showDialog = state.isEndTimePickerOpen,
+        initialTime = parseTime(state.endTimeInput),
+        title = stringResource(Res.string.end_time),
+        onTimeSelected = viewModel::onEndTimeSelected,
+        onDismiss = viewModel::onDismissEndTimePicker
+    )
 }
 
 @Composable
@@ -213,325 +221,12 @@ private fun ServicesListContent(
             loadNextItems = listener::onLoadMore
         )
 
-        BottomSheet(
-            isVisible = state.isAddEditSheetOpen,
-            onDismiss = listener::onDismissSheet
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-            ) {
-                Text(
-                    text = stringResource(
-                        if (state.editingService == null) Res.string.add_service else Res.string.edit_service
-                    ),
-                    style = Theme.typography.headlineSmall,
-                    color = Theme.colorScheme.onBackground
-                )
+        AddEditServiceSheet(state, listener)
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                TextField(
-                    value = state.serviceNameInput,
-                    onValueChange = listener::onServiceNameChanged,
-                    placeholder = {
-                        Text(
-                            text = stringResource(Res.string.service_name),
-                            style = Theme.typography.bodyMedium,
-                            color = Theme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.educational_stage),
-                        style = Theme.typography.labelMedium,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${state.selectedStages.size}/10",
-                        style = Theme.typography.labelSmall,
-                        color = if (state.selectedStages.size >= 10) Theme.colorScheme.error else Theme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-
-                EducationalStageSelectField(
-                    selectedStages = state.selectedStages,
-                    educationalStages = state.educationalStages,
-                    itemTitle = { it.name },
-                    itemId = { it.id },
-                    isSelected = { stage -> state.selectedStages.any { it.id == stage.id } },
-                    isSheetVisible = state.isStageSheetVisible,
-                    onToggleSheet = listener::onToggleStageSheet,
-                    onSelectStage = listener::onToggleStageSelection,
-                    label = stringResource(Res.string.select_educational_stage_optional),
-                    onLoadNextStages = listener::onLoadNextStages,
-                    isStageLoading = state.isStageLoading,
-                    isStageLoadFailed = state.isStageLoadFailed,
-                    onRetryLoadStages = listener::onRetryLoadStages,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(Res.string.responsible_servants),
-                        style = Theme.typography.labelMedium,
-                        color = Theme.colorScheme.onSurfaceVariant
-                    )
-                    Text(
-                        text = "${state.selectedServants.size}/30",
-                        style = Theme.typography.labelSmall,
-                        color = if (state.selectedServants.size >= 30) Theme.colorScheme.error else Theme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(modifier = Modifier.height(6.dp))
-                Box(modifier = Modifier.fillMaxWidth()) {
-                    TextField(
-                        value = state.servantSearchQuery,
-                        onValueChange = listener::onServantSearchQueryChanged,
-                        placeholder = {
-                            Text(
-                                text = stringResource(Res.string.search_servants_hint),
-                                style = Theme.typography.bodyMedium,
-                                color = Theme.colorScheme.onSurfaceVariant
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    DropdownMenu(
-                        expanded = state.isServantsDropdownVisible && (state.suggestedServants.isNotEmpty() || state.isSearchingServants),
-                        onDismissRequest = listener::onDismissServantSuggestions,
-                        properties = PopupProperties(focusable = false),
-                        modifier = Modifier.fillMaxWidth(0.9f)
-                    ) {
-                        if (state.isSearchingServants && state.suggestedServants.isEmpty()) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp,
-                                    color = Theme.colorScheme.primary
-                                )
-                            }
-                        } else {
-                            state.suggestedServants.forEach { servant ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            if (servant.imageUrl.isNullOrBlank()) {
-                                                Icon(
-                                                    painter = painterResource(Res.drawable.ic_profile_image_placeholder),
-                                                    contentDescription = null,
-                                                    tint = Theme.colorScheme.onSurfaceVariant,
-                                                    modifier = Modifier
-                                                        .size(32.dp)
-                                                        .clip(CircleShape)
-                                                        .background(Theme.colorScheme.secondaryContainer)
-                                                        .padding(6.dp)
-                                                )
-                                            } else {
-                                                AsyncImage(
-                                                    model = servant.imageUrl,
-                                                    contentDescription = null,
-                                                    contentScale = ContentScale.Crop,
-                                                    modifier = Modifier
-                                                        .size(32.dp)
-                                                        .clip(CircleShape)
-                                                )
-                                            }
-
-                                            Spacer(modifier = Modifier.width(10.dp))
-
-                                            Column(modifier = Modifier.weight(1f)) {
-                                                Text(
-                                                    text = servant.name,
-                                                    style = Theme.typography.titleMedium,
-                                                    color = Theme.colorScheme.onSurface
-                                                )
-                                                val servantCode = servant.code
-                                                if (!servantCode.isNullOrBlank()) {
-                                                    Text(
-                                                        text = servantCode,
-                                                        style = Theme.typography.labelSmall,
-                                                        color = Theme.colorScheme.primary
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    },
-                                    onClick = { listener.onSelectServant(servant) }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                if (state.selectedServants.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        state.selectedServants.forEach { servant ->
-                            UserChip(
-                                user = UserSummary(
-                                    id = servant.id,
-                                    name = servant.name,
-                                    code = servant.code,
-                                    imageUrl = servant.imageUrl
-                                ),
-                                onRemove = { listener.onRemoveServant(servant) }
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                AppButton(
-                    type = AppButtonType.Primary,
-                    onClick = listener::onConfirmSaveService,
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(Res.string.confirm),
-                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled
-                )
-            }
-        }
-
-        BottomSheet(
-            isVisible = state.isDeleteConfirmSheetOpen,
-            onDismiss = listener::onDismissSheet
-        ) {
-            Text(
-                text = stringResource(Res.string.confirm_delete_service),
-                style = Theme.typography.titleMedium,
-                color = Theme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                AppButton(
-                    type = AppButtonType.Secondary,
-                    onClick = listener::onDismissSheet,
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(Res.string.cancel)
-                )
-
-                AppButton(
-                    type = AppButtonType.Primary,
-                    onClick = listener::onConfirmDeleteService,
-                    modifier = Modifier.weight(1f),
-                    text = stringResource(Res.string.delete),
-                    state = if (state.isActionLoading) AppButtonState.Loading else AppButtonState.Enabled,
-                    enablePrimaryBackgroundColor = Theme.colorScheme.error
-                )
-            }
-        }
+        DeleteServiceSheet(state, listener)
     }
 }
 
-@Composable
-private fun ServiceCard(
-    service: ChurchService,
-    isAdmin: Boolean,
-    onClick: () -> Unit,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Surface(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        color = Theme.colorScheme.surfaceContainerHighest
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = service.name,
-                    style = Theme.typography.titleMedium,
-                    color = Theme.colorScheme.onSurface
-                )
-                val stagesText = service.educationalStages.joinToString("، ") { it.name }
-                if (stagesText.isNotBlank()) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Theme.colorScheme.primaryContainer
-                    ) {
-                        Text(
-                            text = stagesText,
-                            style = Theme.typography.labelSmall,
-                            color = Theme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                        )
-                    }
-                }
-            }
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isAdmin) {
-                    IconButton(onClick = onEdit) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_user_settings),
-                            contentDescription = "Edit service",
-                            tint = Theme.colorScheme.primary
-                        )
-                    }
-
-                    IconButton(onClick = onDelete) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_close),
-                            contentDescription = "Delete service",
-                            tint = Theme.colorScheme.error
-                        )
-                    }
-                }
-
-                Icon(
-                    painter = painterResource(Res.drawable.ic_arrow_right),
-                    contentDescription = "Open service",
-                    tint = Theme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
 
 @PreviewLightDark
 @Composable
@@ -545,7 +240,8 @@ private fun ServicesListPreview() = Theme {
                     createdAt = getNow(),
                     isResponsible = true,
                     educationalStages = emptyList(),
-                    responsibleServants = emptyList()
+                    responsibleServants = emptyList(),
+                    repeatedEvent = null
                 ),
                 ChurchService(
                     id = 2,
@@ -559,7 +255,8 @@ private fun ServicesListPreview() = Theme {
                             subItems = emptyList()
                         )
                     ),
-                    responsibleServants = emptyList()
+                    responsibleServants = emptyList(),
+                    repeatedEvent = null
                 )
             )
         ),
@@ -578,6 +275,18 @@ private fun ServicesListPreview() = Theme {
             override fun onDismissServantSuggestions() {}
             override fun onConfirmSaveService() {}
             override fun onConfirmDeleteService() {}
+            override fun onToggleAddRepeatedEvent() {}
+            override fun onEventNameChanged(name: String) {}
+            override fun onClickDatePicker() {}
+            override fun onDismissDatePicker() {}
+            override fun onDateSelected(date: LocalDate) {}
+            override fun onRepeatEveryChanged(duration: String) {}
+            override fun onClickStartTimePicker() {}
+            override fun onDismissStartTimePicker() {}
+            override fun onStartTimeSelected(time: LocalTime) {}
+            override fun onClickEndTimePicker() {}
+            override fun onDismissEndTimePicker() {}
+            override fun onEndTimeSelected(time: LocalTime) {}
             override fun onDismissSheet() {}
             override fun onClickService(service: ChurchService) {}
             override fun onRefresh() {}

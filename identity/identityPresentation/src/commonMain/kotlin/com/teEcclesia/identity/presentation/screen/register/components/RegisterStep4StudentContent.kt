@@ -213,6 +213,7 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onExternalPriestPhoneChange(value: String) {}
             override fun onTogglePriestSheet(visible: Boolean) {}
             override fun onPhoneChange(value: String) {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onHomePhoneChange(value: String) {}
             override fun onEmailChange(value: String) {}
             override fun onPasswordChange(value: String) {}

@@ -2,6 +2,7 @@ package com.teEcclesia.identity.data.model.attendance
 
 import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.shared.domain.utils.getNow
+import com.teEcclesia.shared.domain.utils.parseTimeOrDefault
 import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.SerialName
@@ -23,6 +24,8 @@ data class ServiceEventDto(
     val endTime: String,
     @SerialName("attendeeCount")
     val attendeeCount: Long? = 0L,
+    @SerialName("repeated")
+    val repeated: Boolean? = false,
     @SerialName("createdAt")
     val createdAt: String? = null
 )
@@ -33,9 +36,10 @@ fun ServiceEventDto.toDomain(): ServiceEvent {
         serviceId = serviceId,
         name = name,
         eventDate = eventDate.toLocalDateTimeOrDefault().date,
-        startTime = runCatching { LocalTime.parse(startTime) }.getOrDefault(LocalTime(0, 0)),
-        endTime = runCatching { LocalTime.parse(endTime) }.getOrDefault(LocalTime(0, 0)),
+        startTime = parseTimeOrDefault(startTime),
+        endTime = parseTimeOrDefault(endTime),
         attendeeCount = attendeeCount ?: 0L,
+        repeated = repeated ?: false,
         createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow()
     )
 }

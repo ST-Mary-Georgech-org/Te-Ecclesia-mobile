@@ -132,6 +132,7 @@ private fun RegisterStep5VerifyContentPreviewLightDark() {
             override fun onHomePhoneChange(value: String) {}
             override fun onEmailChange(value: String) {}
             override fun onPasswordChange(value: String) {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onTogglePasswordVisibility() {}
             override fun onBuildingNoChange(value: String) {}
             override fun onStreetChange(value: String) {}

@@ -1,5 +1,7 @@
 package com.teEcclesia.shared.domain.utils.validation
 
+import com.teEcclesia.shared.domain.utils.getToday
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.time.Clock
@@ -51,6 +53,33 @@ fun isMaleFromEgyptianNationalId(nationalId: String): Boolean? {
     if (!isValidEgyptianNationalId(nationalId)) return null
     val genderDigit = nationalId[12].digitToInt()
     return genderDigit % 2 != 0
+}
+
+fun getBirthDateFromEgyptianNationalId(nationalId: String): LocalDate? {
+    if (!isValidEgyptianNationalId(nationalId)) return null
+    val centuryPrefix = when (nationalId[0]) {
+        '2' -> "19"
+        '3' -> "20"
+        else -> return null
+    }
+    val fullYear = (centuryPrefix + nationalId.substring(1, 3)).toIntOrNull() ?: return null
+    val month = nationalId.substring(3, 5).toIntOrNull() ?: return null
+    val day = nationalId.substring(5, 7).toIntOrNull() ?: return null
+    return try {
+        LocalDate(fullYear, month, day)
+    } catch (_: Exception) {
+        null
+    }
+}
+
+fun isUnderAgeFromEgyptianNationalId(nationalId: String, ageThresholdYears: Int = 13): Boolean {
+    val birthDate = getBirthDateFromEgyptianNationalId(nationalId) ?: return false
+    val today = getToday()
+    val age = today.year - birthDate.year - if (
+        today.month < birthDate.month ||
+        (today.month == birthDate.month && today.day < birthDate.day)
+    ) 1 else 0
+    return age < ageThresholdYears
 }
 
 private fun isValidDate(year: Int, month: Int, day: Int): Boolean {
