@@ -444,4 +444,5 @@
 
     <string name="end_time_must_be_after_start_time">يجب أن يكون وقت النهاية بعد وقت البداية</string>
     <string name="repeat_every_must_be_greater_than_zero">يجب أن تكون القيمة أكبر من صفر</string>
+    <string name="failed_to_delete_notification">فشل حذف الإشعار</string>
 </resources>

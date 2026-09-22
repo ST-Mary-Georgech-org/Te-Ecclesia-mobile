@@ -444,4 +444,5 @@
 
     <string name="end_time_must_be_after_start_time">End time must be after start time</string>
     <string name="repeat_every_must_be_greater_than_zero">Value must be greater than zero</string>
+    <string name="failed_to_delete_notification">Failed to delete notification</string>
 </resources>

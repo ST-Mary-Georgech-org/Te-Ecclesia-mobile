@@ -5,21 +5,21 @@ import com.mmk.kmpnotifier.notification.PayloadData
 import com.mmk.kmpnotifier.push.PushListener
 import com.mmk.kmpnotifier.push.firebase.addPushListener
 import com.mmk.kmpnotifier.push.firebase.firebasePushNotifier
+import com.teEcclesia.designsystem.navigation.SnackBarManager
+import com.teEcclesia.designsystem.utils.UiText
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
-import com.teEcclesia.notifications.data.util.NotificationClickState
 import com.teEcclesia.notifications.domain.model.NotificationResponse
 import com.teEcclesia.notifications.domain.model.NotificationType
+import com.teEcclesia.notifications.domain.util.NotificationClickState
 import com.teEcclesia.notifications.domain.util.NotificationReceiveState
 import com.teEcclesia.shared.domain.push.PushTokenProvider
-import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import com.teEcclesia.shared.domain.utils.getNow
+import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatform
-import com.teEcclesia.designsystem.navigation.SnackBarManager
-import com.teEcclesia.designsystem.utils.UiText
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.push_token_connection_failed
 import teecclesia.designsystem.generated.resources.push_token_connection_failed_message
@@ -134,13 +134,16 @@ object PushNotificationsInitializer : PushTokenProvider {
 
         val rawIsRead = this["is_read"]?.toString()?.lowercase() == "true" || this["read"]?.toString()?.lowercase() == "true"
 
+        val payloadMap = this.entries.associate { it.key to (it.value?.toString() ?: "") }
+
         return NotificationResponse(
             id = rawId,
             title = rawTitle,
             message = rawBody,
             type = rawType,
             sentAt = rawSentAt,
-            isRead = rawIsRead
+            isRead = rawIsRead,
+            dataPayload = payloadMap
         )
     }
 }
