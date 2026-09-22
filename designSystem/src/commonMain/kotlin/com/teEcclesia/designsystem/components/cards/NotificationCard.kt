@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
@@ -19,6 +20,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
+import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.painterResource
@@ -33,10 +35,13 @@ fun NotificationCard(
     current: String,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Theme.colorScheme.surface,
-    shape: Shape = RoundedCornerShape(16.dp)
+    shape: Shape = RoundedCornerShape(16.dp),
+    onClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
+            .clip(shape)
+            .clickableNoRipple(enabled = onClick != null) { onClick?.invoke() }
             .background(backgroundColor, shape)
             .border(1.dp, Theme.colorScheme.outlineVariant, shape)
             .padding(16.dp),

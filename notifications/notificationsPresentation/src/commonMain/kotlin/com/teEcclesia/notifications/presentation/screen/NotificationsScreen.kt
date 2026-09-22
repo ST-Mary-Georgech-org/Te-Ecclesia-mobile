@@ -26,8 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.teEcclesia.designsystem.components.button.AppButton
@@ -35,6 +38,7 @@ import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.cards.NotificationCard
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
+import com.teEcclesia.designsystem.components.swipe.AppSwipeToDismissBox
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -48,10 +52,12 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.delete
 import teecclesia.designsystem.generated.resources.failed_to_load_notifications
 import teecclesia.designsystem.generated.resources.ic_arrow_back
 import teecclesia.designsystem.generated.resources.ic_bell
 import teecclesia.designsystem.generated.resources.ic_error
+import teecclesia.designsystem.generated.resources.ic_trash
 import teecclesia.designsystem.generated.resources.no_notifications
 import teecclesia.designsystem.generated.resources.notifications
 import teecclesia.designsystem.generated.resources.retry
@@ -203,13 +209,66 @@ fun NotificationsContent(
                             val timeString = notification.sentAt.time.format()
                             val dateString = "${notification.sentAt.date.month.name.take(3)} ${notification.sentAt.date.day} • $timeString"
 
-                            NotificationCard(
-                                icon = Res.drawable.ic_bell,
-                                title = notification.title,
-                                description = notification.message,
-                                current = dateString,
-                                backgroundColor = if (notification.isRead) Theme.colorScheme.surface else Theme.colorScheme.surfaceVariant
-                            )
+                            Box(
+                                modifier = Modifier.animateItem()
+                            ) {
+                                AppSwipeToDismissBox(
+                                    onDismiss = { listener.onDeleteNotification(notification) },
+                                    backgroundContent = { progress ->
+                                        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+                                        Box(
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .background(Theme.colorScheme.error)
+                                                .padding(horizontal = 20.dp),
+                                            contentAlignment = if (isRtl) Alignment.CenterStart else Alignment.CenterEnd
+                                        ) {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                                modifier = Modifier.graphicsLayer {
+                                                    alpha = progress.coerceIn(0f, 1f)
+                                                }
+                                            ) {
+                                                if (isRtl) {
+                                                    Icon(
+                                                        painter = painterResource(Res.drawable.ic_trash),
+                                                        contentDescription = null,
+                                                        tint = Theme.colorScheme.onError,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Text(
+                                                        text = stringResource(Res.string.delete),
+                                                        style = Theme.typography.titleMedium,
+                                                        color = Theme.colorScheme.onError
+                                                    )
+                                                } else {
+                                                    Text(
+                                                        text = stringResource(Res.string.delete),
+                                                        style = Theme.typography.titleMedium,
+                                                        color = Theme.colorScheme.onError
+                                                    )
+                                                    Icon(
+                                                        painter = painterResource(Res.drawable.ic_trash),
+                                                        contentDescription = null,
+                                                        tint = Theme.colorScheme.onError,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                ) {
+                                    NotificationCard(
+                                        icon = Res.drawable.ic_bell,
+                                        title = notification.title,
+                                        description = notification.message,
+                                        current = dateString,
+                                        backgroundColor = if (notification.isRead) Theme.colorScheme.surface else Theme.colorScheme.surfaceVariant,
+                                        onClick = { listener.onNotificationClick(notification) }
+                                    )
+                                }
+                            }
                         }
 
                         if (state.isLoadingMore) {
@@ -247,7 +306,8 @@ private fun NotificationsScreenPreview() {
                         message = "تم تفعيل الحساب بنجاح",
                         type = NotificationType.ALERT,
                         sentAt = LocalDate(2026, 1, 1).atTime(0, 0),
-                        isRead = false
+                        isRead = false,
+                        dataPayload = emptyMap()
                     )
                 )
             ),
@@ -255,6 +315,8 @@ private fun NotificationsScreenPreview() {
                 override fun onClickBack() {}
                 override fun onLoadMoreNotifications() {}
                 override fun onReload() {}
+                override fun onDeleteNotification(notification: NotificationResponse) {}
+                override fun onNotificationClick(notification: NotificationResponse) {}
             }
         )
     }
