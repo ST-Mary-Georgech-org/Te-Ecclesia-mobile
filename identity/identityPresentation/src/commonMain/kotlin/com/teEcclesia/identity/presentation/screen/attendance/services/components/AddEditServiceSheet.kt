@@ -1,5 +1,10 @@
 package com.teEcclesia.identity.presentation.screen.attendance.services.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -215,80 +220,90 @@ private fun AddEditServiceSheetContent(
             )
         }
 
-        if (state.addRepeatedEvent) {
-            Text(
-                text = stringResource(Res.string.add_repeated_event),
-                style = Theme.typography.titleLarge,
-                color = Theme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            CustomTextField(
-                value = state.eventNameInput,
-                onValueChange = listener::onEventNameChanged,
-                labelText = stringResource(Res.string.event_name_optional),
+        AnimatedVisibility(
+            visible = state.addRepeatedEvent,
+            enter = fadeIn() + expandVertically(),
+            exit = fadeOut() + shrinkVertically()
+        ) {
+            Column(
                 modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CustomTextField(
-                value = state.eventDateInput,
-                onValueChange = {},
-                readOnly = true,
-                enabled = false,
-                labelText = stringResource(Res.string.event_start_date),
-                trailingIcon = painterResource(Res.drawable.ic_calendar),
-                onClick = listener::onClickDatePicker,
-                errorText = state.eventDateError?.asString(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            CustomTextField(
-                value = state.repeatEvery,
-                onValueChange = { value ->
-                    listener.onRepeatEveryChanged(value)
-                },
-                labelText = stringResource(Res.string.repeat_every),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number
-                ),
-                errorText = state.repeatEveryError?.asString(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                CustomTextField(
-                    value = state.startTimeInput,
-                    onValueChange = {},
-                    readOnly = true,
-                    enabled = false,
-                    labelText = stringResource(Res.string.start_time),
-                    trailingIcon = painterResource(Res.drawable.ic_clock),
-                    onClick = listener::onClickStartTimePicker,
-                    errorText = state.startTimeError?.asString(),
-                    modifier = Modifier.weight(1f)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = stringResource(Res.string.add_repeated_event),
+                    style = Theme.typography.titleLarge,
+                    color = Theme.colorScheme.onBackground
                 )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
                 CustomTextField(
-                    value = state.endTimeInput,
+                    value = state.eventNameInput,
+                    onValueChange = listener::onEventNameChanged,
+                    labelText = stringResource(Res.string.event_name_optional),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                CustomTextField(
+                    value = state.eventDateInput,
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
-                    labelText = stringResource(Res.string.end_time),
-                    trailingIcon = painterResource(Res.drawable.ic_clock),
-                    onClick = listener::onClickEndTimePicker,
-                    errorText = state.endTimeError?.asString(),
-                    modifier = Modifier.weight(1f)
+                    labelText = stringResource(Res.string.event_start_date),
+                    trailingIcon = painterResource(Res.drawable.ic_calendar),
+                    onClick = listener::onClickDatePicker,
+                    errorText = state.eventDateError?.asString(),
+                    modifier = Modifier.fillMaxWidth()
                 )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                CustomTextField(
+                    value = state.repeatEvery,
+                    onValueChange = { value ->
+                        listener.onRepeatEveryChanged(value)
+                    },
+                    labelText = stringResource(Res.string.repeat_every),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number
+                    ),
+                    errorText = state.repeatEveryError?.asString(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    CustomTextField(
+                        value = state.startTimeInput,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        labelText = stringResource(Res.string.start_time),
+                        trailingIcon = painterResource(Res.drawable.ic_clock),
+                        onClick = listener::onClickStartTimePicker,
+                        errorText = state.startTimeError?.asString(),
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    CustomTextField(
+                        value = state.endTimeInput,
+                        onValueChange = {},
+                        readOnly = true,
+                        enabled = false,
+                        labelText = stringResource(Res.string.end_time),
+                        trailingIcon = painterResource(Res.drawable.ic_clock),
+                        onClick = listener::onClickEndTimePicker,
+                        errorText = state.endTimeError?.asString(),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
