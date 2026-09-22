@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,10 +25,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.text.style.TextAlign
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.icon.Icon
@@ -45,12 +46,13 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.area
 import teecclesia.designsystem.generated.resources.edit_area_suggestions
 import teecclesia.designsystem.generated.resources.failed_to_load_area_suggestions
 import teecclesia.designsystem.generated.resources.ic_arrow_back
 import teecclesia.designsystem.generated.resources.ic_close
+import teecclesia.designsystem.generated.resources.ic_edit
 import teecclesia.designsystem.generated.resources.ic_plus
-import teecclesia.designsystem.generated.resources.ic_user_settings
 import teecclesia.designsystem.generated.resources.no_area_suggestions_found
 import teecclesia.designsystem.generated.resources.retry
 
@@ -73,13 +75,54 @@ private fun AreaSuggestionsSettingContent(
 ) {
     val listState = rememberLazyListState()
 
-    Box(
+    Column (
         modifier = Modifier
             .fillMaxSize()
             .background(Theme.colorScheme.background)
             .statusBarsPadding()
             .navigationBarsPadding()
     ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Row{
+                IconButton(onClick = listener::onClickBack) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_arrow_back),
+                        contentDescription = "Back",
+                        tint = Theme.colorScheme.onBackground
+                    )
+                }
+
+                Column {
+                    Text(
+                        text = stringResource(Res.string.edit_area_suggestions),
+                        style = Theme.typography.headlineSmall,
+                        color = Theme.colorScheme.onBackground,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                    Text(
+                        text = "${state.totalSize} ${stringResource(Res.string.area)}",
+                        style = Theme.typography.bodySmall,
+                        color = Theme.colorScheme.onBackground,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                }
+            }
+
+            IconButton(
+                onClick = { listener.onClickAddArea() }
+            ) {
+                Icon(
+                    painter = painterResource(Res.drawable.ic_plus),
+                    contentDescription = "Add area",
+                    tint = Theme.colorScheme.primary
+                )
+            }
+        }
+
         PullToRefresh(
             isRefreshing = state.isRefreshing,
             onRefresh = listener::onRefresh,
@@ -87,47 +130,11 @@ private fun AreaSuggestionsSettingContent(
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .fillMaxSize(),
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)
             ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row{
-                            IconButton(onClick = listener::onClickBack) {
-                                Icon(
-                                    painter = painterResource(Res.drawable.ic_arrow_back),
-                                    contentDescription = "Back",
-                                    tint = Theme.colorScheme.onBackground
-                                )
-                            }
-
-                            Text(
-                                text = stringResource(Res.string.edit_area_suggestions),
-                                style = Theme.typography.headlineSmall,
-                                color = Theme.colorScheme.onBackground,
-                                modifier = Modifier.padding(start = 8.dp),
-                            )
-                        }
-
-                        IconButton(
-                            onClick = { listener.onClickAddArea() }
-                        ) {
-                            Icon(
-                                painter = painterResource(Res.drawable.ic_plus),
-                                contentDescription = "Add area",
-                                tint = Theme.colorScheme.primary
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(32.dp))
-                }
-
-
                 if (state.isLoading) {
                     items(6) {
                         AreaSuggestionsCardShimmer()
@@ -185,8 +192,6 @@ private fun AreaSuggestionsSettingContent(
                             onEdit = { listener.onClickEditArea(area) },
                             onDelete = { listener.onClickDeleteArea(area) }
                         )
-
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
                     if (state.isPagingLoading) {
                         item(key = "paging_loading") {
@@ -204,9 +209,6 @@ private fun AreaSuggestionsSettingContent(
                             }
                         }
                     }
-                }
-                item{
-
                 }
             }
         }
@@ -258,9 +260,10 @@ private fun AreaCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = onEdit) {
                     Icon(
-                        painter = painterResource(Res.drawable.ic_user_settings),
+                        painter = painterResource(Res.drawable.ic_edit),
                         contentDescription = "Edit service",
-                        tint = Theme.colorScheme.primary
+                        tint = Theme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
 
@@ -268,7 +271,8 @@ private fun AreaCard(
                     Icon(
                         painter = painterResource(Res.drawable.ic_close),
                         contentDescription = "Delete service",
-                        tint = Theme.colorScheme.error
+                        tint = Theme.colorScheme.error,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
@@ -281,7 +285,17 @@ private fun AreaCard(
 private fun AreaSuggestionsSettingsScreenPreview() = Theme {
     Preview {
         AreaSuggestionsSettingContent(
-            state = AreaSuggestionsSettingsUiState(),
+            state = AreaSuggestionsSettingsUiState(
+                areas = listOf(
+                    AreaResponse(1, "Area 1"),
+                    AreaResponse(2, "Area 2"),
+                    AreaResponse(3, "Area 3"),
+                    AreaResponse(4, "Area 4"),
+                    AreaResponse(5, "Area 5"),
+                ),
+                isLoading = false,
+                isPagingLoading = true
+            ),
             listener = object : AreaSuggestionsSettingsInteractionListener {
                 override fun onLoadMore() {}
                 override fun onClickAddArea() {}

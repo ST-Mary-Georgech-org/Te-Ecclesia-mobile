@@ -20,7 +20,7 @@ import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.confirm
-import teecclesia.designsystem.generated.resources.deleta_area_confirmation_message
+import teecclesia.designsystem.generated.resources.delete_area_confirmation_message
 import teecclesia.designsystem.generated.resources.delete_area_confirmation_title
 
 @Composable
@@ -41,7 +41,7 @@ fun DeleteAreaConfirmSheet(
         Spacer(modifier = Modifier.height(12.dp))
 
         Text(
-            text = stringResource(Res.string.deleta_area_confirmation_message),
+            text = stringResource(Res.string.delete_area_confirmation_message),
             style = Theme.typography.bodyMedium,
             color = Theme.colorScheme.onSurfaceVariant
         )

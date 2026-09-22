@@ -34,7 +34,8 @@ class AreaSuggestionsSettingsViewModel(
                     isPagingLoading = false,
                     isRefreshing = false,
                     areas = current.areas + items.data,
-                    isLastPage = items.isLastPage
+                    isLastPage = items.isLastPage,
+                    totalSize = items.totalItems
                 )
             }
         },
@@ -50,7 +51,7 @@ class AreaSuggestionsSettingsViewModel(
             }
         },
         onReset = {
-            updateState { it.copy(areas = emptyList(), isLastPage = false) }
+            updateState { it.copy(areas = emptyList(), isLastPage = false, totalSize = 0, isLoading = true) }
         },
         onError = { throwable ->
             updateState { current ->

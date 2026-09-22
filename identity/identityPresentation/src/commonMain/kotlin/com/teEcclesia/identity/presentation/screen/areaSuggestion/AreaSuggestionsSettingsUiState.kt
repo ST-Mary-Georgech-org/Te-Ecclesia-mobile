@@ -2,12 +2,11 @@ package com.teEcclesia.identity.presentation.screen.areaSuggestion
 
 import com.teEcclesia.designsystem.components.button.AppButtonState
 import com.teEcclesia.designsystem.utils.UiText
-import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.lookups.domain.model.AreaResponse
-import com.teEcclesia.lookups.domain.model.LookupResponse
 
 data class AreaSuggestionsSettingsUiState(
     val areas: List<AreaResponse> = emptyList(),
+    val totalSize: Long = 0,
     val areasError: UiText? = null,
     val isAddEditSheetOpen: Boolean = false,
     val editingArea: AreaResponse? = null,

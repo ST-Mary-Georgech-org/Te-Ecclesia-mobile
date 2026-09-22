@@ -401,7 +401,7 @@
     <string name="add_area">أضف منطقة</string>
     <string name="edit_area">تعديل منطقة</string>
     <string name="delete_area_confirmation_title">تأكيد حذف هذه المنطقة</string>
-    <string name="deleta_area_confirmation_message">هل أنت متأكد من حذف هذه المنطقة؟</string>
+    <string name="delete_area_confirmation_message">هل أنت متأكد من حذف هذه المنطقة؟</string>
 
     <!-- Account Deletion & Reactivation Strings -->
     <string name="delete_account">حذف الحساب</string>
