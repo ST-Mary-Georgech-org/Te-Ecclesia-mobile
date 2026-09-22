@@ -19,7 +19,9 @@ data class NotificationResponseDto(
     @SerialName("sentAt")
     val sentAt: String,
     @SerialName("read")
-    val isRead: Boolean
+    val isRead: Boolean,
+    @SerialName("dataPayload")
+    val dataPayload: Map<String, String> = emptyMap()
 )
 
 fun NotificationResponseDto.toDomain() = NotificationResponse(
@@ -28,5 +30,6 @@ fun NotificationResponseDto.toDomain() = NotificationResponse(
     message = message,
     type = type,
     sentAt = sentAt.toLocalDateTimeOrDefault(),
-    isRead = isRead
+    isRead = isRead,
+    dataPayload = dataPayload
 )
