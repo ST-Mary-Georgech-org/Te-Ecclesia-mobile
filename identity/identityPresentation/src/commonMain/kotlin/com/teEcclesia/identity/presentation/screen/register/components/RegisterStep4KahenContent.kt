@@ -279,6 +279,7 @@ private fun RegisterStep4KahenContentPreviewLightDark() {
         object : RegisterInteractionListener {
             override fun onClickNextStep() {}
             override fun onClickPreviousStep() {}
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) {}
             override fun onClickLogin() {}
             override fun onFirstNameChange(value: String) {}
             override fun onSecondNameChange(value: String) {}

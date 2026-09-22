@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.register.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.teEcclesia.designsystem.components.button.AppButton
 import com.teEcclesia.designsystem.components.button.AppButtonType
+import com.teEcclesia.designsystem.components.checkbox.Checkbox
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.identity.presentation.shared.components.ConfessionPriestField
@@ -52,6 +56,11 @@ import teecclesia.designsystem.generated.resources.national_id_hint
 import teecclesia.designsystem.generated.resources.next
 import teecclesia.designsystem.generated.resources.upload_national_id_card
 import teecclesia.designsystem.generated.resources.file_identity_card
+import teecclesia.designsystem.generated.resources.upload_birth_certificate
+import teecclesia.designsystem.generated.resources.file_birth_certificate
+import teecclesia.designsystem.generated.resources.parent_consent_declaration
+import teecclesia.designsystem.generated.resources.privacy_policy
+import com.teEcclesia.shared.domain.utils.AppUrls
 import teecclesia.designsystem.generated.resources.personal_info
 
 @Composable
@@ -60,6 +69,9 @@ fun RegisterStep1Content(
     listener: RegisterInteractionListener,
     onFileClickIdentityCertificate: (() -> Unit)? = null
 ) {
+    val uriHandler = LocalUriHandler.current
+    val privacyPolicyUrl = AppUrls.PRIVACY_POLICY
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,18 +140,82 @@ fun RegisterStep1Content(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
             )
 
-            FilePickerCard(
-                title = stringResource(Res.string.upload_national_id_card),
-                fileTitle = stringResource(Res.string.file_identity_card),
-                fileName = state.identityCertificateFileName,
-                fileBytes = state.identityCertificateBytes,
-                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearClick = {
-                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                },
-                onFileClick = onFileClickIdentityCertificate,
-                errorText = state.identityCertificateError?.asString()
-            )
+            if (state.isUnder13) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickableNoRipple {
+                                listener.onParentConsentAgreedChange(!state.isParentConsentAgreed)
+                            },
+                        verticalAlignment = Alignment.Top,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Checkbox(
+                            checked = state.isParentConsentAgreed,
+                            onCheckedChange = { listener.onParentConsentAgreedChange(it) }
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.parent_consent_declaration),
+                                style = Theme.typography.bodyMedium,
+                                color = Theme.colorScheme.onBackground
+                            )
+                            Text(
+                                text = stringResource(Res.string.privacy_policy),
+                                style = Theme.typography.labelMedium.copy(textDecoration = TextDecoration.Underline),
+                                color = Theme.colorScheme.primary,
+                                modifier = Modifier.clickableNoRipple {
+                                    uriHandler.openUri(privacyPolicyUrl)
+                                }
+                            )
+                        }
+                    }
+
+                    if (state.parentConsentError != null) {
+                        Text(
+                            text = state.parentConsentError.asString(),
+                            style = Theme.typography.bodySmall,
+                            color = Theme.colorScheme.error,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+
+                    AnimatedVisibility(visible = state.isParentConsentAgreed) {
+                        FilePickerCard(
+                            title = stringResource(Res.string.upload_birth_certificate),
+                            fileTitle = stringResource(Res.string.file_birth_certificate),
+                            fileName = state.identityCertificateFileName,
+                            fileBytes = state.identityCertificateBytes,
+                            onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                            onClearClick = {
+                                listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                            },
+                            onFileClick = onFileClickIdentityCertificate,
+                            errorText = state.identityCertificateError?.asString()
+                        )
+                    }
+                }
+            } else {
+                FilePickerCard(
+                    title = stringResource(Res.string.upload_national_id_card),
+                    fileTitle = stringResource(Res.string.file_identity_card),
+                    fileName = state.identityCertificateFileName,
+                    fileBytes = state.identityCertificateBytes,
+                    onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                    onClearClick = {
+                        listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                    },
+                    onFileClick = onFileClickIdentityCertificate,
+                    errorText = state.identityCertificateError?.asString()
+                )
+            }
 
             CustomTextField(
                 value = state.job,
@@ -223,6 +299,7 @@ private fun RegisterStep1ContentPreviewLightDark() {
             override fun onLastNameChange(value: String) { state = state.copy(lastName = value) }
             override fun onDisplayNameChange(value: String) { state = state.copy(displayName = value) }
             override fun onNationalIdChange(value: String) { state = state.copy(nationalId = value) }
+            override fun onParentConsentAgreedChange(isAgreed: Boolean) { state = state.copy(isParentConsentAgreed = isAgreed) }
             override fun onJobChange(value: String) { state = state.copy(job = value) }
             override fun onSelectConfessionPriest(priest: Priest?) { state = state.copy(selectedConfessionPriest = priest) }
             override fun onSelectFromAnotherChurch() { state = state.copy(isFromAnotherChurch = true) }

@@ -36,6 +36,7 @@ import com.teEcclesia.shared.domain.utils.PageQuery
 import com.teEcclesia.shared.domain.utils.validation.getPasswordValidationError
 import com.teEcclesia.shared.domain.utils.validation.getNationalIdValidationError
 import com.teEcclesia.shared.domain.utils.validation.isMaleFromEgyptianNationalId
+import com.teEcclesia.shared.domain.utils.validation.isUnderAgeFromEgyptianNationalId
 import com.teEcclesia.shared.domain.utils.validation.isValidApartmentInput
 import com.teEcclesia.shared.domain.utils.validation.isValidBuildingNoInput
 import com.teEcclesia.shared.domain.utils.validation.isValidEmailInput
@@ -58,6 +59,7 @@ import com.teEcclesia.identity.presentation.util.generateScannedFileName
 import com.teEcclesia.shared.domain.utils.validation.validateFileSizes
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.account_reactivated_successfully
+import teecclesia.designsystem.generated.resources.birth_certificate_required
 import teecclesia.designsystem.generated.resources.error_child_already_added
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_child
 import teecclesia.designsystem.generated.resources.error_forgot_to_click_plus_partner
@@ -76,6 +78,7 @@ import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
 import teecclesia.designsystem.generated.resources.national_id_card_required
+import teecclesia.designsystem.generated.resources.parent_consent_required
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -184,13 +187,14 @@ class RegisterViewModel(
                         UserRole.PARENT,
                         UserRole.KAHEN
                     )
+                    val isChildUnder13 = if (profile.nationalId.length == 14) isUnderAgeFromEgyptianNationalId(profile.nationalId, 13) else false
                     val targetStep = if (isEditMode) 4 else when {
                         profile.isPhoneVerified -> 5
                         profile.role == UserRole.KHADEM && profile.khademProfile != null -> 5
                         profile.role == UserRole.PARENT && profile.parentProfile != null -> 5
                         profile.role == UserRole.KAHEN && profile.kahenProfile != null -> 5
                         profile.role == UserRole.MAKHDOOM && profile.makhdoomProfile != null -> 5
-                        profile.phone.isNotBlank() && profile.buildingNo.isNotBlank() -> if (hasSelectedSpecificRole) 4 else 3
+                        profile.phone.isNotBlank() && profile.buildingNo.isNotBlank() -> if (hasSelectedSpecificRole || isChildUnder13) 4 else 3
                         profile.firstName.isNotBlank() && profile.lastName.isNotBlank() -> 2
                         else -> 1
                     }
@@ -215,6 +219,8 @@ class RegisterViewModel(
                             lastName = profile.lastName,
                             displayName = profile.displayName,
                             nationalId = profile.nationalId,
+                            isUnder13 = isChildUnder13,
+                            isParentConsentAgreed = isChildUnder13,
                             job = profile.job,
                             isMale = isMaleFromEgyptianNationalId(profile.nationalId),
                             selectedConfessionPriest = profile.confessionPriest,
@@ -233,7 +239,7 @@ class RegisterViewModel(
                             floor = profile.floor,
                             apartment = profile.apartment,
                             specialMark = profile.specialMark,
-                            selectedRole = if (hasSelectedSpecificRole) profile.role else null,
+                            selectedRole = if (isChildUnder13) UserRole.MAKHDOOM else (if (hasSelectedSpecificRole) profile.role else null),
 
                             // Makhdoom / Student fields
                             isFatherDeceased = makhdoom?.isFatherDeceased ?: false,
@@ -342,6 +348,8 @@ class RegisterViewModel(
             val prevStep =
                 if (state.value.currentStep == 5 && state.value.selectedRole == UserRole.KAHEN) {
                     3
+                } else if (state.value.currentStep == 4 && state.value.isUnder13) {
+                    2
                 } else {
                     state.value.currentStep - 1
                 }
@@ -398,8 +406,18 @@ class RegisterViewModel(
         val externalPhoneErr =
             if (s.isFromAnotherChurch && !validatePhone(s.externalPriestPhone)) UiText.StringRes(Res.string.invalid_phone_format) else null
 
+        val parentConsentErr = if (s.isUnder13 && !s.isParentConsentAgreed) {
+            UiText.StringRes(Res.string.parent_consent_required)
+        } else null
+
         val identityCertificateError = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
-            UiText.StringRes(Res.string.national_id_card_required)
+            if (s.isUnder13) {
+                if (s.isParentConsentAgreed) {
+                    UiText.StringRes(Res.string.birth_certificate_required)
+                } else null
+            } else {
+                UiText.StringRes(Res.string.national_id_card_required)
+            }
         } else null
 
         val hasError = listOfNotNull(
@@ -409,6 +427,7 @@ class RegisterViewModel(
             lastNameError,
             displayNameError,
             nationalIdError,
+            parentConsentErr,
             identityCertificateError,
             confessionPriestErr,
             externalNameErr,
@@ -424,6 +443,7 @@ class RegisterViewModel(
                 lastNameError = lastNameError,
                 displayNameError = displayNameError,
                 nationalIdError = nationalIdError,
+                parentConsentError = parentConsentErr,
                 identityCertificateError = identityCertificateError,
                 isMale = isMale,
                 confessionPriestError = confessionPriestErr,
@@ -491,13 +511,37 @@ class RegisterViewModel(
                 null
             }
             val isMale = isMaleFromEgyptianNationalId(value)
+            val isUnder13 = if (value.length == 14 && error == null) {
+                isUnderAgeFromEgyptianNationalId(value, 13)
+            } else {
+                false
+            }
             updateState {
+                val wasUnder13 = this.isUnder13
+                val newConsentAgreed = if (isUnder13) {
+                    if (wasUnder13) this.isParentConsentAgreed else false
+                } else {
+                    false
+                }
                 copy(
                     nationalId = value,
                     nationalIdError = error,
-                    isMale = isMale
+                    isMale = isMale,
+                    isUnder13 = isUnder13,
+                    isParentConsentAgreed = newConsentAgreed,
+                    parentConsentError = null,
+                    selectedRole = if (isUnder13) UserRole.MAKHDOOM else selectedRole
                 )
             }
+        }
+    }
+
+    override fun onParentConsentAgreedChange(isAgreed: Boolean) {
+        updateState {
+            copy(
+                isParentConsentAgreed = isAgreed,
+                parentConsentError = null
+            )
         }
     }
 
@@ -644,7 +688,11 @@ class RegisterViewModel(
                 },
                 onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
                 onSuccess = {
-                    updateState { copy(currentStep = 3) }
+                    if (s.isUnder13) {
+                        updateState { copy(currentStep = 4, selectedRole = UserRole.MAKHDOOM) }
+                    } else {
+                        updateState { copy(currentStep = 3) }
+                    }
                 },
                 onError = { throwable ->
                     if (throwable is AccountDeletedException) {
@@ -773,6 +821,7 @@ class RegisterViewModel(
     }
 
     override fun onRoleSelected(role: UserRole) {
+        if (state.value.isUnder13 && role != UserRole.MAKHDOOM) return
         if (state.value.selectedRole != role) {
             updateState {
                 copy(
