@@ -32,7 +32,9 @@ import teecclesia.designsystem.generated.resources.attendance
 import teecclesia.designsystem.generated.resources.ic_arrow_right
 import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_profile
+import teecclesia.designsystem.generated.resources.ic_repeat
 import teecclesia.designsystem.generated.resources.ic_user_settings
+import teecclesia.designsystem.generated.resources.repeated
 
 @Composable
 fun EventCard(
@@ -84,26 +86,57 @@ fun EventCard(
 
                 Spacer(modifier = Modifier.height(6.dp))
 
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Theme.colorScheme.primaryContainer
+
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = Theme.colorScheme.primaryContainer
                     ) {
-                        Icon(
-                            painter = painterResource(Res.drawable.ic_profile),
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                            tint = Theme.colorScheme.onPrimaryContainer
-                        )
-                        Text(
-                            text = "${stringResource(Res.string.attendance)}: ${event.attendeeCount}",
-                            style = Theme.typography.labelSmall,
-                            color = Theme.colorScheme.onPrimaryContainer
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(Res.drawable.ic_profile),
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = Theme.colorScheme.onPrimaryContainer
+                            )
+                            Text(
+                                text = "${stringResource(Res.string.attendance)}: ${event.attendeeCount}",
+                                style = Theme.typography.labelSmall,
+                                color = Theme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+                    if (event.repeated) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = Theme.colorScheme.primaryContainer
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(Res.drawable.ic_repeat),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                    tint = Theme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = stringResource(Res.string.repeated),
+                                    style = Theme.typography.labelSmall,
+                                    color = Theme.colorScheme.onPrimaryContainer,
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -149,6 +182,7 @@ private fun EventCardPreview() = Theme {
             startTime = LocalTime(18, 0),
             endTime = LocalTime(20, 0),
             attendeeCount = 25,
+            true,
             createdAt = getNow()
         ),
         onClick = {},

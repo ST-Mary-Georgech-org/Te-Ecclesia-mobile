@@ -1,45 +1,44 @@
 package com.teEcclesia.identity.data.model.attendance
 
-import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEvent
 import com.teEcclesia.shared.domain.utils.getNow
 import com.teEcclesia.shared.domain.utils.parseTimeOrDefault
 import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
-import kotlinx.datetime.LocalTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ServiceEventDto(
+data class ServiceRepeatedEventDto(
     @SerialName("id")
     val id: Long,
     @SerialName("serviceId")
     val serviceId: Long,
     @SerialName("name")
     val name: String? = null,
-    @SerialName("eventDate")
-    val eventDate: String,
+    @SerialName("startDate")
+    val startDate: String,
+    @SerialName("nextCreationDate")
+    val nextCreationDate: String,
     @SerialName("startTime")
     val startTime: String,
     @SerialName("endTime")
     val endTime: String,
-    @SerialName("attendeeCount")
-    val attendeeCount: Long? = 0L,
-    @SerialName("repeated")
-    val repeated: Boolean? = false,
+    @SerialName("repeatEvery")
+    val repeatEvery: Int? = 0,
     @SerialName("createdAt")
     val createdAt: String? = null
 )
 
-fun ServiceEventDto.toDomain(): ServiceEvent {
-    return ServiceEvent(
+fun ServiceRepeatedEventDto.toDomain(): ServiceRepeatedEvent {
+    return ServiceRepeatedEvent(
         id = id,
         serviceId = serviceId,
         name = name,
-        eventDate = eventDate.toLocalDateTimeOrDefault().date,
+        startDate = startDate.toLocalDateTimeOrDefault().date,
+        nextCreationDate = nextCreationDate.toLocalDateTimeOrDefault().date,
         startTime = parseTimeOrDefault(startTime),
         endTime = parseTimeOrDefault(endTime),
-        attendeeCount = attendeeCount ?: 0L,
-        repeated = repeated ?: false,
+        repeatEvery = repeatEvery ?: 0,
         createdAt = createdAt?.toLocalDateTimeOrDefault() ?: getNow()
     )
 }

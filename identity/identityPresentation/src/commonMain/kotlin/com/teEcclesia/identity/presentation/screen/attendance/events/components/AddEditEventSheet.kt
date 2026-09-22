@@ -24,6 +24,8 @@ import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListInteractionListener
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListUiState
+import com.teEcclesia.shared.domain.utils.parseDate
+import com.teEcclesia.shared.domain.utils.parseTime
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.painterResource
@@ -58,14 +60,14 @@ fun AddEditEventSheet(
 
     DatePicker(
         showDialog = state.isDatePickerOpen,
-        selectedDate = runCatching { LocalDate.parse(state.eventDateInput) }.getOrNull(),
+        selectedDate = parseDate(state.eventDateInput),
         onDateSelected = listener::onDateSelected,
         onDismiss = listener::onDismissDatePicker
     )
 
     TimePickerDialog(
         showDialog = state.isStartTimePickerOpen,
-        initialTime = runCatching { LocalTime.parse(state.startTimeInput) }.getOrNull(),
+        initialTime = parseTime(state.startTimeInput),
         title = stringResource(Res.string.start_time),
         onTimeSelected = listener::onStartTimeSelected,
         onDismiss = listener::onDismissStartTimePicker
@@ -73,7 +75,7 @@ fun AddEditEventSheet(
 
     TimePickerDialog(
         showDialog = state.isEndTimePickerOpen,
-        initialTime = runCatching { LocalTime.parse(state.endTimeInput) }.getOrNull(),
+        initialTime = parseTime(state.endTimeInput),
         title = stringResource(Res.string.end_time),
         onTimeSelected = listener::onEndTimeSelected,
         onDismiss = listener::onDismissEndTimePicker

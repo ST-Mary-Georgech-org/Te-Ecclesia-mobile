@@ -70,6 +70,7 @@ import teecclesia.designsystem.generated.resources.select_theme
 import teecclesia.designsystem.generated.resources.join_whatsapp_group
 import teecclesia.designsystem.generated.resources.academic_year
 import teecclesia.designsystem.generated.resources.edit
+import teecclesia.designsystem.generated.resources.edit_area_suggestions
 import teecclesia.designsystem.generated.resources.send_notification
 
 @Composable
@@ -99,6 +100,7 @@ fun ProfileScreen(
         onClickEnableNotifications = viewModel::openNotificationSettings,
         onClickEditAcademicYear = viewModel::onClickEditAcademicYear,
         onClickSendNotification = viewModel::onClickSendNotification,
+        onClickEditSuggestions = viewModel::onClickEditSuggestions,
         onClickDeletionRequests = viewModel::onClickDeletionRequests,
         onClickDeleteAccount = viewModel::onClickDeleteAccount,
         onDeleteAccountReasonChange = viewModel::onDeleteAccountReasonChange,
@@ -123,6 +125,7 @@ private fun ProfileContent(
     onClickEnableNotifications: () -> Unit,
     onClickEditAcademicYear: () -> Unit,
     onClickSendNotification: () -> Unit,
+    onClickEditSuggestions: () -> Unit,
     onClickDeletionRequests: () -> Unit,
     onClickDeleteAccount: () -> Unit,
     onDeleteAccountReasonChange: (String) -> Unit,
@@ -375,6 +378,16 @@ private fun ProfileContent(
 
         if (state.userRole == UserRole.ADMIN) {
             Spacer(modifier = Modifier.height(12.dp))
+            AppButton(
+                type = AppButtonType.Primary,
+                onClick = onClickEditSuggestions,
+                modifier = Modifier.fillMaxWidth(),
+                text = stringResource(Res.string.edit_area_suggestions)
+            )
+        }
+
+        if (state.userRole == UserRole.ADMIN) {
+            Spacer(modifier = Modifier.height(12.dp))
             val deletionRequestsText = if (state.deletionRequestsCount > 0) {
                 "${stringResource(Res.string.deletion_requests)} (${state.deletionRequestsCount})"
             } else {
@@ -489,6 +502,7 @@ private fun ProfileContentPreview() = Theme {
         onClickEnableNotifications = {},
         onClickEditAcademicYear = {},
         onClickSendNotification = {},
+        onClickEditSuggestions = {},
         onClickDeletionRequests = {},
         onClickDeleteAccount = {},
         onDeleteAccountReasonChange = {},

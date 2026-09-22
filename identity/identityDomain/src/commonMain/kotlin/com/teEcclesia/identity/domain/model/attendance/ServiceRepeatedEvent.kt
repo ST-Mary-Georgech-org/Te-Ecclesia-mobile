@@ -4,14 +4,14 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 
-data class ServiceEvent(
+data class ServiceRepeatedEvent(
     val id: Long,
     val serviceId: Long,
     val name: String?,
-    val eventDate: LocalDate,
+    val startDate: LocalDate,
+    val nextCreationDate: LocalDate,
     val startTime: LocalTime,
     val endTime: LocalTime,
-    val attendeeCount: Long,
-    val repeated : Boolean,
+    val repeatEvery: Int,
     val createdAt: LocalDateTime
 )

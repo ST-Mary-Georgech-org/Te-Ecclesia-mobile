@@ -277,6 +277,7 @@
 
     <!-- Attendance Keys -->
     <string name="attendance">الحضور</string>
+    <string name="repeated">متكرر</string>
     <string name="services">الخدمات</string>
     <string name="add_service">إضافة خدمة جديدة</string>
     <string name="edit_service">تعديل الخدمة</string>
@@ -370,6 +371,9 @@
     <string name="no_stage">بدون مرحلة</string>
     <string name="maximum_servants_reached">لا يمكن إضافة أكثر من 30 خادم مسؤول</string>
     <string name="maximum_stages_reached">لا يمكن اختيار أكثر من 10 مراحل</string>
+    <string name="add_repeated_event">إضافة حدث متكرر</string>
+    <string name="event_start_date">تاريخ بدا الحدث (YYYY-MM-DD)</string>
+    <string name="repeat_every">يتكرر كل (عدد ألأيام)</string>
     <string name="view_attendance_history">عرض سجل الحضور</string>
     <string name="attendance_history">سجل الحضور</string>
     <string name="failed_to_load_attendance_history">فشل تحميل سجل الحضور</string>
@@ -400,6 +404,15 @@
     <string name="failed_to_load_notifications">فشل في تحميل الإشعارات</string>
     <string name="file_size_exceeded_limit">حجم الملف المحدد يتجاوز الحد الأقصى المسموح به (10 ميجابايت)</string>
 
+    <!-- Admin Edit Suggestions Strings -->
+    <string name="edit_area_suggestions">تعديل اقتراحات المنطقة</string>
+    <string name="failed_to_load_area_suggestions">فشل تحميل اقتراحات المنطقة</string>
+    <string name="no_area_suggestions_found">لا توجد مناطق</string>
+    <string name="add_area">أضف منطقة</string>
+    <string name="edit_area">تعديل منطقة</string>
+    <string name="delete_area_confirmation_title">تأكيد حذف هذه المنطقة</string>
+    <string name="delete_area_confirmation_message">هل أنت متأكد من حذف هذه المنطقة؟</string>
+
     <!-- Account Deletion & Reactivation Strings -->
     <string name="delete_account">حذف الحساب</string>
     <string name="delete_account_title">طلب حذف الحساب</string>
@@ -428,4 +441,7 @@
     <string name="review_deletion_request">مراجعة طلب الحذف</string>
     <string name="reactivate_account_reset_password_notice">هذا الحساب كان محذوفاً مسبقاً، وإتمام تعيين كلمة المرور الجديدة سيعيد تفعيله واستعادته تلقائياً.</string>
     <string name="password_reset_and_account_reactivated_successfully">تم تعيين كلمة المرور واستعادة الحساب بنجاح</string>
+
+    <string name="end_time_must_be_after_start_time">يجب أن يكون وقت النهاية بعد وقت البداية</string>
+    <string name="repeat_every_must_be_greater_than_zero">يجب أن تكون القيمة أكبر من صفر</string>
 </resources>
