@@ -2,26 +2,35 @@ package com.teEcclesia.identity.presentation.screen.attendance.services
 
 import com.teEcclesia.designsystem.navigation.BaseViewModel
 import com.teEcclesia.designsystem.utils.UiText
+import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.api.AttendanceEventsRoute
 import com.teEcclesia.identity.domain.model.attendance.AttendeeUserPreview
 import com.teEcclesia.identity.domain.model.attendance.ChurchService
 import com.teEcclesia.identity.domain.model.attendance.ResponsibleServant
+import com.teEcclesia.identity.domain.model.attendance.ServiceRepeatedEventRequest
 import com.teEcclesia.identity.domain.repository.AttendanceRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
-import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.lookups.domain.repository.LookupRepository
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.utils.PageQuery
+import com.teEcclesia.shared.domain.utils.formatTime
+import com.teEcclesia.shared.domain.utils.parseDate
+import com.teEcclesia.shared.domain.utils.parseTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.end_time_must_be_after_start_time
 import teecclesia.designsystem.generated.resources.failed_to_delete_service
 import teecclesia.designsystem.generated.resources.failed_to_load_services
 import teecclesia.designsystem.generated.resources.failed_to_save_service
+import teecclesia.designsystem.generated.resources.field_required
 import teecclesia.designsystem.generated.resources.maximum_servants_reached
 import teecclesia.designsystem.generated.resources.maximum_stages_reached
+import teecclesia.designsystem.generated.resources.repeat_every_must_be_greater_than_zero
 import kotlin.time.Duration.Companion.milliseconds
 
 class ServicesListViewModel(
@@ -160,11 +169,22 @@ class ServicesListViewModel(
                 isAddEditSheetOpen = true,
                 editingService = null,
                 serviceNameInput = "",
+                serviceNameError = null,
                 selectedStages = emptyList(),
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
-                selectedServants = emptyList()
+                selectedServants = emptyList(),
+                addRepeatedEvent = false,
+                eventNameInput = "",
+                eventDateInput = "",
+                eventDateError = null,
+                repeatEvery = "",
+                repeatEveryError = null,
+                startTimeInput = "",
+                startTimeError = null,
+                endTimeInput = "",
+                endTimeError = null
             )
         }
     }
@@ -175,11 +195,22 @@ class ServicesListViewModel(
                 isAddEditSheetOpen = true,
                 editingService = service,
                 serviceNameInput = service.name,
+                serviceNameError = null,
                 selectedStages = service.educationalStages,
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
-                selectedServants = service.responsibleServants
+                selectedServants = service.responsibleServants,
+                addRepeatedEvent = service.repeatedEvent != null,
+                eventNameInput = service.repeatedEvent?.name ?: "",
+                eventDateInput = service.repeatedEvent?.startDate?.toString() ?: "",
+                eventDateError = null,
+                repeatEvery = service.repeatedEvent?.repeatEvery?.toString() ?: "",
+                repeatEveryError = null,
+                startTimeInput = service.repeatedEvent?.startTime?.formatTime() ?: "",
+                startTimeError = null,
+                endTimeInput = service.repeatedEvent?.endTime?.formatTime() ?: "",
+                endTimeError = null
             )
         }
     }
@@ -194,7 +225,12 @@ class ServicesListViewModel(
     }
 
     override fun onServiceNameChanged(name: String) {
-        updateState { copy(serviceNameInput = name) }
+        updateState {
+            copy(
+                serviceNameInput = name,
+                serviceNameError = null
+            )
+        }
     }
 
     override fun onToggleStageSelection(stage: LookupResponse) {
@@ -293,9 +329,10 @@ class ServicesListViewModel(
     }
 
     override fun onConfirmSaveService() {
-        val input = state.value.serviceNameInput.trim()
-        if (input.isBlank()) return
+        val (isValid, repeatedEvent) = validateAndBuildRepeatedEvent()
+        if (!isValid) return
 
+        val input = state.value.serviceNameInput.trim()
         val editing = state.value.editingService
         val stageIds = state.value.selectedStages.map { it.id }
         val servantIds = state.value.selectedServants.map { it.id }
@@ -307,14 +344,16 @@ class ServicesListViewModel(
                     attendanceRepository.createService(
                         name = input,
                         educationalStageIds = stageIds,
-                        responsibleServantIds = servantIds
+                        responsibleServantIds = servantIds,
+                        repeatedEvent = repeatedEvent
                     )
                 } else {
                     attendanceRepository.updateService(
                         id = editing.id,
                         name = input,
                         educationalStageIds = stageIds,
-                        responsibleServantIds = servantIds
+                        responsibleServantIds = servantIds,
+                        repeatedEvent = repeatedEvent
                     )
                 }
             },
@@ -331,6 +370,108 @@ class ServicesListViewModel(
             },
             onEnd = { updateState { copy(isActionLoading = false) } }
         )
+    }
+
+    private fun validateAndBuildRepeatedEvent(): Pair<Boolean, ServiceRepeatedEventRequest?> {
+        val currentState = state.value
+        val serviceName = currentState.serviceNameInput.trim()
+        val isNameBlank = serviceName.isBlank()
+        val nameError = if (isNameBlank) UiText.StringRes(Res.string.field_required) else null
+
+        var hasError = isNameBlank
+        var dateError: UiText? = null
+        var repeatError: UiText? = null
+        var startError: UiText? = null
+        var endError: UiText? = null
+        var request: ServiceRepeatedEventRequest? = null
+
+        if (currentState.addRepeatedEvent) {
+            val dateStr = currentState.eventDateInput.trim()
+            val parsedDate = if (dateStr.isBlank()) {
+                dateError = UiText.StringRes(Res.string.field_required)
+                hasError = true
+                null
+            } else {
+                parseDate(dateStr) ?: run {
+                    dateError = UiText.StringRes(Res.string.field_required)
+                    hasError = true
+                    null
+                }
+            }
+
+            val repeatStr = currentState.repeatEvery.trim()
+            val repeatValue = if (repeatStr.isBlank()) {
+                repeatError = UiText.StringRes(Res.string.field_required)
+                hasError = true
+                null
+            } else {
+                val parsed = repeatStr.toIntOrNull()
+                if (parsed == null || parsed <= 0) {
+                    repeatError = UiText.StringRes(Res.string.repeat_every_must_be_greater_than_zero)
+                    hasError = true
+                    null
+                } else {
+                    parsed
+                }
+            }
+
+            val startStr = currentState.startTimeInput.trim()
+            val parsedStart = if (startStr.isBlank()) {
+                startError = UiText.StringRes(Res.string.field_required)
+                hasError = true
+                null
+            } else {
+                parseTime(startStr) ?: run {
+                    startError = UiText.StringRes(Res.string.field_required)
+                    hasError = true
+                    null
+                }
+            }
+
+            val endStr = currentState.endTimeInput.trim()
+            val parsedEnd = if (endStr.isBlank()) {
+                endError = UiText.StringRes(Res.string.field_required)
+                hasError = true
+                null
+            } else {
+                parseTime(endStr) ?: run {
+                    endError = UiText.StringRes(Res.string.field_required)
+                    hasError = true
+                    null
+                }
+            }
+
+            if (parsedStart != null && parsedEnd != null && parsedEnd <= parsedStart) {
+                endError = UiText.StringRes(Res.string.end_time_must_be_after_start_time)
+                hasError = true
+            }
+
+            if (!hasError && parsedDate != null && parsedStart != null && parsedEnd != null && repeatValue != null) {
+                val name = currentState.eventNameInput.trim()
+                request = ServiceRepeatedEventRequest(
+                    name = name.ifBlank { null },
+                    startDate = parsedDate,
+                    startTime = parsedStart,
+                    endTime = parsedEnd,
+                    repeatEvery = repeatValue
+                )
+            }
+        }
+
+        if (hasError) {
+            updateState {
+                copy(
+                    serviceNameError = nameError,
+                    eventDateError = dateError,
+                    repeatEveryError = repeatError,
+                    startTimeError = startError,
+                    endTimeError = endError
+                )
+            }
+            return Pair(false, null)
+        }
+
+        return Pair(true, request)
     }
 
     override fun onConfirmDeleteService() {
@@ -353,19 +494,131 @@ class ServicesListViewModel(
         )
     }
 
+    override fun onToggleAddRepeatedEvent() {
+        updateState {
+            copy(
+                addRepeatedEvent = !addRepeatedEvent,
+                eventNameInput = "",
+                eventDateInput = "",
+                eventDateError = null,
+                repeatEvery = "",
+                repeatEveryError = null,
+                startTimeInput = "",
+                startTimeError = null,
+                endTimeInput = "",
+                endTimeError = null
+            )
+        }
+    }
+
+    override fun onEventNameChanged(name: String) {
+        updateState { copy(eventNameInput = name) }
+    }
+
+    override fun onClickDatePicker() {
+        updateState { copy(isDatePickerOpen = true) }
+    }
+
+    override fun onDismissDatePicker() {
+        updateState { copy(isDatePickerOpen = false) }
+    }
+
+    override fun onDateSelected(date: LocalDate) {
+        updateState {
+            copy(
+                eventDateInput = date.toString(),
+                eventDateError = null,
+                isDatePickerOpen = false
+            )
+        }
+    }
+
+    override fun onRepeatEveryChanged(duration: String) {
+        val numbersOnly = duration.filter { it.isDigit() }
+
+        if (numbersOnly.isEmpty() || numbersOnly.toIntOrNull()
+                ?.let { it > 0 } == true
+        ) {
+            updateState {
+                copy(
+                    repeatEvery = numbersOnly,
+                    repeatEveryError = null
+                )
+            }
+        }
+    }
+
+    override fun onClickStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = true) }
+    }
+
+    override fun onDismissStartTimePicker() {
+        updateState { copy(isStartTimePickerOpen = false) }
+    }
+
+    override fun onStartTimeSelected(time: LocalTime) {
+        updateState {
+            val end = parseTime(endTimeInput.trim())
+            val endErr = if (end != null && end <= time) {
+                UiText.StringRes(Res.string.end_time_must_be_after_start_time)
+            } else null
+
+            copy(
+                startTimeInput = time.formatTime(),
+                startTimeError = null,
+                endTimeError = endErr,
+                isStartTimePickerOpen = false
+            )
+        }
+    }
+
+    override fun onClickEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = true) }
+    }
+
+    override fun onDismissEndTimePicker() {
+        updateState { copy(isEndTimePickerOpen = false) }
+    }
+
+    override fun onEndTimeSelected(time: LocalTime) {
+        val start = parseTime(state.value.startTimeInput.trim())
+        val endErr = if (start != null && time <= start) {
+            UiText.StringRes(Res.string.end_time_must_be_after_start_time)
+        } else null
+
+        updateState {
+            copy(
+                endTimeInput = time.formatTime(),
+                endTimeError = endErr,
+                isEndTimePickerOpen = false
+            )
+        }
+    }
+
     override fun onDismissSheet() {
         updateState {
             copy(
                 isAddEditSheetOpen = false,
                 editingService = null,
                 serviceNameInput = "",
+                serviceNameError = null,
                 selectedStages = emptyList(),
                 isStageSheetVisible = false,
                 servantSearchQuery = "",
                 suggestedServants = emptyList(),
                 selectedServants = emptyList(),
                 isDeleteConfirmSheetOpen = false,
-                deletingService = null
+                deletingService = null,
+                addRepeatedEvent = false,
+                eventNameInput = "",
+                eventDateInput = "",
+                eventDateError = null,
+                repeatEvery = "",
+                repeatEveryError = null,
+                startTimeInput = "",
+                startTimeError = null,
+                endTimeInput = "",
+                endTimeError = null
             )
         }
     }
