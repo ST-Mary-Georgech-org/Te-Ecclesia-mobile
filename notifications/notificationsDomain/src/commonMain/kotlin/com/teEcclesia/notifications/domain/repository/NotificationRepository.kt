@@ -10,5 +10,6 @@ interface NotificationRepository {
     suspend fun getUnreadCount(): Long
     suspend fun markAllAsRead()
     suspend fun sendAdminNotification(param: AdminSendNotificationParam)
+    suspend fun deleteNotification(id: String)
 }
 

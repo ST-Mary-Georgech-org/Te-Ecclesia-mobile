@@ -20,7 +20,7 @@ import com.teEcclesia.identity.domain.util.AppLanguage
 import com.teEcclesia.identity.domain.util.AppLocalizer
 import com.teEcclesia.identity.domain.util.AppTheme
 import com.teEcclesia.notifications.data.push.PushNotificationsInitializer
-import com.teEcclesia.notifications.data.util.NotificationClickState
+import com.teEcclesia.notifications.domain.util.NotificationClickState
 import com.teEcclesia.util.SetSystemBarsAppearance
 import com.teEcclesia.util.handleNotificationClick
 import kotlinx.coroutines.CoroutineExceptionHandler
