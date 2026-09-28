@@ -26,6 +26,7 @@ import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
+import com.teEcclesia.identity.presentation.shared.model.FamilyScanTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.designsystem.utils.getLocalizedErrorMessage
 import com.teEcclesia.identity.presentation.util.toPagedData
@@ -77,6 +78,7 @@ import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
+import kotlinx.coroutines.Job
 import teecclesia.designsystem.generated.resources.national_id_card_required
 import teecclesia.designsystem.generated.resources.parent_consent_required
 
@@ -88,6 +90,9 @@ class RegisterViewModel(
     private val authorizationService: AuthorizationService,
     private val profileRepository: ProfileRepository
 ) : BaseViewModel<RegisterScreenState>(RegisterScreenState()), RegisterInteractionListener {
+
+    private var downloadPdfJob: Job? = null
+    private var lastClickedPdfTarget: UploadTarget? = null
 
     private var whatsappToken: String? = null
 
@@ -842,6 +847,18 @@ class RegisterViewModel(
         val s = state.value
         val role = s.selectedRole ?: return
 
+        val rankErr =
+            if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
+        val bishopNameErr =
+            if (s.isMale != false && s.isOrdained && s.bishopName.isBlank()) UiText.StringRes(Res.string.field_required) else null
+        val ordinationPlaceErr =
+            if (s.isMale != false && s.isOrdained && !s.isOrdainedInThisChurch && s.ordinationPlace.isBlank()) UiText.StringRes(Res.string.field_required) else null
+        val ordinationYearErr = if (s.isMale != false && s.isOrdained && s.ordinationYear.isNotBlank()) {
+            if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
+                UiText.StringRes(Res.string.invalid_year_format)
+            } else null
+        } else null
+
         when (role) {
             UserRole.KHADEM -> {
                 val stageErr =
@@ -851,33 +868,30 @@ class RegisterViewModel(
                         UiText.StringRes(Res.string.field_required)
                     } else null
 
-                val hasError = listOfNotNull(stageErr, yearErr).isNotEmpty()
+                val hasError = listOfNotNull(
+                    stageErr, yearErr,
+                    rankErr, bishopNameErr, ordinationPlaceErr, ordinationYearErr
+                ).isNotEmpty()
                 updateState {
                     copy(
                         stageError = stageErr,
-                        yearError = yearErr
+                        yearError = yearErr,
+                        rankError = rankErr,
+                        bishopNameError = bishopNameErr,
+                        ordinationPlaceError = ordinationPlaceErr,
+                        ordinationYearError = ordinationYearErr
                     )
                 }
                 if (hasError) return
             }
 
             UserRole.MAKHDOOM -> {
-                val rankErr =
-                    if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
                 val stageErr =
                     if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr =
                     if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
                         UiText.StringRes(Res.string.field_required)
                     } else null
-
-                val ordinationYearErr = if (s.isMale != false && s.isOrdained) {
-                    if (s.ordinationYear.isBlank()) {
-                        UiText.StringRes(Res.string.field_required)
-                    } else if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
-                        UiText.StringRes(Res.string.invalid_year_format)
-                    } else null
-                } else null
 
                 val fatherPhoneErr = if (!s.isFatherDeceased) {
                     if (s.fatherPhone.isBlank()) {
@@ -912,12 +926,14 @@ class RegisterViewModel(
                 } else null
 
                 val hasError = listOfNotNull(
-                    rankErr, stageErr, yearErr, ordinationYearErr,
+                    rankErr, bishopNameErr, ordinationPlaceErr, stageErr, yearErr, ordinationYearErr,
                     fatherPhoneErr, fatherWhatsappErr, motherPhoneErr, motherWhatsappErr
                 ).isNotEmpty()
                 updateState {
                     copy(
                         rankError = rankErr,
+                        bishopNameError = bishopNameErr,
+                        ordinationPlaceError = ordinationPlaceErr,
                         stageError = stageErr,
                         yearError = yearErr,
                         ordinationYearError = ordinationYearErr,
@@ -931,6 +947,19 @@ class RegisterViewModel(
             }
 
             UserRole.PARENT -> {
+                val hasOrdinationError = listOfNotNull(
+                    rankErr, bishopNameErr, ordinationPlaceErr, ordinationYearErr
+                ).isNotEmpty()
+                updateState {
+                    copy(
+                        rankError = rankErr,
+                        bishopNameError = bishopNameErr,
+                        ordinationPlaceError = ordinationPlaceErr,
+                        ordinationYearError = ordinationYearErr
+                    )
+                }
+                if (hasOrdinationError) return
+
                 if (s.isPartnerLoading || s.isChildLoading) return
                 if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
                     showSnackBar(
@@ -993,12 +1022,12 @@ class RegisterViewModel(
             kahenProfile = if (role == UserRole.KAHEN) KahenProfileRequest(
                 educationalStageIds = s.kahenEducationalStages.map { it.id }
             ) else null,
-            ordinationProfile = if (s.isMale != false && role != UserRole.KAHEN && role != UserRole.PARENT && s.isOrdained) OrdinationProfileRequest(
+            ordinationProfile = if (s.isMale != false && role != UserRole.KAHEN && s.isOrdained) OrdinationProfileRequest(
                 rankId = s.selectedRank?.id ?: 1L,
                 isOrdinationInAnotherChurch = !s.isOrdainedInThisChurch,
                 ordinationYear = s.ordinationYear.toIntOrNull(),
                 bishopName = s.bishopName.ifBlank { null },
-                ordinationPlace = s.ordinationPlace.ifBlank { null }
+                ordinationPlace = if (s.isOrdainedInThisChurch) null else s.ordinationPlace.ifBlank { null }
             ) else null,
             makhdoomProfile = if (role == UserRole.MAKHDOOM) MakhdoomProfileRequest(
                 shamamsaStudyStatus = s.shamamsaStatus,
@@ -1045,7 +1074,9 @@ class RegisterViewModel(
             copy(
                 isOrdained = ordained,
                 ordinationYearError = if (!ordained) null else ordinationYearError,
-                rankError = if (!ordained) null else rankError
+                rankError = if (!ordained) null else rankError,
+                bishopNameError = if (!ordained) null else bishopNameError,
+                ordinationPlaceError = if (!ordained) null else ordinationPlaceError
             )
         }
     }
@@ -1062,7 +1093,12 @@ class RegisterViewModel(
     }
 
     override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {
-        updateState { copy(isOrdainedInThisChurch = inThisChurch) }
+        updateState {
+            copy(
+                isOrdainedInThisChurch = inThisChurch,
+                ordinationPlaceError = if (inThisChurch) null else ordinationPlaceError
+            )
+        }
     }
 
     override fun onOrdinationYearChange(value: String) {
@@ -1072,11 +1108,11 @@ class RegisterViewModel(
     }
 
     override fun onBishopNameChange(value: String) {
-        updateState { copy(bishopName = value) }
+        updateState { copy(bishopName = value, bishopNameError = null) }
     }
 
     override fun onOrdinationPlaceChange(value: String) {
-        updateState { copy(ordinationPlace = value) }
+        updateState { copy(ordinationPlace = value, ordinationPlaceError = null) }
     }
 
     override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {
@@ -1229,11 +1265,16 @@ class RegisterViewModel(
     }
 
     override fun onSearchPartner() {
+        searchPartnerByCode(state.value.partnerQuery)
+    }
+
+    private fun searchPartnerByCode(query: String) {
         if (state.value.isPartnerLoading) return
-        if (state.value.partnerQuery.isNotBlank()) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isNotBlank()) {
             updateState { copy(isPartnerLoading = true, partnerError = null) }
             tryToCall(
-                block = { registerRepository.searchParent(state.value.partnerQuery) },
+                block = { registerRepository.searchParent(trimmedQuery) },
                 onSuccess = { res ->
                     updateState {
                         copy(
@@ -1262,11 +1303,16 @@ class RegisterViewModel(
     }
 
     override fun onSearchChild() {
+        searchChildByCode(state.value.childQuery)
+    }
+
+    private fun searchChildByCode(query: String) {
         if (state.value.isChildLoading) return
-        if (state.value.childQuery.isNotBlank()) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isNotBlank()) {
             updateState { copy(isChildLoading = true, childError = null) }
             tryToCall(
-                block = { registerRepository.searchMakhdoom(state.value.childQuery) },
+                block = { registerRepository.searchMakhdoom(trimmedQuery) },
                 onSuccess = { res ->
                     if (res != null) {
                         val isAlreadyAdded = state.value.selectedChildren.any { it.id == res.id }
@@ -1307,6 +1353,37 @@ class RegisterViewModel(
         updateState { copy(selectedChildren = selectedChildren - child) }
     }
 
+    override fun onClickScanPartnerQr() {
+        updateState { copy(isQrScannerVisible = true, qrScanTarget = FamilyScanTarget.PARTNER) }
+    }
+
+    override fun onClickScanChildQr() {
+        updateState { copy(isQrScannerVisible = true, qrScanTarget = FamilyScanTarget.CHILD) }
+    }
+
+    override fun onDismissQrScanner() {
+        updateState { copy(isQrScannerVisible = false, qrScanTarget = null) }
+    }
+
+    override fun onQrCodeScanned(code: String) {
+        val trimmed = code.trim()
+        val target = state.value.qrScanTarget
+        updateState { copy(isQrScannerVisible = false, qrScanTarget = null) }
+        if (trimmed.isBlank()) return
+
+        when (target) {
+            FamilyScanTarget.PARTNER -> {
+                updateState { copy(partnerQuery = trimmed, partnerError = null) }
+                searchPartnerByCode(trimmed)
+            }
+            FamilyScanTarget.CHILD -> {
+                updateState { copy(childQuery = trimmed, childError = null) }
+                searchChildByCode(trimmed)
+            }
+            null -> Unit
+        }
+    }
+
     // Upload & Bottom Sheet
     override fun onClickUpload(target: UploadTarget) {
         updateState { copy(isUploadBottomSheetVisible = true, activeUploadTarget = target) }
@@ -1321,16 +1398,40 @@ class RegisterViewModel(
     }
 
     override fun onDismissPdfViewer() {
-        updateState { copy(isPdfViewerVisible = false, activePdfBytes = null) }
+        downloadPdfJob?.cancel()
+        downloadPdfJob = null
+        updateState { copy(isPdfViewerVisible = false, isPdfViewerLoading = false, isPdfViewerError = false, activePdfBytes = null) }
+    }
+
+    override fun onRetryPdfViewer() {
+        val target = lastClickedPdfTarget ?: return
+        val fileName = when (target) {
+            UploadTarget.IDENTITY_CERTIFICATE -> state.value.identityCertificateFileName
+            UploadTarget.ORDINATION_CERTIFICATE -> state.value.ordinationCertificateFileName
+            else -> null
+        }
+        if (!fileName.isNullOrBlank()) {
+            downloadPdf(fileName = fileName, target = target)
+        }
     }
 
     override fun onClickOrdinationCertificate() {
-        val bytes = state.value.ordinationCertificateBytes ?: return
-        val isPdf = state.value.ordinationCertificateFileName?.endsWith(".pdf", ignoreCase = true) == true
-        if (isPdf) {
-            updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
-        } else {
-            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+        val bytes = state.value.ordinationCertificateBytes
+        val fileName = state.value.ordinationCertificateFileName
+        val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
+        if (bytes != null) {
+            if (isPdf) {
+                updateState { copy(isPdfViewerVisible = true, isPdfViewerLoading = false, isPdfViewerError = false, activePdfBytes = bytes) }
+            } else {
+                updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
+            }
+        } else if (!fileName.isNullOrBlank()) {
+            if (isPdf) {
+                lastClickedPdfTarget = UploadTarget.ORDINATION_CERTIFICATE
+                downloadPdf(fileName = fileName, target = UploadTarget.ORDINATION_CERTIFICATE)
+            } else {
+                updateState { copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
+            }
         }
     }
 
@@ -1340,13 +1441,65 @@ class RegisterViewModel(
         val isPdf = fileName?.endsWith(".pdf", ignoreCase = true) == true
         if (bytes != null) {
             if (isPdf) {
-                updateState { copy(isPdfViewerVisible = true, activePdfBytes = bytes) }
+                updateState { copy(isPdfViewerVisible = true, isPdfViewerLoading = false, isPdfViewerError = false, activePdfBytes = bytes) }
             } else {
                 updateState { copy(isImageViewerVisible = true, activeImageViewerModel = bytes) }
             }
-        } else if (!fileName.isNullOrBlank() && !isPdf) {
-            updateState { copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
+        } else if (!fileName.isNullOrBlank()) {
+            if (isPdf) {
+                lastClickedPdfTarget = UploadTarget.IDENTITY_CERTIFICATE
+                downloadPdf(fileName = fileName, target = UploadTarget.IDENTITY_CERTIFICATE)
+            } else {
+                updateState { copy(isImageViewerVisible = true, activeImageViewerModel = fileName) }
+            }
         }
+    }
+
+    private fun downloadPdf(fileName: String, target: UploadTarget) {
+        downloadPdfJob?.cancel()
+        downloadPdfJob = tryToCall(
+            onStart = {
+                updateState {
+                    copy(
+                        isPdfViewerVisible = true,
+                        isPdfViewerLoading = true,
+                        isPdfViewerError = false,
+                        activePdfBytes = null
+                    )
+                }
+            },
+            block = { profileRepository.downloadFile(fileName) },
+            onSuccess = { downloadedBytes ->
+                val safeBytes = downloadedBytes.toSafeByteArray()
+                updateState {
+                    when (target) {
+                        UploadTarget.IDENTITY_CERTIFICATE -> copy(
+                            identityCertificateBytes = safeBytes,
+                            isPdfViewerVisible = true,
+                            isPdfViewerLoading = false,
+                            isPdfViewerError = false,
+                            activePdfBytes = safeBytes
+                        )
+                        UploadTarget.ORDINATION_CERTIFICATE -> copy(
+                            ordinationCertificateBytes = safeBytes,
+                            isPdfViewerVisible = true,
+                            isPdfViewerLoading = false,
+                            isPdfViewerError = false,
+                            activePdfBytes = safeBytes
+                        )
+                        else -> copy(
+                            isPdfViewerVisible = true,
+                            isPdfViewerLoading = false,
+                            isPdfViewerError = false,
+                            activePdfBytes = safeBytes
+                        )
+                    }
+                }
+            },
+            onError = { _ ->
+                updateState { copy(isPdfViewerLoading = false, isPdfViewerError = true) }
+            }
+        )
     }
 
     private suspend fun processFile(

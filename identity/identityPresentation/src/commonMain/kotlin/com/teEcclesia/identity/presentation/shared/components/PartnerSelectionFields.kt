@@ -13,6 +13,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_plus
+import teecclesia.designsystem.generated.resources.ic_qr_scan
 import teecclesia.designsystem.generated.resources.search_partner
 import teecclesia.designsystem.generated.resources.search_partner_support_text
 
@@ -23,6 +24,7 @@ fun PartnerSelectionFields(
     onPartnerQueryChange: (String) -> Unit,
     onSearchPartner: () -> Unit,
     onRemovePartner: () -> Unit,
+    onScanQrCode: (() -> Unit)? = null,
     isLoading: Boolean = false,
     errorText: String? = null,
     modifier: Modifier = Modifier
@@ -36,8 +38,12 @@ fun PartnerSelectionFields(
             errorText = errorText,
             modifier = modifier.fillMaxWidth(),
             singleLine = true,
-            trailingIcon = if (partnerQuery.isNotBlank()) painterResource(Res.drawable.ic_plus) else null,
-            onTrailingIconClick = if (partnerQuery.isNotBlank()) onSearchPartner else null,
+            trailingIcon = if (partnerQuery.isNotBlank()) {
+                painterResource(Res.drawable.ic_plus)
+            } else if (onScanQrCode != null) {
+                painterResource(Res.drawable.ic_qr_scan)
+            } else null,
+            onTrailingIconClick = if (partnerQuery.isNotBlank()) onSearchPartner else onScanQrCode,
             isLoading = isLoading,
         )
     } else {
@@ -59,7 +65,8 @@ private fun PartnerSelectionFieldsPreview() {
                 partnerQuery = "",
                 onPartnerQueryChange = {},
                 onSearchPartner = {},
-                onRemovePartner = {}
+                onRemovePartner = {},
+                onScanQrCode = {}
             )
         }
     }

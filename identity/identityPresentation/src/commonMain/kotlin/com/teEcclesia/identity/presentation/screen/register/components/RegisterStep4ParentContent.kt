@@ -26,6 +26,7 @@ import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
+import com.teEcclesia.identity.presentation.shared.components.OrdinationInfoFields
 import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
 import com.teEcclesia.identity.presentation.screen.register.RegisterInteractionListener
 import com.teEcclesia.shared.domain.model.SafeByteArray
@@ -38,11 +39,13 @@ import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.children
 import teecclesia.designsystem.generated.resources.cancel
 import teecclesia.designsystem.generated.resources.next
+import teecclesia.designsystem.generated.resources.ordination_info
 
 @Composable
 fun RegisterStep4ParentContent(
     state: RegisterScreenState,
-    listener: RegisterInteractionListener
+    listener: RegisterInteractionListener,
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -64,6 +67,7 @@ fun RegisterStep4ParentContent(
                 onPartnerQueryChange = listener::onPartnerQueryChange,
                 onSearchPartner = listener::onSearchPartner,
                 onRemovePartner = listener::onRemovePartner,
+                onScanQrCode = listener::onClickScanPartnerQr,
                 isLoading = state.isPartnerLoading,
                 errorText = state.partnerError?.asString()
             )
@@ -82,9 +86,52 @@ fun RegisterStep4ParentContent(
                 onSearchChild = listener::onSearchChild,
                 selectedChildren = state.selectedChildren,
                 onRemoveChild = listener::onRemoveChild,
+                onScanQrCode = listener::onClickScanChildQr,
                 isLoading = state.isChildLoading,
                 errorText = state.childError?.asString()
             )
+
+            if (state.isMale != false) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(Res.string.ordination_info),
+                    style = Theme.typography.headlineMedium,
+                    color = Theme.colorScheme.onBackground
+                )
+
+                OrdinationInfoFields(
+                    isOrdained = state.isOrdained,
+                    onToggleOrdained = listener::onToggleOrdained,
+                    selectedRank = state.selectedRank,
+                    ranks = state.ranks,
+                    isRankSheetVisible = state.isRankSheetVisible,
+                    onToggleRankSheet = listener::onToggleRankSheet,
+                    onSelectRank = listener::onSelectRank,
+                    rankError = state.rankError?.asString(),
+                    isRankLoading = state.isRankLoading,
+                    isRankLoadFailed = state.isRankLoadFailed,
+                    onRetryLoadRanks = listener::onRetryLoadRanks,
+                    isOrdainedInThisChurch = state.isOrdainedInThisChurch,
+                    onToggleOrdainedInThisChurch = listener::onToggleOrdainedInThisChurch,
+                    ordinationYear = state.ordinationYear,
+                    onOrdinationYearChange = listener::onOrdinationYearChange,
+                    ordinationYearError = state.ordinationYearError?.asString(),
+                    bishopName = state.bishopName,
+                    onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
+                    ordinationPlace = state.ordinationPlace,
+                    onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
+                    ordinationCertificateFileName = state.ordinationCertificateFileName,
+                    ordinationCertificateBytes = state.ordinationCertificateBytes,
+                    onUploadOrdinationCertificate = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
+                    onClearOrdinationCertificate = {
+                        listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
+                    },
+                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
+                )
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
@@ -149,35 +196,85 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onApartmentChange(value: String) {}
             override fun onSpecialMarkChange(value: String) {}
             override fun onRoleSelected(role: UserRole) {}
-            override fun onToggleOrdained(ordained: Boolean) {}
-            override fun onSelectRank(rank: LookupResponse) {}
-            override fun onToggleRankSheet(visible: Boolean) {}
-            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {}
-            override fun onOrdinationYearChange(value: String) {}
-            override fun onBishopNameChange(value: String) {}
-            override fun onOrdinationPlaceChange(value: String) {}
+            override fun onToggleOrdained(ordained: Boolean) {
+                state = state.copy(
+                    isOrdained = ordained,
+                    ordinationYearError = if (!ordained) null else state.ordinationYearError,
+                    rankError = if (!ordained) null else state.rankError,
+                    bishopNameError = if (!ordained) null else state.bishopNameError,
+                    ordinationPlaceError = if (!ordained) null else state.ordinationPlaceError
+                )
+            }
+
+            override fun onSelectRank(rank: LookupResponse) {
+                state = state.copy(selectedRank = rank)
+            }
+
+            override fun onToggleRankSheet(visible: Boolean) {
+                state = state.copy(isRankSheetVisible = visible)
+            }
+
+            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {
+                state = state.copy(
+                    isOrdainedInThisChurch = inThisChurch,
+                    ordinationPlaceError = if (inThisChurch) null else state.ordinationPlaceError
+                )
+            }
+
+            override fun onOrdinationYearChange(value: String) {
+                state = state.copy(ordinationYear = value, ordinationYearError = null)
+            }
+
+            override fun onBishopNameChange(value: String) {
+                state = state.copy(bishopName = value, bishopNameError = null)
+            }
+
+            override fun onOrdinationPlaceChange(value: String) {
+                state = state.copy(ordinationPlace = value, ordinationPlaceError = null)
+            }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
             override fun onSelectEducationalStage(stage: LookupResponse) {}
+            override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
+            override fun onToggleStagesSheet(visible: Boolean) {}
             override fun onToggleStageSheet(visible: Boolean) {}
             override fun onSelectEducationalYear(year: LookupResponse) {}
             override fun onToggleYearSheet(visible: Boolean) {}
             override fun onToggleFatherDeceased(deceased: Boolean) {}
             override fun onFatherPhoneChange(value: String) {}
             override fun onFatherWhatsappChange(value: String) {}
+            override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
             override fun onToggleMotherDeceased(deceased: Boolean) {}
             override fun onMotherPhoneChange(value: String) {}
             override fun onMotherWhatsappChange(value: String) {}
+            override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
+            override fun onToggleAlsoParent(enabled: Boolean) {}
             override fun onPartnerQueryChange(query: String) { state = state.copy(partnerQuery = query) }
             override fun onSearchPartner() {}
             override fun onRemovePartner() { state = state.copy(selectedPartner = null) }
             override fun onChildQueryChange(query: String) { state = state.copy(childQuery = query) }
             override fun onSearchChild() {}
             override fun onRemoveChild(child: UserSummary) { state = state.copy(selectedChildren = state.selectedChildren - child) }
+            override fun onClickScanPartnerQr() {}
+            override fun onClickScanChildQr() {}
+            override fun onDismissQrScanner() {}
+            override fun onQrCodeScanned(code: String) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
+            override fun onDismissImageViewer() {}
+            override fun onDismissPdfViewer() {}
+            override fun onRetryPdfViewer() {}
+            override fun onClickOrdinationCertificate() {}
+            override fun onClickIdentityCertificate() {}
+            override fun onDocumentScannerOpened() {}
+            override fun onDocumentScanned(bytes: ByteArray?) {}
             override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
+            override fun onReactivatePasswordChange(value: String) {}
+            override fun onToggleReactivatePasswordVisibility() {}
+            override fun onDismissReactivateSheet() {}
+            override fun onConfirmReactivate() {}
+            override fun onClickForgotPasswordFromReactivate() {}
             override fun onLoadNextPriests() {}
             override fun onRetryLoadPriests() {}
             override fun onRetryLoadAreas() {}
@@ -185,6 +282,7 @@ private fun RegisterStep4ParentContentPreviewLightDark() {
             override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
             override fun onRetryLoadEducationalStages() {}
+            override fun onRefresh() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

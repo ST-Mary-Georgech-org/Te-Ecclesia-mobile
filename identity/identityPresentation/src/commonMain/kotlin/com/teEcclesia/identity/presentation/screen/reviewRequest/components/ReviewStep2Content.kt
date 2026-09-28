@@ -117,11 +117,13 @@ fun ReviewStep2Content(
                 )
                 UserRole.KHADEM -> ReviewStep2ServantContent(
                     state = state,
-                    listener = listener
+                    listener = listener,
+                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
                 )
                 UserRole.PARENT -> ReviewStep2ParentContent(
                     state = state,
-                    listener = listener
+                    listener = listener,
+                    onFileClickOrdinationCertificate = onFileClickOrdinationCertificate
                 )
                 UserRole.KAHEN -> ReviewStep2KahenContent(state = state, listener = listener)
                 UserRole.ADMIN, UserRole.GUEST -> {}

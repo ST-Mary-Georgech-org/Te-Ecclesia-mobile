@@ -58,38 +58,43 @@ interface RegisterInteractionListener {
     fun onOrdinationPlaceChange(value: String)
     fun onShamamsaStatusSelected(status: ShamamsaStudyStatus)
     fun onSelectEducationalStage(stage: LookupResponse)
-    fun onToggleEducationalStageSelection(stage: LookupResponse) {}
-    fun onToggleStagesSheet(visible: Boolean) {}
+    fun onToggleEducationalStageSelection(stage: LookupResponse)
+    fun onToggleStagesSheet(visible: Boolean)
     fun onToggleStageSheet(visible: Boolean)
     fun onSelectEducationalYear(year: LookupResponse)
     fun onToggleYearSheet(visible: Boolean)
     fun onToggleFatherDeceased(deceased: Boolean)
     fun onFatherPhoneChange(value: String)
     fun onFatherWhatsappChange(value: String)
-    fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
+    fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean)
     fun onToggleMotherDeceased(deceased: Boolean)
     fun onMotherPhoneChange(value: String)
     fun onMotherWhatsappChange(value: String)
-    fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
+    fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean)
     
     // Parent search
-    fun onToggleAlsoParent(enabled: Boolean) {}
+    fun onToggleAlsoParent(enabled: Boolean)
     fun onPartnerQueryChange(query: String)
     fun onSearchPartner()
     fun onRemovePartner()
     fun onChildQueryChange(query: String)
     fun onSearchChild()
     fun onRemoveChild(child: UserSummary)
+    fun onClickScanPartnerQr()
+    fun onClickScanChildQr()
+    fun onDismissQrScanner()
+    fun onQrCodeScanned(code: String)
 
     // Upload & Bottom Sheet
     fun onClickUpload(target: UploadTarget)
     fun onDismissUploadBottomSheet()
-    fun onDismissImageViewer() {}
-    fun onDismissPdfViewer() {}
-    fun onClickOrdinationCertificate() {}
-    fun onClickIdentityCertificate() {}
-    fun onDocumentScannerOpened() {}
-    fun onDocumentScanned(bytes: ByteArray?) {}
+    fun onDismissImageViewer()
+    fun onDismissPdfViewer()
+    fun onRetryPdfViewer()
+    fun onClickOrdinationCertificate()
+    fun onClickIdentityCertificate()
+    fun onDocumentScannerOpened()
+    fun onDocumentScanned(bytes: ByteArray?)
     fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?)
     
     // Step 5: Verify
@@ -97,11 +102,11 @@ interface RegisterInteractionListener {
     fun onClickCheckWhatsAppStatus()
 
     // Reactivation
-    fun onReactivatePasswordChange(value: String) {}
-    fun onToggleReactivatePasswordVisibility() {}
-    fun onDismissReactivateSheet() {}
-    fun onConfirmReactivate() {}
-    fun onClickForgotPasswordFromReactivate() {}
+    fun onReactivatePasswordChange(value: String)
+    fun onToggleReactivatePasswordVisibility()
+    fun onDismissReactivateSheet()
+    fun onConfirmReactivate()
+    fun onClickForgotPasswordFromReactivate()
 
     // Pagination & Retry
     fun onLoadNextPriests()
@@ -112,6 +117,6 @@ interface RegisterInteractionListener {
     fun onLoadNextEducationalStages()
     fun onRetryLoadEducationalStages()
 
-    fun onRefresh() {}
+    fun onRefresh()
 }
 

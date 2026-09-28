@@ -4,6 +4,7 @@ import com.teEcclesia.designsystem.components.dialog.ImageViewerDialog
 import com.teEcclesia.designsystem.components.dialog.PdfViewerDialog
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.scanner.DocumentScannerLauncher
+import com.teEcclesia.designsystem.components.scanner.QrScannerBottomSheet
 import com.teEcclesia.shared.domain.model.SafeByteArray
 
 import androidx.compose.animation.AnimatedContent
@@ -115,6 +116,9 @@ fun RegisterScreenContent(
     PdfViewerDialog(
         isVisible = state.isPdfViewerVisible,
         pdf = state.activePdfBytes,
+        isLoading = state.isPdfViewerLoading,
+        isError = state.isPdfViewerError,
+        onRetry = listener::onRetryPdfViewer,
         onDismiss = listener::onDismissPdfViewer
     )
 
@@ -128,6 +132,12 @@ fun RegisterScreenContent(
         onConfirmReactivate = listener::onConfirmReactivate,
         onForgotPasswordClick = listener::onClickForgotPasswordFromReactivate,
         onDismiss = listener::onDismissReactivateSheet
+    )
+
+    QrScannerBottomSheet(
+        isVisible = state.isQrScannerVisible,
+        onDismissRequest = listener::onDismissQrScanner,
+        onQrCodeScanned = listener::onQrCodeScanned
     )
 
     PullToRefresh(
@@ -216,16 +226,19 @@ fun RegisterScreenContent(
                                 )
                                 UserRole.KHADEM -> RegisterStep4ServantContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                                 UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
                                 UserRole.PARENT -> RegisterStep4ParentContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                                 else -> RegisterStep4ServantContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                             }
                             5 -> RegisterStep5VerifyContent(state = state, listener = listener)
@@ -279,15 +292,17 @@ private fun RegisterScreenPreview() {
             override fun onApartmentChange(value: String) { state = state.copy(apartment = value) }
             override fun onSpecialMarkChange(value: String) { state = state.copy(specialMark = value) }
             override fun onRoleSelected(role: UserRole) { state = state.copy(selectedRole = role) }
-            override fun onToggleOrdained(ordained: Boolean) { state = state.copy(isOrdained = ordained, ordinationYearError = if (!ordained) null else state.ordinationYearError, rankError = if (!ordained) null else state.rankError) }
+            override fun onToggleOrdained(ordained: Boolean) { state = state.copy(isOrdained = ordained, ordinationYearError = if (!ordained) null else state.ordinationYearError, rankError = if (!ordained) null else state.rankError, bishopNameError = if (!ordained) null else state.bishopNameError, ordinationPlaceError = if (!ordained) null else state.ordinationPlaceError) }
             override fun onSelectRank(rank: LookupResponse) { state = state.copy(selectedRank = rank) }
             override fun onToggleRankSheet(visible: Boolean) { state = state.copy(isRankSheetVisible = visible) }
-            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) { state = state.copy(isOrdainedInThisChurch = inThisChurch) }
+            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) { state = state.copy(isOrdainedInThisChurch = inThisChurch, ordinationPlaceError = if (inThisChurch) null else state.ordinationPlaceError) }
             override fun onOrdinationYearChange(value: String) { state = state.copy(ordinationYear = value, ordinationYearError = null) }
-            override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value) }
-            override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value) }
+            override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value, bishopNameError = null) }
+            override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value, ordinationPlaceError = null) }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) { state = state.copy(shamamsaStatus = status) }
             override fun onSelectEducationalStage(stage: LookupResponse) {  }
+            override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
+            override fun onToggleStagesSheet(visible: Boolean) {}
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }
             override fun onSelectEducationalYear(year: LookupResponse) {  }
             override fun onToggleYearSheet(visible: Boolean) { state = state.copy(isYearSheetVisible = visible) }
@@ -299,15 +314,26 @@ private fun RegisterScreenPreview() {
             override fun onMotherPhoneChange(value: String) { state = state.copy(motherPhone = value, motherPhoneError = null, motherWhatsapp = if (state.isMotherWhatsappSameAsPhone) value else state.motherWhatsapp) }
             override fun onMotherWhatsappChange(value: String) { state = state.copy(motherWhatsapp = value, motherWhatsappError = null) }
             override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) { state = state.copy(isMotherWhatsappSameAsPhone = isSame, motherWhatsapp = if (isSame) state.motherPhone else state.motherWhatsapp) }
+            override fun onToggleAlsoParent(enabled: Boolean) {}
             override fun onPartnerQueryChange(query: String) { state = state.copy(partnerQuery = query) }
             override fun onSearchPartner() {}
             override fun onRemovePartner() { state = state.copy(selectedPartner = null) }
             override fun onChildQueryChange(query: String) { state = state.copy(childQuery = query) }
             override fun onSearchChild() {}
             override fun onRemoveChild(child: UserSummary) { state = state.copy(selectedChildren = state.selectedChildren - child) }
+            override fun onClickScanPartnerQr() {}
+            override fun onClickScanChildQr() {}
+            override fun onDismissQrScanner() {}
+            override fun onQrCodeScanned(code: String) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
             override fun onDismissImageViewer() { state = state.copy(isImageViewerVisible = false) }
+            override fun onDismissPdfViewer() { state = state.copy(isPdfViewerVisible = false) }
+            override fun onRetryPdfViewer() {}
+            override fun onClickOrdinationCertificate() {}
+            override fun onClickIdentityCertificate() {}
+            override fun onDocumentScannerOpened() {}
+            override fun onDocumentScanned(bytes: ByteArray?) {}
             override fun onSelectImageBytes(target: UploadTarget, bytes: SafeByteArray?, fileName: String?) {}
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}

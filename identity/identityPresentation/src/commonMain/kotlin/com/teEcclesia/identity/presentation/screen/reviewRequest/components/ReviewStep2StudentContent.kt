@@ -225,8 +225,10 @@ fun ReviewStep2StudentContent(
                     ordinationYearError = state.ordinationYearError?.asString(),
                     bishopName = state.bishopName,
                     onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
                     filePickerContent = {
                         ReviewFilePickerRow(
                             label = stringResource(Res.string.ordination_certificate_optional),
@@ -319,6 +321,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
         override fun onDismissPdfViewer() {}
+        override fun onRetryPdfViewer() {}
         override fun onClickOrdinationCertificate() {}
         override fun onClickIdentityCertificate() {}
         override fun onCodeChanged(value: String) {}
@@ -392,6 +395,10 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
         override fun onToggleAlsoParent(enabled: Boolean) {}
+        override fun onClickScanPartnerQr() {}
+        override fun onClickScanChildQr() {}
+        override fun onDismissQrScanner() {}
+        override fun onQrCodeScanned(code: String) {}
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}

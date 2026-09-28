@@ -30,6 +30,7 @@ import com.teEcclesia.designsystem.components.indicator.LinearProgressIndicator
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
 import com.teEcclesia.designsystem.components.navigation.BackHandler
 import com.teEcclesia.designsystem.components.scanner.DocumentScannerLauncher
+import com.teEcclesia.designsystem.components.scanner.QrScannerBottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
@@ -104,7 +105,16 @@ private fun ReviewAndEditRequestContent(
     PdfViewerDialog(
         isVisible = state.isPdfViewerVisible,
         pdf = state.activePdfBytes,
+        isLoading = state.isPdfViewerLoading,
+        isError = state.isPdfViewerError,
+        onRetry = listener::onRetryPdfViewer,
         onDismiss = listener::onDismissPdfViewer
+    )
+
+    QrScannerBottomSheet(
+        isVisible = state.isQrScannerVisible,
+        onDismissRequest = listener::onDismissQrScanner,
+        onQrCodeScanned = listener::onQrCodeScanned
     )
 
     PullToRefresh(
@@ -215,6 +225,7 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
         override fun onDismissPdfViewer() {}
+        override fun onRetryPdfViewer() {}
         override fun onClickOrdinationCertificate() {}
         override fun onClickIdentityCertificate() {}
 
@@ -298,6 +309,10 @@ private fun ReviewAndEditRequestScreenPreview() {
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
         override fun onToggleAlsoParent(enabled: Boolean) {}
+        override fun onClickScanPartnerQr() {}
+        override fun onClickScanChildQr() {}
+        override fun onDismissQrScanner() {}
+        override fun onQrCodeScanned(code: String) {}
 
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}

@@ -9,8 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,13 +34,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.ic_close
+import teecclesia.designsystem.generated.resources.ic_error
+import teecclesia.designsystem.generated.resources.retry
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import com.teEcclesia.designsystem.components.text.Text
@@ -46,9 +59,10 @@ fun ImageViewerDialog(
     model: Any?,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
-    imageSizeBytes: Long? = null
+    imageSizeBytes: Long? = null,
+    isLoading: Boolean = false
 ) {
-    if (!isVisible || model == null) return
+    if (!isVisible || (model == null && !isLoading)) return
 
     val sizeText = remember(model, imageSizeBytes) {
         val size = imageSizeBytes
@@ -59,6 +73,11 @@ fun ImageViewerDialog(
 
     var scale by remember(model) { mutableStateOf(1f) }
     var offset by remember(model) { mutableStateOf(Offset.Zero) }
+    var retryKey by remember(model) { mutableStateOf(0) }
+    var isImageLoading by remember(model, retryKey) { mutableStateOf(model != null) }
+    var isError by remember(model, retryKey) { mutableStateOf(false) }
+
+    val showLoading = isLoading || (isImageLoading && model != null)
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -74,49 +93,98 @@ fun ImageViewerDialog(
                 .background(Color.Black.copy(alpha = 0.9f)),
             contentAlignment = Alignment.Center
         ) {
-            AsyncImage(
-                model = (model as? SafeByteArray)?.bytes ?: model,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(model) {
-                        detectTapGestures(
-                            onDoubleTap = {
-                                if (scale > 1f) {
-                                    scale = 1f
-                                    offset = Offset.Zero
-                                } else {
-                                    scale = 2.5f
-                                }
-                            }
-                        )
-                    }
-                    .pointerInput(model) {
-                        detectTransformGestures { _, pan, zoom, _ ->
-                            val newScale = (scale * zoom).coerceIn(1f, 5f)
-                            scale = newScale
-                            if (newScale <= 1f) {
-                                scale = 1f
-                                offset = Offset.Zero
-                            } else {
-                                val maxOffsetX = (size.width * (newScale - 1f)) / 2f
-                                val maxOffsetY = (size.height * (newScale - 1f)) / 2f
-                                offset = Offset(
-                                    x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
-                                    y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+            if (model != null) {
+                key(retryKey) {
+                    AsyncImage(
+                        model = (model as? SafeByteArray)?.bytes ?: model,
+                        contentDescription = null,
+                        onLoading = {
+                            isImageLoading = true
+                            isError = false
+                        },
+                        onSuccess = {
+                            isImageLoading = false
+                            isError = false
+                        },
+                        onError = {
+                            isImageLoading = false
+                            isError = true
+                        },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(model) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        if (scale > 1f) {
+                                            scale = 1f
+                                            offset = Offset.Zero
+                                        } else {
+                                            scale = 2.5f
+                                        }
+                                    }
                                 )
                             }
-                        }
-                    }
-                    .graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        translationX = offset.x
-                        translationY = offset.y
-                    }
-                    .padding(16.dp),
-                contentScale = ContentScale.Fit
-            )
+                            .pointerInput(model) {
+                                detectTransformGestures { _, pan, zoom, _ ->
+                                    val newScale = (scale * zoom).coerceIn(1f, 5f)
+                                    scale = newScale
+                                    if (newScale <= 1f) {
+                                        scale = 1f
+                                        offset = Offset.Zero
+                                    } else {
+                                        val maxOffsetX = (size.width * (newScale - 1f)) / 2f
+                                        val maxOffsetY = (size.height * (newScale - 1f)) / 2f
+                                        offset = Offset(
+                                            x = (offset.x + pan.x).coerceIn(-maxOffsetX, maxOffsetX),
+                                            y = (offset.y + pan.y).coerceIn(-maxOffsetY, maxOffsetY)
+                                        )
+                                    }
+                                }
+                            }
+                            .graphicsLayer {
+                                scaleX = scale
+                                scaleY = scale
+                                translationX = offset.x
+                                translationY = offset.y
+                            }
+                            .padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
+            }
+
+            if (showLoading) {
+                CircularProgressIndicator(
+                    color = Theme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else if (isError) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_error),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.error,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.error_occurred),
+                        style = Theme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                    AppButton(
+                        text = stringResource(Res.string.retry),
+                        onClick = {
+                            retryKey++
+                        },
+                        type = AppButtonType.Primary,
+                        modifier = Modifier.width(140.dp)
+                    )
+                }
+            }
 
             Box(
                 modifier = Modifier

@@ -27,6 +27,7 @@ interface ReviewAndEditRequestInteractionListener {
     fun onDismissUploadBottomSheet()
     fun onDismissImageViewer()
     fun onDismissPdfViewer()
+    fun onRetryPdfViewer()
     fun onClickOrdinationCertificate()
     fun onClickIdentityCertificate()
     fun onCodeChanged(value: String)
@@ -104,6 +105,10 @@ interface ReviewAndEditRequestInteractionListener {
     fun onSearchChild()
     fun onRemoveChild(child: UserSummary)
     fun onToggleAlsoParent(enabled: Boolean)
+    fun onClickScanPartnerQr()
+    fun onClickScanChildQr()
+    fun onDismissQrScanner()
+    fun onQrCodeScanned(code: String)
 
     fun onToggleEducationalStageSelection(stage: LookupResponse)
     fun onToggleStagesSheet(visible: Boolean)

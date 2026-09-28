@@ -367,6 +367,11 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onDocumentScanned(bytes: ByteArray?) {}
         override fun onClickUpload(target: UploadTarget) {}
         override fun onDismissUploadBottomSheet() {}
+        override fun onDismissImageViewer() {}
+        override fun onDismissPdfViewer() {}
+        override fun onRetryPdfViewer() {}
+        override fun onClickOrdinationCertificate() {}
+        override fun onClickIdentityCertificate() {}
 
         override fun onCodeChanged(value: String) {}
         override fun onFirstNameChanged(value: String) {}
@@ -400,10 +405,6 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onTogglePriestSheet(visible: Boolean) {}
         override fun onLoadNextPriests() {}
         override fun onFileOptionPicked(option: FilePickOption) {}
-        override fun onDismissImageViewer() {}
-        override fun onDismissPdfViewer() {}
-        override fun onClickOrdinationCertificate() {}
-        override fun onClickIdentityCertificate() {}
 
         override fun onSelectImageBytes(
             target: UploadTarget?,
@@ -452,6 +453,10 @@ private fun ReviewStep1ContentPreview() = Theme {
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
         override fun onToggleAlsoParent(enabled: Boolean) {}
+        override fun onClickScanPartnerQr() {}
+        override fun onClickScanChildQr() {}
+        override fun onDismissQrScanner() {}
+        override fun onQrCodeScanned(code: String) {}
 
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}

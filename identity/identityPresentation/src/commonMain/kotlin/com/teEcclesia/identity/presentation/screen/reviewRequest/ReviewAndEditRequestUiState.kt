@@ -11,6 +11,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.identity.presentation.shared.model.FamilyScanTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.OrdinationProfileRequest
@@ -105,6 +106,8 @@ data class ReviewAndEditRequestUiState(
     val isImageViewerVisible: Boolean = false,
     val activeImageViewerModel: Any? = null,
     val isPdfViewerVisible: Boolean = false,
+    val isPdfViewerLoading: Boolean = false,
+    val isPdfViewerError: Boolean = false,
     val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
     val ordinationCertificateBytes: SafeByteArray? = null,
@@ -131,7 +134,9 @@ data class ReviewAndEditRequestUiState(
     val ordinationYear: String = "",
     val ordinationYearError: UiText? = null,
     val bishopName: String = "",
+    val bishopNameError: UiText? = null,
     val ordinationPlace: String = "",
+    val ordinationPlaceError: UiText? = null,
 
     val studentEducationalStage: LookupResponse? = null,
     val educationalStages: List<LookupResponse> = emptyList(),
@@ -193,6 +198,8 @@ data class ReviewAndEditRequestUiState(
     val selectedChildren: List<UserSummary> = emptyList(),
     val childError: UiText? = null,
     val isAlsoParent: Boolean = false,
+    val isQrScannerVisible: Boolean = false,
+    val qrScanTarget: FamilyScanTarget? = null,
 
     val kahenEducationalStages: List<LookupResponse> = emptyList(),
     val stagesError: UiText? = null,
@@ -269,14 +276,14 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
 }
 
 private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): OrdinationProfileRequest? {
-    if (isMale == false || selectedRole == UserRole.KAHEN || selectedRole == UserRole.PARENT) return null
+    if (isMale == false || selectedRole == UserRole.KAHEN) return null
     return if (isOrdained) {
         OrdinationProfileRequest(
             rankId = selectedRank?.id ?: 1L,
             isOrdinationInAnotherChurch = !isOrdainedInThisChurch,
             ordinationYear = ordinationYear.toIntOrNull(),
             bishopName = bishopName.ifBlank { null },
-            ordinationPlace = ordinationPlace.ifBlank { null }
+            ordinationPlace = if (isOrdainedInThisChurch) null else ordinationPlace.ifBlank { null }
         )
     } else userProfile?.ordinationProfile?.let { old ->
         OrdinationProfileRequest(

@@ -95,8 +95,10 @@ fun RegisterStep4StudentContent(
                     ordinationYearError = state.ordinationYearError?.asString(),
                     bishopName = state.bishopName,
                     onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
                     ordinationCertificateFileName = state.ordinationCertificateFileName,
                     ordinationCertificateBytes = state.ordinationCertificateBytes,
                     onUploadOrdinationCertificate = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
@@ -232,7 +234,9 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
                 state = state.copy(
                     isOrdained = ordained,
                     ordinationYearError = if (!ordained) null else state.ordinationYearError,
-                    rankError = if (!ordained) null else state.rankError
+                    rankError = if (!ordained) null else state.rankError,
+                    bishopNameError = if (!ordained) null else state.bishopNameError,
+                    ordinationPlaceError = if (!ordained) null else state.ordinationPlaceError
                 )
             }
 
@@ -245,7 +249,10 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {
-                state = state.copy(isOrdainedInThisChurch = inThisChurch)
+                state = state.copy(
+                    isOrdainedInThisChurch = inThisChurch,
+                    ordinationPlaceError = if (inThisChurch) null else state.ordinationPlaceError
+                )
             }
 
             override fun onOrdinationYearChange(value: String) {
@@ -253,11 +260,11 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onBishopNameChange(value: String) {
-                state = state.copy(bishopName = value)
+                state = state.copy(bishopName = value, bishopNameError = null)
             }
 
             override fun onOrdinationPlaceChange(value: String) {
-                state = state.copy(ordinationPlace = value)
+                state = state.copy(ordinationPlace = value, ordinationPlaceError = null)
             }
 
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {
@@ -328,14 +335,28 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
                 )
             }
 
+            override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
+            override fun onToggleStagesSheet(visible: Boolean) {}
+            override fun onToggleAlsoParent(enabled: Boolean) {}
             override fun onPartnerQueryChange(query: String) {}
             override fun onSearchPartner() {}
             override fun onRemovePartner() {}
             override fun onChildQueryChange(query: String) {}
             override fun onSearchChild() {}
             override fun onRemoveChild(child: UserSummary) {}
+            override fun onClickScanPartnerQr() {}
+            override fun onClickScanChildQr() {}
+            override fun onDismissQrScanner() {}
+            override fun onQrCodeScanned(code: String) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
+            override fun onDismissImageViewer() {}
+            override fun onDismissPdfViewer() {}
+            override fun onRetryPdfViewer() {}
+            override fun onClickOrdinationCertificate() {}
+            override fun onClickIdentityCertificate() {}
+            override fun onDocumentScannerOpened() {}
+            override fun onDocumentScanned(bytes: ByteArray?) {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
                 bytes: SafeByteArray?,
@@ -345,6 +366,11 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
 
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
+            override fun onReactivatePasswordChange(value: String) {}
+            override fun onToggleReactivatePasswordVisibility() {}
+            override fun onDismissReactivateSheet() {}
+            override fun onConfirmReactivate() {}
+            override fun onClickForgotPasswordFromReactivate() {}
             override fun onLoadNextPriests() {}
             override fun onRetryLoadPriests() {}
             override fun onRetryLoadAreas() {}
@@ -352,6 +378,7 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
             override fun onRetryLoadEducationalStages() {}
+            override fun onRefresh() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

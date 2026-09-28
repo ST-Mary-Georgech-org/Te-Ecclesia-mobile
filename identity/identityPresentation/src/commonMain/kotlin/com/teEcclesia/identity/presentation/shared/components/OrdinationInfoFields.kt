@@ -62,8 +62,10 @@ fun OrdinationInfoFields(
     ordinationYearError: String?,
     bishopName: String,
     onBishopNameChange: (String) -> Unit,
+    bishopNameError: String? = null,
     ordinationPlace: String,
     onOrdinationPlaceChange: (String) -> Unit,
+    ordinationPlaceError: String? = null,
     ordinationCertificateFileName: String? = null,
     ordinationCertificateBytes: SafeByteArray? = null,
     onUploadOrdinationCertificate: () -> Unit = {},
@@ -225,16 +227,20 @@ fun OrdinationInfoFields(
                     onValueChange = onBishopNameChange,
                     labelText = stringResource(Res.string.bishop_name),
                     modifier = Modifier.fillMaxWidth(),
+                    errorText = bishopNameError,
                     singleLine = true
                 )
 
-                CustomTextField(
-                    value = ordinationPlace,
-                    onValueChange = onOrdinationPlaceChange,
-                    labelText = stringResource(Res.string.ordination_place),
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                AnimatedVisibility(visible = !isOrdainedInThisChurch) {
+                    CustomTextField(
+                        value = ordinationPlace,
+                        onValueChange = onOrdinationPlaceChange,
+                        labelText = stringResource(Res.string.ordination_place),
+                        modifier = Modifier.fillMaxWidth(),
+                        errorText = ordinationPlaceError,
+                        singleLine = true
+                    )
+                }
 
                 if (filePickerContent != null) {
                     filePickerContent()
