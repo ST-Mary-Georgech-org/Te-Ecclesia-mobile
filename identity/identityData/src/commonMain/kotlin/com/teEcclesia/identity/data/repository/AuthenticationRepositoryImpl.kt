@@ -20,13 +20,13 @@ import com.teEcclesia.identity.data.utils.invalidateAuthTokens
 import com.teEcclesia.identity.domain.model.AuthState
 import com.teEcclesia.identity.domain.model.AuthenticationTokens
 import com.teEcclesia.identity.domain.model.LoginRequest
-import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.identity.domain.model.UserStatus
 import com.teEcclesia.identity.domain.repository.AuthenticationRepository
 import com.teEcclesia.identity.domain.repository.SettingsRepository
 import com.teEcclesia.shared.data.shared.BaseRepository
 import com.teEcclesia.shared.domain.exception.UnAuthorizedException
 import com.teEcclesia.shared.domain.exception.UserIsBlockedException
+import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.push.PushTokenProvider
 import io.ktor.client.HttpClient
 import io.ktor.client.request.patch
@@ -147,7 +147,7 @@ class AuthenticationRepositoryImpl(
                 try {
                     val currentRefreshToken = settings.refreshToken
                     if (currentRefreshToken.isBlank()) {
-                        throw UnAuthorizedException()
+                        throw UnAuthorizedException(null)
                     }
                     val deviceToken = pushTokenProvider.getToken().orEmpty()
                     val response = tryToExecute<AuthenticationResponse> {
@@ -188,7 +188,7 @@ class AuthenticationRepositoryImpl(
             withContext(NonCancellable) {
                 val currentRefreshToken = settings.refreshToken
                 if (currentRefreshToken.isBlank()) {
-                    throw UnAuthorizedException()
+                    throw UnAuthorizedException(null)
                 }
                 val deviceToken = pushTokenProvider.getToken().orEmpty()
                 val response = tryToExecute<AuthenticationResponse> {
