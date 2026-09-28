@@ -7,6 +7,7 @@ import com.teEcclesia.identity.domain.model.ShamamsaStudyStatus
 import com.teEcclesia.shared.domain.model.UserRole
 import com.teEcclesia.shared.domain.model.SafeByteArray
 import com.teEcclesia.identity.domain.model.UserSummary
+import com.teEcclesia.identity.presentation.shared.model.FamilyScanTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
 
 data class RegisterScreenState(
@@ -155,6 +156,8 @@ data class RegisterScreenState(
     val childQuery: String = "",
     val selectedChildren: List<UserSummary> = emptyList(),
     val childError: UiText? = null,
+    val isQrScannerVisible: Boolean = false,
+    val qrScanTarget: FamilyScanTarget? = null,
 
     // Upload Bottom Sheet state
     val isUploadBottomSheetVisible: Boolean = false,

@@ -11,6 +11,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.model.DeaconsSchoolStatus
 import com.teEcclesia.identity.domain.model.DeaconsSchoolRecordRequest
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
+import com.teEcclesia.identity.presentation.shared.model.FamilyScanTarget
 import com.teEcclesia.lookups.domain.model.LookupResponse
 import com.teEcclesia.identity.domain.model.RegisterRequest
 import com.teEcclesia.identity.domain.model.OrdinationProfileRequest
@@ -197,6 +198,8 @@ data class ReviewAndEditRequestUiState(
     val selectedChildren: List<UserSummary> = emptyList(),
     val childError: UiText? = null,
     val isAlsoParent: Boolean = false,
+    val isQrScannerVisible: Boolean = false,
+    val qrScanTarget: FamilyScanTarget? = null,
 
     val kahenEducationalStages: List<LookupResponse> = emptyList(),
     val stagesError: UiText? = null,

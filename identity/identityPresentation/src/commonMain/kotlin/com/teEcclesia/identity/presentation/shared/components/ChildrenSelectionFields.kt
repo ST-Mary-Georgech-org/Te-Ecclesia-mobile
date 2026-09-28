@@ -16,6 +16,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_plus
+import teecclesia.designsystem.generated.resources.ic_qr_scan
 import teecclesia.designsystem.generated.resources.search_child
 import teecclesia.designsystem.generated.resources.search_child_support_text
 
@@ -26,6 +27,7 @@ fun ChildrenSelectionFields(
     onSearchChild: () -> Unit,
     selectedChildren: List<UserSummary>,
     onRemoveChild: (UserSummary) -> Unit,
+    onScanQrCode: (() -> Unit)? = null,
     isLoading: Boolean = false,
     errorText: String? = null,
     modifier: Modifier = Modifier
@@ -42,8 +44,12 @@ fun ChildrenSelectionFields(
             errorText = errorText,
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            trailingIcon = if (childQuery.isNotBlank()) painterResource(Res.drawable.ic_plus) else null,
-            onTrailingIconClick = if (childQuery.isNotBlank()) onSearchChild else null,
+            trailingIcon = if (childQuery.isNotBlank()) {
+                painterResource(Res.drawable.ic_plus)
+            } else if (onScanQrCode != null) {
+                painterResource(Res.drawable.ic_qr_scan)
+            } else null,
+            onTrailingIconClick = if (childQuery.isNotBlank()) onSearchChild else onScanQrCode,
             isLoading = isLoading,
         )
 
@@ -71,7 +77,8 @@ private fun ChildrenSelectionFieldsPreview() {
                 onChildQueryChange = {},
                 onSearchChild = {},
                 selectedChildren = emptyList(),
-                onRemoveChild = {}
+                onRemoveChild = {},
+                onScanQrCode = {}
             )
         }
     }

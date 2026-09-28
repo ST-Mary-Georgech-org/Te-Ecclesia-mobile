@@ -15,6 +15,7 @@ import com.teEcclesia.identity.domain.model.UserSummary
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.repository.RegisterRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
+import com.teEcclesia.identity.presentation.shared.model.FamilyScanTarget
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
 import com.teEcclesia.identity.presentation.screen.register.components.FilePickOption
 import com.teEcclesia.identity.presentation.util.generateScannedFileName
@@ -1478,11 +1479,16 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onSearchPartner() {
+        searchPartnerByCode(state.value.partnerQuery)
+    }
+
+    private fun searchPartnerByCode(query: String) {
         if (state.value.isPartnerLoading) return
-        if (state.value.partnerQuery.isNotBlank()) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isNotBlank()) {
             updateState { it.copy(isPartnerLoading = true, partnerError = null) }
             tryToCall(
-                block = { registerRepository.searchParent(state.value.partnerQuery) },
+                block = { registerRepository.searchParent(trimmedQuery) },
                 onSuccess = { res ->
                     updateState {
                         it.copy(
@@ -1512,11 +1518,16 @@ class ReviewAndEditRequestViewModel(
     }
 
     override fun onSearchChild() {
+        searchChildByCode(state.value.childQuery)
+    }
+
+    private fun searchChildByCode(query: String) {
         if (state.value.isChildLoading) return
-        if (state.value.childQuery.isNotBlank()) {
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isNotBlank()) {
             updateState { it.copy(isChildLoading = true, childError = null) }
             tryToCall(
-                block = { registerRepository.searchMakhdoom(state.value.childQuery) },
+                block = { registerRepository.searchMakhdoom(trimmedQuery) },
                 onSuccess = { res ->
                     if (res != null) {
                         val isAlreadyAdded = state.value.selectedChildren.any { it.id == res.id }
@@ -1555,6 +1566,37 @@ class ReviewAndEditRequestViewModel(
 
     override fun onRemoveChild(child: UserSummary) {
         updateState { it.copy(selectedChildren = it.selectedChildren - child) }
+    }
+
+    override fun onClickScanPartnerQr() {
+        updateState { it.copy(isQrScannerVisible = true, qrScanTarget = FamilyScanTarget.PARTNER) }
+    }
+
+    override fun onClickScanChildQr() {
+        updateState { it.copy(isQrScannerVisible = true, qrScanTarget = FamilyScanTarget.CHILD) }
+    }
+
+    override fun onDismissQrScanner() {
+        updateState { it.copy(isQrScannerVisible = false, qrScanTarget = null) }
+    }
+
+    override fun onQrCodeScanned(code: String) {
+        val trimmed = code.trim()
+        val target = state.value.qrScanTarget
+        updateState { it.copy(isQrScannerVisible = false, qrScanTarget = null) }
+        if (trimmed.isBlank()) return
+
+        when (target) {
+            FamilyScanTarget.PARTNER -> {
+                updateState { it.copy(partnerQuery = trimmed, partnerError = null) }
+                searchPartnerByCode(trimmed)
+            }
+            FamilyScanTarget.CHILD -> {
+                updateState { it.copy(childQuery = trimmed, childError = null) }
+                searchChildByCode(trimmed)
+            }
+            null -> Unit
+        }
     }
 
     override fun onToggleAlsoParent(enabled: Boolean) {

@@ -97,6 +97,7 @@ fun ReviewStep2KahenContent(
                         onPartnerQueryChange = listener::onPartnerQueryChange,
                         onSearchPartner = listener::onSearchPartner,
                         onRemovePartner = listener::onRemovePartner,
+                        onScanQrCode = listener::onClickScanPartnerQr,
                         isLoading = state.isPartnerLoading,
                         errorText = state.partnerError?.asString()
                     )
@@ -113,6 +114,7 @@ fun ReviewStep2KahenContent(
                         onSearchChild = listener::onSearchChild,
                         selectedChildren = state.selectedChildren,
                         onRemoveChild = listener::onRemoveChild,
+                        onScanQrCode = listener::onClickScanChildQr,
                         isLoading = state.isChildLoading,
                         errorText = state.childError?.asString()
                     )

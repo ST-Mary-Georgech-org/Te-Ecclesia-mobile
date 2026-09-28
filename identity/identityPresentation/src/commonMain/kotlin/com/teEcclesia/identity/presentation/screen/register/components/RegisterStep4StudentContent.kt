@@ -335,14 +335,28 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
                 )
             }
 
+            override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
+            override fun onToggleStagesSheet(visible: Boolean) {}
+            override fun onToggleAlsoParent(enabled: Boolean) {}
             override fun onPartnerQueryChange(query: String) {}
             override fun onSearchPartner() {}
             override fun onRemovePartner() {}
             override fun onChildQueryChange(query: String) {}
             override fun onSearchChild() {}
             override fun onRemoveChild(child: UserSummary) {}
+            override fun onClickScanPartnerQr() {}
+            override fun onClickScanChildQr() {}
+            override fun onDismissQrScanner() {}
+            override fun onQrCodeScanned(code: String) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
+            override fun onDismissImageViewer() {}
+            override fun onDismissPdfViewer() {}
+            override fun onRetryPdfViewer() {}
+            override fun onClickOrdinationCertificate() {}
+            override fun onClickIdentityCertificate() {}
+            override fun onDocumentScannerOpened() {}
+            override fun onDocumentScanned(bytes: ByteArray?) {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
                 bytes: SafeByteArray?,
@@ -352,6 +366,11 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
 
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
+            override fun onReactivatePasswordChange(value: String) {}
+            override fun onToggleReactivatePasswordVisibility() {}
+            override fun onDismissReactivateSheet() {}
+            override fun onConfirmReactivate() {}
+            override fun onClickForgotPasswordFromReactivate() {}
             override fun onLoadNextPriests() {}
             override fun onRetryLoadPriests() {}
             override fun onRetryLoadAreas() {}
@@ -359,6 +378,7 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
             override fun onRetryLoadEducationalStages() {}
+            override fun onRefresh() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

@@ -321,6 +321,7 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onDismissUploadBottomSheet() {}
         override fun onDismissImageViewer() {}
         override fun onDismissPdfViewer() {}
+        override fun onRetryPdfViewer() {}
         override fun onClickOrdinationCertificate() {}
         override fun onClickIdentityCertificate() {}
         override fun onCodeChanged(value: String) {}
@@ -394,6 +395,10 @@ private fun ReviewStep2StudentContentPreview() = Theme {
         override fun onSearchChild() {}
         override fun onRemoveChild(child: UserSummary) {}
         override fun onToggleAlsoParent(enabled: Boolean) {}
+        override fun onClickScanPartnerQr() {}
+        override fun onClickScanChildQr() {}
+        override fun onDismissQrScanner() {}
+        override fun onQrCodeScanned(code: String) {}
         override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
         override fun onToggleStagesSheet(visible: Boolean) {}
         override fun onLoadNextEducationalStages() {}

@@ -128,6 +128,7 @@ fun RegisterStep4ServantContent(
                         onPartnerQueryChange = listener::onPartnerQueryChange,
                         onSearchPartner = listener::onSearchPartner,
                         onRemovePartner = listener::onRemovePartner,
+                        onScanQrCode = listener::onClickScanPartnerQr,
                         isLoading = state.isPartnerLoading,
                         errorText = state.partnerError?.asString()
                     )
@@ -144,6 +145,7 @@ fun RegisterStep4ServantContent(
                         onSearchChild = listener::onSearchChild,
                         selectedChildren = state.selectedChildren,
                         onRemoveChild = listener::onRemoveChild,
+                        onScanQrCode = listener::onClickScanChildQr,
                         isLoading = state.isChildLoading,
                         errorText = state.childError?.asString()
                     )
@@ -300,6 +302,8 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {}
             override fun onSelectEducationalStage(stage: LookupResponse) {}
+            override fun onToggleEducationalStageSelection(stage: LookupResponse) {}
+            override fun onToggleStagesSheet(visible: Boolean) {}
             override fun onToggleStageSheet(visible: Boolean) {
                 state = state.copy(isStageSheetVisible = visible)
             }
@@ -312,17 +316,31 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onToggleFatherDeceased(deceased: Boolean) {}
             override fun onFatherPhoneChange(value: String) {}
             override fun onFatherWhatsappChange(value: String) {}
+            override fun onToggleFatherWhatsappSameAsPhone(isSame: Boolean) {}
             override fun onToggleMotherDeceased(deceased: Boolean) {}
             override fun onMotherPhoneChange(value: String) {}
             override fun onMotherWhatsappChange(value: String) {}
+            override fun onToggleMotherWhatsappSameAsPhone(isSame: Boolean) {}
+            override fun onToggleAlsoParent(enabled: Boolean) {}
             override fun onPartnerQueryChange(query: String) {}
             override fun onSearchPartner() {}
             override fun onRemovePartner() {}
             override fun onChildQueryChange(query: String) {}
             override fun onSearchChild() {}
             override fun onRemoveChild(child: UserSummary) {}
+            override fun onClickScanPartnerQr() {}
+            override fun onClickScanChildQr() {}
+            override fun onDismissQrScanner() {}
+            override fun onQrCodeScanned(code: String) {}
             override fun onClickUpload(target: UploadTarget) {}
             override fun onDismissUploadBottomSheet() {}
+            override fun onDismissImageViewer() {}
+            override fun onDismissPdfViewer() {}
+            override fun onRetryPdfViewer() {}
+            override fun onClickOrdinationCertificate() {}
+            override fun onClickIdentityCertificate() {}
+            override fun onDocumentScannerOpened() {}
+            override fun onDocumentScanned(bytes: ByteArray?) {}
             override fun onSelectImageBytes(
                 target: UploadTarget,
                 bytes: SafeByteArray?,
@@ -332,6 +350,11 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
 
             override fun onClickVerifyWhatsApp() {}
             override fun onClickCheckWhatsAppStatus() {}
+            override fun onReactivatePasswordChange(value: String) {}
+            override fun onToggleReactivatePasswordVisibility() {}
+            override fun onDismissReactivateSheet() {}
+            override fun onConfirmReactivate() {}
+            override fun onClickForgotPasswordFromReactivate() {}
             override fun onLoadNextPriests() {}
             override fun onRetryLoadPriests() {}
             override fun onRetryLoadAreas() {}
@@ -339,6 +362,7 @@ private fun RegisterStep4ServantContentPreviewLightDark() {
             override fun onRetryLoadRanks() {}
             override fun onLoadNextEducationalStages() {}
             override fun onRetryLoadEducationalStages() {}
+            override fun onRefresh() {}
         }
     }
     Theme(darkTheme = Theme.isDarkTheme) {

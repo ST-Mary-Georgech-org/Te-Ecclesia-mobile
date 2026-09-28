@@ -27,6 +27,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpStatusCode
 import io.ktor.util.network.UnresolvedAddressException
 import kotlinx.coroutines.CancellationException
+import kotlinx.io.IOException
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -90,8 +91,9 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
             throw e
         } catch (e: Exception) {
             when (e) {
-                is UnresolvedAddressException -> throw NoNetworkException(null)
-                is HttpRequestTimeoutException -> throw NoNetworkException(null)
+                is UnresolvedAddressException,
+                is HttpRequestTimeoutException,
+                is IOException -> throw NoNetworkException(null)
                 else -> throw UnknownErrorException(e.message.toString())
             }
         }
