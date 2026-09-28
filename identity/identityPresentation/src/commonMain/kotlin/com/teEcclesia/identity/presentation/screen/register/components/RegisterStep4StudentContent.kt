@@ -95,8 +95,10 @@ fun RegisterStep4StudentContent(
                     ordinationYearError = state.ordinationYearError?.asString(),
                     bishopName = state.bishopName,
                     onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
                     ordinationCertificateFileName = state.ordinationCertificateFileName,
                     ordinationCertificateBytes = state.ordinationCertificateBytes,
                     onUploadOrdinationCertificate = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
@@ -232,7 +234,9 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
                 state = state.copy(
                     isOrdained = ordained,
                     ordinationYearError = if (!ordained) null else state.ordinationYearError,
-                    rankError = if (!ordained) null else state.rankError
+                    rankError = if (!ordained) null else state.rankError,
+                    bishopNameError = if (!ordained) null else state.bishopNameError,
+                    ordinationPlaceError = if (!ordained) null else state.ordinationPlaceError
                 )
             }
 
@@ -245,7 +249,10 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) {
-                state = state.copy(isOrdainedInThisChurch = inThisChurch)
+                state = state.copy(
+                    isOrdainedInThisChurch = inThisChurch,
+                    ordinationPlaceError = if (inThisChurch) null else state.ordinationPlaceError
+                )
             }
 
             override fun onOrdinationYearChange(value: String) {
@@ -253,11 +260,11 @@ private fun RegisterStep4StudentContentPreviewLightDark() {
             }
 
             override fun onBishopNameChange(value: String) {
-                state = state.copy(bishopName = value)
+                state = state.copy(bishopName = value, bishopNameError = null)
             }
 
             override fun onOrdinationPlaceChange(value: String) {
-                state = state.copy(ordinationPlace = value)
+                state = state.copy(ordinationPlace = value, ordinationPlaceError = null)
             }
 
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) {

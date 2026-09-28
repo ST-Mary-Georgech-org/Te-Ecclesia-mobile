@@ -115,6 +115,9 @@ fun RegisterScreenContent(
     PdfViewerDialog(
         isVisible = state.isPdfViewerVisible,
         pdf = state.activePdfBytes,
+        isLoading = state.isPdfViewerLoading,
+        isError = state.isPdfViewerError,
+        onRetry = listener::onRetryPdfViewer,
         onDismiss = listener::onDismissPdfViewer
     )
 
@@ -279,13 +282,13 @@ private fun RegisterScreenPreview() {
             override fun onApartmentChange(value: String) { state = state.copy(apartment = value) }
             override fun onSpecialMarkChange(value: String) { state = state.copy(specialMark = value) }
             override fun onRoleSelected(role: UserRole) { state = state.copy(selectedRole = role) }
-            override fun onToggleOrdained(ordained: Boolean) { state = state.copy(isOrdained = ordained, ordinationYearError = if (!ordained) null else state.ordinationYearError, rankError = if (!ordained) null else state.rankError) }
+            override fun onToggleOrdained(ordained: Boolean) { state = state.copy(isOrdained = ordained, ordinationYearError = if (!ordained) null else state.ordinationYearError, rankError = if (!ordained) null else state.rankError, bishopNameError = if (!ordained) null else state.bishopNameError, ordinationPlaceError = if (!ordained) null else state.ordinationPlaceError) }
             override fun onSelectRank(rank: LookupResponse) { state = state.copy(selectedRank = rank) }
             override fun onToggleRankSheet(visible: Boolean) { state = state.copy(isRankSheetVisible = visible) }
-            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) { state = state.copy(isOrdainedInThisChurch = inThisChurch) }
+            override fun onToggleOrdainedInThisChurch(inThisChurch: Boolean) { state = state.copy(isOrdainedInThisChurch = inThisChurch, ordinationPlaceError = if (inThisChurch) null else state.ordinationPlaceError) }
             override fun onOrdinationYearChange(value: String) { state = state.copy(ordinationYear = value, ordinationYearError = null) }
-            override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value) }
-            override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value) }
+            override fun onBishopNameChange(value: String) { state = state.copy(bishopName = value, bishopNameError = null) }
+            override fun onOrdinationPlaceChange(value: String) { state = state.copy(ordinationPlace = value, ordinationPlaceError = null) }
             override fun onShamamsaStatusSelected(status: ShamamsaStudyStatus) { state = state.copy(shamamsaStatus = status) }
             override fun onSelectEducationalStage(stage: LookupResponse) {  }
             override fun onToggleStageSheet(visible: Boolean) { state = state.copy(isStageSheetVisible = visible) }

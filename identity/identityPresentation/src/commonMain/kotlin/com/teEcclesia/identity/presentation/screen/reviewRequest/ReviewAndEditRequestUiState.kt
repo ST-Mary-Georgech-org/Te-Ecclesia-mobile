@@ -105,6 +105,8 @@ data class ReviewAndEditRequestUiState(
     val isImageViewerVisible: Boolean = false,
     val activeImageViewerModel: Any? = null,
     val isPdfViewerVisible: Boolean = false,
+    val isPdfViewerLoading: Boolean = false,
+    val isPdfViewerError: Boolean = false,
     val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
     val ordinationCertificateBytes: SafeByteArray? = null,
@@ -131,7 +133,9 @@ data class ReviewAndEditRequestUiState(
     val ordinationYear: String = "",
     val ordinationYearError: UiText? = null,
     val bishopName: String = "",
+    val bishopNameError: UiText? = null,
     val ordinationPlace: String = "",
+    val ordinationPlaceError: UiText? = null,
 
     val studentEducationalStage: LookupResponse? = null,
     val educationalStages: List<LookupResponse> = emptyList(),
@@ -276,7 +280,7 @@ private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): Ordination
             isOrdinationInAnotherChurch = !isOrdainedInThisChurch,
             ordinationYear = ordinationYear.toIntOrNull(),
             bishopName = bishopName.ifBlank { null },
-            ordinationPlace = ordinationPlace.ifBlank { null }
+            ordinationPlace = if (isOrdainedInThisChurch) null else ordinationPlace.ifBlank { null }
         )
     } else userProfile?.ordinationProfile?.let { old ->
         OrdinationProfileRequest(

@@ -225,8 +225,10 @@ fun ReviewStep2StudentContent(
                     ordinationYearError = state.ordinationYearError?.asString(),
                     bishopName = state.bishopName,
                     onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
                     ordinationPlace = state.ordinationPlace,
                     onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
                     filePickerContent = {
                         ReviewFilePickerRow(
                             label = stringResource(Res.string.ordination_certificate_optional),

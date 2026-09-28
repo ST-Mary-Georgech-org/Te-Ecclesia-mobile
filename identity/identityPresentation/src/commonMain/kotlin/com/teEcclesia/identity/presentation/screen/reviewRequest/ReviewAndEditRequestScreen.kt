@@ -104,6 +104,9 @@ private fun ReviewAndEditRequestContent(
     PdfViewerDialog(
         isVisible = state.isPdfViewerVisible,
         pdf = state.activePdfBytes,
+        isLoading = state.isPdfViewerLoading,
+        isError = state.isPdfViewerError,
+        onRetry = listener::onRetryPdfViewer,
         onDismiss = listener::onDismissPdfViewer
     )
 

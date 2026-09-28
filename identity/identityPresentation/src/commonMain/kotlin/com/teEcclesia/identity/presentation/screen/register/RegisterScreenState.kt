@@ -96,7 +96,9 @@ data class RegisterScreenState(
     val ordinationYear: String = "",
     val ordinationYearError: UiText? = null,
     val bishopName: String = "",
+    val bishopNameError: UiText? = null,
     val ordinationPlace: String = "",
+    val ordinationPlaceError: UiText? = null,
     val ordinationCertificateBytes: SafeByteArray? = null,
     val ordinationCertificateFileName: String? = null,
 
@@ -159,6 +161,8 @@ data class RegisterScreenState(
     val isImageViewerVisible: Boolean = false,
     val activeImageViewerModel: Any? = null,
     val isPdfViewerVisible: Boolean = false,
+    val isPdfViewerLoading: Boolean = false,
+    val isPdfViewerError: Boolean = false,
     val activePdfBytes: SafeByteArray? = null,
     val activeUploadTarget: UploadTarget? = null,
     val shouldOpenDocumentScanner: Boolean = false,

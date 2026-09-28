@@ -86,6 +86,7 @@ interface RegisterInteractionListener {
     fun onDismissUploadBottomSheet()
     fun onDismissImageViewer() {}
     fun onDismissPdfViewer() {}
+    fun onRetryPdfViewer() {}
     fun onClickOrdinationCertificate() {}
     fun onClickIdentityCertificate() {}
     fun onDocumentScannerOpened() {}

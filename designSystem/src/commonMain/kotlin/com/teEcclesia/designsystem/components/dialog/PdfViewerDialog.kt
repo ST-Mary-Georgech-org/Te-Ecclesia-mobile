@@ -12,6 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,24 +33,34 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.teEcclesia.designsystem.components.button.AppButton
+import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.pdf.PdfViewer
+import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.modifier.clickableNoRipple
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.Preview
 import com.teEcclesia.shared.domain.model.SafeByteArray
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
+import teecclesia.designsystem.generated.resources.error_occurred
 import teecclesia.designsystem.generated.resources.ic_close
+import teecclesia.designsystem.generated.resources.ic_error
+import teecclesia.designsystem.generated.resources.retry
 
 @Composable
 fun PdfViewerDialog(
     isVisible: Boolean,
     pdf: ByteArray?,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    isError: Boolean = false,
+    onRetry: (() -> Unit)? = null
 ) {
-    if (!isVisible || pdf == null) return
+    if (!isVisible || (pdf == null && !isLoading && !isError)) return
 
     var scale by remember(pdf) { mutableStateOf(1f) }
     var offset by remember(pdf) { mutableStateOf(Offset.Zero) }
@@ -65,21 +79,53 @@ fun PdfViewerDialog(
                 .background(Color.Black.copy(alpha = 0.9f)),
             contentAlignment = Alignment.Center
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(pdf) {
-                        detectTapGestures(
-                            onDoubleTap = {
-                                if (scale > 1.05f) {
-                                    scale = 1f
-                                    offset = Offset.Zero
-                                } else {
-                                    scale = 2.5f
-                                }
-                            }
+            if (isError && pdf == null) {
+                Column(
+                    modifier = Modifier.align(Alignment.Center),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_error),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.error,
+                        modifier = Modifier.size(48.dp)
+                    )
+                    Text(
+                        text = stringResource(Res.string.error_occurred),
+                        style = Theme.typography.bodyMedium,
+                        color = Color.White
+                    )
+                    if (onRetry != null) {
+                        AppButton(
+                            text = stringResource(Res.string.retry),
+                            onClick = onRetry,
+                            type = AppButtonType.Primary,
+                            modifier = Modifier.width(140.dp)
                         )
                     }
+                }
+            } else if (isLoading || pdf == null) {
+                CircularProgressIndicator(
+                    color = Theme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .pointerInput(pdf) {
+                            detectTapGestures(
+                                onDoubleTap = {
+                                    if (scale > 1.05f) {
+                                        scale = 1f
+                                        offset = Offset.Zero
+                                    } else {
+                                        scale = 2.5f
+                                    }
+                                }
+                            )
+                        }
                     .pointerInput(pdf) {
                         awaitEachGesture {
                             awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
@@ -133,6 +179,7 @@ fun PdfViewerDialog(
                     modifier = Modifier.fillMaxSize()
                 )
             }
+        }
 
             Box(
                 modifier = Modifier
@@ -161,13 +208,19 @@ fun PdfViewerDialog(
     isVisible: Boolean,
     pdf: SafeByteArray?,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isLoading: Boolean = false,
+    isError: Boolean = false,
+    onRetry: (() -> Unit)? = null
 ) {
     PdfViewerDialog(
         isVisible = isVisible,
         pdf = pdf?.bytes,
         onDismiss = onDismiss,
-        modifier = modifier
+        modifier = modifier,
+        isLoading = isLoading,
+        isError = isError,
+        onRetry = onRetry
     )
 }
 
