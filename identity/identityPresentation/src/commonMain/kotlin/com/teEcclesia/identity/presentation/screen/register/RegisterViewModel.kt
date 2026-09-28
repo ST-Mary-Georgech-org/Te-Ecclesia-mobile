@@ -846,6 +846,18 @@ class RegisterViewModel(
         val s = state.value
         val role = s.selectedRole ?: return
 
+        val rankErr =
+            if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
+        val bishopNameErr =
+            if (s.isMale != false && s.isOrdained && s.bishopName.isBlank()) UiText.StringRes(Res.string.field_required) else null
+        val ordinationPlaceErr =
+            if (s.isMale != false && s.isOrdained && !s.isOrdainedInThisChurch && s.ordinationPlace.isBlank()) UiText.StringRes(Res.string.field_required) else null
+        val ordinationYearErr = if (s.isMale != false && s.isOrdained && s.ordinationYear.isNotBlank()) {
+            if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
+                UiText.StringRes(Res.string.invalid_year_format)
+            } else null
+        } else null
+
         when (role) {
             UserRole.KHADEM -> {
                 val stageErr =
@@ -855,35 +867,30 @@ class RegisterViewModel(
                         UiText.StringRes(Res.string.field_required)
                     } else null
 
-                val hasError = listOfNotNull(stageErr, yearErr).isNotEmpty()
+                val hasError = listOfNotNull(
+                    stageErr, yearErr,
+                    rankErr, bishopNameErr, ordinationPlaceErr, ordinationYearErr
+                ).isNotEmpty()
                 updateState {
                     copy(
                         stageError = stageErr,
-                        yearError = yearErr
+                        yearError = yearErr,
+                        rankError = rankErr,
+                        bishopNameError = bishopNameErr,
+                        ordinationPlaceError = ordinationPlaceErr,
+                        ordinationYearError = ordinationYearErr
                     )
                 }
                 if (hasError) return
             }
 
             UserRole.MAKHDOOM -> {
-                val rankErr =
-                    if (s.isMale != false && s.isOrdained && s.selectedRank == null) UiText.StringRes(Res.string.field_required) else null
-                val bishopNameErr =
-                    if (s.isMale != false && s.isOrdained && s.bishopName.isBlank()) UiText.StringRes(Res.string.field_required) else null
-                val ordinationPlaceErr =
-                    if (s.isMale != false && s.isOrdained && !s.isOrdainedInThisChurch && s.ordinationPlace.isBlank()) UiText.StringRes(Res.string.field_required) else null
                 val stageErr =
                     if (s.studentEducationalStage == null) UiText.StringRes(Res.string.field_required) else null
                 val yearErr =
                     if (!s.studentEducationalStage?.subItems.isNullOrEmpty() && s.studentEducationalYear == null) {
                         UiText.StringRes(Res.string.field_required)
                     } else null
-
-                val ordinationYearErr = if (s.isMale != false && s.isOrdained && s.ordinationYear.isNotBlank()) {
-                    if (s.ordinationYear.length != 4 || !s.ordinationYear.all { it.isDigit() }) {
-                        UiText.StringRes(Res.string.invalid_year_format)
-                    } else null
-                } else null
 
                 val fatherPhoneErr = if (!s.isFatherDeceased) {
                     if (s.fatherPhone.isBlank()) {
@@ -939,6 +946,19 @@ class RegisterViewModel(
             }
 
             UserRole.PARENT -> {
+                val hasOrdinationError = listOfNotNull(
+                    rankErr, bishopNameErr, ordinationPlaceErr, ordinationYearErr
+                ).isNotEmpty()
+                updateState {
+                    copy(
+                        rankError = rankErr,
+                        bishopNameError = bishopNameErr,
+                        ordinationPlaceError = ordinationPlaceErr,
+                        ordinationYearError = ordinationYearErr
+                    )
+                }
+                if (hasOrdinationError) return
+
                 if (s.isPartnerLoading || s.isChildLoading) return
                 if (s.partnerQuery.isNotBlank() && s.selectedPartner == null) {
                     showSnackBar(
@@ -1001,7 +1021,7 @@ class RegisterViewModel(
             kahenProfile = if (role == UserRole.KAHEN) KahenProfileRequest(
                 educationalStageIds = s.kahenEducationalStages.map { it.id }
             ) else null,
-            ordinationProfile = if (s.isMale != false && role != UserRole.KAHEN && role != UserRole.PARENT && s.isOrdained) OrdinationProfileRequest(
+            ordinationProfile = if (s.isMale != false && role != UserRole.KAHEN && s.isOrdained) OrdinationProfileRequest(
                 rankId = s.selectedRank?.id ?: 1L,
                 isOrdinationInAnotherChurch = !s.isOrdainedInThisChurch,
                 ordinationYear = s.ordinationYear.toIntOrNull(),

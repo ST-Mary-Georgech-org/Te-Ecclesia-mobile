@@ -219,16 +219,19 @@ fun RegisterScreenContent(
                                 )
                                 UserRole.KHADEM -> RegisterStep4ServantContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                                 UserRole.KAHEN -> RegisterStep4KahenContent(state = state, listener = listener)
                                 UserRole.PARENT -> RegisterStep4ParentContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                                 else -> RegisterStep4ServantContent(
                                     state = state,
-                                    listener = listener
+                                    listener = listener,
+                                    onFileClickOrdinationCertificate = listener::onClickOrdinationCertificate
                                 )
                             }
                             5 -> RegisterStep5VerifyContent(state = state, listener = listener)

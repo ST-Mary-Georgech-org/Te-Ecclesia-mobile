@@ -273,7 +273,7 @@ fun ReviewAndEditRequestUiState.toRegisterRequest(): RegisterRequest {
 }
 
 private fun ReviewAndEditRequestUiState.toOrdinationProfileRequest(): OrdinationProfileRequest? {
-    if (isMale == false || selectedRole == UserRole.KAHEN || selectedRole == UserRole.PARENT) return null
+    if (isMale == false || selectedRole == UserRole.KAHEN) return null
     return if (isOrdained) {
         OrdinationProfileRequest(
             rankId = selectedRank?.id ?: 1L,

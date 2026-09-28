@@ -31,11 +31,16 @@ import teecclesia.designsystem.generated.resources.educational_years
 import teecclesia.designsystem.generated.resources.ic_school
 import teecclesia.designsystem.generated.resources.ic_user_settings
 import com.teEcclesia.identity.presentation.shared.components.ChildrenSelectionFields
+import com.teEcclesia.identity.presentation.shared.components.OrdinationInfoFields
 import com.teEcclesia.identity.presentation.shared.components.PartnerSelectionFields
 import teecclesia.designsystem.generated.resources.children
 import teecclesia.designsystem.generated.resources.family_information
+import teecclesia.designsystem.generated.resources.file_ordination_certificate
 import teecclesia.designsystem.generated.resources.i_am_also_a_parent
 import teecclesia.designsystem.generated.resources.ic_family
+import teecclesia.designsystem.generated.resources.ic_ordination
+import teecclesia.designsystem.generated.resources.ordination_certificate_optional
+import teecclesia.designsystem.generated.resources.ordination_info
 import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.permissions
 import teecclesia.designsystem.generated.resources.responsible_stages_optional
@@ -46,7 +51,8 @@ import teecclesia.designsystem.generated.resources.service_info
 fun ReviewStep2ServantContent(
     state: ReviewAndEditRequestUiState,
     listener: ReviewAndEditRequestInteractionListener,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onFileClickOrdinationCertificate: (() -> Unit)? = null
 ) {
 
     Column(
@@ -207,6 +213,51 @@ fun ReviewStep2ServantContent(
                         errorText = state.childError?.asString()
                     )
                 }
+            }
+        }
+
+        if (state.isMale != false) {
+            ReviewSectionCard(
+                title = stringResource(Res.string.ordination_info),
+                icon = painterResource(Res.drawable.ic_ordination)
+            ) {
+                OrdinationInfoFields(
+                    isOrdained = state.isOrdained,
+                    onToggleOrdained = listener::onToggleOrdained,
+                    selectedRank = state.selectedRank,
+                    ranks = state.ranks,
+                    isRankSheetVisible = state.isRankSheetVisible,
+                    onToggleRankSheet = listener::onToggleRankSheet,
+                    onSelectRank = listener::onSelectRank,
+                    rankError = state.rankError?.asString(),
+                    isRankLoading = state.isRankLoading,
+                    isRankLoadFailed = state.isRankLoadFailed,
+                    onRetryLoadRanks = listener::onRetryLoadRanks,
+                    isOrdainedInThisChurch = state.isOrdainedInThisChurch,
+                    onToggleOrdainedInThisChurch = listener::onToggleOrdainedInThisChurch,
+                    ordinationYear = state.ordinationYear,
+                    onOrdinationYearChange = listener::onOrdinationYearChange,
+                    ordinationYearError = state.ordinationYearError?.asString(),
+                    bishopName = state.bishopName,
+                    onBishopNameChange = listener::onBishopNameChange,
+                    bishopNameError = state.bishopNameError?.asString(),
+                    ordinationPlace = state.ordinationPlace,
+                    onOrdinationPlaceChange = listener::onOrdinationPlaceChange,
+                    ordinationPlaceError = state.ordinationPlaceError?.asString(),
+                    filePickerContent = {
+                        ReviewFilePickerRow(
+                            label = stringResource(Res.string.ordination_certificate_optional),
+                            fileTitle = stringResource(Res.string.file_ordination_certificate),
+                            fileName = state.ordinationCertificateFileName,
+                            fileBytes = state.ordinationCertificateBytes,
+                            onUploadClick = { listener.onClickUpload(UploadTarget.ORDINATION_CERTIFICATE) },
+                            onClearClick = {
+                                listener.onSelectImageBytes(UploadTarget.ORDINATION_CERTIFICATE, null, null)
+                            },
+                            onFileClick = onFileClickOrdinationCertificate
+                        )
+                    }
+                )
             }
         }
     }
