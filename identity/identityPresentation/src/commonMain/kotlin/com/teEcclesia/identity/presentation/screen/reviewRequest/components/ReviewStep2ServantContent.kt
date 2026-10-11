@@ -22,8 +22,6 @@ import com.teEcclesia.identity.presentation.shared.components.EducationalYearSel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import com.teEcclesia.identity.presentation.screen.register.UploadTarget
-import teecclesia.designsystem.generated.resources.file_identity_card
-import teecclesia.designsystem.generated.resources.identity_card_certificate_optional
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.can_approve_new_requests
 import teecclesia.designsystem.generated.resources.educational_stages
@@ -41,7 +39,6 @@ import teecclesia.designsystem.generated.resources.ic_family
 import teecclesia.designsystem.generated.resources.ic_ordination
 import teecclesia.designsystem.generated.resources.ordination_certificate_optional
 import teecclesia.designsystem.generated.resources.ordination_info
-import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.permissions
 import teecclesia.designsystem.generated.resources.responsible_stages_optional
 import teecclesia.designsystem.generated.resources.responsible_years_optional

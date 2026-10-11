@@ -28,6 +28,7 @@ import platform.CoreGraphics.CGPDFDocumentGetPage
 import platform.CoreGraphics.CGPDFDocumentRelease
 import platform.CoreGraphics.CGPDFPageGetBoxRect
 import platform.CoreGraphics.CGPDFPageRef
+import platform.Foundation.NSData
 import platform.CoreGraphics.kCGBitmapByteOrder32Big
 import platform.CoreGraphics.kCGPDFMediaBox
 import platform.UIKit.UIImage
@@ -112,7 +113,7 @@ private fun ByteArray.asCFData(): CFDataRef? {
 }
 
 @OptIn(ExperimentalForeignApi::class)
-private fun platform.Foundation.NSData.toByteArray(): ByteArray {
+private fun NSData.toByteArray(): ByteArray {
     val bytes = ByteArray(this.length.toInt())
     memcpy(bytes.refTo(0), this.bytes, this.length)
     return bytes

@@ -1,5 +1,6 @@
 package com.teEcclesia.identity.domain.model
 
+import com.teEcclesia.shared.domain.model.UserRole
 import kotlinx.datetime.LocalDateTime
 
 data class ProfileResponse(
@@ -30,7 +31,7 @@ data class ProfileResponse(
     val gender: Gender,
     val status: UserStatus,
     val statusReason: String?,
-    val role: com.teEcclesia.shared.domain.model.UserRole,
+    val role: UserRole,
     val confessionPriest: Priest?,
     val externalConfessionPriestName: String,
     val externalConfessionChurch: String,

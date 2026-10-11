@@ -7,7 +7,6 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.preview.PreviewThemes
 import org.jetbrains.compose.resources.painterResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.ic_bell

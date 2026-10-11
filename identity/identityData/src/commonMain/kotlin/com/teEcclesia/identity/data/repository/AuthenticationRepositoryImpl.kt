@@ -126,12 +126,15 @@ class AuthenticationRepositoryImpl(
     override suspend fun logout() {
         val deviceToken = pushTokenProvider.getToken().orEmpty()
         withContext(NonCancellable) {
-            tryToExecute<Unit> {
+            tryToExecute<Unit>(
+                finally = {
+                    clearAuthState()
+                }
+            ) {
                 post(LOGOUT_ENDPOINT) {
                     setBody(RefreshRequestDto(settings.refreshToken, deviceToken))
                 }
             }
-            clearAuthState()
         }
     }
 
@@ -156,7 +159,6 @@ class AuthenticationRepositoryImpl(
                         }
                     }
                     saveTokens(response.toDomain(), syncDeviceToken = false)
-                    client.invalidateAuthTokens()
                     settings.accessToken
                 } catch (e: UnAuthorizedException) {
                     clearAuthState()
@@ -186,18 +188,28 @@ class AuthenticationRepositoryImpl(
                 return@withLock settings.accessToken
             }
             withContext(NonCancellable) {
-                val currentRefreshToken = settings.refreshToken
-                if (currentRefreshToken.isBlank()) {
-                    throw UnAuthorizedException(null)
-                }
-                val deviceToken = pushTokenProvider.getToken().orEmpty()
-                val response = tryToExecute<AuthenticationResponse> {
-                    post(REFRESH_REGISTRATION_ENDPOINT) {
-                        setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                try {
+                    val currentRefreshToken = settings.refreshToken
+                    if (currentRefreshToken.isBlank()) {
+                        throw UnAuthorizedException(null)
                     }
+                    val deviceToken = pushTokenProvider.getToken().orEmpty()
+                    val response = tryToExecute<AuthenticationResponse> {
+                        post(REFRESH_REGISTRATION_ENDPOINT) {
+                            setBody(RefreshRequestDto(currentRefreshToken, deviceToken))
+                        }
+                    }
+                    saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
+                    response.accessToken
+                } catch (e: UnAuthorizedException) {
+                    clearAuthState()
+                    sessionManager.onSessionExpired()
+                    throw e
+                } catch (e: UserIsBlockedException) {
+                    clearAuthState()
+                    sessionManager.onUserBlocked()
+                    throw e
                 }
-                saveRegistrationToken(response.accessToken, response.refreshToken, syncDeviceToken = false)
-                response.accessToken
             }
         }
     }
@@ -359,8 +371,9 @@ class AuthenticationRepositoryImpl(
                         }
                     }
                     lastSyncedDeviceToken = deviceToken
-                } catch (e: Exception) {
-                    if (e is CancellationException) throw e
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
                 }
             }
         }

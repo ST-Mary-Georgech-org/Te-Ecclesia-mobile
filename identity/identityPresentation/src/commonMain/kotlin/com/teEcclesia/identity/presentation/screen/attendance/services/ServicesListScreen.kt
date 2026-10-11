@@ -1,7 +1,6 @@
 package com.teEcclesia.identity.presentation.screen.attendance.services
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,10 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -29,15 +26,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.teEcclesia.designsystem.components.button.AppButton
-import com.teEcclesia.designsystem.components.button.AppButtonState
-import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.dialog.DatePicker
 import com.teEcclesia.designsystem.components.dialog.TimePickerDialog
 import com.teEcclesia.designsystem.components.icon.Icon
 import com.teEcclesia.designsystem.components.icon.IconButton
 import com.teEcclesia.designsystem.components.indicator.PullToRefresh
-import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
 import com.teEcclesia.designsystem.utils.pagination.PaginationTrigger
@@ -57,14 +50,8 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.cancel
-import teecclesia.designsystem.generated.resources.confirm_delete_service
-import teecclesia.designsystem.generated.resources.delete
 import teecclesia.designsystem.generated.resources.end_time
-import teecclesia.designsystem.generated.resources.ic_arrow_right
-import teecclesia.designsystem.generated.resources.ic_close
 import teecclesia.designsystem.generated.resources.ic_plus
-import teecclesia.designsystem.generated.resources.ic_user_settings
 import teecclesia.designsystem.generated.resources.no_services_found
 import teecclesia.designsystem.generated.resources.services
 import teecclesia.designsystem.generated.resources.start_time

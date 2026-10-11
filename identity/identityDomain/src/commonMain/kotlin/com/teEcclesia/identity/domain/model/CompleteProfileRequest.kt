@@ -1,7 +1,9 @@
 package com.teEcclesia.identity.domain.model
 
+import com.teEcclesia.shared.domain.model.UserRole
+
 data class CompleteProfileRequest(
-    val role: com.teEcclesia.shared.domain.model.UserRole,
+    val role: UserRole,
     val identityDocumentImageUrl: String? = null,
     val ordinationProfile: OrdinationProfileRequest? = null,
     val makhdoomProfile: MakhdoomProfileRequest? = null,

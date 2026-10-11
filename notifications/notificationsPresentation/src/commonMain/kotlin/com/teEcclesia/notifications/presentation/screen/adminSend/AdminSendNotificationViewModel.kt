@@ -18,7 +18,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_send_notification
-import teecclesia.designsystem.generated.resources.notification_sent_successfully
 import teecclesia.designsystem.generated.resources.please_enter_notification_body
 import teecclesia.designsystem.generated.resources.please_enter_notification_title
 import teecclesia.designsystem.generated.resources.please_select_recipients

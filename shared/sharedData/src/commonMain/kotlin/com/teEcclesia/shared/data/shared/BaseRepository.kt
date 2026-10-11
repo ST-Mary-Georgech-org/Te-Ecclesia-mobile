@@ -35,7 +35,8 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
 
     val sessionManager: SessionManager by inject()
 
-    suspend inline fun <reified T> tryToExecute(method: HttpClient.() -> HttpResponse): T {
+    @Suppress("TooGenericExceptionCaught", "SwallowedException")
+    suspend inline fun <reified T> tryToExecute(finally: () -> Unit = {}, method: HttpClient.() -> HttpResponse): T {
         try {
             return client.method().body()
         } catch (e: ResponseException) {
@@ -48,7 +49,8 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
                     path.startsWith("api/v1/identity/auth/forgot-password") ||
                     path.startsWith("api/v1/identity/auth/verify-otp") ||
                     path.startsWith("api/v1/identity/auth/reset-password") ||
-                    path.startsWith("api/v1/identity/auth/reactivate")
+                    path.startsWith("api/v1/identity/auth/reactivate") ||
+                    path.startsWith("api/v1/identity/auth/refresh")
 
             if (!isAuthEndpoint) {
                 if (status == HttpStatusCode.Unauthorized) {
@@ -96,6 +98,8 @@ abstract class BaseRepository(val client: HttpClient) : KoinComponent {
                 is IOException -> throw NoNetworkException(null)
                 else -> throw UnknownErrorException(e.message.toString())
             }
+        } finally {
+            finally()
         }
     }
 }

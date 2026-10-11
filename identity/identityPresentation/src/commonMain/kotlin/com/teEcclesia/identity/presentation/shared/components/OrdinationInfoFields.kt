@@ -5,9 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
@@ -37,7 +35,6 @@ import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.no
 import teecclesia.designsystem.generated.resources.ordained
 import teecclesia.designsystem.generated.resources.ordained_in_this_church
-import teecclesia.designsystem.generated.resources.ordination_info
 import teecclesia.designsystem.generated.resources.ordination_place
 import teecclesia.designsystem.generated.resources.ordination_year
 import teecclesia.designsystem.generated.resources.rank

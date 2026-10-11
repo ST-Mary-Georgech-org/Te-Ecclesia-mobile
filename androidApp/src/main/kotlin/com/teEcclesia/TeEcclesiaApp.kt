@@ -1,5 +1,6 @@
 package com.teEcclesia
 
+import android.app.ActivityManager
 import android.app.Application
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.teEcclesia.notifications.data.push.PushNotificationsInitializer
@@ -17,7 +18,7 @@ class TeEcclesiaApp : Application() {
         } catch (_: Throwable) { }
 
         val is32BitOS = !android.os.Process.is64Bit()
-        val activityManager = getSystemService(ACTIVITY_SERVICE) as? android.app.ActivityManager
+        val activityManager = getSystemService(ACTIVITY_SERVICE) as? ActivityManager
         val isLowRam = activityManager?.isLowRamDevice == true
 
         if (is32BitOS || isLowRam) {

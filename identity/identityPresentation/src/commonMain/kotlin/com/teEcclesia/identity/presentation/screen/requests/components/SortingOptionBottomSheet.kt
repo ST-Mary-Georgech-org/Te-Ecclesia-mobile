@@ -1,6 +1,5 @@
 package com.teEcclesia.identity.presentation.screen.requests.components
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth

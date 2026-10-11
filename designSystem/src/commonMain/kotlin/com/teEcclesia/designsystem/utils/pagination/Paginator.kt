@@ -24,6 +24,7 @@ class Paginator<Key, Items>(
     private var isErrorState = false
     private var job: Job? = null
 
+    @Suppress("TooGenericExceptionCaught")
     fun loadNextItems(): Job? {
         if (isMakingRequest || isEndReached || isErrorState) return null
 

@@ -55,8 +55,6 @@ import teecclesia.designsystem.generated.resources.ic_family
 import teecclesia.designsystem.generated.resources.ic_ordination
 import teecclesia.designsystem.generated.resources.ic_school
 import teecclesia.designsystem.generated.resources.file_ordination_certificate
-import teecclesia.designsystem.generated.resources.file_identity_card
-import teecclesia.designsystem.generated.resources.identity_card_certificate_optional
 import teecclesia.designsystem.generated.resources.ordination_certificate_optional
 import teecclesia.designsystem.generated.resources.ordination_info
 import teecclesia.designsystem.generated.resources.paid

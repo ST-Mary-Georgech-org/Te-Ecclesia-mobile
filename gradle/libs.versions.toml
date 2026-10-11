@@ -9,6 +9,7 @@ android-targetSdk = "36"
 # Kotlin
 easydocumentscanner  = "0.5.0"
 kotlin = "2.4.0"
+detekt = "1.23.7"
 
 # AndroidX libraries
 androidx-activity = "1.13.0"
@@ -183,6 +184,7 @@ firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 room = { id = "androidx.room", version.ref = "room" }
 cocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 
 [bundles]
 koin = [

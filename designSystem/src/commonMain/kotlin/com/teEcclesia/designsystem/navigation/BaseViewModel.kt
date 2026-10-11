@@ -43,6 +43,7 @@ abstract class BaseViewModel<STATE>(
     private val resultStore: ResultStore by inject()
     protected val dispatchers: DispatcherProvider by inject()
 
+    @Suppress("TooGenericExceptionCaught")
     protected fun launch(
         context: CoroutineContext = dispatchers.io,
         start: CoroutineStart = CoroutineStart.DEFAULT,
@@ -122,6 +123,7 @@ abstract class BaseViewModel<STATE>(
         _state.update { it.transform(it) }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     protected fun <R> tryToCall(
         block: suspend () -> R,
         onSuccess: suspend (R) -> Unit,

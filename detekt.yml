@@ -1,0 +1,71 @@
+build:
+  maxIssues: 0
+  excludeCorrectable: false
+
+exceptions:
+  active: true
+  RethrowCaughtException:
+    active: true
+  TooGenericExceptionCaught:
+    active: true
+    exceptionNames:
+      - ArrayIndexOutOfBoundsException
+      - Error
+      - Exception
+      - IllegalMonitorStateException
+      - NullPointerException
+      - IndexOutOfBoundsException
+      - RuntimeException
+      - Throwable
+    allowedExceptionNameRegex: '^(_|ignored|expected).*'
+  SwallowedException:
+    active: true
+  InstanceOfCheckForException:
+    active: true
+
+style:
+  active: true
+  RedundantVisibilityModifierRule:
+    active: true
+  UnnecessaryAbstractClass:
+    active: true
+  UnnecessaryApply:
+    active: true
+  UnnecessaryFilter:
+    active: true
+  UnnecessaryInheritance:
+    active: true
+  UnnecessaryLet:
+    active: true
+  UnusedImports:
+    active: true
+  UnusedPrivateMember:
+    active: true
+    ignoreAnnotated: ['Preview', 'PreviewLightDark', 'PreviewThemes', 'PreviewAppModes']
+
+potential-bugs:
+  active: true
+  AvoidReferentialEquality:
+    active: true
+  DoubleMutabilityForCollection:
+    active: true
+  EqualsAlwaysReturnsTrueOrFalse:
+    active: true
+  UnconditionalJumpStatementInLoop:
+    active: true
+  UnreachableCode:
+    active: true
+
+complexity:
+  active: true
+  LongMethod:
+    active: false
+  LongParameterList:
+    active: false
+  CyclomaticComplexMethod:
+    active: false
+
+custom-rules:
+  active: true
+  NoFullyQualifiedName:
+    active: true

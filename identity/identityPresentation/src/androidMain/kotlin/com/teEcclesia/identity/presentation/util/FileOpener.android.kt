@@ -45,7 +45,7 @@ class AndroidFileOpener(
                 }
                 context.startActivity(chooser)
                 return
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 if (!targetUrl.isNullOrBlank()) {
                     runCatching { uriHandler.openUri(targetUrl) }
                 }
@@ -67,7 +67,7 @@ class AndroidFileOpener(
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
                 context.startActivity(chooser)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 runCatching { uriHandler.openUri(targetUrl) }
             }
         }
