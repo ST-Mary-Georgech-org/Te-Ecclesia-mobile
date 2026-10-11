@@ -34,7 +34,8 @@ val identityScreensModule = module {
             lookupRepository = get(),
             authenticationRepository = get(),
             authorizationService = get(),
-            profileRepository = get()
+            profileRepository = get(),
+            appFlavorConfig = get()
         )
     }
     viewModelOf(::PendingApprovalViewModel)

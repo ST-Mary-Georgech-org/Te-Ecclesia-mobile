@@ -15,6 +15,8 @@ data class RegisterScreenState(
     val actionButtonState: AppButtonState = AppButtonState.Enabled,
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
+    val isKidsVersion: Boolean = false,
+    val isCameraSupported: Boolean = true,
     
     // Step 1: Personal Info
     val imageBytes: SafeByteArray? = null,

@@ -140,7 +140,7 @@ fun RegisterStep1Content(
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Next)
             )
 
-            if (state.isUnder13) {
+            if (state.isKidsVersion || state.isUnder13) {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)

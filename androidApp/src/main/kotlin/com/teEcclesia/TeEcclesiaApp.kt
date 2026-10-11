@@ -27,6 +27,8 @@ class TeEcclesiaApp : Application() {
         AppEnvironment.internalBaseUrl = BuildConfig.BASE_URL
         AppEnvironment.internalVersionName = BuildConfig.VERSION_NAME
         AppEnvironment.internalIsDebug = BuildConfig.DEBUG
+        AppEnvironment.internalIsKidsVersion = BuildConfig.IS_KIDS_VERSION
+        AppEnvironment.internalIsCameraSupported = BuildConfig.IS_CAMERA_ENABLED
 
         initKoin {
             androidContext(this@TeEcclesiaApp)

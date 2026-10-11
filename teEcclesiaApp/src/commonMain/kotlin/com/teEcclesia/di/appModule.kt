@@ -9,6 +9,7 @@ import com.teEcclesia.designsystem.navigation.effector.EffectorImpl
 import com.teEcclesia.designsystem.navigation.getDispatcherProvider
 import com.teEcclesia.manager.SessionManagerImpl
 import com.teEcclesia.shared.domain.manager.SessionManager
+import com.teEcclesia.shared.domain.config.AppFlavorConfig
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
@@ -18,6 +19,7 @@ import org.koin.dsl.module
 const val APP_VERSION = "appVersion"
 val appModule = module {
     single(named(APP_VERSION)) { AppEnvironment.versionName }
+    single { AppFlavorConfig(isKidsVersion = AppEnvironment.isKidsVersion, isCameraSupported = AppEnvironment.isCameraSupported) }
     single { SnackBarManager() }
     single { getDispatcherProvider() }
     viewModelOf(::MainEntryViewModel)
@@ -25,3 +27,4 @@ val appModule = module {
     singleOf(::SessionManagerImpl) bind SessionManager::class
     singleOf(::ResultStore)
 }
+

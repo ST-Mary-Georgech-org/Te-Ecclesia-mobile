@@ -35,6 +35,23 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    flavorDimensions += listOf("ageGroup")
+
+    productFlavors {
+        create("full") {
+            dimension = "ageGroup"
+            applicationId = "com.teEcclesia"
+            buildConfigField("Boolean", "IS_KIDS_VERSION", "false")
+            buildConfigField("Boolean", "IS_CAMERA_ENABLED", "true")
+        }
+        create("kids") {
+            dimension = "ageGroup"
+            applicationId = "com.teEcclesia.kids"
+            buildConfigField("Boolean", "IS_KIDS_VERSION", "true")
+            buildConfigField("Boolean", "IS_CAMERA_ENABLED", "false")
+        }
+    }
+
     signingConfigs {
         if (localProperties.containsKey("KEYSTORE_STORE_FILE") || project.hasProperty("KEYSTORE_STORE_FILE") || System.getenv("KEYSTORE_STORE_FILE") != null) {
             create("release") {
