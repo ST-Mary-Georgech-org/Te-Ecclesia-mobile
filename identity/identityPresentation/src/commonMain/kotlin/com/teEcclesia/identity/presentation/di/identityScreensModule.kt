@@ -88,7 +88,8 @@ val identityScreensModule = module {
             profileRepository = get(),
             registerRepository = get(),
             lookupRepository = get(),
-            authorizationService = get()
+            authorizationService = get(),
+            appFlavorConfig = get()
         )
     }
     viewModel { parameters ->

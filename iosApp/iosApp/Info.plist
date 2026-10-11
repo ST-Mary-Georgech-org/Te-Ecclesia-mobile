@@ -21,5 +21,18 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required to scan QR codes.</string>
+	<key>CFBundleDisplayName</key>
+	<string>$(APP_DISPLAY_NAME)</string>
+	<key>IS_KIDS_VERSION</key>
+	<string>$(IS_KIDS_VERSION)</string>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+		<key>UIImageName</key>
+		<string>SplashLogo</string>
+		<key>UIImageRespectsSafeAreaInsets</key>
+		<true/>
+	</dict>
 </dict>
 </plist>

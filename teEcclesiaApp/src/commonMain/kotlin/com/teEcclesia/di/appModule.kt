@@ -19,7 +19,13 @@ import org.koin.dsl.module
 const val APP_VERSION = "appVersion"
 val appModule = module {
     single(named(APP_VERSION)) { AppEnvironment.versionName }
-    single { AppFlavorConfig(isKidsVersion = AppEnvironment.isKidsVersion, isCameraSupported = AppEnvironment.isCameraSupported) }
+    single {
+        AppFlavorConfig(
+            isKidsVersion = AppEnvironment.isKidsVersion,
+            isCameraSupported = AppEnvironment.isCameraSupported,
+            isIdentityDocumentUploadEnabled = false
+        )
+    }
     single { SnackBarManager() }
     single { getDispatcherProvider() }
     viewModelOf(::MainEntryViewModel)

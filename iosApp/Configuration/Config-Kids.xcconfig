@@ -1,0 +1,10 @@
+#include "Config-Common.xcconfig"
+
+APP_FLAVOR = Kids
+APP_DISPLAY_NAME = Te Ecclesia Kids
+PRODUCT_NAME = TeEcclesia Kids
+PRODUCT_BUNDLE_IDENTIFIER = com.teEcclesia.kids
+IS_KIDS_VERSION = true
+
+KOTLIN_FRAMEWORK_BUILD_TYPE[config=Debug-Kids] = debug
+KOTLIN_FRAMEWORK_BUILD_TYPE[config=Release-Kids] = release

@@ -92,7 +92,7 @@ class RegisterViewModel(
     private val authenticationRepository: AuthenticationRepository,
     private val authorizationService: AuthorizationService,
     private val profileRepository: ProfileRepository,
-    private val appFlavorConfig: AppFlavorConfig = AppFlavorConfig()
+    private val appFlavorConfig: AppFlavorConfig
 ) : BaseViewModel<RegisterScreenState>(RegisterScreenState()), RegisterInteractionListener {
 
     private var downloadPdfJob: Job? = null
@@ -180,6 +180,7 @@ class RegisterViewModel(
             copy(
                 isKidsVersion = appFlavorConfig.isKidsVersion,
                 isCameraSupported = appFlavorConfig.isCameraSupported,
+                isIdentityDocumentUploadEnabled = appFlavorConfig.isIdentityDocumentUploadEnabled,
                 selectedRole = if (appFlavorConfig.isKidsVersion) UserRole.MAKHDOOM else selectedRole,
                 isUnder13 = if (appFlavorConfig.isKidsVersion) true else isUnder13
             )
@@ -449,7 +450,7 @@ class RegisterViewModel(
             UiText.StringRes(Res.string.parent_consent_required)
         } else null
 
-        val identityCertificateError = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
+        val identityCertificateError = if (appFlavorConfig.isIdentityDocumentUploadEnabled && s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
             if (isUnder13) {
                 if (s.isParentConsentAgreed) {
                     UiText.StringRes(Res.string.birth_certificate_required)

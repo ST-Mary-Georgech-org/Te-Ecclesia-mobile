@@ -187,34 +187,38 @@ fun RegisterStep1Content(
                         )
                     }
 
-                    AnimatedVisibility(visible = state.isParentConsentAgreed) {
-                        FilePickerCard(
-                            title = stringResource(Res.string.upload_birth_certificate),
-                            fileTitle = stringResource(Res.string.file_birth_certificate),
-                            fileName = state.identityCertificateFileName,
-                            fileBytes = state.identityCertificateBytes,
-                            onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                            onClearClick = {
-                                listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                            },
-                            onFileClick = onFileClickIdentityCertificate,
-                            errorText = state.identityCertificateError?.asString()
-                        )
+                    if (state.isIdentityDocumentUploadEnabled) {
+                        AnimatedVisibility(visible = state.isParentConsentAgreed) {
+                            FilePickerCard(
+                                title = stringResource(Res.string.upload_birth_certificate),
+                                fileTitle = stringResource(Res.string.file_birth_certificate),
+                                fileName = state.identityCertificateFileName,
+                                fileBytes = state.identityCertificateBytes,
+                                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                                onClearClick = {
+                                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                                },
+                                onFileClick = onFileClickIdentityCertificate,
+                                errorText = state.identityCertificateError?.asString()
+                            )
+                        }
                     }
                 }
             } else {
-                FilePickerCard(
-                    title = stringResource(Res.string.upload_national_id_card),
-                    fileTitle = stringResource(Res.string.file_identity_card),
-                    fileName = state.identityCertificateFileName,
-                    fileBytes = state.identityCertificateBytes,
-                    onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                    onClearClick = {
-                        listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                    },
-                    onFileClick = onFileClickIdentityCertificate,
-                    errorText = state.identityCertificateError?.asString()
-                )
+                if (state.isIdentityDocumentUploadEnabled) {
+                    FilePickerCard(
+                        title = stringResource(Res.string.upload_national_id_card),
+                        fileTitle = stringResource(Res.string.file_identity_card),
+                        fileName = state.identityCertificateFileName,
+                        fileBytes = state.identityCertificateBytes,
+                        onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                        onClearClick = {
+                            listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                        },
+                        onFileClick = onFileClickIdentityCertificate,
+                        errorText = state.identityCertificateError?.asString()
+                    )
+                }
             }
 
             CustomTextField(

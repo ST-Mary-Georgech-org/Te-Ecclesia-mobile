@@ -17,6 +17,7 @@ data class RegisterScreenState(
     val isRefreshing: Boolean = false,
     val isKidsVersion: Boolean = false,
     val isCameraSupported: Boolean = true,
+    val isIdentityDocumentUploadEnabled: Boolean = false,
     
     // Step 1: Personal Info
     val imageBytes: SafeByteArray? = null,

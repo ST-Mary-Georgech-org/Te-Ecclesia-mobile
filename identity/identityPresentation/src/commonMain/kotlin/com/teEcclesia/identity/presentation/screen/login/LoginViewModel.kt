@@ -25,6 +25,11 @@ import com.teEcclesia.shared.domain.exception.PhoneNotVerifiedException
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.failed_to_login
 import teecclesia.designsystem.generated.resources.invalid_phone_or_national_id_or_code_or_email
+import teecclesia.designsystem.generated.resources.error_kids_app_age_restriction
+import teecclesia.designsystem.generated.resources.error_full_app_age_restriction
+import com.teEcclesia.shared.domain.config.AppFlavorConfig
+import com.teEcclesia.shared.domain.utils.validation.isValidEgyptianNationalId
+import com.teEcclesia.shared.domain.utils.validation.isUnderAgeFromEgyptianNationalId
 
 import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.shared.domain.push.NotificationPermissionHandler
@@ -35,6 +40,7 @@ class LoginViewModel(
     private val settingsRepository: SettingsRepository,
     appLocalizer: AppLocalizer,
     private val notificationPermissionHandler: NotificationPermissionHandler,
+    private val appFlavorConfig: AppFlavorConfig,
 ) : BaseViewModel<LoginScreenState>(LoginScreenState()), LoginInteractionListener {
 
     init {
@@ -70,14 +76,42 @@ class LoginViewModel(
                 profileRepository.getRegistrationProfile()
             },
             onSuccess = { profile ->
-                when (profile.status) {
-                    UserStatus.PENDING_APPROVAL -> resetTo(PendingApprovalRoute, forceNavigate = true)
-                    UserStatus.APPROVED -> resetTo(ProfileRoute, forceNavigate = true)
-                    UserStatus.PROFILE_INCOMPLETE,
-                    UserStatus.UNVERIFIED -> resetTo(SignUpRoute(), forceNavigate = true)
-                    UserStatus.REJECTED,
-                    UserStatus.BANNED -> {
-                        launch { authenticationRepository.clearAuthTokens() }
+                val isChildUnder13 = if (profile.nationalId.length == 14 && isValidEgyptianNationalId(profile.nationalId)) {
+                    isUnderAgeFromEgyptianNationalId(profile.nationalId, 13)
+                } else {
+                    null
+                }
+
+                val isAgeMismatch = when {
+                    appFlavorConfig.isKidsVersion && isChildUnder13 == false -> true
+                    !appFlavorConfig.isKidsVersion && isChildUnder13 == true -> true
+                    else -> false
+                }
+
+                if (isAgeMismatch) {
+                    launch { authenticationRepository.logout() }
+                    val errorMsg = if (appFlavorConfig.isKidsVersion) {
+                        UiText.StringRes(Res.string.error_kids_app_age_restriction)
+                    } else {
+                        UiText.StringRes(Res.string.error_full_app_age_restriction)
+                    }
+                    updateState {
+                        copy(
+                            usernameError = errorMsg,
+                            password = "",
+                            passwordError = null
+                        )
+                    }
+                } else {
+                    when (profile.status) {
+                        UserStatus.PENDING_APPROVAL -> resetTo(PendingApprovalRoute, forceNavigate = true)
+                        UserStatus.APPROVED -> resetTo(ProfileRoute, forceNavigate = true)
+                        UserStatus.PROFILE_INCOMPLETE,
+                        UserStatus.UNVERIFIED -> resetTo(SignUpRoute(), forceNavigate = true)
+                        UserStatus.REJECTED,
+                        UserStatus.BANNED -> {
+                            launch { authenticationRepository.clearAuthTokens() }
+                        }
                     }
                 }
             },
