@@ -3,7 +3,13 @@ name: iOS
 on:
   pull_request:
     branches: [ main, master, develop ]
+    types: [ opened, synchronize, reopened, labeled ]
   workflow_dispatch:
+    inputs:
+      build_kids:
+        description: 'Build Kids scheme (TeEcclesia-Kids)'
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -11,6 +17,7 @@ permissions:
 jobs:
   detect:
     name: Detect Changes
+    if: github.event_name != 'pull_request' || github.event.action != 'labeled' || github.event.label.name == 'build-kids'
     uses: ./.github/workflows/detect-changed-modules.yml
     secrets: inherit
 
@@ -71,7 +78,15 @@ jobs:
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > androidApp/teEcclesia-keystore.jks
 
       - name: Create GoogleService-Info.plist
-        run: echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
+        run: |
+          mkdir -p iosApp/Firebase/Full iosApp/Firebase/Kids iosApp/iosApp
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/Firebase/Full/GoogleService-Info.plist
+          if [ -n "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_KIDS_BASE64 }}" ]; then
+            echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_KIDS_BASE64 }}" | base64 -d > iosApp/Firebase/Kids/GoogleService-Info.plist
+          else
+            echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/Firebase/Kids/GoogleService-Info.plist
+          fi
+          echo "${{ secrets.GOOGLE_SERVICE_INFO_PLIST_BASE64 }}" | base64 -d > iosApp/iosApp/GoogleService-Info.plist
 
       - name: Build KMP XCFramework
         if: needs.detect.outputs.has_ios_changes != 'true'
@@ -91,8 +106,27 @@ jobs:
           export PATH=$JAVA_HOME/bin:$PATH
           xcodebuild \
             -project iosApp/iosApp.xcodeproj \
-            -scheme "iosApp" \
-            -configuration Debug \
+            -scheme "TeEcclesia" \
+            -configuration Debug-Full \
+            -destination "generic/platform=iOS Simulator" \
+            -derivedDataPath iosApp/DerivedData \
+            build \
+            ARCHS=arm64 \
+            ONLY_ACTIVE_ARCH=YES \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+      - name: Build iOS app (Kids)
+        if: |
+          needs.detect.outputs.has_ios_changes == 'true' &&
+          (contains(github.event.pull_request.labels.*.name, 'build-kids') || inputs.build_kids == true)
+        run: |
+          export JAVA_HOME=$JAVA_HOME
+          export PATH=$JAVA_HOME/bin:$PATH
+          xcodebuild \
+            -project iosApp/iosApp.xcodeproj \
+            -scheme "TeEcclesia-Kids" \
+            -configuration Debug-Kids \
             -destination "generic/platform=iOS Simulator" \
             -derivedDataPath iosApp/DerivedData \
             build \
