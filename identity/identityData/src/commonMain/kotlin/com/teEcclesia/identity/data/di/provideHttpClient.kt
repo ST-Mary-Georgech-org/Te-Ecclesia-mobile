@@ -24,7 +24,8 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.http.encodedPath
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.coroutines.CancellationException
+import com.teEcclesia.shared.domain.exception.UnAuthorizedException
+import com.teEcclesia.shared.domain.exception.UserIsBlockedException
 import kotlinx.serialization.json.Json
 
 internal fun provideHttpClient(
@@ -118,9 +119,9 @@ internal fun provideHttpClient(
                             accessToken = newAccessToken,
                             refreshToken = newRefreshToken.ifBlank { currentRefreshToken },
                         )
-                    } catch (e: CancellationException) {
-                        throw e
-                    } catch (_: Exception) {
+                    } catch (_: UnAuthorizedException) {
+                        null
+                    } catch (_: UserIsBlockedException) {
                         null
                     }
                 }

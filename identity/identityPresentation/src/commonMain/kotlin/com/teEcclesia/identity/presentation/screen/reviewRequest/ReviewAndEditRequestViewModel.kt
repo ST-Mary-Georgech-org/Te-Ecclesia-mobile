@@ -66,6 +66,7 @@ import teecclesia.designsystem.generated.resources.invalid_arabic_name
 import teecclesia.designsystem.generated.resources.invalid_code_format
 import teecclesia.designsystem.generated.resources.invalid_email_format
 import teecclesia.designsystem.generated.resources.invalid_home_phone_format
+import com.teEcclesia.shared.domain.config.AppFlavorConfig
 import kotlinx.coroutines.Job
 import teecclesia.designsystem.generated.resources.invalid_phone_format
 import teecclesia.designsystem.generated.resources.invalid_year_format
@@ -77,7 +78,8 @@ class ReviewAndEditRequestViewModel(
     private val profileRepository: ProfileRepository,
     private val registerRepository: RegisterRepository,
     private val lookupRepository: LookupRepository,
-    private val authorizationService: AuthorizationService
+    private val authorizationService: AuthorizationService,
+    private val appFlavorConfig: AppFlavorConfig
 ) : BaseViewModel<ReviewAndEditRequestUiState>(ReviewAndEditRequestUiState(userId = userId ?: "", isReadOnlyMode = isFromSearch)),
     ReviewAndEditRequestInteractionListener {
 
@@ -253,7 +255,12 @@ class ReviewAndEditRequestViewModel(
     }
 
     init {
-        updateState { it.copy(isUpdateMode = isFromSearch && userId.isNotBlank()) }
+        updateState {
+            it.copy(
+                isUpdateMode = isFromSearch && userId.isNotBlank(),
+                isIdentityDocumentUploadEnabled = appFlavorConfig.isIdentityDocumentUploadEnabled
+            )
+        }
 
         if (!userId.isNullOrBlank()) {
             loadRequestDetails()

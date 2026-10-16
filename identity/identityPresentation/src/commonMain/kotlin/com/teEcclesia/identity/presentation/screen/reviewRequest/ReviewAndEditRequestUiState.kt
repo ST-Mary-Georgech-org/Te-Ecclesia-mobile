@@ -38,6 +38,7 @@ data class ReviewAndEditRequestUiState(
     val isSubmitting: Boolean = false,
     val userProfile: ProfileResponse? = null,
     val isRejectDialogVisible: Boolean = false,
+    val isIdentityDocumentUploadEnabled: Boolean = false,
 
     val code: String = "",
     val imageBytes: SafeByteArray? = null,

@@ -1,0 +1,10 @@
+#include "Config-Common.xcconfig"
+
+APP_FLAVOR = Full
+APP_DISPLAY_NAME = Te Ecclesia
+PRODUCT_NAME = TeEcclesia
+PRODUCT_BUNDLE_IDENTIFIER = com.teEcclesia
+IS_KIDS_VERSION = false
+
+KOTLIN_FRAMEWORK_BUILD_TYPE[config=Debug-Full] = debug
+KOTLIN_FRAMEWORK_BUILD_TYPE[config=Release-Full] = release

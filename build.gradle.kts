@@ -1,4 +1,5 @@
 import groovy.json.JsonOutput
+import io.gitlab.arturbosch.detekt.Detekt
 import org.gradle.api.artifacts.ProjectDependency
 
 plugins {
@@ -16,6 +17,27 @@ plugins {
     alias(libs.plugins.firebase.crashlytics) apply false
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.room) apply false
+    alias(libs.plugins.detekt)
+}
+
+dependencies {
+    detektPlugins("com.teecclesia.buildlogic:detekt-rules")
+}
+
+tasks.withType<Detekt>().configureEach {
+    config.setFrom(files("$rootDir/detekt.yml"))
+    buildUponDefaultConfig = false
+    setSource(files(rootDir))
+    include("**/*.kt")
+    exclude("**/build/**", "**/resources/**", "**/iosApp/**", "**/.gradle/**")
+}
+
+val detektTasks = tasks.withType<Detekt>()
+
+allprojects {
+    tasks.matching { it.name == "check" || it.name.startsWith("assemble") }.configureEach {
+        dependsOn(detektTasks)
+    }
 }
 
 abstract class ExportModuleDepsTask : DefaultTask() {

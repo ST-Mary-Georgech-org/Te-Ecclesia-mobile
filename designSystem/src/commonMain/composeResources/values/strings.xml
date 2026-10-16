@@ -445,4 +445,8 @@
     <string name="end_time_must_be_after_start_time">End time must be after start time</string>
     <string name="repeat_every_must_be_greater_than_zero">Value must be greater than zero</string>
     <string name="failed_to_delete_notification">Failed to delete notification</string>
+
+    <!-- Flavor / Age Restrictions -->
+    <string name="error_kids_app_age_restriction">This app is intended for children under 13 years old. Please download and use the standard Te Ecclesia app.</string>
+    <string name="error_full_app_age_restriction">This app is intended for users 13 years and older. Please download and use the Te Ecclesia Kids app.</string>
 </resources>

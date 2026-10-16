@@ -1,6 +1,5 @@
 package com.teEcclesia.identity.data.di
 
-import com.russhwolf.settings.Settings
 import com.teEcclesia.identity.data.repository.AttendanceRepositoryImpl
 import com.teEcclesia.identity.data.repository.AuthenticationRepositoryImpl
 import com.teEcclesia.identity.data.repository.ProfileRepositoryImpl

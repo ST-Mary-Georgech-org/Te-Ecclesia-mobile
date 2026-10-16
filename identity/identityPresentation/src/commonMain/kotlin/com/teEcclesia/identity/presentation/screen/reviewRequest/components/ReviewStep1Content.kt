@@ -207,17 +207,19 @@ fun ReviewStep1Content(
                 )
             )
 
-            ReviewFilePickerRow(
-                label = stringResource(Res.string.upload_national_id_card),
-                fileTitle = stringResource(Res.string.file_identity_card),
-                fileName = state.identityCertificateFileName,
-                fileBytes = state.identityCertificateBytes,
-                onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
-                onClearClick = {
-                    listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
-                },
-                onFileClick = onFileClickIdentityCertificate
-            )
+            if (state.isIdentityDocumentUploadEnabled) {
+                ReviewFilePickerRow(
+                    label = stringResource(Res.string.upload_national_id_card),
+                    fileTitle = stringResource(Res.string.file_identity_card),
+                    fileName = state.identityCertificateFileName,
+                    fileBytes = state.identityCertificateBytes,
+                    onUploadClick = { listener.onClickUpload(UploadTarget.IDENTITY_CERTIFICATE) },
+                    onClearClick = {
+                        listener.onSelectImageBytes(UploadTarget.IDENTITY_CERTIFICATE, null, null)
+                    },
+                    onFileClick = onFileClickIdentityCertificate
+                )
+            }
 
             CustomTextField(
                 value = state.job,

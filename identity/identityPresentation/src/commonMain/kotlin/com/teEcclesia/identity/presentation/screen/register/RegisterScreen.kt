@@ -102,7 +102,8 @@ fun RegisterScreenContent(
         isVisible = state.isUploadBottomSheetVisible,
         target = state.activeUploadTarget,
         canViewPhoto = state.activeUploadTarget == UploadTarget.PROFILE_PHOTO && (state.imageBytes != null || !state.imageUrl.isNullOrBlank()),
-        showGallery = state.activeUploadTarget != UploadTarget.IDENTITY_CERTIFICATE,
+        showGallery = state.activeUploadTarget != UploadTarget.IDENTITY_CERTIFICATE || state.isKidsVersion || !state.isCameraSupported,
+        showCamera = state.isCameraSupported,
         onDismiss = listener::onDismissUploadBottomSheet,
         onOptionSelected = onFileOptionPicked
     )

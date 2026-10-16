@@ -40,3 +40,5 @@ debug.log
 DerivedData/
 **/DerivedData/
 iosApp/KotlinMultiplatformLinkedPackage/
+.antigravityignore
+/goldie

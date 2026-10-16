@@ -14,4 +14,11 @@ actual object AppEnvironment {
 
     @OptIn(ExperimentalNativeApi::class)
     actual val isDebug: Boolean = Platform.isDebugBinary
+
+    actual val isKidsVersion: Boolean =
+        (NSBundle.mainBundle.objectForInfoDictionaryKey("IS_KIDS_VERSION") as? String)?.toBoolean()
+            ?: ((NSBundle.mainBundle.objectForInfoDictionaryKey("CFBundleIdentifier") as? String)?.contains(".kids") == true)
+
+    actual val isCameraSupported: Boolean =
+        !isKidsVersion && (NSBundle.mainBundle.objectForInfoDictionaryKey("NSCameraUsageDescription") != null)
 }

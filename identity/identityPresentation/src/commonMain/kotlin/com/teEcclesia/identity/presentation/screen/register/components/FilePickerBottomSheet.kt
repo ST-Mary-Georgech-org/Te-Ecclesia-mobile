@@ -46,7 +46,8 @@ fun FilePickerBottomSheet(
     target: UploadTarget?,
     canViewPhoto: Boolean = false,
     canDeletePhoto: Boolean = canViewPhoto,
-    showGallery: Boolean = true
+    showGallery: Boolean = true,
+    showCamera: Boolean = true
 ) {
     BottomSheet(
         isVisible = isVisible,
@@ -105,27 +106,29 @@ fun FilePickerBottomSheet(
                     )
                 }
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickableNoRipple {
-                        onOptionSelected(FilePickOption.CAMERA)
-                        onDismiss()
-                    }
-                    .padding(vertical = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(Res.drawable.ic_camera),
-                    contentDescription = null,
-                    tint = Theme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = stringResource(Res.string.take_photo),
-                    style = Theme.typography.bodyLarge,
-                    color = Theme.colorScheme.onSurface
-                )
+            if (showCamera) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickableNoRipple {
+                            onOptionSelected(FilePickOption.CAMERA)
+                            onDismiss()
+                        }
+                        .padding(vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(Res.drawable.ic_camera),
+                        contentDescription = null,
+                        tint = Theme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.width(16.dp))
+                    Text(
+                        text = stringResource(Res.string.take_photo),
+                        style = Theme.typography.bodyLarge,
+                        color = Theme.colorScheme.onSurface
+                    )
+                }
             }
 
             if (showGallery) {

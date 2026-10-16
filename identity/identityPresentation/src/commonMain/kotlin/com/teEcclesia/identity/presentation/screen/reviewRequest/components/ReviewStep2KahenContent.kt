@@ -28,7 +28,6 @@ import teecclesia.designsystem.generated.resources.family_information
 import teecclesia.designsystem.generated.resources.i_am_also_a_parent
 import teecclesia.designsystem.generated.resources.ic_family
 import teecclesia.designsystem.generated.resources.ic_ordination
-import teecclesia.designsystem.generated.resources.partner
 import teecclesia.designsystem.generated.resources.priest_info
 
 @Composable

@@ -445,4 +445,8 @@
     <string name="end_time_must_be_after_start_time">يجب أن يكون وقت النهاية بعد وقت البداية</string>
     <string name="repeat_every_must_be_greater_than_zero">يجب أن تكون القيمة أكبر من صفر</string>
     <string name="failed_to_delete_notification">فشل حذف الإشعار</string>
+
+    <!-- Flavor / Age Restrictions -->
+    <string name="error_kids_app_age_restriction">هذا التطبيق مخصص للأطفال دون 13 عاماً فقط. يرجى تحميل تطبيق تي إكليسيا الأساسي.</string>
+    <string name="error_full_app_age_restriction">هذا التطبيق مخصص لمن هم في سن 13 عاماً فما فوق. يرجى تحميل تطبيق تي إكليسيا جونيور.</string>
 </resources>

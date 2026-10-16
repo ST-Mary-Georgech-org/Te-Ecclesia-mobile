@@ -4,7 +4,6 @@ import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.shared.domain.utils.getNow
 import com.teEcclesia.shared.domain.utils.parseTimeOrDefault
 import com.teEcclesia.shared.domain.utils.toLocalDateTimeOrDefault
-import kotlinx.datetime.LocalTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

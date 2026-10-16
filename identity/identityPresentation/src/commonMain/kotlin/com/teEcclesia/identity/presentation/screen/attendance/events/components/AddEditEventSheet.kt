@@ -22,6 +22,7 @@ import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.components.textField.CustomTextField
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListInteractionListener
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListUiState
 import com.teEcclesia.shared.domain.utils.parseDate
@@ -189,8 +190,8 @@ private fun AddEditEventSheetPreview() = Theme {
         listener = object : EventsListInteractionListener {
             override fun onClickBack() {}
             override fun onClickAddEvent() {}
-            override fun onClickEditEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
-            override fun onClickDeleteEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
+            override fun onClickEditEvent(event: ServiceEvent) {}
+            override fun onClickDeleteEvent(event: ServiceEvent) {}
             override fun onEventNameChanged(name: String) {}
             override fun onClickDatePicker() {}
             override fun onDismissDatePicker() {}
@@ -204,7 +205,7 @@ private fun AddEditEventSheetPreview() = Theme {
             override fun onConfirmSaveEvent() {}
             override fun onConfirmDeleteEvent() {}
             override fun onDismissSheet() {}
-            override fun onClickEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
+            override fun onClickEvent(event: ServiceEvent) {}
             override fun onRefresh() {}
             override fun onLoadMore() {}
         }

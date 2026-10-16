@@ -81,6 +81,9 @@ import teecclesia.designsystem.generated.resources.invalid_year_format
 import kotlinx.coroutines.Job
 import teecclesia.designsystem.generated.resources.national_id_card_required
 import teecclesia.designsystem.generated.resources.parent_consent_required
+import teecclesia.designsystem.generated.resources.error_kids_app_age_restriction
+import teecclesia.designsystem.generated.resources.error_full_app_age_restriction
+import com.teEcclesia.shared.domain.config.AppFlavorConfig
 
 class RegisterViewModel(
     private val isEditMode: Boolean,
@@ -88,7 +91,8 @@ class RegisterViewModel(
     private val lookupRepository: LookupRepository,
     private val authenticationRepository: AuthenticationRepository,
     private val authorizationService: AuthorizationService,
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val appFlavorConfig: AppFlavorConfig
 ) : BaseViewModel<RegisterScreenState>(RegisterScreenState()), RegisterInteractionListener {
 
     private var downloadPdfJob: Job? = null
@@ -172,6 +176,15 @@ class RegisterViewModel(
     )
 
     init {
+        updateState {
+            copy(
+                isKidsVersion = appFlavorConfig.isKidsVersion,
+                isCameraSupported = appFlavorConfig.isCameraSupported,
+                isIdentityDocumentUploadEnabled = appFlavorConfig.isIdentityDocumentUploadEnabled,
+                selectedRole = if (appFlavorConfig.isKidsVersion) UserRole.MAKHDOOM else selectedRole,
+                isUnder13 = if (appFlavorConfig.isKidsVersion) true else isUnder13
+            )
+        }
         checkAndLoadPendingRegistration()
         onLoadNextPriests()
         onLoadNextRanks()
@@ -353,7 +366,7 @@ class RegisterViewModel(
             val prevStep =
                 if (state.value.currentStep == 5 && state.value.selectedRole == UserRole.KAHEN) {
                     3
-                } else if (state.value.currentStep == 4 && state.value.isUnder13) {
+                } else if (state.value.currentStep == 4 && (appFlavorConfig.isKidsVersion || state.value.isUnder13)) {
                     2
                 } else {
                     state.value.currentStep - 1
@@ -399,8 +412,30 @@ class RegisterViewModel(
             UiText.StringRes(Res.string.field_required)
         } else null
 
-        val nationalIdError = getNationalIdValidationError(s.nationalId)?.toUiText()
+        val nationalIdValidationError = getNationalIdValidationError(s.nationalId)?.toUiText()
         val isMale = isMaleFromEgyptianNationalId(s.nationalId)
+        val isCalculatedUnder13 = if (s.nationalId.length == 14 && nationalIdValidationError == null) {
+            isUnderAgeFromEgyptianNationalId(s.nationalId, 13)
+        } else {
+            null
+        }
+        val isUnder13 = if (appFlavorConfig.isKidsVersion) {
+            isCalculatedUnder13 ?: true
+        } else {
+            isCalculatedUnder13 ?: false
+        }
+        val flavorAgeError = if (s.nationalId.length == 14 && nationalIdValidationError == null) {
+            if (appFlavorConfig.isKidsVersion && isCalculatedUnder13 == false) {
+                UiText.StringRes(Res.string.error_kids_app_age_restriction)
+            } else if (!appFlavorConfig.isKidsVersion && isCalculatedUnder13 == true) {
+                UiText.StringRes(Res.string.error_full_app_age_restriction)
+            } else {
+                null
+            }
+        } else {
+            null
+        }
+        val nationalIdError = nationalIdValidationError ?: flavorAgeError
 
         val confessionPriestErr =
             if (!s.isFromAnotherChurch && s.selectedConfessionPriest == null) UiText.StringRes(Res.string.field_required) else null
@@ -411,12 +446,12 @@ class RegisterViewModel(
         val externalPhoneErr =
             if (s.isFromAnotherChurch && !validatePhone(s.externalPriestPhone)) UiText.StringRes(Res.string.invalid_phone_format) else null
 
-        val parentConsentErr = if (s.isUnder13 && !s.isParentConsentAgreed) {
+        val parentConsentErr = if (isUnder13 && !s.isParentConsentAgreed) {
             UiText.StringRes(Res.string.parent_consent_required)
         } else null
 
-        val identityCertificateError = if (s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
-            if (s.isUnder13) {
+        val identityCertificateError = if (appFlavorConfig.isIdentityDocumentUploadEnabled && s.identityCertificateBytes == null && s.identityCertificateFileName.isNullOrBlank()) {
+            if (isUnder13) {
                 if (s.isParentConsentAgreed) {
                     UiText.StringRes(Res.string.birth_certificate_required)
                 } else null
@@ -510,21 +545,40 @@ class RegisterViewModel(
     override fun onNationalIdChange(value: String) {
         val value = value.trim()
         if (value.isEmpty() || isValidNationalIdInput(value)) {
-            val error = if (value.length == 14) {
+            val validationError = if (value.length == 14) {
                 getNationalIdValidationError(value)?.toUiText()
             } else {
                 null
             }
             val isMale = isMaleFromEgyptianNationalId(value)
-            val isUnder13 = if (value.length == 14 && error == null) {
+            val isCalculatedUnder13 = if (value.length == 14 && validationError == null) {
                 isUnderAgeFromEgyptianNationalId(value, 13)
             } else {
-                false
+                null
             }
+            val isUnder13 = if (appFlavorConfig.isKidsVersion) {
+                isCalculatedUnder13 ?: true
+            } else {
+                isCalculatedUnder13 ?: false
+            }
+            val flavorAgeError = if (value.length == 14 && validationError == null) {
+                if (appFlavorConfig.isKidsVersion && isCalculatedUnder13 == false) {
+                    UiText.StringRes(Res.string.error_kids_app_age_restriction)
+                } else if (!appFlavorConfig.isKidsVersion && isCalculatedUnder13 == true) {
+                    UiText.StringRes(Res.string.error_full_app_age_restriction)
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+            val error = validationError ?: flavorAgeError
+
             updateState {
-                val wasUnder13 = this.isUnder13
-                val newConsentAgreed = if (isUnder13) {
-                    if (wasUnder13) this.isParentConsentAgreed else false
+                val newConsentAgreed = if (appFlavorConfig.isKidsVersion) {
+                    this.isParentConsentAgreed
+                } else if (isUnder13) {
+                    if (this.isUnder13) this.isParentConsentAgreed else false
                 } else {
                     false
                 }
@@ -535,7 +589,7 @@ class RegisterViewModel(
                     isUnder13 = isUnder13,
                     isParentConsentAgreed = newConsentAgreed,
                     parentConsentError = null,
-                    selectedRole = if (isUnder13) UserRole.MAKHDOOM else selectedRole
+                    selectedRole = if (appFlavorConfig.isKidsVersion || isUnder13) UserRole.MAKHDOOM else selectedRole
                 )
             }
         }
@@ -693,7 +747,7 @@ class RegisterViewModel(
                 },
                 onStart = { updateState { copy(isLoading = true, actionButtonState = AppButtonState.Loading) } },
                 onSuccess = {
-                    if (s.isUnder13) {
+                    if (appFlavorConfig.isKidsVersion || s.isUnder13) {
                         updateState { copy(currentStep = 4, selectedRole = UserRole.MAKHDOOM) }
                     } else {
                         updateState { copy(currentStep = 3) }

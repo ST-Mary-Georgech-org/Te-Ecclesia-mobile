@@ -7,7 +7,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
-import com.teEcclesia.designsystem.utils.preview.PreviewThemes
 
 @Composable
 fun Badge(

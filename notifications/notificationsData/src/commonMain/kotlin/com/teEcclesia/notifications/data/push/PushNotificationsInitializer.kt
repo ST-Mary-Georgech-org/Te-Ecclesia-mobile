@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 import org.koin.mp.KoinPlatform
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.push_token_connection_failed
@@ -55,8 +56,9 @@ object PushNotificationsInitializer : PushTokenProvider {
                 coroutineScope.launch(exceptionHandler) {
                     try {
                         authenticationRepository?.updateDeviceToken(token)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
                     }
                 }
             }
@@ -89,8 +91,9 @@ object PushNotificationsInitializer : PushTokenProvider {
                     isSuccess = false,
                     duration = 3000L
                 )
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
             }
         }
         return token

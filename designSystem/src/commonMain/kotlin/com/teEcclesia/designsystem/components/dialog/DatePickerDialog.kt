@@ -7,6 +7,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberDatePickerState
@@ -39,7 +40,7 @@ fun DatePicker(
     if (showDialog) {
         val datePickerState = rememberDatePickerState(
             initialSelectedDateMillis = (selectedDate ?: maxDate)?.toEpochDays()?.let { it * 86400000 },
-            selectableDates = object : androidx.compose.material3.SelectableDates {
+            selectableDates = object : SelectableDates {
                 override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                     val maxDateMillis = maxDate?.toEpochDays()?.let { it * 86400000 }
                     return if (maxDateMillis != null) {

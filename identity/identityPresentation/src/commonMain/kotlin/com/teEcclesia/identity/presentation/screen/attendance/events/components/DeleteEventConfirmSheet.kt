@@ -16,8 +16,11 @@ import com.teEcclesia.designsystem.components.button.AppButtonType
 import com.teEcclesia.designsystem.components.sheet.BottomSheet
 import com.teEcclesia.designsystem.components.text.Text
 import com.teEcclesia.designsystem.theme.theme.Theme
+import com.teEcclesia.identity.domain.model.attendance.ServiceEvent
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListInteractionListener
 import com.teEcclesia.identity.presentation.screen.attendance.events.EventsListUiState
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.compose.resources.stringResource
 import teecclesia.designsystem.generated.resources.Res
 import teecclesia.designsystem.generated.resources.cancel
@@ -88,22 +91,22 @@ private fun DeleteEventConfirmSheetPreview() = Theme {
         listener = object : EventsListInteractionListener {
             override fun onClickBack() {}
             override fun onClickAddEvent() {}
-            override fun onClickEditEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
-            override fun onClickDeleteEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
+            override fun onClickEditEvent(event: ServiceEvent) {}
+            override fun onClickDeleteEvent(event: ServiceEvent) {}
             override fun onEventNameChanged(name: String) {}
             override fun onClickDatePicker() {}
             override fun onDismissDatePicker() {}
-            override fun onDateSelected(date: kotlinx.datetime.LocalDate) {}
+            override fun onDateSelected(date: LocalDate) {}
             override fun onClickStartTimePicker() {}
             override fun onDismissStartTimePicker() {}
-            override fun onStartTimeSelected(time: kotlinx.datetime.LocalTime) {}
+            override fun onStartTimeSelected(time: LocalTime) {}
             override fun onClickEndTimePicker() {}
             override fun onDismissEndTimePicker() {}
-            override fun onEndTimeSelected(time: kotlinx.datetime.LocalTime) {}
+            override fun onEndTimeSelected(time: LocalTime) {}
             override fun onConfirmSaveEvent() {}
             override fun onConfirmDeleteEvent() {}
             override fun onDismissSheet() {}
-            override fun onClickEvent(event: com.teEcclesia.identity.domain.model.attendance.ServiceEvent) {}
+            override fun onClickEvent(event: ServiceEvent) {}
             override fun onRefresh() {}
             override fun onLoadMore() {}
         }

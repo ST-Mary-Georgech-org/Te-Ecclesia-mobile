@@ -16,6 +16,7 @@ import com.teEcclesia.identity.domain.repository.ProfileRepository
 import com.teEcclesia.identity.domain.service.AuthorizationService
 import com.teEcclesia.shared.domain.push.PushTokenProvider
 import kotlinx.coroutines.flow.collectLatest
+import kotlin.coroutines.cancellation.CancellationException
 
 class MainEntryViewModel(
     private val authorizationService: AuthorizationService,
@@ -69,8 +70,9 @@ class MainEntryViewModel(
                     if (!token.isNullOrBlank()) {
                         authenticationRepository.updateDeviceToken(token)
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (_: Exception) {
                 }
             }
         }

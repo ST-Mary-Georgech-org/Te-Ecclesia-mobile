@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import com.teEcclesia.identity.domain.model.CachedProfile
 import com.teEcclesia.identity.data.dataSource.local.setting.cachedProfileJson
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.CachedProfileDto
 import com.teEcclesia.identity.data.dataSource.remote.dto.auth.response.toDomain
@@ -29,8 +30,9 @@ class SettingsRepositoryImpl(
         if (cachedJson.isBlank()) return null
         return try {
             Json.decodeFromString<CachedProfileDto>(cachedJson).toDomain()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        } catch (_: SerializationException) {
+            null
+        } catch (_: IllegalArgumentException) {
             null
         }
     }

@@ -62,10 +62,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import teecclesia.designsystem.generated.resources.Res
-import teecclesia.designsystem.generated.resources.add_payload_field
-import teecclesia.designsystem.generated.resources.all_roles
 import teecclesia.designsystem.generated.resources.custom_payload
-import teecclesia.designsystem.generated.resources.educational_stage
 import teecclesia.designsystem.generated.resources.ic_arrow_back
 import teecclesia.designsystem.generated.resources.ic_chevron_down
 import teecclesia.designsystem.generated.resources.ic_close
@@ -74,10 +71,8 @@ import teecclesia.designsystem.generated.resources.ic_profile_image_placeholder
 import teecclesia.designsystem.generated.resources.ic_search
 import teecclesia.designsystem.generated.resources.ic_success
 import teecclesia.designsystem.generated.resources.notification_body
-import teecclesia.designsystem.generated.resources.notification_body_hint
 import teecclesia.designsystem.generated.resources.notification_sent_successfully
 import teecclesia.designsystem.generated.resources.notification_title
-import teecclesia.designsystem.generated.resources.notification_title_hint
 import teecclesia.designsystem.generated.resources.payload_key
 import teecclesia.designsystem.generated.resources.payload_value
 import teecclesia.designsystem.generated.resources.search_users_hint
